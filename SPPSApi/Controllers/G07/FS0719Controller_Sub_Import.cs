@@ -70,12 +70,11 @@ namespace SPPSApi.Controllers.G07
                 string strMsg = "";
                                         
 
-                string[,] headers = new string[,] {{"GPS品番", "订购数量","纳入预定日","预订纳入便次","费用负担部署","包装厂","仓库代码"},
-                                                {"vcPackGPSNo","iOrderNumber","dNaRuTime",
-                                                 "vcNaRuBianci","vcBuShu","vcPackSpot","vcCangKuCode"},
-                                                {FieldCheck.NumCharLLL,FieldCheck.Num,FieldCheck.Date,"","","",""},
-                                                {"50","0","0","0","0","0","0" },
-                                                {"1","0","0","0","0","0","0" }
+                string[,] headers = new string[,] {{"GPS品番", "订购数量","纳入预定日","包装厂"},
+                                                {"vcPackGPSNo","iOrderNumber","dNaRuTime","vcPackSpot"},
+                                                {"",FieldCheck.Num,FieldCheck.Date,""},
+                                                {"50","0","0","0"},
+                                                {"1","0","0","0" }
                                                };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -139,6 +138,11 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "导入失败:第" + i + "行,不能维护以前纳入时间！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    if (Convert.ToInt32(importDt.Rows[i]["iOrderNumber"].ToString())==0) {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导入失败:第" + i + "行,不能维护订购数量为0！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
 
                 }
                 #endregion
@@ -162,11 +166,21 @@ namespace SPPSApi.Controllers.G07
 
 
 
+                string strErrorPartId = "";
 
-                fs0719_Logic.importSave(importDt, loginInfo.UserId);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "保存成功";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                fs0719_Logic.importSave(importDt, loginInfo.UserId,ref strErrorPartId);
+                if (strErrorPartId == "")
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "保存成功";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                else {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strErrorPartId;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+              
             }
             catch (Exception ex)
             {

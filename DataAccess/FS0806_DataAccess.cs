@@ -21,8 +21,8 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select t1.iAutoId,t1.vcZYType,t1.vcBZPlant,t1.vcInputNo,t1.vcKBOrderNo,t1.vcKBLFNo,t1.vcPart_id,t1.vcIOType, \n");
-                strSql.Append("t1.vcSupplier_id,t1.vcSupplierGQ,t1.dStart,t1.dEnd,cast(t1.iQuantity as int) as iQuantity,t1.vcBZUnit,    \n");
-                strSql.Append("t1.vcSHF,t1.vcSR,t1.vcBoxNo,t1.vcSheBeiNo,t1.vcCheckType,cast(t1.iCheckNum as int) as iCheckNum,    \n");
+                strSql.Append("t1.vcSupplier_id,t1.vcSupplierGQ,t1.dStart,t1.dEnd,cast(isnull(t1.iQuantity,0) as int) as iQuantity,cast(isnull(t1.iQuantity,0) as int) as iQuantity_old,    \n");
+                strSql.Append("t1.vcBZUnit,t1.vcSHF,t1.vcSR,t1.vcBoxNo,t1.vcSheBeiNo,t1.vcCheckType,cast(t1.iCheckNum as int) as iCheckNum,    \n");
                 strSql.Append("t1.vcCheckStatus,t1.vcLabelStart,t1.vcLabelEnd,t1.vcUnlocker,t1.dUnlockTime,t1.vcSellNo,    \n");
                 strSql.Append("t1.vcOperatorID,t1.dOperatorTime,t1.vcHostIp,    \n");
                 strSql.Append("t3.vcName as vcBZPlantName,t2.vcName as vcZYTypeName, t4.vcUserName,'0' as vcModFlag,'0' as vcAddFlag,   \n");

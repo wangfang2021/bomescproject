@@ -30,11 +30,17 @@ namespace BatchProcess
                 if (strTableName == "tCheckMethod_Master")
                     UpdateDB_tCheckMethod_Master(strUserId);//更新检查表
                 if (strTableName == "TPackageMaster")
+                {
                     UpdateDB_TPackageMaster(strUserId);//更新现场包装基础数据表
-                if(strTableName=="")
+                    FP0012 fp = new FP0012();//更新品番对应小品目
+                    fp.main(strUserId);
+                }
+                if (strTableName=="")
                 {
                     UpdateDB_tCheckMethod_Master(strUserId);
                     UpdateDB_TPackageMaster(strUserId);
+                    FP0012 fp = new FP0012();//更新品番对应小品目
+                    fp.main(strUserId);
                 }
                 //批处理结束
                 ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);

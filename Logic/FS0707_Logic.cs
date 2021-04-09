@@ -100,6 +100,9 @@ namespace Logic
             return FS0707_DataAccess.Search();
         }
 
-
+        public void Updateprint()
+        {
+            FS0707_DataAccess.Updateprint();
+        }
     }
 }

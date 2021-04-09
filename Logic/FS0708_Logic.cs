@@ -24,7 +24,7 @@ namespace Logic
         }
 
         #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
-        public DataTable Search(List<object> PackSpot, string PackNo, string PackGPSNo,string OrderFrom, string OrderTo, string Type,List<Object> OrderState,string IsQianPin, List<object> SupplierName, string ZuCode, string dFaZhuFrom, string dFaZhuTo, string dNaQiFrom,string dNaQiTo,string dNaRuFrom, string dNaRuTo)
+        public DataTable Search(List<object> PackSpot, string PackNo, string PackGPSNo,string OrderFrom, string OrderTo, List<object> Type,List<Object> OrderState,string IsQianPin, List<object> SupplierName, string ZuCode, string dFaZhuFrom, string dFaZhuTo, string dNaQiFrom,string dNaQiTo,string dNaRuFrom, string dNaRuTo)
         {
             return FS0708_DataAccess.Search(PackSpot, PackNo, PackGPSNo, OrderFrom, OrderTo, Type, OrderState, IsQianPin, SupplierName, ZuCode, dFaZhuFrom, dFaZhuTo, dNaQiFrom, dNaQiTo, dNaRuFrom, dNaRuTo);
         }

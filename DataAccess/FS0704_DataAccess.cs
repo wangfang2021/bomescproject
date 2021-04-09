@@ -59,7 +59,11 @@ namespace DataAccess
 
                 }
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select *,'0' as vcModFlag,'0' as vcAddFlag ");
+                strSql.AppendLine("      select '0' as vcModFlag,'0' as vcAddFlag, ");
+                strSql.AppendLine("   vcFaZhuID,vcRuHeFromDay,dRuHeFromTime,vcRuHeToDay,druHeToTime,   ");
+                strSql.AppendLine("   vcFaZhuFromDay,dFaZhuFromTime,vcFaZhuToDay,dFaZhuToTime,   ");
+                strSql.AppendLine("   vcNaQiFromDay,dNaQiFromTime,vcNaQiToDay,dNaQiToTime,vcBianCi,   ");
+                strSql.AppendLine("   vcPackSpot,CONVERT(varchar(100),dFrom,21) as dFrom,CONVERT(varchar(100),dTo,21) as dTo   ");
                 strSql.AppendLine("      FROM");
                 strSql.AppendLine("      	TPackFaZhuTime");
                 strSql.AppendLine("      WHERE");
@@ -98,7 +102,7 @@ namespace DataAccess
                     {//新增
                         sql.AppendLine("     INSERT INTO TPackFaZhuTime( ");
                         sql.AppendLine("      vcFaZhuID,");
-                        sql.AppendLine("      vcFaZhu,");
+                        //sql.AppendLine("      vcFaZhu,");
                         sql.AppendLine("      vcRuHeFromDay,");
                         sql.AppendLine("      dRuHeFromTime,");
                         sql.AppendLine("      vcRuHeToDay,");
@@ -121,7 +125,7 @@ namespace DataAccess
                         sql.AppendLine("     VALUES");
                         sql.AppendLine("     	(");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcFaZhuID"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcFaZhu"], false) + ",");
+                        //sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcFaZhu"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcRuHeFromDay"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dRuHeFromTime"], true) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcRuHeToDay"], false) + ",");

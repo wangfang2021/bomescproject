@@ -120,8 +120,8 @@ namespace SPPSApi.Controllers.G06
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
                     string partNo = importDt.Rows[i]["vcPartNo"].ToString();
-                    int BeginDate = int.Parse(importDt.Rows[i]["dBeginDate"].ToString().Replace("-", "").Replace("/", ""));
-                    int EndDate = int.Parse(importDt.Rows[i]["dEndDate"].ToString().Replace("-", "").Replace("/", ""));
+                    int BeginDate = int.Parse(Convert.ToDateTime(importDt.Rows[i]["dBeginDate"].ToString()).ToString("yyyy/MM/dd").Replace("-", "").Replace("/", ""));
+                    int EndDate = int.Parse(Convert.ToDateTime(importDt.Rows[i]["dEndDate"].ToString()).ToString("yyyy/MM/dd").Replace("-", "").Replace("/", ""));
                     if (BeginDate.ToString().Substring(0,6)!= EndDate.ToString().Substring(0, 6))
                     {
                         sbr1.Append("品番:" + partNo + "的开始日期结束日期必须同一个月<br/>");

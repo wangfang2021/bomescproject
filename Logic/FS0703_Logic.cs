@@ -98,6 +98,11 @@ namespace Logic
         {
             FS0703_DataAccess.Save(listInfoData, userId, ref strErrorPartId,PackFrom,SupplierCodeList, PackSpot);
         }
+
+        public void Updateprint()
+        {
+            FS0703_DataAccess.Updateprint();
+        }
         #endregion
     }
 }

@@ -890,7 +890,7 @@ namespace DataAccess
                 strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
                 strSql.AppendLine("      ,dOperatorTime=getDate() ");
                 strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
-                strSql.AppendLine(" from TSoq a  \n ");
+                strSql.AppendLine(" from (select * from TSoq where vcYearMonth='"+strYearMonth+"') a  \n ");
                 strSql.AppendLine(" inner join  \n ");
                 strSql.AppendLine(" (  \n ");
                 strSql.AppendLine("    select vcPart_id from #TSoq_temp_cr  \n ");
@@ -1000,7 +1000,7 @@ namespace DataAccess
                 strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
                 strSql.AppendLine("      ,iTzhSOQN=null,iTzhSOQN1=null,iTzhSOQN2=null,iHySOQN=null,iHySOQN1=null,iHySOQN2=null      \n");
                 strSql.AppendLine("      ,dExpectTime=null,dOpenTime=null,vcOpenUser=null,dSReplyTime=null,vcSReplyUser=null,dReplyTime=null       \n");
-                strSql.AppendLine(" from TSoq a  \n ");
+                strSql.AppendLine(" from (select * from TSoq where vcYearMonth='"+strYearMonth+"') a  \n ");
                 strSql.AppendLine(" inner join  \n ");
                 strSql.AppendLine(" (  \n ");
                 strSql.AppendLine("    select vcPart_id from #TSoq_temp_back  \n ");

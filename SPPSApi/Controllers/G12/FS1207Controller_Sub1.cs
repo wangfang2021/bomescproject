@@ -69,6 +69,57 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
+        #region 全部履历
+        [HttpPost]
+        [EnableCors("any")]
+        public string searchAll([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken)) return error_login();
+            LoginInfo loginInfo = getLoginByToken(strToken);
+
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcMon = dataForm.vcMon == null ? "" : dataForm.vcMon;
+            string vcPartsNo = dataForm.vcPartsNo == null ? "" : dataForm.vcPartsNo;
+            if (!string.IsNullOrEmpty(vcPartsNo))
+            {
+                vcPartsNo = vcPartsNo.Replace("-", "").ToString();
+            }
+            try
+            {
+                DataTable dtNoExict = logic.NoExict(vcMon);
+                if (dtNoExict.Rows.Count > 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "品番" + dtNoExict.Rows[0]["vcPartsNo"] + "未在基础数据中维护";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable dt = logic.searchAll(vcMon, vcPartsNo);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    DtConverter dtConverter = new DtConverter();
+                    dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                    dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                    List<object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = dataList;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 未发注检索
         [HttpPost]
         [EnableCors("any")]
@@ -104,7 +155,7 @@ namespace SPPSApi.Controllers.G12
                     DtConverter dtConverter = new DtConverter();
                     dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                     dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                    List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                    List<object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = dataList;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -151,7 +202,7 @@ namespace SPPSApi.Controllers.G12
                     DtConverter dtConverter = new DtConverter();
                     dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                     dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                    List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                    List<object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = dataList;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -240,7 +291,7 @@ namespace SPPSApi.Controllers.G12
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                List<Dictionary<string, object>> listInfoData = listInfo.ToObject<List<Dictionary<string, object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -264,7 +315,7 @@ namespace SPPSApi.Controllers.G12
                                                 {"1","1","1","1","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1207_Sub1");
+                    List<object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1207_Sub1");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

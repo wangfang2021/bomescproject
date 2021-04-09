@@ -366,7 +366,7 @@ namespace DataAccess
 
 
         #region 生成订单，插入订单表
-        public string InsertOrder(DataTable dt, string vcUserId, string vcPackPlant)
+        public string InsertOrder(DataTable dt, string vcUserId, string vcPackPlant, string vcPlant)
         {
             using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
             {
@@ -376,7 +376,7 @@ namespace DataAccess
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if (exsitOrders(dt.Rows[i]["vcMonth"].ToString(), dt.Rows[i]["vcOrderNo"].ToString()))
+                    if (exsitOrders(dt.Rows[i]["vcMonth"].ToString(), dt.Rows[i]["vcOrderNo"].ToString(), vcPlant))
                     {
                         return "订单已存在，不能重复生成！";
                     }
@@ -419,10 +419,14 @@ namespace DataAccess
             }
         }
 
-        private bool exsitOrders(string vcMonth, string vcOrderNo)
+        private bool exsitOrders(string vcMonth, string vcOrderNo, string vcPlant)
         {
-            string sql = "select count(1) from SP_M_ORD where vcTargetYearMonth='" + vcMonth + "' and vcOrderNo='" + vcOrderNo + "' and vcOrderType='W'";
-            int i = excute.ExecuteScalar(sql);
+            StringBuilder sb = new StringBuilder();
+            sb.Append("select count(1) from SP_M_ORD a ");
+            sb.Append("left join tpartinfomaster b ");
+            sb.Append("on a.vcpartno=b.vcpartsno and a.vcDock=b.vcDock and a.vccpdcompany=b.vccpdcompany ");
+            sb.Append("where vcTargetYearMonth='" + vcMonth + "' and vcOrderNo='" + vcOrderNo + "' and vcOrderType='W' and b.vcPartPlant='" + vcPlant + "' ");
+            int i = excute.ExecuteScalar(sb.ToString());
             return i > 0;
         }
         #endregion

@@ -75,20 +75,20 @@ namespace DataAccess
                             "where iAutoId=" + iAutoId + "   \n");
                     }
                     //更新TPackageMaster中的小品目
-                    sql.Append("update t1 set t1.vcSmallPM='"+strSmallPM+"'     \n");
-                    sql.Append("from (     \n");
-                    sql.Append("	select * from TPackageMaster      \n");
-                    sql.Append("	where vcSR='"+ strSR + "'       \n");
-                    if (strSupplier_id != "")
-                        sql.Append("   and vcSupplierId='"+strSupplier_id+"'   \n");
-                    if (strPartsNoBefore5 != "")
-                        sql.Append("  and LEFT(vcPart_id,5)='"+strPartsNoBefore5+"'  \n");
-                    sql.Append(")t1      \n");
-                    sql.Append("left join (     \n");
-                    sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem where getdate() between dFrom and dTo     \n");
-                    sql.Append(") t2 on t1.vcPart_id=t2.vcPartsNo     \n");
-                    if(strBCPartsNo!="")
-                        sql.Append("where  t2.vcPackNo='"+strBCPartsNo+"'      \n");
+                    //sql.Append("update t1 set t1.vcSmallPM='"+strSmallPM+"'     \n");
+                    //sql.Append("from (     \n");
+                    //sql.Append("	select * from TPackageMaster      \n");
+                    //sql.Append("	where vcSR='"+ strSR + "'       \n");
+                    //if (strSupplier_id != "")
+                    //    sql.Append("   and vcSupplierId='"+strSupplier_id+"'   \n");
+                    //if (strPartsNoBefore5 != "")
+                    //    sql.Append("  and LEFT(vcPart_id,5)='"+strPartsNoBefore5+"'  \n");
+                    //sql.Append(")t1      \n");
+                    //sql.Append("left join (     \n");
+                    //sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem where getdate() between dFrom and dTo     \n");
+                    //sql.Append(") t2 on t1.vcPart_id=t2.vcPartsNo     \n");
+                    //if(strBCPartsNo!="")
+                    //    sql.Append("where  t2.vcPackNo='"+strBCPartsNo+"'      \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -509,61 +509,6 @@ namespace DataAccess
                 sql.Append("where t2.iAutoId is not null and isnull(t1.vcSmallPM,'') != isnull(t2.vcSmallPM,'')  \n");
                 sql.Append("and t1.vcOperatorID='" + strUserId + "'  \n");
 
-                #region 更新TPackageMaster中的小品目
-                sql.AppendLine("update TPackageMaster set vcSmallPM='无' where ISNULL(vcSR,'')=''");
-                sql.AppendLine("");
-                sql.AppendLine("update t1 set t1.vcSmallPM=t2.vcSmallPM");
-                sql.AppendLine("from (");
-                sql.AppendLine("	select * from TPackageMaster ");
-                sql.AppendLine(")t1");
-                sql.AppendLine("inner join TPMSmall t2 on t1.vcSR=t2.vcSR and t1.vcSupplierId=t2.vcSupplier_id ");
-                sql.AppendLine("and LEFT(t1.vcPart_id,5)=t2.vcPartsNoBefore5");
-
-                sql.AppendLine("update t1 set t1.vcSmallPM=t2.vcSmallPM ");
-                sql.AppendLine("from (");
-                sql.AppendLine("	select * from TPackageMaster where isnull(vcSmallPM,'')=''");
-                sql.AppendLine(")t1");
-                sql.AppendLine("inner join (select * from TPMSmall where ISNULL(vcSupplier_id,'')='') t2 ");
-                sql.AppendLine("on t1.vcSR=t2.vcSR and LEFT(t1.vcPart_id,5)=t2.vcPartsNoBefore5");
-
-                sql.AppendLine("update t1 set t1.vcSmallPM=t3.vcSmallPM ");
-                sql.AppendLine("from (");
-                sql.AppendLine("	select * from TPackageMaster where isnull(vcSmallPM,'')='' ");
-                sql.AppendLine(")t1");
-                sql.AppendLine("inner join (select * from TPackItem where getdate() between dFrom and dTo)t2");
-                sql.AppendLine("on t1.vcPart_id=t2.vcPartsNo");
-                sql.AppendLine("inner join (select * from TPMSmall where ISNULL(vcPartsNoBefore5,'')='')t3");
-                sql.AppendLine("on t1.vcSR=t3.vcSR and t1.vcSupplierId=t3.vcSupplier_id and t2.vcPackNo=t3.vcBCPartsNo");
-
-                sql.AppendLine("update t1 set t1.vcSmallPM=t3.vcSmallPM ");
-                sql.AppendLine("from (");
-                sql.AppendLine("	select * from TPackageMaster where isnull(vcSmallPM,'')='' ");
-                sql.AppendLine(")t1");
-                sql.AppendLine("inner join (select * from TPackItem where getdate() between dFrom and dTo)t2");
-                sql.AppendLine("on t1.vcPart_id=t2.vcPartsNo");
-                sql.AppendLine("inner join (select * from TPMSmall where ISNULL(vcSupplier_id,'')='' and ISNULL(vcPartsNoBefore5,'')='')t3");
-                sql.AppendLine("on t1.vcSR=t3.vcSR and t2.vcPackNo=t3.vcBCPartsNo");
-
-                sql.AppendLine("update t1 set t1.vcSmallPM=t2.vcSmallPM ");
-                sql.AppendLine("from (");
-                sql.AppendLine("	select * from TPackageMaster where isnull(vcSmallPM,'')='' ");
-                sql.AppendLine(")t1");
-                sql.AppendLine("inner join (");
-                sql.AppendLine("	select * from TPMSmall where ISNULL(vcPartsNoBefore5,'')='' and ISNULL(vcBCPartsNo,'')=''");
-                sql.AppendLine(")t2");
-                sql.AppendLine("on t1.vcSR=t2.vcSR and t1.vcSupplierId=t2.vcSupplier_id");
-
-                sql.AppendLine("update t1 set t1.vcSmallPM=t2.vcSmallPM ");
-                sql.AppendLine("from (");
-                sql.AppendLine("	select * from TPackageMaster where isnull(vcSmallPM,'')='' ");
-                sql.AppendLine(")t1");
-                sql.AppendLine("inner join (");
-                sql.AppendLine("	select * from TPMSmall where ISNULL(vcSupplier_id,'')='' and ISNULL(vcPartsNoBefore5,'')='' ");
-                sql.AppendLine("	and ISNULL(vcBCPartsNo,'')=''");
-                sql.AppendLine(")t2");
-                sql.AppendLine("on t1.vcSR=t2.vcSR ");
-                #endregion
-
                 #region not use
                 //sql.Append("update t1 set t1.vcSmallPM=    \n");
                 //sql.Append("isnull(t3.vcSmallPM,isnull(t4.vcSmallPM,isnull(t5.vcSmallPM,isnull(t6.vcSmallPM,    \n");
@@ -648,16 +593,6 @@ namespace DataAccess
                 throw ex;
             }
         }
-        #endregion
-
-        #region 更新TPackageMaster中的小品目
-        public StringBuilder updateSmallPM(string strPart_id)
-        {
-            StringBuilder sql = new StringBuilder();
-            
-            return sql;
-        }
-
         #endregion
     }
 }

@@ -278,6 +278,21 @@ namespace DataAccess
             }
         }
 
+        public void Updateprint()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.AppendLine("      update TPackWeekInfo set vcIsorNoPrint='1'     ");
+
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         #endregion
 
@@ -1990,7 +2005,7 @@ namespace DataAccess
                 strSql.Append("  sum(vcD27bT) as vcD27bT,sum(vcD28bT) as vcD28bT,            \n");
                 strSql.Append("  sum(vcD29bT) as vcD29bT,sum(vcD30bT) as vcD30bT,sum(vcD31bT) as vcD31bT            \n");
                 strSql.Append("              \n");
-                strSql.Append("   from TPackWeekInfo            \n");
+                strSql.Append("   from TPackWeekInfo         \n");
                 strSql.Append("   group by vcPackNo,vcPackGPSNo,vcSupplierName, vcSupplierCode,           \n");
 
                 strSql.Append("   vcD1yFShow,vcD2yFShow,vcD3yFShow,vcD4yFShow,vcD5yFShow,vcD6yFShow                  \n");

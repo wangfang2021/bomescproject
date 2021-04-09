@@ -27,7 +27,7 @@ namespace DataAccess
                 {
                     if (strSql.Length > 0)
                     {
-                        strSql.AppendLine("  union all select iAutoId, vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and  vcWorkArea='"+ dtadd.Rows[i]["vcWorkArea"] + "' ");
+                        strSql.AppendLine("  union all select iAutoId, vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and  vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "' ");
                     }
                     else
                     {
@@ -100,7 +100,7 @@ namespace DataAccess
                 strSql.AppendLine("   select b.vcName as [vcInjectionFactory], [vcSupplier_id], [vcYear], [1月], [2月], [3月], [4月], [5月], [6月], [7月], [8月], [9月], [10月], [11月], [12月] from [dbo].[VI_MonthSellDataManager] a left join (select vcValue,vcName from TCode where vcCodeId='C000') b on a.vcInjectionFactory = b.vcValue  where 1=1  ");
                 if (vcTargetYear.Length > 0)
                 {
-                    strSql.AppendLine("  and vcYear='"+ vcTargetYear + "'    ");
+                    strSql.AppendLine("  and vcYear='" + vcTargetYear + "'    ");
                 }
                 if (vcInjectionFactory.Length > 0)
                 {
@@ -129,13 +129,13 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and vcSupplier_id='" + vcProject + "'    ");
                 }
-                strSql.AppendLine("  ) A  ");
+                strSql.AppendLine("  ) A  order by A.vcInjectionFactory asc");
                 strSql.AppendLine("  ;  ");
 
                 strSql.AppendLine("   select A.*,  ");
                 strSql.AppendLine("   ([1月]+[2月]+[3月]+[4月]+[5月]+[6月]+[7月]+[8月]+[9月]+[10月]+[11月]+[12月]) as '合计'  ");
                 strSql.AppendLine("   from (  ");
-                strSql.AppendLine("   select b.vcName as [vcInjectionFactory], [vcSupplier_id], [vcYear],Convert(decimal(18,2), [1月]) as [1月], Convert(decimal(18,2),[2月]) as [2月], Convert(decimal(18,2),[3月]) as [3月], Convert(decimal(18,2),[4月]) as [4月], Convert(decimal(18,2),[5月]) as [5月], Convert(decimal(18,2),[6月]) as [6月], Convert(decimal(18,2),[7月]) as [7月], Convert(decimal(18,2),[8月]) as [8月], Convert(decimal(18,2),[9月]) as [9月], Convert(decimal(18,2),[10月]) as [10月], Convert(decimal(18,2),[11月]) as [11月], Convert(decimal(18,2),[12月]) as [12月] from [dbo].[VI_MonthSellMoneyManager] a left join (select vcValue,vcName from TCode where vcCodeId='C000') b on a.vcInjectionFactory = b.vcValue  where 1=1  ");
+                strSql.AppendLine("   select b.vcName as [vcInjectionFactory], [vcSupplier_id], [vcYear],Convert(decimal(18,5), [1月]) as [1月], Convert(decimal(18,5),[2月]) as [2月], Convert(decimal(18,5),[3月]) as [3月], Convert(decimal(18,5),[4月]) as [4月], Convert(decimal(18,5),[5月]) as [5月], Convert(decimal(18,5),[6月]) as [6月], Convert(decimal(18,5),[7月]) as [7月], Convert(decimal(18,5),[8月]) as [8月], Convert(decimal(18,5),[9月]) as [9月], Convert(decimal(18,5),[10月]) as [10月], Convert(decimal(18,5),[11月]) as [11月], Convert(decimal(18,5),[12月]) as [12月] from [dbo].[VI_MonthSellMoneyManager] a left join (select vcValue,vcName from TCode where vcCodeId='C000') b on a.vcInjectionFactory = b.vcValue  where 1=1  ");
                 if (vcTargetYear.Length > 0)
                 {
                     strSql.AppendLine("  and vcYear='" + vcTargetYear + "'    ");
@@ -150,10 +150,10 @@ namespace DataAccess
                 }
                 strSql.AppendLine("   union all   ");
                 strSql.AppendLine("  select '合计' as vcInjectionFactory,'' as vcSupplier_id,'' as vcYear,  ");
-                strSql.AppendLine("  Convert(decimal(18,2),sum([1月])) as [1月],  Convert(decimal(18,2),sum([2月])) as [2月],   Convert(decimal(18,2),sum([3月])) as [3月],  ");
-                strSql.AppendLine("  Convert(decimal(18,2),sum([4月])) as [4月],  Convert(decimal(18,2),sum([5月])) as [5月],   Convert(decimal(18,2),sum([6月])) as [6月],  ");
-                strSql.AppendLine("  Convert(decimal(18,2),sum([7月])) as [7月],  Convert(decimal(18,2),sum([8月])) as [8月],   Convert(decimal(18,2),sum([9月])) as [9月],  ");
-                strSql.AppendLine("  Convert(decimal(18,2),sum([10月])) as [10月],Convert(decimal(18,2),sum([11月])) as [11月], Convert(decimal(18,2),sum([12月])) as [12月]  ");
+                strSql.AppendLine("  Convert(decimal(18,5),sum([1月])) as [1月],  Convert(decimal(18,5),sum([2月])) as [2月],   Convert(decimal(18,5),sum([3月])) as [3月],  ");
+                strSql.AppendLine("  Convert(decimal(18,5),sum([4月])) as [4月],  Convert(decimal(18,5),sum([5月])) as [5月],   Convert(decimal(18,5),sum([6月])) as [6月],  ");
+                strSql.AppendLine("  Convert(decimal(18,5),sum([7月])) as [7月],  Convert(decimal(18,5),sum([8月])) as [8月],   Convert(decimal(18,5),sum([9月])) as [9月],  ");
+                strSql.AppendLine("  Convert(decimal(18,5),sum([10月])) as [10月],Convert(decimal(18,5),sum([11月])) as [11月], Convert(decimal(18,5),sum([12月])) as [12月]  ");
                 strSql.AppendLine("  from [dbo].[VI_MonthSellMoneyManager] a    where 1=1  ");
                 if (vcTargetYear.Length > 0)
                 {
@@ -167,7 +167,7 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and vcSupplier_id='" + vcProject + "'    ");
                 }
-                strSql.AppendLine("  ) A  ");
+                strSql.AppendLine("  ) A  order by A.vcInjectionFactory asc  ");
                 strSql.AppendLine("  ;  ");
                 return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
             }
@@ -263,11 +263,12 @@ namespace DataAccess
         /// 一括赋予
         /// </summary>
         /// <returns></returns>
-        public void allInstall(DateTime dBeginDate,DateTime dEndDate,string userId) {
+        public void allInstall(DateTime dBeginDate, DateTime dEndDate, string userId)
+        {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                
+
                 sql.Append("update TSpecialSupplier set dBeginDate='" + dBeginDate + "', dEndDate='" + dEndDate + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  \n");
 
                 if (sql.Length > 0)

@@ -279,7 +279,7 @@ namespace Logic
             {
                 switch (strBanZhi)
                 {
-                    case "无稼动":
+                    case "非稼动":
                         checkList.Add(getBZTime(strPackPlant, "夜", dtLast.ToString("yyyy-MM-dd")));
                         ; break;
                     case "白":
@@ -297,11 +297,11 @@ namespace Logic
                         ; break;
                 }
             }
-            else if (strBanZhiLast == "白" || strBanZhiLast == "无稼动")
+            else if (strBanZhiLast == "白" || strBanZhiLast == "非稼动")
             {
                 switch (strBanZhi)
                 {
-                    case "无稼动":
+                    case "非稼动":
                         ; break;
                     case "白":
                         checkList.Add(getBZTime(strPackPlant, "白", dT.ToString("yyyy-MM-dd")));

@@ -36,9 +36,13 @@ namespace Logic
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
     
-            DataTable dtbase = FS0719_DataAccess.SearchBase(listInfoData[0]["vcPackSpot"].ToString());
+            DataTable dtbase = FS0719_DataAccess.SearchBase();
 
-            FS0719_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId, dtbase);
+            DataTable dtFaZhuTime = FS0719_DataAccess.SearchFaZhuTime();
+
+            DataTable dtCode = FS0719_DataAccess.SearchCode(strUserId);
+
+            FS0719_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId, dtbase, dtFaZhuTime, dtCode);
         }
         #endregion
 
@@ -50,11 +54,13 @@ namespace Logic
 
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId)
+        public void importSave(DataTable dt, string strUserId,ref string strErrorPartId)
         {
             DataTable dtOrderNO = FS0719_DataAccess.Search();
-            DataTable dtbase = FS0719_DataAccess.SearchBase(dt.Rows[0]["vcPackSpot"].ToString());
-            FS0719_DataAccess.importSave(dt, strUserId,dtbase, dtOrderNO);
+            DataTable dtbase = FS0719_DataAccess.SearchBase();
+            DataTable dtFaZhuTime = FS0719_DataAccess.SearchFaZhuTime();
+            DataTable dtCode = FS0719_DataAccess.SearchCode(strUserId);
+            FS0719_DataAccess.importSave(dt, strUserId,dtbase, dtOrderNO, ref strErrorPartId,dtFaZhuTime, dtCode);
         }
         #endregion
 

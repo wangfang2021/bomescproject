@@ -46,8 +46,7 @@ namespace DataAccess
                 strSql.Append(" when iTzhSOQN is null or iTzhSOQN1 is null or iTzhSOQN2 is null then 'partFS0402A' --无调整      \n");
                 strSql.Append(" when iTzhSOQN=iCbSOQN and iTzhSOQN1=iCbSOQN1 and iTzhSOQN2=iCbSOQN2 then 'partFS0402A' --无调整      \n");
                 strSql.Append(" else 'partFS0402B' --有调整      \n");
-                strSql.Append(" end as vcBgColor,                \n");
-                strSql.Append("case when RIGHT(vcPart_id,2)='00' then LEFT(vcPart_id,10) else vcPart_id end as vcPart_id_export \n");
+                strSql.Append(" end as vcBgColor                \n");
                 strSql.Append("  FROM TSoq a  \n");
                 strSql.Append("  left join      \n");
                 strSql.Append("  (      \n");
@@ -891,7 +890,7 @@ namespace DataAccess
                 strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
                 strSql.AppendLine("      ,dOperatorTime=getDate() ");
                 strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
-                strSql.AppendLine(" from TSoq a  \n ");
+                strSql.AppendLine(" from (select * from TSoq where vcYearMonth='"+strYearMonth+"') a  \n ");
                 strSql.AppendLine(" inner join  \n ");
                 strSql.AppendLine(" (  \n ");
                 strSql.AppendLine("    select vcPart_id from #TSoq_temp_cr  \n ");
@@ -1001,7 +1000,7 @@ namespace DataAccess
                 strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
                 strSql.AppendLine("      ,iTzhSOQN=null,iTzhSOQN1=null,iTzhSOQN2=null,iHySOQN=null,iHySOQN1=null,iHySOQN2=null      \n");
                 strSql.AppendLine("      ,dExpectTime=null,dOpenTime=null,vcOpenUser=null,dSReplyTime=null,vcSReplyUser=null,dReplyTime=null       \n");
-                strSql.AppendLine(" from TSoq a  \n ");
+                strSql.AppendLine(" from (select * from TSoq where vcYearMonth='"+strYearMonth+"') a  \n ");
                 strSql.AppendLine(" inner join  \n ");
                 strSql.AppendLine(" (  \n ");
                 strSql.AppendLine("    select vcPart_id from #TSoq_temp_back  \n ");

@@ -76,15 +76,15 @@ namespace SPPSApi.Controllers.G01
                 //                                {"20","20","10","4","12","0","0","20","20","20","50", "20", "20", "20", "20","500"},//最大长度设定,不校验最大长度用0
                 //                                {"1","1","1","1","1","0","0","0","0","0","0", "0", "0", "0", "0","0"}};//最小长度设定,可以为空用0
                 string[] fields = {"vcType","iAutoId",
-                    "vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5"
+                    "vcValue1", "vcValue2", "vcValue5", "vcValue3", "vcValue4"
                 };
                 //head = new string[] { "状态", "展开时间", "要望纳期", "同步时间", "包装工场", "收货方", "品番", "品名", "车型", "使用开始时间", "OE=SP", "供应商代码", "工区", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "回复时间", "承认时间", "原单位织入时间", "备注" };
                 //field = new string[] { "vcState", "dSendDate", "dExpectDeliveryDate", "dSynchronizationDate", "vcPackingPlant", "vcReceiver", "vcPartNo", "vcPartName", "vcCarType", "dUseStartDate", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
 
 
-                string[,] headers = new string[,] {{"操作类型","iAutoId", "供应商编码", "工区", "开始时间", "结束时间", "发注工场" },
-                                                { "vcType","iAutoId",  "vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5"},
-                                                {"","",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,""},
+                string[,] headers = new string[,] {{"操作类型","iAutoId", "供应商编码", "工区","发注工场", "开始时间", "结束时间" },
+                                                {"vcType","iAutoId",  "vcValue1", "vcValue2",  "vcValue5","vcValue3", "vcValue4"},
+                                                {"","",FieldCheck.NumChar,FieldCheck.NumChar,"",FieldCheck.Date,FieldCheck.Date},
                                                 {"20","0","4","4","500","500","500"},//最大长度设定,不校验最大长度用0
                                                 {"1","0","4","1","1","1","1"}};//最小长度设定,可以为空用0
 
@@ -136,15 +136,15 @@ namespace SPPSApi.Controllers.G01
                     string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
                     string vcWorkArea = dtadd.Rows[i]["vcValue2"].ToString();
                     string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
-                    string vcStart = dtadd.Rows[i]["vcValue3"].ToString().Replace("/", "-").ToString();
-                    string vcEnd = dtadd.Rows[i]["vcValue4"].ToString().Replace("/", "-").ToString();
+                    string vcStart = Convert.ToDateTime(dtadd.Rows[i]["vcValue3"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
+                    string vcEnd = Convert.ToDateTime(dtadd.Rows[i]["vcValue4"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
                     for (int j = i + 1; j < dtadd.Rows.Count; j++)
                     {
                         string vcSupplier1 = dtadd.Rows[j]["vcValue1"].ToString();
                         string vcWorkArea1 = dtadd.Rows[j]["vcValue2"].ToString();
                         string vcFzgc1 = dtadd.Rows[j]["vcValue5"].ToString();
-                        string vcStart1 = dtadd.Rows[j]["vcValue3"].ToString().Replace("/", "-").ToString();
-                        string vcEnd1 =  dtadd.Rows[j]["vcValue4"].ToString().Replace("/", "-").ToString();
+                        string vcStart1 = Convert.ToDateTime(dtadd.Rows[j]["vcValue3"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
+                        string vcEnd1 = Convert.ToDateTime(dtadd.Rows[j]["vcValue4"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
                         if (vcSupplier == vcSupplier1 && vcWorkArea == vcWorkArea1)
                         {
                             if (Convert.ToInt32(vcStart.Replace("/", "").Replace("-", "")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
@@ -167,8 +167,8 @@ namespace SPPSApi.Controllers.G01
                         string vcSupplier1 = dtamody.Rows[j]["vcValue1"].ToString();
                         string vcWorkArea1 = dtamody.Rows[j]["vcValue2"].ToString();
                         string vcFzgc1 = dtamody.Rows[j]["vcValue5"].ToString();
-                        string vcStart1 = dtamody.Rows[j]["vcValue3"].ToString().Replace("/", "-").ToString();
-                        string vcEnd1 = dtamody.Rows[j]["vcValue4"].ToString().Replace("/", "-").ToString();
+                        string vcStart1 = Convert.ToDateTime(dtamody.Rows[j]["vcValue3"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
+                        string vcEnd1 = Convert.ToDateTime(dtamody.Rows[j]["vcValue4"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
                         if (vcSupplier == vcSupplier1 && vcWorkArea == vcWorkArea1)
                         {
                             if (Convert.ToInt32(vcStart.Replace("/", "").Replace("-", "")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
@@ -193,15 +193,15 @@ namespace SPPSApi.Controllers.G01
                     string vcSupplier = dtamody.Rows[i]["vcValue1"].ToString();
                     string vcWorkArea = dtamody.Rows[i]["vcValue2"].ToString();
                     string vcFzgc = dtamody.Rows[i]["vcValue5"].ToString();
-                    string vcStart = dtamody.Rows[i]["vcValue3"].ToString().Replace("/", "-").ToString();
-                    string vcEnd = dtamody.Rows[i]["vcValue4"].ToString().Replace("/", "-").ToString();
+                    string vcStart = Convert.ToDateTime(dtamody.Rows[i]["vcValue3"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
+                    string vcEnd = Convert.ToDateTime(dtamody.Rows[i]["vcValue4"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
                     for (int j = i + 1; j < dtamody.Rows.Count; j++)
                     {
                         string vcSupplier1 = dtamody.Rows[j]["vcValue1"].ToString();
                         string vcWorkArea1 = dtamody.Rows[j]["vcValue2"].ToString();
                         string vcFzgc1 = dtamody.Rows[j]["vcValue5"].ToString();
-                        string vcStart1 = dtamody.Rows[j]["vcValue3"].ToString().Replace("/", "-").ToString();
-                        string vcEnd1 = dtamody.Rows[j]["vcValue4"].ToString().Replace("/", "-").ToString();
+                        string vcStart1 = Convert.ToDateTime(dtamody.Rows[j]["vcValue3"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
+                        string vcEnd1 = Convert.ToDateTime(dtamody.Rows[j]["vcValue4"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
                         if (vcSupplier == vcSupplier1 && vcWorkArea == vcWorkArea1)
                         {
                             if (Convert.ToInt32(vcStart.Replace("/", "").Replace("-", "")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
@@ -236,9 +236,9 @@ namespace SPPSApi.Controllers.G01
                 {
                     string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
                     string vcWorkArea = dtadd.Rows[i]["vcValue2"].ToString();
-                    string vcStart = dtadd.Rows[i]["vcValue3"].ToString().Replace("/", "-").ToString();
+                    string vcStart = Convert.ToDateTime(dtadd.Rows[i]["vcValue3"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
                     string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
-                    string vcEnd = dtadd.Rows[i]["vcValue4"].ToString().Replace("/", "-").ToString();
+                    string vcEnd = Convert.ToDateTime(dtadd.Rows[i]["vcValue4"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
                     DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
                     if (dtCheck.Rows.Count > 0)
                     {
@@ -255,9 +255,9 @@ namespace SPPSApi.Controllers.G01
                 {
                     string vcSupplier = dtamody.Rows[i]["vcValue1"].ToString();
                     string vcWorkArea = dtamody.Rows[i]["vcValue2"].ToString();
-                    string vcStart = dtamody.Rows[i]["vcValue3"].ToString().Replace("/", "-").ToString();
+                    string vcStart = Convert.ToDateTime(dtamody.Rows[i]["vcValue3"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
                     string vcFzgc = dtamody.Rows[i]["vcValue5"].ToString();
-                    string vcEnd = dtamody.Rows[i]["vcValue4"].ToString().Replace("/", "-").ToString();
+                    string vcEnd = Convert.ToDateTime(dtamody.Rows[i]["vcValue4"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
                     DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
                     if (dtCheck.Rows.Count > 0)
                     {
@@ -330,7 +330,7 @@ namespace SPPSApi.Controllers.G01
                 DataTable dt = fs0108_Logic.Search(vcValue1, vcValue2, vcValue5);
                 dt.Columns.Add("vcType");
                 string[] fields = {"vcType","iAutoId",
-                    "vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5"
+                     "vcValue1", "vcValue2", "vcValue5", "vcValue3", "vcValue4"
                 };
                 //head = new string[] { "状态", "展开时间", "要望纳期", "同步时间", "包装工场", "收货方", "品番", "品名", "车型", "使用开始时间", "OE=SP", "供应商代码", "工区", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "回复时间", "承认时间", "原单位织入时间", "备注" };
                 //field = new string[] { "vcState", "dSendDate", "dExpectDeliveryDate", "dSynchronizationDate", "vcPackingPlant", "vcReceiver", "vcPartNo", "vcPartName", "vcCarType", "dUseStartDate", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };

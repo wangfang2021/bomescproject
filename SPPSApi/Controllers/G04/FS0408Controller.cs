@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G04
@@ -251,7 +252,20 @@ namespace SPPSApi.Controllers.G04
 
 
                 string strMsg = "";
-                fs0408_Logic.commitMail(listInfoData, loginInfo.UserId, loginInfo.UserName, ref strMsg, loginInfo.Email, loginInfo.UnitName, loginInfo.UnitCode);
+
+                //附件
+                string vcRelation = listInfoData[0]["vcRelation"].ToString();
+                DataTable detail = fs0408_Logic.getData(vcRelation, "出库");
+                string[] heads = { "单据区分", "出库方式", "销售单号", "销售店号", "品番", "品名", "出库日", "出库数量", "出库单价(含税)", "负责部门" };
+                string[] fields = { "vcDiff", "vcOutType", "vcSellNo", "vcSellShop", "vcPart_id", "vcPartName", "dOutTime", "iQuantity", "decPrice", "vcDepartment" };
+                string msg = "";
+                string filepath = ComFunction.DataTableToExcel(heads, fields, detail, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref msg);
+
+                if (!string.IsNullOrWhiteSpace(filepath))
+                {
+                    filepath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar + filepath;
+                }
+                fs0408_Logic.commitMail(listInfoData, loginInfo.UserId, loginInfo.UserName, ref strMsg, loginInfo.Email, loginInfo.UnitName, loginInfo.UnitCode, filepath);
 
                 if (!string.IsNullOrWhiteSpace(strMsg))
                 {

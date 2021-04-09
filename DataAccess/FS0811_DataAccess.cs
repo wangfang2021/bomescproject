@@ -153,9 +153,8 @@ namespace DataAccess
                 strSql.AppendLine("(SELECT * FROM [TInPutIntoOver])t1");
                 strSql.AppendLine("left join");
                 strSql.AppendLine("(SELECT vcBigPM");
-                strSql.AppendLine("		,sum(CAST(iPackNum as int)) as decPackNum");
-                //strSql.AppendLine("		,sum(CAST(vcStandardTime as decimal(16,2))*CAST(iPackNum as int)) as decPackNum");
-                strSql.AppendLine("		,cast(((sum(CAST(vcStandardTime as decimal(16,2))*CAST(iPackNum as int))/3600)+0.004) as decimal(16,2)) as decPlannedTime");
+                strSql.AppendLine("		,sum(CAST(vcStandardTime as decimal(16,2))*CAST(iPackNum as int)) as decPackNum");
+                strSql.AppendLine("		,cast((sum(CAST(vcStandardTime as decimal(16,2))*CAST(iPackNum as int))/3600) as decimal(16,2)) as decPlannedTime");
                 strSql.AppendLine("		,cast((sum(CAST(vcStandardTime as decimal(16,2))*CAST(iPackNum as int))/3600)/cast((450/60.0) as decimal(16,2)) as decimal(16,2)) as decPlannedPerson");
                 strSql.AppendLine("		,'' as decInputPerson");
                 strSql.AppendLine("		,'' as decInputTime");

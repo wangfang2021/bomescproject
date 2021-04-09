@@ -89,11 +89,10 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            //string vcCLYM = dataForm.vcCLYM==null?"": dataForm.vcCLYM;
-            string vcCLYM = dataForm.vcCLYM == null || dataForm.vcCLYM == "" ? "" : Convert.ToDateTime(dataForm.vcCLYM + "/01").ToString("yyyyMM");
+            string vcCLYM = dataForm.vcCLYM==null?"": dataForm.vcCLYM;
             string vcPlant = dataForm.vcPlant;
             string vcDXYM = dataForm.vcDXYM;
-            
+
             try
             {
                 DataTable dt = fs0630_Logic.Search(vcDXYM, vcPlant, vcCLYM.Replace("/", ""));

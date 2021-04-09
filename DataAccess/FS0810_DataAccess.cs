@@ -75,20 +75,20 @@ namespace DataAccess
                             "where iAutoId=" + iAutoId + "   \n");
                     }
                     //更新TPackageMaster中的小品目
-                    sql.Append("update t1 set t1.vcSmallPM='"+strSmallPM+"'     \n");
-                    sql.Append("from (     \n");
-                    sql.Append("	select * from TPackageMaster      \n");
-                    sql.Append("	where vcSR='"+ strSR + "'       \n");
-                    if (strSupplier_id != "")
-                        sql.Append("   and vcSupplierId='"+strSupplier_id+"'   \n");
-                    if (strPartsNoBefore5 != "")
-                        sql.Append("  and LEFT(vcPart_id,5)='"+strPartsNoBefore5+"'  \n");
-                    sql.Append(")t1      \n");
-                    sql.Append("left join (     \n");
-                    sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem where getdate() between dFrom and dTo     \n");
-                    sql.Append(") t2 on t1.vcPart_id=t2.vcPartsNo     \n");
-                    if(strBCPartsNo!="")
-                        sql.Append("where  t2.vcPackNo='"+strBCPartsNo+"'      \n");
+                    //sql.Append("update t1 set t1.vcSmallPM='"+strSmallPM+"'     \n");
+                    //sql.Append("from (     \n");
+                    //sql.Append("	select * from TPackageMaster      \n");
+                    //sql.Append("	where vcSR='"+ strSR + "'       \n");
+                    //if (strSupplier_id != "")
+                    //    sql.Append("   and vcSupplierId='"+strSupplier_id+"'   \n");
+                    //if (strPartsNoBefore5 != "")
+                    //    sql.Append("  and LEFT(vcPart_id,5)='"+strPartsNoBefore5+"'  \n");
+                    //sql.Append(")t1      \n");
+                    //sql.Append("left join (     \n");
+                    //sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem where getdate() between dFrom and dTo     \n");
+                    //sql.Append(") t2 on t1.vcPart_id=t2.vcPartsNo     \n");
+                    //if(strBCPartsNo!="")
+                    //    sql.Append("where  t2.vcPackNo='"+strBCPartsNo+"'      \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -119,20 +119,20 @@ namespace DataAccess
 
                     sql.Append("delete from TPMSmall where iAutoId=" + iAutoId + "   \n");
                     //更新TPackageMaster中的小品目
-                    sql.Append("update t1 set t1.vcSmallPM='无'     \n");
-                    sql.Append("from (     \n");
-                    sql.Append("	select * from TPackageMaster      \n");
-                    sql.Append("	where vcSR='" + strSR + "'       \n");
-                    if (strSupplier_id != "")
-                        sql.Append("   and vcSupplierId='" + strSupplier_id + "'   \n");
-                    if (strPartsNoBefore5 != "")
-                        sql.Append("  and LEFT(vcPart_id,5)='" + strPartsNoBefore5 + "'  \n");
-                    sql.Append(")t1      \n");
-                    sql.Append("left join (     \n");
-                    sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem where getdate() between dFrom and dTo     \n");
-                    sql.Append(") t2 on t1.vcPart_id=t2.vcPartsNo     \n");
-                    if (strBCPartsNo != "")
-                        sql.Append("where  t2.vcPackNo='" + strBCPartsNo + "'      \n");
+                    //sql.Append("update t1 set t1.vcSmallPM='无'     \n");
+                    //sql.Append("from (     \n");
+                    //sql.Append("	select * from TPackageMaster      \n");
+                    //sql.Append("	where vcSR='" + strSR + "'       \n");
+                    //if (strSupplier_id != "")
+                    //    sql.Append("   and vcSupplierId='" + strSupplier_id + "'   \n");
+                    //if (strPartsNoBefore5 != "")
+                    //    sql.Append("  and LEFT(vcPart_id,5)='" + strPartsNoBefore5 + "'  \n");
+                    //sql.Append(")t1      \n");
+                    //sql.Append("left join (     \n");
+                    //sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem where getdate() between dFrom and dTo     \n");
+                    //sql.Append(") t2 on t1.vcPart_id=t2.vcPartsNo     \n");
+                    //if (strBCPartsNo != "")
+                    //    sql.Append("where  t2.vcPackNo='" + strBCPartsNo + "'      \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -509,79 +509,80 @@ namespace DataAccess
                 sql.Append("where t2.iAutoId is not null and isnull(t1.vcSmallPM,'') != isnull(t2.vcSmallPM,'')  \n");
                 sql.Append("and t1.vcOperatorID='" + strUserId + "'  \n");
 
-                //更新TPackageMaster中的小品目
-                sql.Append("update t1 set t1.vcSmallPM=    \n");
-                sql.Append("isnull(t3.vcSmallPM,isnull(t4.vcSmallPM,isnull(t5.vcSmallPM,isnull(t6.vcSmallPM,    \n");
-                sql.Append("isnull(t7.vcSmallPM,isnull(t8.vcSmallPM,isnull(t9.vcSmallPM,isnull(t10.vcSmallPM,    \n");
-                sql.Append("isnull(t11.vcSmallPM,isnull(t12.vcSmallPM,isnull(t13.vcSmallPM,isnull(t14.vcSmallPM,    \n");
-                sql.Append("isnull(t15.vcSmallPM,'')))))))))))))    \n");
-                sql.Append("from (    \n");
-                sql.Append("	select vcSR,vcSupplierId,LEFT(vcPart_id,5) as vcPart,vcPart_id,vcSmallPM    \n");
-                sql.Append("	from TPackageMaster      \n");
-                sql.Append(")t1    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem --where getdate() between dFrom and dTo    \n");
-                sql.Append(") t2 on t1.vcPart_id=t2.vcPartsNo    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall     \n");
-                sql.Append("	where vcSR!='' and vcSupplier_id!='' and vcPartsNoBefore5!='' and vcBCPartsNo!=''    \n");
-                sql.Append(") t3 on t1.vcSR=t3.vcSR and t1.vcSupplierId=t3.vcSupplier_id    \n");
-                sql.Append("and t1.vcPart=t3.vcPartsNoBefore5 and t2.vcPackNo=t3.vcBCPartsNo    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall     \n");
-                sql.Append("	where vcSR!='' and vcSupplier_id!='' and vcPartsNoBefore5!='' and vcBCPartsNo=''    \n");
-                sql.Append(") t4 on t1.vcSR=t4.vcSR and t1.vcSupplierId=t4.vcSupplier_id    \n");
-                sql.Append("and t1.vcPart=t4.vcPartsNoBefore5    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall     \n");
-                sql.Append("	where vcSR!='' and vcSupplier_id!='' and vcPartsNoBefore5='' and vcBCPartsNo!=''    \n");
-                sql.Append(") t5 on t1.vcSR=t5.vcSR and t1.vcSupplierId=t5.vcSupplier_id    \n");
-                sql.Append("and t2.vcPackNo=t5.vcBCPartsNo    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall     \n");
-                sql.Append("	where vcSR!='' and vcSupplier_id!='' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
-                sql.Append(") t6 on t1.vcSR=t6.vcSR and t1.vcSupplierId=t6.vcSupplier_id    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall     \n");
-                sql.Append("	where vcSR!='' and vcSupplier_id='' and vcPartsNoBefore5!='' and vcBCPartsNo!=''    \n");
-                sql.Append(") t7 on t1.vcSR=t7.vcSR    \n");
-                sql.Append("and t1.vcPart=t7.vcPartsNoBefore5 and t2.vcPackNo=t7.vcBCPartsNo    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall     \n");
-                sql.Append("	where vcSR!='' and vcSupplier_id='' and vcPartsNoBefore5!='' and vcBCPartsNo=''    \n");
-                sql.Append(") t8 on t1.vcSR=t8.vcSR and t1.vcPart=t8.vcPartsNoBefore5     \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall     \n");
-                sql.Append("	where vcSR!='' and vcSupplier_id='' and vcPartsNoBefore5='' and vcBCPartsNo!=''    \n");
-                sql.Append(") t9 on t1.vcSR=t9.vcSR and t2.vcPackNo=t9.vcBCPartsNo    \n");
-                sql.Append(" left join (    \n");
-                sql.Append("	select * from TPMSmall     \n");
-                sql.Append("	where vcSR!='' and vcSupplier_id='' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
-                sql.Append(") t10 on t1.vcSR=t10.vcSR    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall where vcSR='HA,HB,HD,HE,6H,8H,H1,H9'     \n");
-                sql.Append("	and vcSupplier_id='' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
-                sql.Append(")t11 on t1.vcSR=t11.vcSR    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall where vcSR='H2,HC,HF,7H'     \n");
-                sql.Append("	and vcSupplier_id='' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
-                sql.Append(")t12 on t1.vcSR=t12.vcSR    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall where vcSR='N1,N2,N3,N4'     \n");
-                sql.Append("	and vcSupplier_id='TF1W,TF2W,TF3W,TF2T' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
-                sql.Append(")t13 on t1.vcSR=t13.vcSR and t1.vcSupplierId=t13.vcSupplier_id    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall where vcSR='N1,N2,N3,N4'     \n");
-                sql.Append("	and vcSupplier_id='TF1R,TF2R,TF3R' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
-                sql.Append(")t14 on t1.vcSR=t14.vcSR and t1.vcSupplierId=t14.vcSupplier_id    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall where vcSR='N1,N2,N3,N4'     \n");
-                sql.Append("	and vcSupplier_id='TF1A,TF2A,TF3A' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
-                sql.Append(")t15 on t1.vcSR=t15.vcSR and t1.vcSupplierId=t15.vcSupplier_id    \n");
-                //剩下没带出小品目的，都更新成无
-                sql.Append("update t1 set t1.vcSmallPM='无' from     \n");
-                sql.Append("(select * from TPackageMaster where ISNULL(vcSmallPM,'')='')t1    \n");
-                
+                #region not use
+                //sql.Append("update t1 set t1.vcSmallPM=    \n");
+                //sql.Append("isnull(t3.vcSmallPM,isnull(t4.vcSmallPM,isnull(t5.vcSmallPM,isnull(t6.vcSmallPM,    \n");
+                //sql.Append("isnull(t7.vcSmallPM,isnull(t8.vcSmallPM,isnull(t9.vcSmallPM,isnull(t10.vcSmallPM,    \n");
+                //sql.Append("isnull(t11.vcSmallPM,isnull(t12.vcSmallPM,isnull(t13.vcSmallPM,isnull(t14.vcSmallPM,    \n");
+                //sql.Append("isnull(t15.vcSmallPM,'')))))))))))))    \n");
+                //sql.Append("from (    \n");
+                //sql.Append("	select vcSR,vcSupplierId,LEFT(vcPart_id,5) as vcPart,vcPart_id,vcSmallPM    \n");
+                //sql.Append("	from TPackageMaster      \n");
+                //sql.Append(")t1    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem --where getdate() between dFrom and dTo    \n");
+                //sql.Append(") t2 on t1.vcPart_id=t2.vcPartsNo    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall     \n");
+                //sql.Append("	where vcSR!='' and vcSupplier_id!='' and vcPartsNoBefore5!='' and vcBCPartsNo!=''    \n");
+                //sql.Append(") t3 on t1.vcSR=t3.vcSR and t1.vcSupplierId=t3.vcSupplier_id    \n");
+                //sql.Append("and t1.vcPart=t3.vcPartsNoBefore5 and t2.vcPackNo=t3.vcBCPartsNo    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall     \n");
+                //sql.Append("	where vcSR!='' and vcSupplier_id!='' and vcPartsNoBefore5!='' and vcBCPartsNo=''    \n");
+                //sql.Append(") t4 on t1.vcSR=t4.vcSR and t1.vcSupplierId=t4.vcSupplier_id    \n");
+                //sql.Append("and t1.vcPart=t4.vcPartsNoBefore5    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall     \n");
+                //sql.Append("	where vcSR!='' and vcSupplier_id!='' and vcPartsNoBefore5='' and vcBCPartsNo!=''    \n");
+                //sql.Append(") t5 on t1.vcSR=t5.vcSR and t1.vcSupplierId=t5.vcSupplier_id    \n");
+                //sql.Append("and t2.vcPackNo=t5.vcBCPartsNo    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall     \n");
+                //sql.Append("	where vcSR!='' and vcSupplier_id!='' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
+                //sql.Append(") t6 on t1.vcSR=t6.vcSR and t1.vcSupplierId=t6.vcSupplier_id    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall     \n");
+                //sql.Append("	where vcSR!='' and vcSupplier_id='' and vcPartsNoBefore5!='' and vcBCPartsNo!=''    \n");
+                //sql.Append(") t7 on t1.vcSR=t7.vcSR    \n");
+                //sql.Append("and t1.vcPart=t7.vcPartsNoBefore5 and t2.vcPackNo=t7.vcBCPartsNo    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall     \n");
+                //sql.Append("	where vcSR!='' and vcSupplier_id='' and vcPartsNoBefore5!='' and vcBCPartsNo=''    \n");
+                //sql.Append(") t8 on t1.vcSR=t8.vcSR and t1.vcPart=t8.vcPartsNoBefore5     \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall     \n");
+                //sql.Append("	where vcSR!='' and vcSupplier_id='' and vcPartsNoBefore5='' and vcBCPartsNo!=''    \n");
+                //sql.Append(") t9 on t1.vcSR=t9.vcSR and t2.vcPackNo=t9.vcBCPartsNo    \n");
+                //sql.Append(" left join (    \n");
+                //sql.Append("	select * from TPMSmall     \n");
+                //sql.Append("	where vcSR!='' and vcSupplier_id='' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
+                //sql.Append(") t10 on t1.vcSR=t10.vcSR    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall where vcSR='HA,HB,HD,HE,6H,8H,H1,H9'     \n");
+                //sql.Append("	and vcSupplier_id='' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
+                //sql.Append(")t11 on t1.vcSR=t11.vcSR    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall where vcSR='H2,HC,HF,7H'     \n");
+                //sql.Append("	and vcSupplier_id='' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
+                //sql.Append(")t12 on t1.vcSR=t12.vcSR    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall where vcSR='N1,N2,N3,N4'     \n");
+                //sql.Append("	and vcSupplier_id='TF1W,TF2W,TF3W,TF2T' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
+                //sql.Append(")t13 on t1.vcSR=t13.vcSR and t1.vcSupplierId=t13.vcSupplier_id    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall where vcSR='N1,N2,N3,N4'     \n");
+                //sql.Append("	and vcSupplier_id='TF1R,TF2R,TF3R' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
+                //sql.Append(")t14 on t1.vcSR=t14.vcSR and t1.vcSupplierId=t14.vcSupplier_id    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from TPMSmall where vcSR='N1,N2,N3,N4'     \n");
+                //sql.Append("	and vcSupplier_id='TF1A,TF2A,TF3A' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
+                //sql.Append(")t15 on t1.vcSR=t15.vcSR and t1.vcSupplierId=t15.vcSupplier_id    \n");
+                ////剩下没带出小品目的，都更新成无
+                //sql.Append("update t1 set t1.vcSmallPM='无' from     \n");
+                //sql.Append("(select * from TPackageMaster where ISNULL(vcSmallPM,'')='')t1    \n");
+                #endregion
+
                 if (sql.Length > 0)
                 {
                     excute.ExcuteSqlWithStringOper(sql.ToString());

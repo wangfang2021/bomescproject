@@ -111,9 +111,20 @@ namespace DataAccess
                     sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
                     sql.AppendLine($"  WHERE");
                     sql.AppendLine($"  vcPackSpot='{dt.Rows[i]["vcPackSpot"].ToString()}'and  vcPackNo='{dt.Rows[i]["vcPackNo"].ToString()}';");
+                    sql.AppendLine("  UPDATE TPackSaveZK");
+                    sql.AppendLine("  SET ");
+                    sql.AppendLine($"   iAnQuan = '{dt.Rows[i]["dSaveZK"].ToString()}',");
+                    sql.AppendLine($"   vcOperatorID = {strUserId},");
+                    sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
+                    sql.AppendLine($"  WHERE");
+                    sql.AppendLine($"  vcPackSpot='{dt.Rows[i]["vcPackSpot"].ToString()}'and  vcPackNo='{dt.Rows[i]["vcPackNo"].ToString()}';");
 
                 }
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+
             }
             catch (Exception ex)
             {
@@ -137,11 +148,11 @@ namespace DataAccess
         {
             try
             {
-               
+
                 for (int i = 0; i < dtOldJS.Rows.Count; i++)
                 {
                     DataRow[] dr = dtPackBase.Select("vcPackNo='" + dtOldJS.Rows[i]["vcPackNo"].ToString() + "'");
-                    if (strSaveAdvice == "方法一")
+                    if (strSaveAdvice == "方法一:使用看板循环")
                     {
                         double A = 0;
                         decimal B = 0;
@@ -364,7 +375,7 @@ namespace DataAccess
                 strSql.AppendLine(" from(    ");
                 strSql.AppendLine(" select a.vcPackSpot,a.vcYearMonth,a.vcDay,    ");
                 strSql.AppendLine(" case when a.vcBZ='白值'or a.vcBZ='夜值' then vcBZ     ");
-                strSql.AppendLine(" when a.vcBZ='无稼动' then '无稼动'    ");
+                strSql.AppendLine(" when a.vcBZ='非稼动' then '非稼动'    ");
                 strSql.AppendLine(" else vcBZValue end as vcBZ    ");
                 strSql.AppendLine("  from (    ");
                 strSql.AppendLine(" SELECT vcPackSpot,vcYearMonth,vcDay=attribute, vcBZ=value     ");
@@ -405,7 +416,7 @@ namespace DataAccess
                 strSql.AppendLine("  vcBeginTime,vcEndTime    ");
                 strSql.AppendLine("   from TPackSpotBZ    ");
                 strSql.AppendLine(" )T2 on T1.vcBZ=T2.vcBZ    ");
-                strSql.AppendLine(" where T1.vcBZ is not null and T1.vcBZ<>'无稼动'    ");
+                strSql.AppendLine(" where T1.vcBZ is not null and T1.vcBZ<>'非稼动'    ");
                 strSql.AppendLine(" )temp1     ");
                 strSql.AppendLine(" left join    ");
                 strSql.AppendLine(" (    ");
@@ -491,7 +502,7 @@ namespace DataAccess
                 strSql.AppendLine("  select vcPackSpot,vcPackNo,vcPackGPSNo,vcBeginTime,vcEndTime,    ");
                 strSql.AppendLine("  vcTime,sum(iNumber) as inum  from (    ");
                 strSql.AppendLine("  select vcPackSpot,vcPackNo,vcPackGPSNo,vcBeginTime,vcEndTime,ddfrom,ddto,iNumber,vcSupplierID,    ");
-                strSql.AppendLine("  SUBSTRING(CONVERT(varchar(50),ddfrom,120),0,17)+'-'+SUBSTRING(CONVERT(varchar(50),ddto,120),11,6)as vcTime from (    ");
+                strSql.AppendLine("  SUBSTRING(CONVERT(varchar(50),dfrom,120),0,17)+'-'+SUBSTRING(CONVERT(varchar(50),dto,120),12,5)as vcTime from (    ");
                 strSql.AppendLine("  select t1.vcYearMonth,t1.vcDay,t1.vcBeginTime,t1.vcEndTime,t1.vcBZ,    ");
                 strSql.AppendLine("  CASe when t2.dfrom<t1.vcBeginTime and t2.dto<t1.vcEndTime and t2.dfrom<t1.vcEndTime and t2.dto>t1.vcBeginTime then t1.vcBeginTime    ");
                 strSql.AppendLine("  	 when t2.dfrom>=t1.vcBeginTime and t2.dto<=t1.vcEndTime and t2.dfrom<t1.vcEndTime and t2.dto>t1.vcBeginTime then t2.dfrom    ");
@@ -502,12 +513,12 @@ namespace DataAccess
                 strSql.AppendLine("  	 when t2.dfrom>=t1.vcBeginTime and t2.dto<=t1.vcEndTime and t2.dfrom<t1.vcEndTime and t2.dto>t1.vcBeginTime then t2.dto    ");
                 strSql.AppendLine("  	 when t2.dfrom>t1.vcBeginTime and t2.dto>t1.vcEndTime and t2.dfrom<t1.vcEndTime and t2.dto>t1.vcBeginTime then t1.vcEndTime    ");
                 strSql.AppendLine("  else NULL    ");
-                strSql.AppendLine("  end as ddto    ");
+                strSql.AppendLine("  end as ddto ,t2.dfrom,t2.dto        ");
                 strSql.AppendLine("  from     ");
                 strSql.AppendLine("  (select * from [VI_PackCalendar])t1    ");
                 strSql.AppendLine("  full join    ");
                 strSql.AppendLine("  (select a.vcYMD,    ");
-                strSql.AppendLine("  case when b.vcIsOrNoKTFrom='0' then cast((a.vcYMD+' '+b.vcFrom) as datetime) else DATEADD(DAY,1, cast((a.vcYMD+' '+b.vcFrom) as datetime)) end    ");
+                strSql.AppendLine("  case when b.vcIsOrNoKTFrom='0' then cast((a.vcYMD+' '+b.vcFrom) as datetime) else DATEADD(DAY,1, cast((a.vcYMD+' '+b.vcFrom) as datetime)) end  as dfrom,  ");
                 strSql.AppendLine("  case when b.vcIsOrNoKT='0' then cast((a.vcYMD+' '+b.vcTo) as datetime) else DATEADD(DAY,1, cast((a.vcYMD+' '+b.vcTo) as datetime)) end  as dto    ");
                 strSql.AppendLine("  from     ");
                 strSql.AppendLine("  (select distinct vcYMD from [VI_PackCalendar])a    ");
@@ -522,7 +533,7 @@ namespace DataAccess
                 strSql.AppendLine("      ");
                 strSql.AppendLine("  )tt2 on tt1.ddfrom<=tt2.dBuJiTime and tt1.ddto>=tt2.dBuJiTime      ");
                 strSql.AppendLine("  where tt1.ddfrom is not null or tt1.ddto is not null     ");
-                strSql.AppendLine("  and tt1.vcBeginTime between '"+ strFrom + "' and '"+ strTo + "'    ");
+
                 if (packSpot.Count != 0)
                 {
                     strSql.AppendLine($"      AND vcPackSpot in( ");
@@ -562,8 +573,9 @@ namespace DataAccess
                 }
                 strSql.AppendLine("  )temp1    ");
                 strSql.AppendLine("  where vcPackNo is not null    ");
+                strSql.AppendLine("  and temp1.vcBeginTime between '" + strFrom + "' and '" + strTo + "'    ");
                 strSql.AppendLine("  group by vcPackSpot,vcPackNo,vcPackGPSNo,vcBeginTime,vcEndTime,vcTime    ");
-                
+
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -705,7 +717,15 @@ namespace DataAccess
                                 {
                                     if (dr.Length > z)
                                     {
-                                        drImport["vcDay" + dr[z]["vcTime"].ToString().Substring(5, 17)] = dtCalcuateOld.Rows[z]["inum"].ToString();
+                                        if (dtendTime.Select("vcDate='" + dr[z]["vcTime"].ToString().Substring(11, 11) + "'").Length != 0)
+                                        {
+                                            drImport["vcDay" + dr[z]["vcTime"].ToString().Substring(5, 17)] = dtCalcuateOld.Rows[z]["inum"].ToString();
+
+                                        }
+                                        else
+                                        {
+                                            drImport["vcDay" + dr[z]["vcTime"].ToString().Substring(5, 17)] = "0";
+                                        }
                                         count += Convert.ToDouble(dtCalcuateOld.Rows[z]["inum"].ToString());
                                         iYXDate++;
                                     }
@@ -755,12 +775,12 @@ namespace DataAccess
                                 int iYXDate = 0;
                                 double count = 0;
                                 DataRow[] dr = dtCalcuateOld.Select("vcPackNo='" + vcpackno + "'", "inum desc");
-
+                                DataRow[] dr1 = dtCalcuateOld.Select("vcPackNo='" + vcpackno + "'");
                                 for (int z = 0; z < dtCalcuate.Columns.Count - 6; z++)
                                 {
                                     if (dr.Length > z)
                                     {
-                                        drImport["vcDay" + dr[z]["vcYMD"].ToString().Substring(5, 4) + (z + 1).ToString()] = dtCalcuateOld.Rows[z]["inum"].ToString();
+                                        drImport["vcDay" + dr1[z]["vcYMD"].ToString().Substring(5, 5)] = dtCalcuateOld.Rows[z]["inum"].ToString();
                                         iYXDate++;
                                         for (int cc = 1; cc <= 10; cc++)
                                         {
@@ -872,13 +892,22 @@ namespace DataAccess
                                 drImport["vcPackNo"] = vcpackno;
                                 drImport["vcPackGPSNo"] = dtCalcuateOld.Rows[j]["vcPackGPSNo"].ToString();
                                 DataRow[] dr = dtCalcuateOld.Select("vcPackNo='" + vcpackno + "'", "inum desc");
+                                DataRow[] dr1 = dtCalcuateOld.Select("vcPackNo='" + vcpackno + "'");
                                 int iYXDate = 0;
                                 double count = 0;
                                 for (int z = 0; z < dtCalcuate.Columns.Count - 6; z++)
                                 {
                                     if (dr.Length > z)
                                     {
-                                        drImport["vcDay" + dr[z]["vcTime"].ToString().Substring(5, 17)] = dtCalcuateOld.Rows[z]["inum"].ToString();
+                                        if (dtendTime.Select("vcDate='" + dr1[z]["vcTime"].ToString().Substring(11, 11) + "'").Length != 0)
+                                        {
+                                            drImport["vcDay" + dr1[z]["vcTime"].ToString().Substring(5, 17)] = dtCalcuateOld.Rows[z]["inum"].ToString();
+                                        }
+                                        else
+                                        {
+                                            drImport["vcDay" + dr1[z]["vcTime"].ToString().Substring(5, 17)] = "0";
+                                        }
+
                                         iYXDate++;
                                         for (int cc = 1; cc <= 10; cc++)
                                         {
@@ -953,7 +982,7 @@ namespace DataAccess
                 strSql.AppendLine("  from(    ");
                 strSql.AppendLine("  select a.vcPackSpot,a.vcYearMonth,a.vcDay,    ");
                 strSql.AppendLine("  case when a.vcBZ='白值'or a.vcBZ='夜值' then vcBZ     ");
-                strSql.AppendLine("  when a.vcBZ='无稼动' then '无稼动'    ");
+                strSql.AppendLine("  when a.vcBZ='非稼动' then '非稼动'    ");
                 strSql.AppendLine("  else vcBZValue end as vcBZ    ");
                 strSql.AppendLine("   from (    ");
                 strSql.AppendLine("  SELECT vcPackSpot,vcYearMonth,vcDay=attribute, vcBZ=value     ");
@@ -995,9 +1024,9 @@ namespace DataAccess
                 strSql.AppendLine("   vcBeginTime,vcEndTime    ");
                 strSql.AppendLine("    from TPackSpotBZ    ");
                 strSql.AppendLine("  )T2 on T1.vcBZ=T2.vcBZ    ");
-                strSql.AppendLine("  where T1.vcBZ is not null and T1.vcBZ<>'无稼动'     ");
+                strSql.AppendLine("  where T1.vcBZ is not null and T1.vcBZ<>'非稼动'     ");
                 strSql.AppendLine("  )temp1     ");
-                strSql.AppendLine("  where vcBeginTime between '" + StrFrom + "' and '" + StrTo + "'    ");
+                strSql.AppendLine("  where vcBeginTime<= '" + StrTo + "'and vcEndTime>= '" + StrFrom + "'    ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -1017,7 +1046,8 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append("  delete from  TPackSaveDate  \r\n");
-                if (!string.IsNullOrEmpty(dFrom1)&& !string.IsNullOrEmpty(dTo1)) {
+                if (!string.IsNullOrEmpty(dFrom1) && !string.IsNullOrEmpty(dTo1))
+                {
                     sql.Append("  insert into   TPackSaveDate values ('" + dFrom1 + "','" + dTo1 + "','" + vcIsOrNoKT1 + "','" + vcIsOrNoKTFrom1 + "') \r\n");
 
                 }

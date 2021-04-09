@@ -700,12 +700,12 @@ namespace DataAccess
             }
         }
 
-        public bool checkJD()
+        public bool checkJD(DateTime time)
         {
             try
             {
-                string YM = DateTime.Now.ToString("yyyyMM");
-                string day = Convert.ToInt32(DateTime.Now.ToString("dd")).ToString();
+                string YM = time.ToString("yyyyMM");
+                string day = Convert.ToInt32(time.ToString("dd")).ToString();
 
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("SELECT ISNULL(TARGETDAY" + day + ",0) AS flag FROM TCalendar_PingZhun_Wai WHERE vcFZGC = '2' AND TARGETMONTH = '" + YM + "'");

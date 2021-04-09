@@ -53,8 +53,8 @@ namespace Common
             reqFTP.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
             reqFTP.KeepAlive = false;
             //主被动模式
-            reqFTP.UsePassive = true;
-            //reqFTP.UsePassive = false;
+            //reqFTP.UsePassive = true;
+            reqFTP.UsePassive = false;
             reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
             reqFTP.UseBinary = true;
             reqFTP.ContentLength = fileInf.Length;
@@ -104,8 +104,8 @@ namespace Common
                 Console.WriteLine("TFPDownload  path:" + path);
                 reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(ftpURI + fileName));
                 //主被动模式
-                reqFTP.UsePassive = true;
-                //reqFTP.UsePassive = false;
+                //reqFTP.UsePassive = true;
+                reqFTP.UsePassive = false;
                 Console.WriteLine("TFPDownload  Create:" + ftpURI + fileName);
                 reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
                 reqFTP.UseBinary = true;

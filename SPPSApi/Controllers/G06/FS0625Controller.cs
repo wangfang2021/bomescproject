@@ -1087,215 +1087,221 @@ namespace SPPSApi.Controllers.G06
                     int nextRow = 0;
                     for (int irow = 0; irow < dtNewSupplierandWorkArea.Rows.Count; irow++)
                     {
-                        #region 模板第一行
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 2, 5));
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
-                        IRow nextRowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        nextRowHSSFCol.Height = 25 * 20;
-                        nextRowHSSFCol.CreateCell(1).SetCellValue("供应商番号");
-                        nextRowHSSFCol.GetCell(1).CellStyle = style1;
+                        int haoShiNum = int.Parse(dtNewSupplierandWorkArea.Rows[i]["vcNumber"].ToString());
+                        for (int k=1;k<=haoShiNum;k++) {
+                            #region 模板第一行
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 2, 5));
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
+                            IRow nextRowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                            nextRowHSSFCol.Height = 25 * 20;
+                            nextRowHSSFCol.CreateCell(1).SetCellValue("供应商番号");
+                            nextRowHSSFCol.GetCell(1).CellStyle = style1;
 
-                        nextRowHSSFCol.CreateCell(2).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcSupplier_id"].ToString());
-                        nextRowHSSFCol.GetCell(2).CellStyle = style2;
-                        nextRowHSSFCol.CreateCell(3).SetCellValue("");
-                        nextRowHSSFCol.GetCell(3).CellStyle = style17;
-                        nextRowHSSFCol.CreateCell(4).SetCellValue("");
-                        nextRowHSSFCol.GetCell(4).CellStyle = style17;
-                        nextRowHSSFCol.CreateCell(5).SetCellValue("");
-                        nextRowHSSFCol.GetCell(5).CellStyle = style17;
+                            nextRowHSSFCol.CreateCell(2).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcSupplier_id"].ToString());
+                            nextRowHSSFCol.GetCell(2).CellStyle = style2;
+                            nextRowHSSFCol.CreateCell(3).SetCellValue("");
+                            nextRowHSSFCol.GetCell(3).CellStyle = style17;
+                            nextRowHSSFCol.CreateCell(4).SetCellValue("");
+                            nextRowHSSFCol.GetCell(4).CellStyle = style17;
+                            nextRowHSSFCol.CreateCell(5).SetCellValue("");
+                            nextRowHSSFCol.GetCell(5).CellStyle = style17;
 
-                        nextRowHSSFCol.CreateCell(6).SetCellValue("所番地");
-                        nextRowHSSFCol.GetCell(6).CellStyle = style3;
-                        nextRowHSSFCol.CreateCell(7).SetCellValue("使用目的");
-                        nextRowHSSFCol.GetCell(7).CellStyle = style3;
-                        nextRowHSSFCol.CreateCell(8).SetCellValue("");
-                        nextRowHSSFCol.GetCell(8).CellStyle = style4;
-                        nextRow++;
-                        #endregion
-                        #region 模板第2行
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 2, 5));
-                        IRow next2RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next2RowHSSFCol.Height = 34 * 20;
-                        next2RowHSSFCol.CreateCell(1).SetCellValue("供应商名称");
-                        next2RowHSSFCol.GetCell(1).CellStyle = style5;
-                            
-                        next2RowHSSFCol.CreateCell(2).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcSupplier_name"].ToString());
-                        next2RowHSSFCol.GetCell(2).CellStyle = style6;
-                        next2RowHSSFCol.CreateCell(3).SetCellValue("");
-                        next2RowHSSFCol.GetCell(3).CellStyle = style18;
-                        next2RowHSSFCol.CreateCell(4).SetCellValue("");
-                        next2RowHSSFCol.GetCell(4).CellStyle = style18;
-                        next2RowHSSFCol.CreateCell(5).SetCellValue("");
-                        next2RowHSSFCol.GetCell(5).CellStyle = style18;
-                            
-                        next2RowHSSFCol.CreateCell(6).SetCellValue("");
-                        next2RowHSSFCol.GetCell(6).CellStyle = style7;
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
-                        next2RowHSSFCol.CreateCell(7).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcCarType"].ToString()+ "补给号试");
-                        next2RowHSSFCol.GetCell(7).CellStyle = style9;
-                        //next2RowHSSFCol.CreateCell(7).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcCarType"].ToString());
-                        //next2RowHSSFCol.GetCell(7).CellStyle = style27;
-                        //next2RowHSSFCol.CreateCell(8).SetCellValue("补给号试");
-                        //next2RowHSSFCol.GetCell(8).CellStyle = style9;
-                        nextRow++;
-                        #endregion
-                        #region 模板第3 4行
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow+1, 1, 1));
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow+1, 2, 6));
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
-                        IRow next3RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next3RowHSSFCol.Height = (short)(17.5 * 20);
-                        next3RowHSSFCol.CreateCell(1).SetCellValue("品番");
-                        next3RowHSSFCol.GetCell(1).CellStyle = style10;
-                            
-                        next3RowHSSFCol.CreateCell(2).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcPartNo"].ToString());
-                        next3RowHSSFCol.GetCell(2).CellStyle = style6PartNo;
-                        next3RowHSSFCol.CreateCell(3).SetCellValue("");
-                        next3RowHSSFCol.GetCell(3).CellStyle = style18;
-                        next3RowHSSFCol.CreateCell(4).SetCellValue("");
-                        next3RowHSSFCol.GetCell(4).CellStyle = style18;
-                        next3RowHSSFCol.CreateCell(5).SetCellValue("");
-                        next3RowHSSFCol.GetCell(5).CellStyle = style18;
-                        next3RowHSSFCol.CreateCell(6).SetCellValue("");
-                        next3RowHSSFCol.GetCell(6).CellStyle = style7;
+                            nextRowHSSFCol.CreateCell(6).SetCellValue("所番地");
+                            nextRowHSSFCol.GetCell(6).CellStyle = style3;
+                            nextRowHSSFCol.CreateCell(7).SetCellValue("使用目的");
+                            nextRowHSSFCol.GetCell(7).CellStyle = style3;
+                            nextRowHSSFCol.CreateCell(8).SetCellValue("");
+                            nextRowHSSFCol.GetCell(8).CellStyle = style4;
+                            nextRow++;
+                            #endregion
+                            #region 模板第2行
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 2, 5));
+                            IRow next2RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                            next2RowHSSFCol.Height = 34 * 20;
+                            next2RowHSSFCol.CreateCell(1).SetCellValue("供应商名称");
+                            next2RowHSSFCol.GetCell(1).CellStyle = style5;
 
-                        next3RowHSSFCol.CreateCell(7).SetCellValue("色番");
-                        next3RowHSSFCol.GetCell(7).CellStyle = style112;
-                        next3RowHSSFCol.CreateCell(8).SetCellValue("");
-                        next3RowHSSFCol.GetCell(8).CellStyle = style111;
-                        nextRow++;
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
-                        IRow next4RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next4RowHSSFCol.Height = (short)(35.5 * 20);
-                        next4RowHSSFCol.CreateCell(1).SetCellValue("");
-                        next4RowHSSFCol.GetCell(1).CellStyle = style21;
-                        next4RowHSSFCol.CreateCell(2).SetCellValue("");
-                        next4RowHSSFCol.CreateCell(3).SetCellValue("");
-                        next4RowHSSFCol.CreateCell(4).SetCellValue("");
-                        next4RowHSSFCol.CreateCell(5).SetCellValue("");
-                        next4RowHSSFCol.CreateCell(6).SetCellValue("");
-                        next4RowHSSFCol.CreateCell(7).SetCellValue("");
-                        next4RowHSSFCol.GetCell(7).CellStyle = style8;
-                        next4RowHSSFCol.CreateCell(8).SetCellValue("");
-                        next4RowHSSFCol.GetCell(8).CellStyle = style28;
-                        nextRow++;
-                        #endregion
-                        #region 模板第5行
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 2, 6));
-                        IRow next5RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next5RowHSSFCol.Height = 50 * 20;
-                        next5RowHSSFCol.CreateCell(1).SetCellValue("品名");
-                        next5RowHSSFCol.GetCell(1).CellStyle = style5;
+                            next2RowHSSFCol.CreateCell(2).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcSupplier_name"].ToString());
+                            next2RowHSSFCol.GetCell(2).CellStyle = style6;
+                            next2RowHSSFCol.CreateCell(3).SetCellValue("");
+                            next2RowHSSFCol.GetCell(3).CellStyle = style18;
+                            next2RowHSSFCol.CreateCell(4).SetCellValue("");
+                            next2RowHSSFCol.GetCell(4).CellStyle = style18;
+                            next2RowHSSFCol.CreateCell(5).SetCellValue("");
+                            next2RowHSSFCol.GetCell(5).CellStyle = style18;
 
-                        next5RowHSSFCol.CreateCell(2).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcPartName"].ToString());
-                        next5RowHSSFCol.GetCell(2).CellStyle = style91;
-                        next5RowHSSFCol.CreateCell(3).SetCellValue("");
-                        next5RowHSSFCol.GetCell(3).CellStyle = style19;
-                        next5RowHSSFCol.CreateCell(4).SetCellValue("");
-                        next5RowHSSFCol.GetCell(4).CellStyle = style19;
-                        next5RowHSSFCol.CreateCell(5).SetCellValue("");
-                        next5RowHSSFCol.GetCell(5).CellStyle = style19;
-                        next5RowHSSFCol.CreateCell(6).SetCellValue("");
-                        next5RowHSSFCol.GetCell(6).CellStyle = style19;
+                            next2RowHSSFCol.CreateCell(6).SetCellValue("");
+                            next2RowHSSFCol.GetCell(6).CellStyle = style7;
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
+                            next2RowHSSFCol.CreateCell(7).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcCarType"].ToString() + "补给号试");
+                            next2RowHSSFCol.GetCell(7).CellStyle = style9;
+                            //next2RowHSSFCol.CreateCell(7).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcCarType"].ToString());
+                            //next2RowHSSFCol.GetCell(7).CellStyle = style27;
+                            //next2RowHSSFCol.CreateCell(8).SetCellValue("补给号试");
+                            //next2RowHSSFCol.GetCell(8).CellStyle = style9;
+                            nextRow++;
+                            #endregion
+                            #region 模板第3 4行
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow + 1, 1, 1));
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow + 1, 2, 6));
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
+                            IRow next3RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                            next3RowHSSFCol.Height = (short)(17.5 * 20);
+                            next3RowHSSFCol.CreateCell(1).SetCellValue("品番");
+                            next3RowHSSFCol.GetCell(1).CellStyle = style10;
 
-                        next5RowHSSFCol.CreateCell(7).SetCellValue("受入场");
-                        next5RowHSSFCol.GetCell(7).CellStyle = style6;
-                        next5RowHSSFCol.CreateCell(8).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcDock"].ToString());
-                        next5RowHSSFCol.GetCell(8).CellStyle = style12;
-                        nextRow++;
-                        #endregion
-                        #region 模板第6行
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 2));
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 5, 6));
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
-                        IRow next6RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next6RowHSSFCol.Height = (short)(22.5 * 20);
-                        next6RowHSSFCol.CreateCell(1).SetCellValue("交货日期提示");
-                        next6RowHSSFCol.GetCell(1).CellStyle = style10;
+                            next3RowHSSFCol.CreateCell(2).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcPartNo"].ToString());
+                            next3RowHSSFCol.GetCell(2).CellStyle = style6PartNo;
+                            next3RowHSSFCol.CreateCell(3).SetCellValue("");
+                            next3RowHSSFCol.GetCell(3).CellStyle = style18;
+                            next3RowHSSFCol.CreateCell(4).SetCellValue("");
+                            next3RowHSSFCol.GetCell(4).CellStyle = style18;
+                            next3RowHSSFCol.CreateCell(5).SetCellValue("");
+                            next3RowHSSFCol.GetCell(5).CellStyle = style18;
+                            next3RowHSSFCol.CreateCell(6).SetCellValue("");
+                            next3RowHSSFCol.GetCell(6).CellStyle = style7;
 
-                        next6RowHSSFCol.CreateCell(2).SetCellValue("");
-                        next6RowHSSFCol.GetCell(2).CellStyle = style18;
-                        next6RowHSSFCol.CreateCell(3).SetCellValue("背番号");
-                        next6RowHSSFCol.GetCell(3).CellStyle = style112;
-                        next6RowHSSFCol.CreateCell(4).SetCellValue("收容数");
-                        next6RowHSSFCol.GetCell(4).CellStyle = style112;
-                        next6RowHSSFCol.CreateCell(5).SetCellValue("本箱应装个数");
-                        next6RowHSSFCol.GetCell(5).CellStyle = style112;
-                        next6RowHSSFCol.CreateCell(6).SetCellValue("");
-                        next6RowHSSFCol.GetCell(6).CellStyle = style18;
-                            
-                        next6RowHSSFCol.CreateCell(7).SetCellValue("连番");
-                        next6RowHSSFCol.GetCell(7).CellStyle = style6;
-                        next6RowHSSFCol.CreateCell(8).SetCellValue("");
-                        next6RowHSSFCol.GetCell(8).CellStyle = style111;
-                        nextRow++;
-                        #endregion
-                        #region 模板第7行
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 2));
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 5, 6));
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
-                        IRow next7RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next7RowHSSFCol.Height = (short)(45.5 * 20);
-                        next7RowHSSFCol.CreateCell(1).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["dOrderReceiveDate"].ToString());
-                        next7RowHSSFCol.GetCell(1).CellStyle = style13;
-                        next7RowHSSFCol.CreateCell(2).SetCellValue("");
-                        next7RowHSSFCol.GetCell(2).CellStyle = style22;
+                            next3RowHSSFCol.CreateCell(7).SetCellValue("色番");
+                            next3RowHSSFCol.GetCell(7).CellStyle = style112;
+                            next3RowHSSFCol.CreateCell(8).SetCellValue("");
+                            next3RowHSSFCol.GetCell(8).CellStyle = style111;
+                            nextRow++;
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
+                            IRow next4RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                            next4RowHSSFCol.Height = (short)(35.5 * 20);
+                            next4RowHSSFCol.CreateCell(1).SetCellValue("");
+                            next4RowHSSFCol.GetCell(1).CellStyle = style21;
+                            next4RowHSSFCol.CreateCell(2).SetCellValue("");
+                            next4RowHSSFCol.CreateCell(3).SetCellValue("");
+                            next4RowHSSFCol.CreateCell(4).SetCellValue("");
+                            next4RowHSSFCol.CreateCell(5).SetCellValue("");
+                            next4RowHSSFCol.CreateCell(6).SetCellValue("");
+                            next4RowHSSFCol.CreateCell(7).SetCellValue("");
+                            next4RowHSSFCol.GetCell(7).CellStyle = style8;
+                            next4RowHSSFCol.CreateCell(8).SetCellValue("");
+                            next4RowHSSFCol.GetCell(8).CellStyle = style28;
+                            nextRow++;
+                            #endregion
+                            #region 模板第5行
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 2, 6));
+                            IRow next5RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                            next5RowHSSFCol.Height = 50 * 20;
+                            next5RowHSSFCol.CreateCell(1).SetCellValue("品名");
+                            next5RowHSSFCol.GetCell(1).CellStyle = style5;
 
-                        next7RowHSSFCol.CreateCell(3).SetCellValue("");
-                        next7RowHSSFCol.GetCell(3).CellStyle = style71;
-                        next7RowHSSFCol.CreateCell(4).SetCellValue("");
-                        next7RowHSSFCol.GetCell(4).CellStyle = style71;
-                        next7RowHSSFCol.CreateCell(5).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcNumber"].ToString());
-                        next7RowHSSFCol.GetCell(5).CellStyle = style15;
-                        next7RowHSSFCol.CreateCell(6).SetCellValue("");
-                        next7RowHSSFCol.GetCell(6).CellStyle = style22;
-                            
-                        next7RowHSSFCol.CreateCell(7).SetCellValue("");
-                        next7RowHSSFCol.GetCell(7).CellStyle = style16;
-                        next7RowHSSFCol.CreateCell(8).SetCellValue("");
-                        next7RowHSSFCol.GetCell(8).CellStyle = style20;
-                        nextRow++;
-                        #endregion
-                        #region 模板第8行
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 4));
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 6, 8));
-                        IRow next8RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        //next8RowHSSFCol.Height = 16 * 20;
-                        next8RowHSSFCol.CreateCell(1).SetCellValue("注：每一箱都要贴此标签,且装箱内容要和此标签一致");
-                        next8RowHSSFCol.GetCell(1).CellStyle = style24;
-                        next8RowHSSFCol.CreateCell(2).SetCellValue("");
-                        next8RowHSSFCol.CreateCell(3).SetCellValue("");
-                        next8RowHSSFCol.CreateCell(4).SetCellValue("");
-                        next8RowHSSFCol.CreateCell(5).SetCellValue("");
-                        next8RowHSSFCol.CreateCell(6).SetCellValue("补给管理课 部品组");
-                        next8RowHSSFCol.GetCell(6).CellStyle = style25;
-                        next8RowHSSFCol.CreateCell(7).SetCellValue("");
-                        next8RowHSSFCol.CreateCell(8).SetCellValue("");
-                        nextRow++;
-                        #endregion
-                        #region 分割线
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 8));
-                        IRow next9RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                       
-                        next9RowHSSFCol.CreateCell(1).SetCellValue("");
-                        next9RowHSSFCol.GetCell(1).CellStyle = style26;
-                        next9RowHSSFCol.CreateCell(2).SetCellValue("");
-                        next9RowHSSFCol.GetCell(2).CellStyle = style26;
-                        next9RowHSSFCol.CreateCell(3).SetCellValue("");
-                        next9RowHSSFCol.GetCell(3).CellStyle = style26;
-                        next9RowHSSFCol.CreateCell(4).SetCellValue("");
-                        next9RowHSSFCol.GetCell(4).CellStyle = style26;
-                        next9RowHSSFCol.CreateCell(5).SetCellValue("");
-                        next9RowHSSFCol.GetCell(5).CellStyle = style26;
-                        next9RowHSSFCol.CreateCell(6).SetCellValue("");
-                        next9RowHSSFCol.GetCell(6).CellStyle = style26;
-                        next9RowHSSFCol.CreateCell(7).SetCellValue("");
-                        next9RowHSSFCol.GetCell(7).CellStyle = style26;
-                        next9RowHSSFCol.CreateCell(8).SetCellValue("");
-                        next9RowHSSFCol.GetCell(8).CellStyle = style26;
-                        nextRow++;
-                        nextRow++;
-                        #endregion
+                            next5RowHSSFCol.CreateCell(2).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcPartName"].ToString());
+                            next5RowHSSFCol.GetCell(2).CellStyle = style91;
+                            next5RowHSSFCol.CreateCell(3).SetCellValue("");
+                            next5RowHSSFCol.GetCell(3).CellStyle = style19;
+                            next5RowHSSFCol.CreateCell(4).SetCellValue("");
+                            next5RowHSSFCol.GetCell(4).CellStyle = style19;
+                            next5RowHSSFCol.CreateCell(5).SetCellValue("");
+                            next5RowHSSFCol.GetCell(5).CellStyle = style19;
+                            next5RowHSSFCol.CreateCell(6).SetCellValue("");
+                            next5RowHSSFCol.GetCell(6).CellStyle = style19;
+
+                            next5RowHSSFCol.CreateCell(7).SetCellValue("受入场");
+                            next5RowHSSFCol.GetCell(7).CellStyle = style6;
+                            next5RowHSSFCol.CreateCell(8).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcDock"].ToString());
+                            next5RowHSSFCol.GetCell(8).CellStyle = style12;
+                            nextRow++;
+                            #endregion
+                            #region 模板第6行
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 2));
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 5, 6));
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
+                            IRow next6RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                            next6RowHSSFCol.Height = (short)(22.5 * 20);
+                            next6RowHSSFCol.CreateCell(1).SetCellValue("交货日期提示");
+                            next6RowHSSFCol.GetCell(1).CellStyle = style10;
+
+                            next6RowHSSFCol.CreateCell(2).SetCellValue("");
+                            next6RowHSSFCol.GetCell(2).CellStyle = style18;
+                            next6RowHSSFCol.CreateCell(3).SetCellValue("背番号");
+                            next6RowHSSFCol.GetCell(3).CellStyle = style112;
+                            next6RowHSSFCol.CreateCell(4).SetCellValue("收容数");
+                            next6RowHSSFCol.GetCell(4).CellStyle = style112;
+                            next6RowHSSFCol.CreateCell(5).SetCellValue("本箱应装个数");
+                            next6RowHSSFCol.GetCell(5).CellStyle = style112;
+                            next6RowHSSFCol.CreateCell(6).SetCellValue("");
+                            next6RowHSSFCol.GetCell(6).CellStyle = style18;
+
+                            next6RowHSSFCol.CreateCell(7).SetCellValue("连番");
+                            next6RowHSSFCol.GetCell(7).CellStyle = style6;
+                            next6RowHSSFCol.CreateCell(8).SetCellValue("");
+                            next6RowHSSFCol.GetCell(8).CellStyle = style111;
+                            nextRow++;
+                            #endregion
+                            #region 模板第7行
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 2));
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 5, 6));
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
+                            IRow next7RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                            next7RowHSSFCol.Height = (short)(45.5 * 20);
+                            next7RowHSSFCol.CreateCell(1).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["dOrderReceiveDate"].ToString());
+                            next7RowHSSFCol.GetCell(1).CellStyle = style13;
+                            next7RowHSSFCol.CreateCell(2).SetCellValue("");
+                            next7RowHSSFCol.GetCell(2).CellStyle = style22;
+
+                            next7RowHSSFCol.CreateCell(3).SetCellValue("");
+                            next7RowHSSFCol.GetCell(3).CellStyle = style71;
+                            next7RowHSSFCol.CreateCell(4).SetCellValue("1");
+                            next7RowHSSFCol.GetCell(4).CellStyle = style71;
+                            next7RowHSSFCol.CreateCell(5).SetCellValue("1");//dtNewSupplierandWorkArea.Rows[irow]["vcNumber"].ToString()
+                            next7RowHSSFCol.GetCell(5).CellStyle = style15;
+                            next7RowHSSFCol.CreateCell(6).SetCellValue("");
+                            next7RowHSSFCol.GetCell(6).CellStyle = style22;
+
+                            next7RowHSSFCol.CreateCell(7).SetCellValue(k);
+                            next7RowHSSFCol.GetCell(7).CellStyle = style16;
+                            next7RowHSSFCol.CreateCell(8).SetCellValue("");
+                            next7RowHSSFCol.GetCell(8).CellStyle = style20;
+                            nextRow++;
+                            #endregion
+                            #region 模板第8行
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 4));
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 6, 8));
+                            IRow next8RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                            next8RowHSSFCol.Height = 39 * 20;
+                            next8RowHSSFCol.CreateCell(1).SetCellValue("注：每一箱都要贴此标签,且装箱内容要和此标签一致");
+                            next8RowHSSFCol.GetCell(1).CellStyle = style24;
+                            next8RowHSSFCol.CreateCell(2).SetCellValue("");
+                            next8RowHSSFCol.CreateCell(3).SetCellValue("");
+                            next8RowHSSFCol.CreateCell(4).SetCellValue("");
+                            next8RowHSSFCol.CreateCell(5).SetCellValue("");
+                            next8RowHSSFCol.CreateCell(6).SetCellValue("");
+                            //next8RowHSSFCol.GetCell(6).CellStyle = style25;
+                            next8RowHSSFCol.CreateCell(7).SetCellValue("");
+                            next8RowHSSFCol.CreateCell(8).SetCellValue("");
+                            nextRow++;
+                            #endregion
+                            #region 分割线
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 8));
+                            IRow next9RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                            next8RowHSSFCol.Height = 40 * 20;
+                            next9RowHSSFCol.CreateCell(1).SetCellValue("");
+                            next9RowHSSFCol.GetCell(1).CellStyle = style26;
+                            next9RowHSSFCol.CreateCell(2).SetCellValue("");
+                            next9RowHSSFCol.GetCell(2).CellStyle = style26;
+                            next9RowHSSFCol.CreateCell(3).SetCellValue("");
+                            next9RowHSSFCol.GetCell(3).CellStyle = style26;
+                            next9RowHSSFCol.CreateCell(4).SetCellValue("");
+                            next9RowHSSFCol.GetCell(4).CellStyle = style26;
+                            next9RowHSSFCol.CreateCell(5).SetCellValue("");
+                            next9RowHSSFCol.GetCell(5).CellStyle = style26;
+                            next9RowHSSFCol.CreateCell(6).SetCellValue("");
+                            next9RowHSSFCol.GetCell(6).CellStyle = style26;
+                            next9RowHSSFCol.CreateCell(7).SetCellValue("");
+                            next9RowHSSFCol.GetCell(7).CellStyle = style26;
+                            next9RowHSSFCol.CreateCell(8).SetCellValue("");
+                            next9RowHSSFCol.GetCell(8).CellStyle = style26;
+                            nextRow++;
+                            nextRow++;
+                            #endregion
+
+                        }
+
+
                     }
                     //CellRangeAddress c = CellRangeAddress.ValueOf("A1:I9");
 

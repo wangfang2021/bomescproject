@@ -56,10 +56,10 @@ namespace SPPSApi.Controllers.G07
 
 
 
-                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(FS0701_Logic.SearchPackSpot(loginInfo.UserId));//包装场
 
                 res.Add("C023", dataList_C023);
-                FS0701_Logic FS0701_Logic = new FS0701_Logic();
                 List<Object> dataList_C042 = ComFunction.convertAllToResult(FS0701_Logic.SearchFZLJ());//发注逻辑
 
                 res.Add("C042", dataList_C042);

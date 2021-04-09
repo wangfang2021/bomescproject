@@ -229,10 +229,15 @@ namespace SPPSApi.Controllers.G00
                 dtNewColum.Columns.Remove("vcIsColum");
                 dtNewColum.Columns.Remove("vcModFlag");
                 dtNewColum.Columns.Remove("vcAddFlag");
+                dtNewColum.Columns.Remove("vcOperatorID");
+                dtNewColum.Columns.Remove("dOperatorTime");
+
                 dtContentNew.Columns.Remove("iAutoId");
                 dtContentNew.Columns.Remove("vcIsColum");
                 dtContentNew.Columns.Remove("vcModFlag");
                 dtContentNew.Columns.Remove("vcAddFlag");
+                dtContentNew.Columns.Remove("vcOperatorID");
+                dtContentNew.Columns.Remove("dOperatorTime");
                 string[] head = new string[dtNewColum.Columns.Count];
                 string[] field = new string[dtNewColum.Columns.Count];
                 for (int m=0;m< dtNewColum.Rows.Count;m++)

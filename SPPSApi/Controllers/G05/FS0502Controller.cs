@@ -130,9 +130,12 @@ namespace SPPSApi.Controllers.G05
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
-                int dhfNum = dt.Rows.Count;//待回复条数
+
+                DataTable dt_displabel = fs0502_Logic.Search_DispLabel(vcSupplier_id);
+
+                int dhfNum = dt_displabel.Rows.Count;//待回复条数
                 string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                DataRow[] drs = dt.Select(" '" + now + "' > dReplyOverDate ");
+                DataRow[] drs = dt_displabel.Select(" '" + now + "' > dReplyOverDate ");
                 int yyqNum = drs.Length;//已逾期条数
 
                 DtConverter dtConverter = new DtConverter();

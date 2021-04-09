@@ -13,6 +13,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using BatchProcess;
 
 namespace SPPSApi.Controllers.G08
 {
@@ -266,7 +267,7 @@ namespace SPPSApi.Controllers.G08
         #region 匹配
         [HttpPost]
         [EnableCors("any")]
-        public string PiPeiApi([FromBody]dynamic data)
+        public string PiPeiApi()
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -280,6 +281,9 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 //fs0810_Logic.PiPei(loginInfo.UserId);
+                FP0012 fp = new FP0012();
+                fp.main(loginInfo.UserId);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

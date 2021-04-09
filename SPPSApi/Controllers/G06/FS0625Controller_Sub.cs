@@ -63,7 +63,7 @@ namespace SPPSApi.Controllers.G06
             string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             try
             {
-                String emailBody = fs0625_Logic.CreateEmailBody(date, vcColor,flag, loginInfo.UnitCode, loginInfo.UnitName, vcCarType);
+                String emailBody = fs0625_Logic.CreateEmailBody(date, vcColor,flag, loginInfo.UnitCode, loginInfo.UserName, vcCarType);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = emailBody;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -169,6 +169,12 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dt = fs0604_Logic.Search(dSynchronizationDateFrom, dSynchronizationDateTo,dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType, dSendDate);
+                if (dt.Rows.Count > 10000)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "数据量超过10000条,请输入检索条件，或导出直接导出数据进行查看!";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                 }
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);

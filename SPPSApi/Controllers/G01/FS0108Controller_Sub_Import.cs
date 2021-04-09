@@ -76,15 +76,15 @@ namespace SPPSApi.Controllers.G01
                 //                                {"20","20","10","4","12","0","0","20","20","20","50", "20", "20", "20", "20","500"},//最大长度设定,不校验最大长度用0
                 //                                {"1","1","1","1","1","0","0","0","0","0","0", "0", "0", "0", "0","0"}};//最小长度设定,可以为空用0
                 string[] fields = {"vcType","iAutoId",
-                    "vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5"
+                    "vcValue1", "vcValue2", "vcValue5", "vcValue3", "vcValue4"
                 };
                 //head = new string[] { "状态", "展开时间", "要望纳期", "同步时间", "包装工场", "收货方", "品番", "品名", "车型", "使用开始时间", "OE=SP", "供应商代码", "工区", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "回复时间", "承认时间", "原单位织入时间", "备注" };
                 //field = new string[] { "vcState", "dSendDate", "dExpectDeliveryDate", "dSynchronizationDate", "vcPackingPlant", "vcReceiver", "vcPartNo", "vcPartName", "vcCarType", "dUseStartDate", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
 
 
-                string[,] headers = new string[,] {{"操作类型","iAutoId", "供应商编码", "工区", "开始时间", "结束时间", "发注工场" },
-                                                { "vcType","iAutoId",  "vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5"},
-                                                {"","",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,""},
+                string[,] headers = new string[,] {{"操作类型","iAutoId", "供应商编码", "工区","发注工场", "开始时间", "结束时间" },
+                                                {"vcType","iAutoId",  "vcValue1", "vcValue2",  "vcValue5","vcValue3", "vcValue4"},
+                                                {"","",FieldCheck.NumChar,FieldCheck.NumChar,"",FieldCheck.Date,FieldCheck.Date},
                                                 {"20","0","4","4","500","500","500"},//最大长度设定,不校验最大长度用0
                                                 {"1","0","4","1","1","1","1"}};//最小长度设定,可以为空用0
 
@@ -330,7 +330,7 @@ namespace SPPSApi.Controllers.G01
                 DataTable dt = fs0108_Logic.Search(vcValue1, vcValue2, vcValue5);
                 dt.Columns.Add("vcType");
                 string[] fields = {"vcType","iAutoId",
-                    "vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5"
+                     "vcValue1", "vcValue2", "vcValue5", "vcValue3", "vcValue4"
                 };
                 //head = new string[] { "状态", "展开时间", "要望纳期", "同步时间", "包装工场", "收货方", "品番", "品名", "车型", "使用开始时间", "OE=SP", "供应商代码", "工区", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "回复时间", "承认时间", "原单位织入时间", "备注" };
                 //field = new string[] { "vcState", "dSendDate", "dExpectDeliveryDate", "dSynchronizationDate", "vcPackingPlant", "vcReceiver", "vcPartNo", "vcPartName", "vcCarType", "dUseStartDate", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };

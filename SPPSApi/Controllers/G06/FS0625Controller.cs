@@ -697,6 +697,7 @@ namespace SPPSApi.Controllers.G06
                     ICellStyle style27 = hssfworkbook.CreateCellStyle();//分割线
                     ICellStyle style28 = hssfworkbook.CreateCellStyle();//分割线
                     ICellStyle style29 = hssfworkbook.CreateCellStyle();//
+                    ICellStyle style6PartNo = hssfworkbook.CreateCellStyle();//
 
                     ICellStyle style71 = hssfworkbook.CreateCellStyle();//分割线
                     #region
@@ -786,31 +787,35 @@ namespace SPPSApi.Controllers.G06
                     style6.BorderTop = BorderStyle.Thin;
                     //style6.BorderBottom = BorderStyle.Medium;
 
-                    //IFont font7 = hssfworkbook.CreateFont();
-                    //font7.Color = IndexedColors.Black.Index;
-                    //font7.IsBold = false; ;
-                    //font7.FontHeightInPoints = 16;
-                    ////font.FontName = "宋体";
-                    //style7.SetFont(font7);
-                    //style7.Alignment = HorizontalAlignment.Left;
-                    //style7.VerticalAlignment = VerticalAlignment.Center;
-                    //style7.BorderLeft = BorderStyle.Thin;
-                    ////style6.BorderRight = BorderStyle.Thin;
-                    //style7.BorderTop = BorderStyle.Dotted;
-                    //style7.BorderDiagonal = BorderDiagonal.Both;
+                    IFont font6PartNo = hssfworkbook.CreateFont();
+                    font6PartNo.Color = IndexedColors.Black.Index;
+                    font6PartNo.IsBold = true; ;
+                    font6PartNo.FontHeightInPoints = 24;
+                    
+                    style6PartNo.SetFont(font6PartNo);
+                    style6PartNo.Alignment = HorizontalAlignment.Center;
+                    style6PartNo.VerticalAlignment = VerticalAlignment.Center;
+                    style6PartNo.BorderLeft = BorderStyle.Thin;
+                    style6PartNo.BorderTop = BorderStyle.Thin;
+                    style6PartNo.Alignment = HorizontalAlignment.Center;
+                    style6PartNo.VerticalAlignment = VerticalAlignment.Center;
+                    style6PartNo.BorderLeft = BorderStyle.Thin;
+                    style6PartNo.BorderTop = BorderStyle.Thin;
+
+                   
                     style7.BorderTop = BorderStyle.Dotted;
                     style7.BorderLeft = BorderStyle.Thin;
                     style7.BorderBottom = BorderStyle.Thin;
-                    style7.BorderDiagonalLineStyle = BorderStyle.Thin;
-                    style7.BorderDiagonal = BorderDiagonal.Both;
-                    style7.BorderDiagonalColor = IndexedColors.Black.Index;
+                    //style7.BorderDiagonalLineStyle = BorderStyle.Thin;
+                    //style7.BorderDiagonal = BorderDiagonal.Both;
+                    //style7.BorderDiagonalColor = IndexedColors.Black.Index;
 
                     style71.BorderTop = BorderStyle.Dotted;
                     style71.BorderLeft = BorderStyle.Thin;
                     style71.BorderBottom = BorderStyle.Medium;
-                    style71.BorderDiagonalLineStyle = BorderStyle.Thin;
-                    style71.BorderDiagonal = BorderDiagonal.Both;
-                    style71.BorderDiagonalColor = IndexedColors.Black.Index;
+                    //style71.BorderDiagonalLineStyle = BorderStyle.Thin;
+                    //style71.BorderDiagonal = BorderDiagonal.Both;
+                    //style71.BorderDiagonalColor = IndexedColors.Black.Index;
 
                     //style6.BorderBottom = BorderStyle.Medium;
 
@@ -845,8 +850,8 @@ namespace SPPSApi.Controllers.G06
 
                     IFont font91 = hssfworkbook.CreateFont();
                     font91.Color = IndexedColors.Red.Index;
-                    font91.IsBold = true; ;
-                    font91.FontHeightInPoints = 14;
+                    font91.IsBold = false; ;
+                    font91.FontHeightInPoints = 16;
                     //font.FontName = "宋体";
                     //style9.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Grey25Percent.Index;//灰色
                     //style9.FillPattern = FillPattern.SolidForeground;
@@ -1110,7 +1115,7 @@ namespace SPPSApi.Controllers.G06
                         #region 模板第2行
                         mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 2, 5));
                         IRow next2RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next2RowHSSFCol.Height = 35 * 20;
+                        next2RowHSSFCol.Height = 34 * 20;
                         next2RowHSSFCol.CreateCell(1).SetCellValue("供应商名称");
                         next2RowHSSFCol.GetCell(1).CellStyle = style5;
                             
@@ -1125,10 +1130,13 @@ namespace SPPSApi.Controllers.G06
                             
                         next2RowHSSFCol.CreateCell(6).SetCellValue("");
                         next2RowHSSFCol.GetCell(6).CellStyle = style7;
-                        next2RowHSSFCol.CreateCell(7).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcCarType"].ToString());
-                        next2RowHSSFCol.GetCell(7).CellStyle = style27;
-                        next2RowHSSFCol.CreateCell(8).SetCellValue("补给号试");
-                        next2RowHSSFCol.GetCell(8).CellStyle = style9;
+                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
+                        next2RowHSSFCol.CreateCell(7).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcCarType"].ToString()+ "补给号试");
+                        next2RowHSSFCol.GetCell(7).CellStyle = style9;
+                        //next2RowHSSFCol.CreateCell(7).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcCarType"].ToString());
+                        //next2RowHSSFCol.GetCell(7).CellStyle = style27;
+                        //next2RowHSSFCol.CreateCell(8).SetCellValue("补给号试");
+                        //next2RowHSSFCol.GetCell(8).CellStyle = style9;
                         nextRow++;
                         #endregion
                         #region 模板第3 4行
@@ -1136,12 +1144,12 @@ namespace SPPSApi.Controllers.G06
                         mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow+1, 2, 6));
                         mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
                         IRow next3RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next3RowHSSFCol.Height = 18 * 20;
+                        next3RowHSSFCol.Height = (short)(17.5 * 20);
                         next3RowHSSFCol.CreateCell(1).SetCellValue("品番");
                         next3RowHSSFCol.GetCell(1).CellStyle = style10;
                             
                         next3RowHSSFCol.CreateCell(2).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcPartNo"].ToString());
-                        next3RowHSSFCol.GetCell(2).CellStyle = style6;
+                        next3RowHSSFCol.GetCell(2).CellStyle = style6PartNo;
                         next3RowHSSFCol.CreateCell(3).SetCellValue("");
                         next3RowHSSFCol.GetCell(3).CellStyle = style18;
                         next3RowHSSFCol.CreateCell(4).SetCellValue("");
@@ -1158,7 +1166,7 @@ namespace SPPSApi.Controllers.G06
                         nextRow++;
                         mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
                         IRow next4RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next4RowHSSFCol.Height = 28 * 20;
+                        next4RowHSSFCol.Height = (short)(35.5 * 20);
                         next4RowHSSFCol.CreateCell(1).SetCellValue("");
                         next4RowHSSFCol.GetCell(1).CellStyle = style21;
                         next4RowHSSFCol.CreateCell(2).SetCellValue("");
@@ -1175,7 +1183,7 @@ namespace SPPSApi.Controllers.G06
                         #region 模板第5行
                         mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 2, 6));
                         IRow next5RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next5RowHSSFCol.Height = 41 * 20;
+                        next5RowHSSFCol.Height = 50 * 20;
                         next5RowHSSFCol.CreateCell(1).SetCellValue("品名");
                         next5RowHSSFCol.GetCell(1).CellStyle = style5;
 
@@ -1190,7 +1198,7 @@ namespace SPPSApi.Controllers.G06
                         next5RowHSSFCol.CreateCell(6).SetCellValue("");
                         next5RowHSSFCol.GetCell(6).CellStyle = style19;
 
-                        next5RowHSSFCol.CreateCell(7).SetCellValue("受入地");
+                        next5RowHSSFCol.CreateCell(7).SetCellValue("受入场");
                         next5RowHSSFCol.GetCell(7).CellStyle = style6;
                         next5RowHSSFCol.CreateCell(8).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["vcDock"].ToString());
                         next5RowHSSFCol.GetCell(8).CellStyle = style12;
@@ -1201,7 +1209,7 @@ namespace SPPSApi.Controllers.G06
                         mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 5, 6));
                         mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
                         IRow next6RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next6RowHSSFCol.Height = 17 * 20;
+                        next6RowHSSFCol.Height = (short)(22.5 * 20);
                         next6RowHSSFCol.CreateCell(1).SetCellValue("交货日期提示");
                         next6RowHSSFCol.GetCell(1).CellStyle = style10;
 
@@ -1216,7 +1224,7 @@ namespace SPPSApi.Controllers.G06
                         next6RowHSSFCol.CreateCell(6).SetCellValue("");
                         next6RowHSSFCol.GetCell(6).CellStyle = style18;
                             
-                        next6RowHSSFCol.CreateCell(7).SetCellValue("看板连番");
+                        next6RowHSSFCol.CreateCell(7).SetCellValue("连番");
                         next6RowHSSFCol.GetCell(7).CellStyle = style6;
                         next6RowHSSFCol.CreateCell(8).SetCellValue("");
                         next6RowHSSFCol.GetCell(8).CellStyle = style111;
@@ -1227,7 +1235,7 @@ namespace SPPSApi.Controllers.G06
                         mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 5, 6));
                         mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
                         IRow next7RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                        next7RowHSSFCol.Height = 37 * 20;
+                        next7RowHSSFCol.Height = (short)(45.5 * 20);
                         next7RowHSSFCol.CreateCell(1).SetCellValue(dtNewSupplierandWorkArea.Rows[irow]["dOrderReceiveDate"].ToString());
                         next7RowHSSFCol.GetCell(1).CellStyle = style13;
                         next7RowHSSFCol.CreateCell(2).SetCellValue("");

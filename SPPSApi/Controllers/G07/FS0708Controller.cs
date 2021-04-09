@@ -104,7 +104,15 @@ namespace SPPSApi.Controllers.G07
             string OrderTo = dataForm.OrderTo;
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
-            string Type = dataForm.Type;
+            List<Object> Type = new List<object>();
+            if (dataForm.Type.ToObject<List<Object>>() == null)
+            {
+                Type = new List<object>();
+            }
+            else
+            {
+                Type = dataForm.Type.ToObject<List<Object>>();
+            }
             List<Object> OrderState = new List<object>();
 
             if (dataForm.OrderState.ToObject<List<Object>>() == null)
@@ -198,7 +206,15 @@ namespace SPPSApi.Controllers.G07
             string OrderTo = dataForm.OrderTo;
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
-            string Type = dataForm.Type;
+            List<Object> Type = new List<object>();
+            if (dataForm.Type.ToObject<List<Object>>() == null)
+            {
+                Type = new List<object>();
+            }
+            else
+            {
+                Type = dataForm.Type.ToObject<List<Object>>();
+            }
             List<Object> OrderState = new List<object>();
 
             if (dataForm.SupplierName.ToObject<List<Object>>() == null)

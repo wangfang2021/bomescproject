@@ -84,7 +84,7 @@ namespace SPPSApi.Controllers.G07
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string PackSpot = "H2";
+            string PackSpot = loginInfo.BaoZhuangPlace;
             try
             {
                 ArrayList list = fs0705_Logic.SearchFaZhuTime(PackSpot);

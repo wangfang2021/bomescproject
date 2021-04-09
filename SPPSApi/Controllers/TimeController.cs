@@ -59,6 +59,36 @@ namespace SPPSApi.Controllers
             }
         }
 
+        [HttpPost]
+        [EnableCors("any")]
+        public string YMDApi()
+        {
+            ////验证是否登录
+            //string strToken = Request.Headers["X-Token"];
+            //if (!isLogin(strToken))
+            //{
+            //    return error_login();
+            //}
+            //LoginInfo loginInfo = getLoginByToken(strToken);
 
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+
+
+            try
+            {
+                string time = DateTime.Now.ToString("yyyy/MM/dd");
+                time = time.Replace('-', '/');
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = time;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "时间获取失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
     }
 }

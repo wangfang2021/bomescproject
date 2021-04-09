@@ -55,13 +55,6 @@ namespace SPPSApi.Controllers.G04
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
 
-            //if (!fs0403_Logic.isUpload())
-            //{
-            //    apiResult.code = ComConstant.ERROR_CODE;
-            //    apiResult.data = "导入终止:10点后导入,或今日已经导入";
-            //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-            //}
 
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string DXR = dataForm.DXR == null ? "" : dataForm.DXR;
@@ -71,8 +64,23 @@ namespace SPPSApi.Controllers.G04
                 apiResult.data = "请选择对象年月日。";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
             DateTime time = Convert.ToDateTime(DXR);
+
+            if (!fs0403_Logic.checkJD(time))
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导入终止:今日不是稼动日不可导入。";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+
+            if (!fs0403_Logic.isUpload())
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导入终止:10点后导入,或今日已经导入";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            }
+
 
 
             JArray fileNameList = dataForm.fileNameList;

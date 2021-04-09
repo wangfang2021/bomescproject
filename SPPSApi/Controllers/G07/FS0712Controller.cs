@@ -131,8 +131,6 @@ namespace SPPSApi.Controllers.G07
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dBuJiTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dZiCaiTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 

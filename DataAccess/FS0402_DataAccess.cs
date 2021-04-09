@@ -46,8 +46,7 @@ namespace DataAccess
                 strSql.Append(" when iTzhSOQN is null or iTzhSOQN1 is null or iTzhSOQN2 is null then 'partFS0402A' --无调整      \n");
                 strSql.Append(" when iTzhSOQN=iCbSOQN and iTzhSOQN1=iCbSOQN1 and iTzhSOQN2=iCbSOQN2 then 'partFS0402A' --无调整      \n");
                 strSql.Append(" else 'partFS0402B' --有调整      \n");
-                strSql.Append(" end as vcBgColor,                \n");
-                strSql.Append("case when RIGHT(vcPart_id,2)='00' then LEFT(vcPart_id,10) else vcPart_id end as vcPart_id_export \n");
+                strSql.Append(" end as vcBgColor                \n");
                 strSql.Append("  FROM TSoq a  \n");
                 strSql.Append("  left join      \n");
                 strSql.Append("  (      \n");

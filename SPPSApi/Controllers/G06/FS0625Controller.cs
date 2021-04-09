@@ -715,7 +715,7 @@ namespace SPPSApi.Controllers.G06
 
 
                     IFont font2 = hssfworkbook.CreateFont();
-                    font2.Color = IndexedColors.Red.Index;
+                    font2.Color = IndexedColors.Black.Index;
                     font2.IsBold = true; ;
                     font2.FontHeightInPoints = 16;
                     //font.FontName = "宋体";
@@ -1077,29 +1077,6 @@ namespace SPPSApi.Controllers.G06
                     //mysheetHSSF.SetColumnWidth(12, 10 * 256); //设置第13列的列宽为10个字符
                     //mysheetHSSF.SetColumnWidth(13, 17 * 256); //设置第14列的列宽为17个字符
                     #endregion
-                    #endregion
-                    //Excel.Range myRange4;
-                    #region  delete
-
-                    //for (int irow = 0; irow < dtNewSupplierandWorkArea.Rows.Count; irow++)
-                    //{
-                    //    if (irow >= 1)
-                    //    {
-                    //        //mysheetHSSF.CreateRow(irow * 9);//第10行
-                    //        //mysheetHSSF.CreateRow(irow * 9 + 1);//11
-                    //        //从12 开始
-                    //        for (int m = 0; m < 9; m++)
-                    //        {
-                    //            int stratRow = (irow-1) * 9 + 2 * (irow -1)+ m;
-                    //            int endRow = irow * 9 + 2 * irow + m;
-                    //            mysheetHSSF.CopyRow(stratRow, endRow);
-                    //        }
-                    //        //for (int m = 0; m <22; m++)
-                    //        //{
-                    //        //    mysheetHSSF.CopyRow(m, irow * 21 + 1 * irow + m);
-                    //        //}
-                    //    }
-                    //}
                     #endregion
                     //填写数据
                     int nextRow = 0;

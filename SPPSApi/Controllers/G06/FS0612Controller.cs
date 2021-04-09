@@ -85,7 +85,8 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcCLYM = dataForm.vcCLYM==null?"": dataForm.vcCLYM;
+            //string vcCLYM = dataForm.vcCLYM==null?"": dataForm.vcCLYM;
+            string vcCLYM = dataForm.vcCLYM == null || dataForm.vcCLYM == "" ? "" : Convert.ToDateTime(dataForm.vcCLYM + "/01").ToString("yyyyMM");
             try
             {
                 DataTable dt = fs0612_Logic.Search(vcCLYM.Replace("/",""));
@@ -125,7 +126,7 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcCLYM = dataForm.vcCLYM == null ? "" : dataForm.vcCLYM;
+            string vcCLYM = dataForm.vcCLYM == null || dataForm.vcCLYM == "" ? "" : Convert.ToDateTime(dataForm.vcCLYM + "/01").ToString("yyyyMM");
             try
             {
                 DataTable dt = fs0612_Logic.Search(vcCLYM.Replace("/",""));
@@ -168,7 +169,7 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcCLYM = dataForm.vcCLYM == null ? "" : dataForm.vcCLYM;
+            string vcCLYM = dataForm.vcCLYM == null || dataForm.vcCLYM == "" ? "" : Convert.ToDateTime(dataForm.vcCLYM + "/01").ToString("yyyyMM");
             try
             {
                 DataTable dt = fs0612_Logic.Search2(vcCLYM.Replace("/",""));
@@ -208,7 +209,7 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcCLYM = dataForm.vcCLYM == null ? "" : dataForm.vcCLYM;
+            string vcCLYM = dataForm.vcCLYM == null || dataForm.vcCLYM == "" ? "" : Convert.ToDateTime(dataForm.vcCLYM + "/01").ToString("yyyyMM");
             try
             {
                 DataTable dt = fs0612_Logic.Search2(vcCLYM.Replace("/", ""));

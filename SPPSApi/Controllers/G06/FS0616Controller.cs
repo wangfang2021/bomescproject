@@ -50,6 +50,7 @@ namespace SPPSApi.Controllers.G06
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 DataTable dtOptionsList = fS0616_logic.getFormOptions();
                 List<Object> OrderNoListForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOrderNo_Name", "vcOrderNo_Value"));//订单
+                List<Object> InOutForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcInOut_Name", "vcInOut_Value"));//内外区分选项
                 List<Object> HaoJiuForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcHaoJiu_Name", "vcHaoJiu_Value"));//号旧
                 List<Object> OrderPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOrderPlant_Name", "vcOrderPlant_Value"));//发注工场
                 List<Object> SupplierIdForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierId_Name", "vcSupplierId_Value"));//供应商
@@ -61,6 +62,7 @@ namespace SPPSApi.Controllers.G06
 
                 res.Add("StateList", StateList);
                 res.Add("OrderNoListForForm", OrderNoListForForm);
+                res.Add("InOutForForm", InOutForForm);
                 res.Add("HaoJiuForForm", HaoJiuForForm);
                 res.Add("OrderPlantForForm", OrderPlantForForm);
                 res.Add("SupplierIdForForm", SupplierIdForForm);
@@ -103,6 +105,7 @@ namespace SPPSApi.Controllers.G06
             string strState = dataForm.State;
             List<Object> listOrderNo = dataForm.OrderNoList.ToObject<List<Object>>();
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut.ToString();
             string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
             string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
             string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
@@ -112,7 +115,7 @@ namespace SPPSApi.Controllers.G06
 
             try
             {
-                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
+                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strInOut, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
@@ -174,6 +177,7 @@ namespace SPPSApi.Controllers.G06
             string strState = dataForm.State;
             List<Object> listOrderNo = dataForm.OrderNoList.ToObject<List<Object>>();
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut.ToString();
             string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
             string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
             string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
@@ -182,9 +186,9 @@ namespace SPPSApi.Controllers.G06
             string strOutPutDate = dataForm.OutPutDate == null ? "" : dataForm.OutPutDate.ToString();
             try
             {
-                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
+                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strInOut, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
 
-                string[] fields = {"vcState_name","vcOrderNo","vcPart_id","vcOrderPlant","vcHaoJiu","vcOESP","vcSupplierId","vcSupplierPlant",
+                string[] fields = {"vcState_name","vcOrderNo","vcPart_id","vcOrderPlant","vcInOut","vcHaoJiu","vcOESP","vcSupplierId","vcSupplierPlant",
                     "vcSupplierPlace","vcSufferIn","iPackingQty","iOrderQuantity","iDuiYingQuantity","decBoxQuantity","dDeliveryDate","dOutPutDate","dReplyOverDate","dSupReplyTime"
                 };
 
@@ -310,6 +314,7 @@ namespace SPPSApi.Controllers.G06
                 string strState = dataForm.searchform.State;
                 List<Object> listOrderNo = dataForm.searchform.OrderNoList.ToObject<List<Object>>();
                 string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut.ToString();
                 string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
                 string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
                 string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
@@ -324,7 +329,7 @@ namespace SPPSApi.Controllers.G06
 
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DataTable dtMultiple = fS0616_logic.setMultipleData(listMultipleData, ref dtMessage);
-                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
+                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strInOut, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
 
                 DataTable dtImport = fS0616_logic.checkReplyInfo(listInfoData, dtMultiple, dataTable, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
@@ -380,6 +385,7 @@ namespace SPPSApi.Controllers.G06
                 string strState = dataForm.searchform.State;
                 List<Object> listOrderNo = dataForm.searchform.OrderNoList.ToObject<List<Object>>();
                 string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut.ToString();
                 string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
                 string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
                 string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
@@ -408,7 +414,7 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dtMultiple = fS0616_logic.setMultipleData(listMultipleData, ref dtMessage);
-                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
+                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strInOut,strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
 
                 DataTable dtImport = fS0616_logic.checkReplyInfo(listInfoData, dtMultiple, dataTable, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
@@ -478,6 +484,7 @@ namespace SPPSApi.Controllers.G06
                 string strState = dataForm.searchform.State;
                 List<Object> listOrderNo = dataForm.searchform.OrderNoList.ToObject<List<Object>>();
                 string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut.ToString();
                 string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
                 string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
                 string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
@@ -515,7 +522,7 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
+                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strInOut, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
                 DataTable dtImport = fS0616_logic.checkOutputInfo(listMultipleData, dataTable, dOutPutDate, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
                 {
@@ -618,6 +625,7 @@ namespace SPPSApi.Controllers.G06
                 string strState = dataForm.searchform.State;
                 List<Object> listOrderNo = dataForm.searchform.OrderNoList.ToObject<List<Object>>();
                 string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut.ToString();
                 string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
                 string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
                 string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
@@ -656,7 +664,7 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
+                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strInOut, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
 
                 DataTable dtImport = fS0616_logic.checkOpenInfo(listMultipleData, dataTable, dReplyOverDate, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)

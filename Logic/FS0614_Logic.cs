@@ -66,5 +66,10 @@ namespace Logic
         {
             fs0614_DataAccess.cancelOrder(list, userId);
         }
+
+        public DataTable orderList()
+        {
+            return fs0614_DataAccess.orderList();
+        }
     }
 }

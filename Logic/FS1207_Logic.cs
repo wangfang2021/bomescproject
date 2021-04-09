@@ -643,6 +643,13 @@ namespace Logic
         {
             return dataAccess.search_FZJS(mon, partsno);
         }
+
+        public DataTable searchAll(string mon, string partsno)
+        {
+            return dataAccess.search_All(mon, partsno);
+        }
+
+
         public DataTable searchFZFinsh(string mon, string partsno)
         {
             return dataAccess.searchFZFinsh(mon, partsno);

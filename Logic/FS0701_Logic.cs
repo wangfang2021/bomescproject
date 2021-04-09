@@ -97,9 +97,9 @@ namespace Logic
         #endregion
 
         #region 查找工厂
-        public DataTable SearchPackSpot()
+        public DataTable SearchPackSpot(string userid)
         {
-            return FS0701_DataAccess.SearchPackSpot();
+            return FS0701_DataAccess.SearchPackSpot(userid);
         }
         #endregion
 

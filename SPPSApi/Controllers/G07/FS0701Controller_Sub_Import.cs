@@ -112,7 +112,7 @@ namespace SPPSApi.Controllers.G07
 
                 #region 导入限制
                 //查找包装厂
-                DataTable dtPS = fs0701_Logic.SearchPackSpot();
+                DataTable dtPS = fs0701_Logic.SearchPackSpot(loginInfo.UserId);
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
                     if (dtPS.Select("vcValue='" + importDt.Rows[i]["vcPackSpot"].ToString() + "'").Length == 0)

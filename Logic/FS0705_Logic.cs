@@ -275,11 +275,11 @@ namespace Logic
             string strBanZhi = getPackBanZhi(dT.ToString("yyyy-MM"), dT.Day);
             DateTime dtLast = dT.AddDays(-1);
             string strBanZhiLast = getPackBanZhi(dtLast.ToString("yyyy-MM"), dtLast.Day);
-            if (strBanZhiLast == "双稼动" || strBanZhiLast == "夜")
+            if (strBanZhiLast == "双值" || strBanZhiLast == "夜")
             {
                 switch (strBanZhi)
                 {
-                    case "无稼动":
+                    case "非稼动":
                         checkList.Add(getBZTime(strPackPlant, "夜", dtLast.ToString("yyyy-MM-dd")));
                         ; break;
                     case "白":
@@ -297,11 +297,11 @@ namespace Logic
                         ; break;
                 }
             }
-            else if (strBanZhiLast == "白" || strBanZhiLast == "无稼动")
+            else if (strBanZhiLast == "白" || strBanZhiLast == "非稼动")
             {
                 switch (strBanZhi)
                 {
-                    case "无稼动":
+                    case "非稼动":
                         ; break;
                     case "白":
                         checkList.Add(getBZTime(strPackPlant, "白", dT.ToString("yyyy-MM-dd")));

@@ -384,11 +384,10 @@ namespace SPPSApi.Controllers.G12
                             {
                                 if (_Plant != vcPlant)
                                 {
-                                    //apiResult.code = ComConstant.ERROR_CODE;
-                                    //apiResult.data = "第" + (i + 1).ToString() + "行，品番：" + vcPartsno + "的厂区为" + _Plant + "，不在所选厂区" + vcPlant + "中！";
-                                    //return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    continue;
-                                }               
+                                    apiResult.code = ComConstant.ERROR_CODE;
+                                    apiResult.data = "第" + (i + 1).ToString() + "行，品番：" + vcPartsno + "的厂区为" + _Plant + "，不在所选厂区" + vcPlant + "中！";
+                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                                }
                             }
                             //部署组别唯一性校验
 

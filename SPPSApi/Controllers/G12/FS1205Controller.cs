@@ -125,7 +125,7 @@ namespace SPPSApi.Controllers.G12
                 string vcPlant = dataForm.vcPlant == null ? "" : dataForm.vcPlant;
                 string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
 
-                if (dataForm.multipleSelection == null)
+                if(dataForm.multipleSelection == null)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少有一个编辑行！";
@@ -596,7 +596,7 @@ namespace SPPSApi.Controllers.G12
                     DataTable dtCol = dtSource.Clone();
                     if (dtSource.Rows.Count > 0)
                     {
-                        msg = fS1205_Logic.InsertOrder(dtSource, loginInfo.UserId, loginInfo.UnitCode, vcPlant);
+                        msg = fS1205_Logic.InsertOrder(dtSource, loginInfo.UserId, loginInfo.UnitCode);
                         if (msg == "")
                         {
                             apiResult.code = ComConstant.SUCCESS_CODE;

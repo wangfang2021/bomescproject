@@ -93,7 +93,7 @@ namespace Logic
                 //strEmailBody += "  请填写完整后，于<span style='font-family:宋体;font-size:12;color:red'>" + dExpectDeliveryDate + "日前在系统上给予回复</span>，谢谢！<br /><br /></div>";
                 //string result = "Success";
                 sbr.AppendLine("<p>各位供应商 殿：大家好</p>");
-                sbr.AppendLine("<p>"+UnitCode+"补给资材企管课"+UnitName+"</p>");
+                sbr.AppendLine("<p>"+UnitCode+"补给"+UnitName+"</p>");
                 sbr.AppendLine("<p>感谢大家一直以来对" + UnitCode + "补给业务的协力！</p>");
                 sbr.AppendLine("<p>【一丰补给管理系统】上传了贵司新设补给品荷姿确认，拜托贵司进行检讨，</p>");
                 sbr.AppendLine("<p>请填写完整后，于<u style=\"color: rgb(230, 0, 0);\">" + date + "</u>日前在系统上给予回复，谢谢!</p>");

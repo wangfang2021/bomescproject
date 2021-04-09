@@ -275,7 +275,7 @@ namespace Logic
             string strBanZhi = getPackBanZhi(dT.ToString("yyyy-MM"), dT.Day);
             DateTime dtLast = dT.AddDays(-1);
             string strBanZhiLast = getPackBanZhi(dtLast.ToString("yyyy-MM"), dtLast.Day);
-            if (strBanZhiLast == "双值" || strBanZhiLast == "夜")
+            if (strBanZhiLast == "双稼动" || strBanZhiLast == "夜")
             {
                 switch (strBanZhi)
                 {

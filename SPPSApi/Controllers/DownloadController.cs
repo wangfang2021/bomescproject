@@ -38,7 +38,6 @@ namespace SPPSApi.Controllers
                 FileInfo fileInfo = new FileInfo(fileSavePath + path);
                 var ext = fileInfo.Extension;
                 new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
-                Console.WriteLine("downloadApi:"+ fileSavePath + path);
                 byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
                 return File(bt, contenttype ?? "application/octet-stream", fileInfo.Name);
             }
@@ -65,7 +64,6 @@ namespace SPPSApi.Controllers
                 FileInfo fileInfo = new FileInfo(fileSavePath + path);
                 var ext = fileInfo.Extension;
                 new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
-                Console.WriteLine("downloadPDFApi:" + fileSavePath + path);
                 byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
                 return File(bt, contenttype ?? "application/octet-stream", fileInfo.Name);
             }
@@ -89,7 +87,6 @@ namespace SPPSApi.Controllers
             {
                 string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "TagZIP" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
                 var provider = new FileExtensionContentTypeProvider();
-                Console.WriteLine("downloadTagZIPApi:" + fileSavePath + path);
                 FileInfo fileInfo = new FileInfo(fileSavePath + path);
                 var ext = fileInfo.Extension;
                 new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
@@ -116,7 +113,6 @@ namespace SPPSApi.Controllers
             {
                 string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar;//模板目录，读取模板供用户下载
                 var provider = new FileExtensionContentTypeProvider();
-                Console.WriteLine("downloadTplApi:" + fileSavePath + path);
                 FileInfo fileInfo = new FileInfo(fileSavePath + path);
                 var ext = fileInfo.Extension;
                 new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
@@ -142,7 +138,6 @@ namespace SPPSApi.Controllers
             {
                 string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "PackingOper" + Path.DirectorySeparatorChar;
                 var provider = new FileExtensionContentTypeProvider();
-                Console.WriteLine("getImageList:" + fileSavePath + path);
                 FileInfo fileInfo = new FileInfo(fileSavePath + path);
                 var ext = fileInfo.Extension;
                 new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);

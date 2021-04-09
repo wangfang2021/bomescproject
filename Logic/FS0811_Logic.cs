@@ -215,7 +215,7 @@ namespace Logic
                 for (int i = 0; i < dtImport.Rows.Count; i++)
                 {
                     decimal decPlannedTime = Convert.ToDecimal(dtImport.Rows[i]["decPlannedTime"].ToString());
-                    decimal decPlannedPerson =Math.Round(Convert.ToDecimal(decPlannedTime / (Convert.ToDecimal(strCycleTime) / 60)),2);
+                    decimal decPlannedPerson = Convert.ToDecimal(decPlannedTime / (Convert.ToDecimal(strCycleTime) / 60));
                     dtImport.Rows[i]["decPlannedPerson"] = decPlannedPerson.ToString("#0.00");
                     decimal decInputPerson = Convert.ToDecimal(dtImport.Rows[i]["decInputPerson"].ToString());
                     decimal decInputTime = decInputPerson * (Convert.ToDecimal(strCycleTime) / 60);
@@ -233,11 +233,10 @@ namespace Logic
                     dtImport.Rows[i]["decDiffer"] = "0.00";
                 }
                 decimal decWorkOverTime = 0;//计划人均加班小时数
-                //if (decPlannedPerson_sum > decPeopleNum)
-                if (decPlannedPerson_sum > decInputPerson_sum)
-                    {
+                if (decPlannedPerson_sum > decPeopleNum)
+                {
                     decWorkOverTime = ((decPlannedPerson_sum - decInputPerson_sum) * (Convert.ToDecimal(strCycleTime)) / 60) / decPeopleNum;
-                    decWorkOverTime = decWorkOverTime + Convert.ToDecimal(0.004);
+                    decWorkOverTime = decWorkOverTime + Convert.ToDecimal(0.009);
 
                     //decWorkOverTime = GetN(2, decWorkOverTime);
                 }

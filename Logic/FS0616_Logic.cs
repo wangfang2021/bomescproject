@@ -28,7 +28,7 @@ namespace Logic
         {
             return fs0616_DataAccess.getFormOptions();
         }
-        public DataTable getSearchInfo(string strState, List<Object> listOrderNo, string strPartId, string strInOut,string strHaoJiu, string strOrderPlant, string strSupplierId, string strSupplierPlant, string strReplyOverDate, string strOutPutDate)
+        public DataTable getSearchInfo(string strState, List<Object> listOrderNo, string strPartId, string strHaoJiu, string strOrderPlant, string strSupplierId, string strSupplierPlant, string strReplyOverDate, string strOutPutDate)
         {
             string strOrderNoList = "";
             if (listOrderNo.Count != 0)
@@ -49,7 +49,7 @@ namespace Logic
                     }
                 }
             }
-            DataTable dataTable = fs0616_DataAccess.getSearchInfo(strState, strOrderNoList, strPartId, strInOut,strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
+            DataTable dataTable = fs0616_DataAccess.getSearchInfo(strState, strOrderNoList, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {

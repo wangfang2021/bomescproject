@@ -105,7 +105,7 @@ namespace DataAccess
                     }
                     else
                     {
-                        strSql.AppendLine("  and  vcInjectionOrderNo like '" + vcInjectionOrderNo + "%' ");
+                        strSql.AppendLine("  and  left(vcInjectionOrderNo,6) like '" + vcInjectionOrderNo + "%' ");
                     }
                 }
                 if (strExpectReceiveleTime_from.Length > 0)
@@ -195,13 +195,12 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                //strSql.AppendLine("    select vcInjectionOrderNo as vcValue,vcInjectionOrderNo as vcName from(     ");
-                //strSql.AppendLine("    select distinct isnull(left(vcInjectionOrderNo,6),'无') as vcInjectionOrderNo from TEmergentOrderManage     ");
-                //strSql.AppendLine("    ) t  order by vcInjectionOrderNo asc     ");
-                strSql.AppendLine("     select case when vcInjectionOrderNo ='' then '无' else vcInjectionOrderNo end as vcValue,    ");
-                strSql.AppendLine("     case when vcInjectionOrderNo ='' then '无' else vcInjectionOrderNo end as vcName from(       ");
-                strSql.AppendLine("    select  distinct isnull(vcInjectionOrderNo,'') as vcInjectionOrderNo from TEmergentOrderManage       ");
-                strSql.AppendLine("    ) t  order by vcInjectionOrderNo asc         ");
+                strSql.AppendLine("    select vcInjectionOrderNo as vcValue,vcInjectionOrderNo as vcName from(     ");
+                strSql.AppendLine("    select distinct isnull(left(vcInjectionOrderNo,6),'无') as vcInjectionOrderNo from TEmergentOrderManage     ");
+                strSql.AppendLine("    ) t  order by vcInjectionOrderNo asc     ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("       ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

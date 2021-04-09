@@ -88,8 +88,7 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            //string strCLYM = dataForm.Process_YYYYMM==null?"": dataForm.Process_YYYYMM;
-            string strCLYM = dataForm.Process_YYYYMM == null || dataForm.Process_YYYYMM == "" ? "" : Convert.ToDateTime(dataForm.Process_YYYYMM + "/01").ToString("yyyyMM");
+            string strCLYM = dataForm.Process_YYYYMM==null?"": dataForm.Process_YYYYMM;
             string strDXYM = dataForm.Start_date_for_daily_qty;
             string strPartNo = dataForm.Part_No;
             string strPlant = dataForm.vcPlant;
@@ -131,7 +130,7 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strCLYM = dataForm.Process_YYYYMM == null || dataForm.Process_YYYYMM == "" ? "" : Convert.ToDateTime(dataForm.Process_YYYYMM + "/01").ToString("yyyyMM");
+            string strCLYM = dataForm.Process_YYYYMM==null?"": dataForm.Process_YYYYMM;
             string strDXYM = dataForm.Start_date_for_daily_qty;
             string strPartNo = dataForm.Part_No;
             string strPlant = dataForm.vcPlant;

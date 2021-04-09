@@ -74,43 +74,21 @@ namespace Logic
                     if (bInPutOrder == "1")
                     {
                         string strLabelNum = dataTable.Rows[i]["vcLabelNum"].ToString();
-                        string strInPutNum = dataTable.Rows[i]["vcInPutNum"].ToString();
-                        if (strInPutNum == "" || strInPutNum == "0")
+                        string strInPutNum= dataTable.Rows[i]["vcInPutNum"].ToString();
+                        if(strInPutNum==""|| strInPutNum=="0")
                         {
                             strInPutNum = strLabelNum;
                         }
-                        if (!fS0603_Logic.IsInt(strInPutNum))
+                        if(!fS0603_Logic.IsInt(strInPutNum))
                         {
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcMessage"] = "所选择的入库指令书" + strInPutOrderNo + "的指令书数量不为数字";
                             dtMessage.Rows.Add(dataRow);
                         }
-                        else
-                        {
-                            if (Convert.ToInt32(strInPutNum) > Convert.ToInt32(strLabelNum))
-                            {
-                                DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = "所选择的入库指令书" + strInPutOrderNo + "的指令书数量不能大于实际数量";
-                                dtMessage.Rows.Add(dataRow);
-                            }
-                            else
-                            {
-                                DataTable dtInPutInfo = fs1103_DataAccess.getInvList(strInPutOrderNo);
-                                if (dtInPutInfo.Rows.Count != 0)
-                                {
-                                    if (Convert.ToInt32(strInPutNum) == Convert.ToInt32(strLabelNum))
-                                    {
-                                        DataRow drInputTemp = dtInputTemp.NewRow();
-                                        drInputTemp["vcInno"] = strInPutOrderNo;
-                                        drInputTemp["vcInPutNum"] = strInPutNum;
-                                        dtInputTemp.Rows.Add(drInputTemp);
-                                    }else
-                                    {
-
-                                    }
-                                }
-                            }
-                        }
+                        DataRow drInputTemp = dtInputTemp.NewRow();
+                        drInputTemp["vcInno"] = strInPutOrderNo;
+                        drInputTemp["vcInPutNum"] = strInPutNum;
+                        dtInputTemp.Rows.Add(drInputTemp);
                     }
                     if (bTag == "1")
                     {
@@ -144,7 +122,7 @@ namespace Logic
                                 }
                                 else
                                 {
-                                    DataTable dtTagInfo = fs1103_DataAccess.getLabelList(strInPutOrderNo);
+                                    DataTable dtTagInfo = fs1103_DataAccess.getSearchInfo(strInPutOrderNo);
                                     for (int j = Convert.ToInt32(strTagLianFFrom.Substring(6, 5)); j <= Convert.ToInt32(strTagLianFTo.Substring(6, 5)); j++)
                                     {
                                         string strTagNo = strTagLianFFrom.Substring(0, 6) + (100000 + j).ToString().Substring(1, 5);

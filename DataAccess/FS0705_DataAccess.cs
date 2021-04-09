@@ -221,14 +221,7 @@ namespace DataAccess
             strSql.Append("       	) c on a.vcPackNo = c.vcPackNo and a.vcPackSpot = c.vcBZPlant      \r\n");
             strSql.Append("       	left join      \r\n");
             strSql.Append("       	(      \r\n");
-            strSql.Append("       		select b.* from       \r\n");
-            strSql.Append("       		(      \r\n");
-            strSql.Append("       		  select  vcPackNo,MAX(iAutoId)as 'iMaxID' from TPackCompute_Ajust group by vcPackNo      \r\n");
-            strSql.Append("       		) a      \r\n");
-            strSql.Append("       		inner join      \r\n");
-            strSql.Append("       		(      \r\n");
-            strSql.Append("       		  select * from  TPackCompute_Ajust      \r\n");
-            strSql.Append("       		)b on a.iMaxID = b.iAutoId      \r\n");
+            strSql.Append("       		select vcPackNo,iNumber from TPackCompute_Ajust      \r\n");
             strSql.Append("       	) d on a.vcPackNo = d.vcPackNo      \r\n");
             strSql.Append("       	left join      \r\n");
             strSql.Append("       	(      \r\n");
@@ -243,7 +236,7 @@ namespace DataAccess
             strSql.Append("       	) e on a.vcPackNo = e.vcPackNo and a.vcPackSpot = e.vcPackSpot      \r\n");
             strSql.Append("       ) a;      \r\n");
             #region 插入计算时间履历表
-            strSql.Append("       insert into TPackCompute_Time(vcFaZhuID,dBegin,dEnd,vcOperatorID,dOperatorTime,vcFlag) values ('"+strFaZhuID+"',@dEnd,GETDATE(),'000000',GETDATE(),'"+strFlag+"');      \r\n");
+            strSql.Append("       insert into TPackCompute_Time(vcFaZhuID,dBegin,dEnd,vcOperatorID,dOperatorTime,vcFlag) values ('"+strFaZhuID+"',@dBegin,@dEnd,'000000',GETDATE(),'"+strFlag+"');      \r\n");
             #endregion
             excute.ExcuteSqlWithStringOper(strSql.ToString());
         }

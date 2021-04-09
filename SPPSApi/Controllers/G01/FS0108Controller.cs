@@ -175,7 +175,7 @@ namespace SPPSApi.Controllers.G00
                 string[] field = new string[] { };
                
 
-                head = new string[] { "供应商代码", "工区", "开始时间", "结束时间", "发注工场" };
+                head = new string[] { "供应商编码", "工区", "开始时间", "结束时间", "发注工场" };
                 field = new string[] { "vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
@@ -245,10 +245,10 @@ namespace SPPSApi.Controllers.G00
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"供应商代码", "工区", "发注工场","开始时间", "结束时间",  },
-                                                {"vcValue1", "vcValue2","vcValue5" ,"vcValue3", "vcValue4", },
-                                                {FieldCheck.NumChar,FieldCheck.NumChar,"",FieldCheck.Date,FieldCheck.Date, },
-                                                {"4","100","500","500","500",},//最大长度设定,不校验最大长度用0
+                    string[,] strField = new string[,] {{"供应商编码", "工区", "开始时间", "结束时间", "发注工场" },
+                                                {"vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5"},
+                                                {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"" },
+                                                {"4","100","500","500","500"},//最大长度设定,不校验最大长度用0
                                                 {"4","1","1","1","1"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };

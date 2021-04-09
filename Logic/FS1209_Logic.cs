@@ -1734,7 +1734,7 @@ namespace Logic
             //binding.OpenTimeout = TimeSpan.MaxValue;
             //binding.ReceiveTimeout = TimeSpan.MaxValue;
             //binding.SendTimeout = TimeSpan.MaxValue;
-            //EndpointAddress address = new EndpointAddress("http://localhost:8089/PrintTable.asmx");
+            //EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
             //PrintTableSoapClient client = new PrintTableSoapClient(binding, address);
             //Task<PrinterResponse> responseTask = client.PrinterAsync("test20210205", "\\\\172.23.129.181\\刷卡打印机黑白", "C:\\inetpub\\SPPSPrint\\Test.rpt", "172.23.140.169", "SPPSdb", "sa", "Sa123");
             //PrinterResponse response = responseTask.Result;

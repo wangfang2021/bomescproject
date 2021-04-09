@@ -121,8 +121,8 @@ namespace SPPSApi.Controllers.G06
                 {
                     string vcSupplier_id = importDt.Rows[i]["vcSupplier_id"].ToString();
                     string vcWorkArea = importDt.Rows[i]["vcWorkArea"].ToString();
-                    int BeginDate = int.Parse(Convert.ToDateTime(importDt.Rows[i]["dBeginDate"].ToString()).ToString("yyyy/MM/dd").Replace("-", "").Replace("/", ""));
-                    int EndDate = int.Parse(Convert.ToDateTime(importDt.Rows[i]["dEndDate"].ToString()).ToString("yyyy/MM/dd").Replace("-", "").Replace("/", ""));
+                    int BeginDate = int.Parse(importDt.Rows[i]["dBeginDate"].ToString().Replace("-", "").Replace("/", ""));
+                    int EndDate = int.Parse(importDt.Rows[i]["dEndDate"].ToString().Replace("-", "").Replace("/", ""));
                     if (BeginDate.ToString().Substring(0, 6) != EndDate.ToString().Substring(0, 6))
                     {
                         sbr1.Append("供应商代码:" + vcSupplier_id + " 工区:"+ vcWorkArea + "的纳入日-开始日期纳入日-结束日期必须同一个月<br/>");

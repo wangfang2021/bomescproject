@@ -164,14 +164,14 @@ namespace SPPSApi.Controllers.G05
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcSupplier_id = loginInfo.UserId;
-            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
-            string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
-            string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
+            string vcWorkArea = dataForm.searchForm.vcWorkArea == null ? "" : dataForm.searchForm.vcWorkArea;
+            string vcState = dataForm.searchForm.vcState == null ? "" : dataForm.searchForm.vcState;
+            string vcPartNo = dataForm.searchForm.vcPartNo == null ? "" : dataForm.searchForm.vcPartNo;
 
-            string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
-            string dExpectDeliveryDate = dataForm.dExpectDeliveryDate == null ? "" : dataForm.dExpectDeliveryDate;
-            string dSendDate = dataForm.dSendDate == null ? "" : dataForm.dSendDate;
-            string dReplyDate = dataForm.dReplyDate == null ? "" : dataForm.dReplyDate;
+            string vcCarType = dataForm.searchForm.vcCarType == null ? "" : dataForm.searchForm.vcCarType;
+            string dExpectDeliveryDate = dataForm.searchForm.dExpectDeliveryDate == null ? "" : dataForm.searchForm.dExpectDeliveryDate;
+            string dSendDate = dataForm.searchForm.dSendDate == null ? "" : dataForm.searchForm.dSendDate;
+            string dReplyDate = dataForm.searchForm.dReplyDate == null ? "" : dataForm.searchForm.dReplyDate;
 
             try
             {

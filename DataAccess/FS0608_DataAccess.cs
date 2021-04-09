@@ -110,51 +110,6 @@ namespace DataAccess
                 if (days < 3)
                     return "最少必须维护3天";
                 excute.ExcuteSqlWithStringOper(strSql.ToString(), parameters);
-
-                DataTable ckdt = excute.ExcuteSqlWithSelectToDT("select * from TCalendar_PingZhun_Wai where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "'");
-                double week1 = 0;
-                double week4 = 0;
-
-                string week1Name = "";
-                string week2Name = "";
-                string week3Name = "";
-                string week4Name = "";
-                for (int i = 1; i <= 31; i++)
-                {
-                    if (ckdt.Rows[0][i].ToString() == "1")
-                    {
-                        week1 = week1 + 1;
-                        week1Name = "TARGETDAY" + i.ToString();
-                    }
-                    else if (ckdt.Rows[0][i].ToString() == "1*")
-                    {
-                        week1 = week1 + 0.5;
-                        week1Name = "TARGETDAY" + i.ToString();
-                    }
-                    else if (ckdt.Rows[0][i].ToString() == "2" || ckdt.Rows[0][i].ToString() == "2*")
-                    {
-                        week2Name = "TARGETDAY" + i.ToString();
-                    }
-                    else if (ckdt.Rows[0][i].ToString() == "3" || ckdt.Rows[0][i].ToString() == "3*")
-                    {
-                        week3Name = "TARGETDAY" + i.ToString();
-                    }
-                    else if (ckdt.Rows[0][i].ToString() == "4")
-                    {
-                        week4 = week4 + 1;
-                        week4Name = "TARGETDAY" + i.ToString();
-                    }
-                    else if (ckdt.Rows[0][i].ToString() == "4*")
-                    {
-                        week4 = week4 + 0.5;
-                        week4Name = "TARGETDAY" + i.ToString();
-                    }
-                }
-                if (week1 - week4 > 1)
-                {
-                    string sql1 = "update TCalendar_PingZhun_Wai set " + week1Name + "='2'," + week2Name + "='3'," + week3Name + "='4' where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "';";
-                    excute.ExecuteSQLNoQuery(sql1);
-                }
                 return msg;
             }
             catch (Exception ex)

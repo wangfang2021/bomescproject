@@ -2965,7 +2965,7 @@ namespace Logic
                 }
                 TXTUpdatePlanMST(strMonth, strPlant);//更新到计划品番数据表
                                                      //生成打印数据
-                _msg = TXTCreatOrderNo(strUser, strMonth, strPlant, strWeek);
+                                                     //_msg = TXTCreatOrderNo(strUser, strMonth, strPlant, strWeek);
             }
             #endregion
             return _msg;
@@ -5076,9 +5076,9 @@ namespace Logic
         #endregion
 
         #region 生成订单，插入订单表
-        public string InsertOrder(DataTable dt, string vcUserId, string vcPackPlant, string vcPlant)
+        public string InsertOrder(DataTable dt, string vcUserId, string vcPackPlant)
         {
-            return fs0610_DataAccess.InsertOrder(dt, vcUserId, vcPackPlant, vcPlant);
+            return fs0610_DataAccess.InsertOrder(dt, vcUserId, vcPackPlant);
         }
         #endregion
 

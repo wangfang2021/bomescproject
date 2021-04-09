@@ -19,8 +19,6 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("select distinct isnull(t1.vcOrderNo,'--') as vcOrderNo_Value");
                 strSql.AppendLine("		,isnull(t1.vcOrderNo,'--') as vcOrderNo_Name");
-                strSql.AppendLine("		,isnull(t1.vcInOut,'--') as vcInOut_Value");
-                strSql.AppendLine("		,isnull(t7.vcName,'--') as vcInOut_Name");
                 strSql.AppendLine("		,isnull(t1.vcHaoJiu,'--') as vcHaoJiu_Value");
                 strSql.AppendLine("		,isnull(t3.vcName,'--') as vcHaoJiu_Name");
                 strSql.AppendLine("		,isnull(t1.vcOrderPlant,'--') as vcOrderPlant_Value");
@@ -52,9 +50,6 @@ namespace DataAccess
                 strSql.AppendLine("left join");
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C056')t6");
                 strSql.AppendLine("on t1.vcStatus=t6.vcValue");
-                strSql.AppendLine("left join");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')t7");
-                strSql.AppendLine("on t1.vcInOut=t7.vcValue");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
 
             }
@@ -63,7 +58,7 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public DataTable getSearchInfo(string strState, string strOrderNoList, string strPartId, string strInOut, string strHaoJiu, string strOrderPlant, string strSupplierId, string strSupplierPlant, string strReplyOverDate, string strOutPutDate)
+        public DataTable getSearchInfo(string strState, string strOrderNoList, string strPartId, string strHaoJiu, string strOrderPlant, string strSupplierId, string strSupplierPlant, string strReplyOverDate, string strOutPutDate)
         {
             try
             {
@@ -74,7 +69,6 @@ namespace DataAccess
                 strSql.AppendLine("		,t1.vcOrderNo as vcOrderNo");
                 strSql.AppendLine("		,t1.vcPart_id as vcPart_id");
                 strSql.AppendLine("		,t4.vcName as vcOrderPlant");
-                strSql.AppendLine("		,t8.vcName as vcInOut");
                 strSql.AppendLine("		,t3.vcName as vcHaoJiu");
                 strSql.AppendLine("		,t5.vcName as vcOESP");
                 strSql.AppendLine("		,t1.vcSupplier_id as vcSupplierId");
@@ -108,17 +102,6 @@ namespace DataAccess
                 if (strPartId != "")
                 {
                     strSql.AppendLine("AND [vcPart_id] LIKE '" + strPartId + "%'");
-                }
-                if (strInOut != "")
-                {
-                    if (strInOut == "--")
-                    {
-                        strSql.AppendLine("AND isnull(vcInOut,'')=''");
-                    }
-                    else
-                    {
-                        strSql.AppendLine("AND [vcInOut]='" + strInOut + "'");
-                    }
                 }
                 if (strHaoJiu != "")
                 {
@@ -192,9 +175,6 @@ namespace DataAccess
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C056')t6");
                 strSql.AppendLine("on t1.vcStatus=t6.vcValue");
                 strSql.AppendLine("left join");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')t8");
-                strSql.AppendLine("on t1.vcInOut=t8.vcValue");
-                strSql.AppendLine("left join");
                 strSql.AppendLine("(select vcOrderNo,vcPart_id,vcSupplier_id,sum(CAST(iDuiYingQuantity as int)) as iDuiYingSum from VI_UrgentOrder_OperHistory where cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0");
                 strSql.AppendLine("group by vcOrderNo,vcPart_id,vcSupplier_id)t7");
                 strSql.AppendLine("ON T1.vcOrderNo=t7.vcOrderNo AND T1.vcPart_id=t7.vcPart_id AND T1.vcSupplier_id=t7.vcSupplier_id");
@@ -224,7 +204,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("select vcValue1 from TOutCode where vcIsColum=0 and vcCodeId='C013'");
                 DataTable dataTable = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-                if (dataTable.Rows.Count != 0)
+                if(dataTable.Rows.Count!=0)
                 {
                     return Convert.ToInt32(dataTable.Rows[0]["vcValue1"].ToString());
                 }
@@ -519,7 +499,7 @@ namespace DataAccess
                 strSql.AppendLine("where vcShowFlag='1'");
                 if (strOrderNo != "")
                 {
-                    strSql.AppendLine("AND [vcOrderNo] = '" + strOrderNo + "'");
+                    strSql.AppendLine("AND [vcOrderNo] = '"+ strOrderNo + "'");
                 }
                 if (strPart_id != "")
                 {

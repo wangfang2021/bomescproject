@@ -561,12 +561,19 @@ namespace DataAccess
         #endregion
 
         #region 查找工厂
-        public DataTable SearchPackSpot()
+        public DataTable SearchPackSpot(string userid)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("       SELECT * FROM TCode where vcCodeId='C023'       \n");
+                strSql.Append("   select a.vcBaoZhuangPlace as vcValue,b.vcName as vcName from (      \n");
+                strSql.Append("   select vcBaoZhuangPlace from SUser where vcUserID='"+ userid + "'      \n");
+                strSql.Append("   )a left join      \n");
+                strSql.Append("   (      \n");
+                strSql.Append("   select * from TCode where vcCodeId='C023'      \n");
+                strSql.Append("   )b on a.vcBaoZhuangPlace=b.vcValue      \n");
+                strSql.Append("         \n");
+                strSql.Append("         \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

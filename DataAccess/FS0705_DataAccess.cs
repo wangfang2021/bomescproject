@@ -534,7 +534,8 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("  select * from TPackFaZhuTime where vcFaZhuID='"+ strFaZhuID + "' and vcPackSpot='"+ strPackSpot + "' order by charindex(vcBianCi,'白'),vcBianCi   \n");
+               // strSql.AppendLine("  select * from TPackFaZhuTime where vcFaZhuID='" + strFaZhuID + "' and vcPackSpot='" + strPackSpot + "' order by charindex(vcBianCi,'白'),vcBianCi   \n");
+                strSql.AppendLine("  select * from TPackFaZhuTime where vcFaZhuID='" + strFaZhuID + "' and vcPackSpot='" + strPackSpot + "' order by dFaZhuFromTime   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

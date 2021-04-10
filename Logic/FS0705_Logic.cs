@@ -156,18 +156,18 @@ namespace Logic
         #endregion
 
         #region 发注数量计算
-        public void computer(string strFaZhuID)
+        public void computer(string strFaZhuID, string strUserID, string strPackSpot)
         {
-            fs0705_DataAccess.computer(strFaZhuID);
+            fs0705_DataAccess.computer(strFaZhuID, strUserID, strPackSpot);
         }
         #endregion
 
         #region 检索计算结果
-        public DataTable searchComputeJG()
+        public DataTable searchComputeJG(string strPackSpot)
         {
-            DataTable dt = fs0705_DataAccess.searchComputeJG();
+            DataTable dt = fs0705_DataAccess.searchComputeJG(strPackSpot);
             DataTable returnDT = dt.Clone();
-            DataRow[]  drs = dt.Select("iF_DingGou > 0");
+            DataRow[] drs = dt.Select("iF_DingGou > 0");
             for (int i = 0; i < drs.Length; i++)
             {
                 returnDT.ImportRow(drs[i]);
@@ -184,9 +184,9 @@ namespace Logic
         #endregion
 
         #region 生成发注数据的检索计算结果（舍弃订购数量为NULL或者为0的数据）
-        public DataTable SCFZDataSearchComputeJG()
+        public DataTable SCFZDataSearchComputeJG(string strPackSpot)
         {
-            DataTable dt = fs0705_DataAccess.searchComputeJG();
+            DataTable dt = fs0705_DataAccess.searchComputeJG(strPackSpot);
             DataTable returnDT = dt.Clone();
             DataRow[] drs = dt.Select("iF_DingGou > 0");
             for (int i = 0; i < drs.Length; i++)

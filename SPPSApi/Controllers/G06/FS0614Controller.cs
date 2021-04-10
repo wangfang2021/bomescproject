@@ -207,7 +207,7 @@ namespace SPPSApi.Controllers.G06
                     }
 
                     #region 生成标签
-                    /**
+                    
                     MultiExcute excute = new MultiExcute();
                     string strPath_pdf = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "PDF" + Path.DirectorySeparatorChar + "Order" + Path.DirectorySeparatorChar;
                     string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
@@ -269,7 +269,7 @@ namespace SPPSApi.Controllers.G06
                     }
 
                     excute.ExcuteSqlWithStringOper(labelBuilder.ToString());
-                    **/
+                    
                     #endregion
 
                 }

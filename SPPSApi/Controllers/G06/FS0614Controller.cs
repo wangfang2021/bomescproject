@@ -237,7 +237,6 @@ namespace SPPSApi.Controllers.G06
                         Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();
                         Body.sqlCatalog = dtPrinterInfo.Rows[0]["vcSqlCatalog"].ToString();
                         Body.sqlSource = dtPrinterInfo.Rows[0]["vcSqlSource"].ToString();
-                        Console.WriteLine("web参数完备");
                         //调用具体的方法，这里是 HelloWorldAsync 方法
                         Task<setCRVToPDFResponse> responseTask = callClient.setCRVToPDFAsync(new setCRVToPDFRequest(Body));
                         //获取结果

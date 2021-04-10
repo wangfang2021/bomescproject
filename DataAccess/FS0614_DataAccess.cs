@@ -768,6 +768,8 @@ namespace DataAccess
 
 
                             isTag = ObjToString(hashtable["vcSupplierPacking"]);
+                            vcSupplierId = ObjToString(hashtable["vcSupplierId"]);
+
                             if (isTag.Equals("1"))
                             {
                                 //检索包装工厂
@@ -802,6 +804,10 @@ namespace DataAccess
 
                         if (bReault)
                         {
+                            string TargetYMJJ = ObjToString(listInfoData[i]["vcTargetYM"]);
+                            DateTime Time = DateTime.Parse(TargetYMJJ.Substring(0, 4) + "-" + TargetYMJJ.Substring(4, 2) + "-01");
+                            DateTime LastTime = Time.AddMonths(1).AddDays(-1);
+
                             foreach (Detail detail in order.Details)
                             {
                                 #region 获取基础数据
@@ -842,10 +848,6 @@ namespace DataAccess
                                     packingSpot = ObjToString(packingSpotRow[0]["vcBZPlant"]);
                                 }
 
-                                string TargetYMJJ = ObjToString(listInfoData[i]["vcTargetYM"]);
-
-
-
                                 DataRow[] rowNQ = OrderNQ.Select(" vcOrderNo = '" + vcOrderNoOld + "' AND vcPart_id = '" + vcPart_id + "' AND TargetYM = '" + TargetYMJJ + "'");
                                 Hashtable NQ = new Hashtable();
 
@@ -873,8 +875,6 @@ namespace DataAccess
                                 }
 
 
-                                DateTime Time = DateTime.Parse(TargetYMJJ.Substring(0, 4) + "-" + TargetYMJJ.Substring(4, 2) + "-01");
-                                DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
 
 
@@ -1131,6 +1131,74 @@ namespace DataAccess
                                 #endregion
 
                             }
+
+                            #region ED订单
+                            SqlCommand sqlCommandED = sqlConnection.CreateCommand();
+                            sqlCommandED.Transaction = sqlTransaction;
+                            sqlCommandED.CommandType = CommandType.Text;
+
+                            for (int m = 0; m < EDList.Count; m++)
+                            {
+                                StringBuilder edBuilder = new StringBuilder();
+                                edBuilder.Append(" INSERT INTO SP_M_ORD(vcPackingFactory, vcTargetYearMonth, vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id,vcPlantQtyDaily1,vcPlantQtyDaily2,vcPlantQtyDaily3,vcPlantQtyDaily4,vcPlantQtyDaily5,vcPlantQtyDaily6,vcPlantQtyDaily7,vcPlantQtyDaily8,vcPlantQtyDaily9,vcPlantQtyDaily10,vcPlantQtyDaily11,vcPlantQtyDaily12,vcPlantQtyDaily13,vcPlantQtyDaily14,vcPlantQtyDaily15,vcPlantQtyDaily16,vcPlantQtyDaily17,vcPlantQtyDaily18,vcPlantQtyDaily19,vcPlantQtyDaily20,vcPlantQtyDaily21,vcPlantQtyDaily22,vcPlantQtyDaily23,vcPlantQtyDaily24,vcPlantQtyDaily25,vcPlantQtyDaily26,vcPlantQtyDaily27,vcPlantQtyDaily28,vcPlantQtyDaily29,vcPlantQtyDaily30,vcPlantQtyDaily31, vcTargetMonthLast, vcOperatorID, dOperatorTime,vcPlantQtyDailySum,vcWorkArea,vcInputQtyDailySum,vcResultQtyDailySum)");
+                                edBuilder.Append(" VALUES( ");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].vcPackingFactory, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].OrderTargetYM, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].vcDock, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].CPD, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].Type, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].vcOrderNo, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].vcSeqno, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].dOrderDate, true) + ",");
+                                edBuilder.Append("GetDate(),");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].vcPart_id, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].inout, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].vcCarType, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].vcPart_id, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].packingSpot, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].vcSupplierId, false) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id1, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id2, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id3, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id4, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id5, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id6, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id7, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id8, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id9, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id10, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id11, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id12, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id13, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id14, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id15, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id16, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id17, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id18, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id19, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id20, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id21, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id22, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id23, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id24, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id25, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id26, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id27, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id28, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id29, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id30, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].id31, true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(LastTime, true) + ",");
+                                edBuilder.Append("'" + userId + "',");
+                                edBuilder.Append("GetDate(),");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].iPartNums(), true) + ",");
+                                edBuilder.Append(ComFunction.getSqlValue(EDList[m].vcSupplierPlant, true) + ",");
+                                edBuilder.Append("'0','0') \r\n");
+                                sqlCommandED.CommandText = edBuilder.ToString();
+                                sqlCommandED.ExecuteNonQuery();
+                            }
+
+                            #endregion
 
                             #region 修改订单状态
 

@@ -173,6 +173,13 @@ namespace SPPSApi.Controllers.G07
                             apiResult.data = dr[j]["vcFaZhuID"].ToString() + "部品入荷时间不能大于发注作业时间和纳期时间！";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
+                        if (dNaQiFromDay < dRuHeFromDay || dNaQiFromDay < dFaZhuFromDay)
+                        {
+
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = dr[j]["vcFaZhuID"].ToString() + "包材纳期时间不能小于部品入荷时间和发注作业时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                         for (int z = 0; z <= j - 1; z++)
                         {
                             //DateTime dRuHeFromDay1 = DateTime.ParseExact(dr[z]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);

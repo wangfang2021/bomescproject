@@ -209,6 +209,10 @@ namespace SPPSApi.Controllers.G06
             string vcPackPlant = dataForm.vcPackPlant == null ? "" : dataForm.vcPackPlant;
             try
             {
+                if (vcTargetYear.Length > 4)
+                {
+                    vcTargetYear = Convert.ToDateTime(vcTargetYear).ToString("yyyy");
+                }
                 DataTable dt = fs0620_Logic.Search(dOperatorTime, vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierId, vcWorkArea, vcType, vcPackPlant, vcReceiver, vcEmailFlag);
                 string[] head = new string[] { };
                 string[] field = new string[] { };

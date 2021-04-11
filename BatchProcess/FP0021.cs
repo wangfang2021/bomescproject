@@ -88,7 +88,7 @@ namespace BatchProcess
                 if (sbr.Length > 0)
                 {
                     StringBuilder sql = new StringBuilder();
-                    sql.AppendLine("select DXR,'" + DateTime.Now.ToString("yyyymmdd") + "' as vcChangeNo,vcPart_id,ISNULL(DayNum,0) AS iQuantityBefore,ISNULL(DayNum,0) AS iQuantityNow,GETDATE() AS dFileUpload,'" + userId + "' AS vcOperatorID,GETDATE() AS dOperatorTime  from (");
+                    sql.AppendLine("select DXR,'" + DateTime.Now.ToString("yyyyMMdd") + "' as vcChangeNo,vcPart_id,ISNULL(DayNum,0) AS iQuantityBefore,ISNULL(DayNum,0) AS iQuantityNow,GETDATE() AS dFileUpload,'" + userId + "' AS vcOperatorID,GETDATE() AS dOperatorTime  from (");
                     sql.AppendLine(sbr.ToString());
                     sql.AppendLine(") a");
 

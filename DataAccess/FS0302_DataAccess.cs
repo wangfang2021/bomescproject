@@ -358,7 +358,7 @@ namespace DataAccess
                                 else if (change.Equals("6"))//旧型恢复现号
                                 {
                                     sbr.Append(" UPDATE a SET \r\n");
-                                    sbr.Append(" a.vcChange = '4', \r\n");
+                                    sbr.Append(" a.vcChange = '" + change + "',\r\n");
                                     sbr.Append(" a.dSyncTime = NULL, \r\n");
                                     sbr.Append(" a.vcHaoJiu = 'H', \r\n");
                                     sbr.Append(" a.dJiuEnd = b.vcStartYearMonth, \r\n");
@@ -385,7 +385,7 @@ namespace DataAccess
                                 else if (change.Equals("16"))//复活
                                 {
                                     sbr.Append(" UPDATE a SET \r\n");
-                                    sbr.Append(" a.vcChange = '5', \r\n");
+                                    sbr.Append(" a.vcChange = '" + change + "', \r\n");
                                     sbr.Append(" a.dSyncTime = NULL, \r\n");
                                     sbr.Append(" a.vcSQState = '0', \r\n");
                                     sbr.Append(" a.dTimeFrom = b.vcStartYearMonth, \r\n");
@@ -983,7 +983,7 @@ namespace DataAccess
                 //sbr.AppendLine("(");
                 //sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006'");
                 //sbr.AppendLine(") b ON a.vcOriginCompany = b.vcValue");
-                sbr.AppendLine("SELECT DISTINCT vcPart_id,MAX(vcOriginCompany) AS vcName FROM TUnit WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() GROUP BY vcPart_id");
+                sbr.AppendLine("SELECT DISTINCT vcPart_id,MAX(vcOriginCompany) AS vcName FROM TUnit GROUP BY vcPart_id");
 
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }

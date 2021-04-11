@@ -332,9 +332,9 @@ namespace Logic
 
         #region 保存
 
-        public void SaveApi(List<Dictionary<string, Object>> list, string strUserId)
+        public void SaveApi(List<Dictionary<string, Object>> list, string strUserId, ref string Msg)
         {
-            fs0307_dataAccess.SaveApi(list, strUserId);
+            fs0307_dataAccess.SaveApi(list, strUserId, ref Msg);
         }
 
         #endregion

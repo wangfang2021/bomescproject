@@ -66,20 +66,20 @@ namespace SPPSApi.Controllers.G04
             }
             DateTime time = Convert.ToDateTime(DXR);
 
-            if (!fs0403_Logic.checkJD(time))
-            {
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导入终止:今日不是稼动日不可导入。";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
+            //if (!fs0403_Logic.checkJD(time))
+            //{
+            //    apiResult.code = ComConstant.ERROR_CODE;
+            //    apiResult.data = "导入终止:今日不是稼动日不可导入。";
+            //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            //}
 
-            if (!fs0403_Logic.isUpload())
-            {
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导入终止:9点40后禁止导入,或今日已经导入";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            //if (!fs0403_Logic.isUpload())
+            //{
+            //    apiResult.code = ComConstant.ERROR_CODE;
+            //    apiResult.data = "导入终止:9点40后禁止导入,或今日已经导入";
+            //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
-            }
+            //}
 
 
 

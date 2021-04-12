@@ -208,11 +208,16 @@ namespace SPPSApi.Controllers.G06
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
             string vcProject = dataForm.vcProject == null ? "" : dataForm.vcProject;
             string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
+            
             if (vcTargetYear.Length == 0)
             {
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "对象年为空，无法导出的报表！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            if(vcTargetYear.Length >4)
+            {
+                vcTargetYear = Convert.ToDateTime(vcTargetYear).ToString("yyyy");
             }
             string filepath = "";
             try
@@ -228,6 +233,9 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "生成报表的数据为空，无法导出的报表！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                string[] columnArrayP = { "vcInjectionFactory" };
+                DataView dtSelectViewP = dtNum.DefaultView;
+                DataTable dtSelectGC = dtSelectViewP.ToTable(true, columnArrayP);//去重后的dt 
                 #region 导出报表
 
 
@@ -310,6 +318,7 @@ namespace SPPSApi.Controllers.G06
                 #endregion
 
                 ICellStyle style1 = hssfworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式
+                ICellStyle style11 = hssfworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式
                 ICellStyle style2 = hssfworkbook.CreateCellStyle();//9号字体加粗 没有背景色
                 ICellStyle style3 = hssfworkbook.CreateCellStyle();//9号字体不加粗 没有背景色
                 ICellStyle style4 = hssfworkbook.CreateCellStyle();//9号字体不加粗 深蓝蓝
@@ -319,11 +328,19 @@ namespace SPPSApi.Controllers.G06
                 IFont font = hssfworkbook.CreateFont();
                 font.Color = IndexedColors.Black.Index;
                 font.IsBold = true; ;
-                font.FontHeightInPoints = 9;
+                font.FontHeightInPoints = 14;
                 //font.FontName = "宋体";
                 style1.SetFont(font);
                 style1.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
                 style1.VerticalAlignment = VerticalAlignment.Center;
+
+                IFont font1 = hssfworkbook.CreateFont();
+                font1.Color = IndexedColors.Black.Index;
+                font1.IsBold = true; ;
+                font.FontHeightInPoints = 9;
+                style11.SetFont(font1);
+                style11.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
+                style11.VerticalAlignment = VerticalAlignment.Center;
 
                 style2.SetFont(font);
                 style2.Alignment = HorizontalAlignment.Center;
@@ -391,7 +408,7 @@ namespace SPPSApi.Controllers.G06
 
                 #region 设置列的宽度
                 mysheetHSSF.SetColumnWidth(0, 23 * 256); //设置第1列的列宽为17个字符
-                mysheetHSSF.SetColumnWidth(1, 13 * 256); //设置第2列的列宽为31个字符
+                mysheetHSSF.SetColumnWidth(1, 5 * 256); //设置第2列的列宽为31个字符
                 mysheetHSSF.SetColumnWidth(2, 10 * 256); //设置第3列的列宽为10个字符
                 mysheetHSSF.SetColumnWidth(3, 10 * 256); //设置第4列的列宽为10个字符
                 mysheetHSSF.SetColumnWidth(4, 10 * 256); //设置第5列的列宽为10个字符
@@ -412,7 +429,7 @@ namespace SPPSApi.Controllers.G06
                 IRow FirstrowHSSF = mysheetHSSF.CreateRow(0);//创建row 行 从0开始
 
                 FirstrowHSSF.Height = 18 * 20; //设置高度为50个点
-                FirstrowHSSF.CreateCell(0).SetCellValue("销售数据用");
+                FirstrowHSSF.CreateCell(0).SetCellValue(vcTargetYear+ "年补给品销售报表");
                 FirstrowHSSF.GetCell(0).CellStyle = style1;//将CellStyle应用于具体单元格 
                 #endregion
                 #region //设置第二行 
@@ -420,7 +437,7 @@ namespace SPPSApi.Controllers.G06
                 mysheetHSSF.AddMergedRegion(new CellRangeAddress(1, 1, 0, 1)); //合并单元格第二行从第1列到第2列
                 IRow SecondRowHSSF = mysheetHSSF.CreateRow(1); //添加第二行
                 SecondRowHSSF.Height = 18 * 20;
-                SecondRowHSSF.CreateCell(0).SetCellValue("统计项目");
+                SecondRowHSSF.CreateCell(0).SetCellValue("项目");
                 SecondRowHSSF.GetCell(0).CellStyle = style3;//将CellStyle应用于具体单元格 
                 SecondRowHSSF.CreateCell(1).SetCellValue("");
                 SecondRowHSSF.GetCell(1).CellStyle = style3;//将CellStyle应用于具体单元格 
@@ -509,14 +526,15 @@ namespace SPPSApi.Controllers.G06
                 #region 设置第六行
                 IRow SixRowHSSF = mysheetHSSF.CreateRow(5);
                 SixRowHSSF.Height = 18 * 20;
-                SixRowHSSF.CreateCell(0).SetCellValue("需求统计用");
+                //SixRowHSSF.CreateCell(0).SetCellValue("需求统计用");
+                SixRowHSSF.CreateCell(0).SetCellValue("");
                 SixRowHSSF.GetCell(0).CellStyle = style1;
                 #endregion
                 #region 设置第七行
                 IRow SevenRowHSSF = mysheetHSSF.CreateRow(6);
                 SevenRowHSSF.Height = 18 * 20;
-                SevenRowHSSF.CreateCell(0).SetCellValue("销售数量（件)");
-                SevenRowHSSF.GetCell(0).CellStyle = style1;
+                SevenRowHSSF.CreateCell(0).SetCellValue("工场别销售数量(件)");
+                SevenRowHSSF.GetCell(0).CellStyle = style11;
                 #endregion
                 #region 设置第八行 存在列的合并单元格
                 int heBingStartRow = 7;
@@ -573,50 +591,118 @@ namespace SPPSApi.Controllers.G06
                     EightRowHSSF.GetCell(14).CellStyle = style6;//将CellStyle应用于具体单元格 
                     #endregion
                     nextRow++;
-                    for (int i = 0; i < dtNum.Rows.Count; i++)
+                    for (int i = 0; i < dtSelectGC.Rows.Count; i++)
                     {
-                        string strPlantName = dtNum.Rows[i]["vcInjectionFactory"].ToString();
+                        string strPlantName = dtSelectGC.Rows[i]["vcInjectionFactory"].ToString();
+                        DataRow[] drArray = dtNum.Select("vcInjectionFactory='" + strPlantName + "'  ");//and vcWorkArea='" + vcWorkArea + "'
+                        DataTable dtNewFaZhuGC = drArray[0].Table.Clone(); // 复制DataRow的表结构
+                        string msg = string.Empty;
+                        //Console.WriteLine(vcSupplier_id+":"+ vcSupplier_name);
+                        foreach (DataRow dr in drArray)
+                        {
+                            dtNewFaZhuGC.ImportRow(dr);
+                        }
+                        //合并工厂带有合计行
+                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow+dtNewFaZhuGC.Rows.Count+1, 0, 0));
+
                         IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
                         NextRowHSSF.Height = 18 * 20;
                         NextRowHSSF.CreateCell(0).SetCellValue(strPlantName);
                         NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
-                        int colNum = 1;//用于计数
-                        for (var k = 1; k < dtNum.Columns.Count; k++)
+                        for (int h = 0; h < dtNewFaZhuGC.Rows.Count; h++)
                         {
-                            if (k != 2)//k=2是 年份 去掉
+                            int colNum = 1;//用于计数
+                            for (var k = 1; k < dtNewFaZhuGC.Columns.Count; k++)
                             {
-                                NextRowHSSF.CreateCell(colNum).SetCellValue(dtNum.Rows[i][k].ToString());
-                                NextRowHSSF.GetCell(colNum).CellStyle = style6;
-                                colNum++;
+                                if (k != 2)//k=2是 年份 去掉
+                                {
+                                    NextRowHSSF.CreateCell(colNum).SetCellValue(dtNewFaZhuGC.Rows[h][k].ToString());
+                                    NextRowHSSF.GetCell(colNum).CellStyle = style6;
+                                    colNum++;
+                                }
                             }
+                            nextRow++;
                         }
+                        //创建销售数据最后一行
+                        #region
+                        decimal heJiSumF1 = 0;
+                        decimal heJiSumF2 = 0;
+                        decimal heJiSumF3 = 0;
+                        decimal heJiSumF4 = 0;
+                        decimal heJiSumF5 = 0;
+                        decimal heJiSumF6 = 0;
+                        decimal heJiSumF7 = 0;
+                        decimal heJiSumF8 = 0;
+                        decimal heJiSumF9 = 0;
+                        decimal heJiSumF10 = 0;
+                        decimal heJiSumF11 = 0;
+                        decimal heJiSumF12 = 0;
+                        decimal heJiSumF13 = 0;
+                        for (int k=0;k< dtNewFaZhuGC.Rows.Count;k++)
+                        {
+                            heJiSumF1 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["1月"].ToString());
+                            heJiSumF2 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["2月"].ToString());
+                            heJiSumF3 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["3月"].ToString());
+                            heJiSumF4 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["4月"].ToString());
+                            heJiSumF5 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["5月"].ToString());
+                            heJiSumF6 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["6月"].ToString());
+                            heJiSumF7 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["7月"].ToString());
+                            heJiSumF8 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["8月"].ToString());
+                            heJiSumF9 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["9月"].ToString());
+                            heJiSumF10 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["10月"].ToString());
+                            heJiSumF11 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["11月"].ToString());
+                            heJiSumF12 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["12月"].ToString());
+                            heJiSumF13 += Convert.ToDecimal(dtNewFaZhuGC.Rows[k]["合计"].ToString());
+                        }
+                        IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                        NineRowHSSF.Height = 18 * 20;
+                        NineRowHSSF.CreateCell(0).SetCellValue("");
+                        NineRowHSSF.GetCell(0).CellStyle = style7;//将CellStyle应用于具体单元格 
+
+                        NineRowHSSF.CreateCell(1).SetCellValue("合计");
+                        NineRowHSSF.CreateCell(1).CellStyle = style7;
+                        //for (var i = 3; i < dtNum.Columns.Count; i++)
+                        //{
+                        //    NineRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[dtNum.Rows.Count - 1][i].ToString());
+                        //    NineRowHSSF.GetCell(i - 1).CellStyle = style7;
+                        //}
+                        NineRowHSSF.CreateCell(2).SetCellValue(Convert.ToDouble(heJiSumF1));
+                        NineRowHSSF.CreateCell(2).CellStyle = style7;
+                        NineRowHSSF.CreateCell(3).SetCellValue(Convert.ToDouble(heJiSumF2));
+                        NineRowHSSF.CreateCell(3).CellStyle = style7;
+                        NineRowHSSF.CreateCell(4).SetCellValue(Convert.ToDouble(heJiSumF3));
+                        NineRowHSSF.CreateCell(4).CellStyle = style7;
+                        NineRowHSSF.CreateCell(5).SetCellValue(Convert.ToDouble(heJiSumF4));
+                        NineRowHSSF.CreateCell(5).CellStyle = style7;
+                        NineRowHSSF.CreateCell(6).SetCellValue(Convert.ToDouble(heJiSumF5));
+                        NineRowHSSF.CreateCell(6).CellStyle = style7;
+                        NineRowHSSF.CreateCell(7).SetCellValue(Convert.ToDouble(heJiSumF6));
+                        NineRowHSSF.CreateCell(7).CellStyle = style7;
+                        NineRowHSSF.CreateCell(8).SetCellValue(Convert.ToDouble(heJiSumF7));
+                        NineRowHSSF.CreateCell(8).CellStyle = style7;
+                        NineRowHSSF.CreateCell(9).SetCellValue(Convert.ToDouble(heJiSumF8));
+                        NineRowHSSF.CreateCell(9).CellStyle = style7;
+                        NineRowHSSF.CreateCell(10).SetCellValue(Convert.ToDouble(heJiSumF9));
+                        NineRowHSSF.CreateCell(10).CellStyle = style7;
+                        NineRowHSSF.CreateCell(11).SetCellValue(Convert.ToDouble(heJiSumF10));
+                        NineRowHSSF.CreateCell(11).CellStyle = style7;
+                        NineRowHSSF.CreateCell(12).SetCellValue(Convert.ToDouble(heJiSumF11));
+                        NineRowHSSF.CreateCell(12).CellStyle = style7;
+                        NineRowHSSF.CreateCell(13).SetCellValue(Convert.ToDouble(heJiSumF12));
+                        NineRowHSSF.CreateCell(13).CellStyle = style7;
+                        NineRowHSSF.CreateCell(14).SetCellValue(Convert.ToDouble(heJiSumF13));
+                        NineRowHSSF.CreateCell(14).CellStyle = style7;
                         nextRow++;
-
+                        #endregion
                     }
-                    //创建销售数据最后一行
-                    #region
-                    IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    NineRowHSSF.Height = 18 * 20;
-                    NineRowHSSF.CreateCell(0).SetCellValue("");
-                    NineRowHSSF.GetCell(0).CellStyle = style7;//将CellStyle应用于具体单元格 
-
-                    NineRowHSSF.CreateCell(1).SetCellValue("合计");
-                    NineRowHSSF.CreateCell(1).CellStyle = style7;
-                    for (var i = 3; i < dtNum.Columns.Count; i++)
-                    {
-                        NineRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[dtNum.Rows.Count - 1][i].ToString());
-                        NineRowHSSF.GetCell(i - 1).CellStyle = style7;
-                    }
-                    nextRow++;
-                    #endregion
                 }
 
                 // 写 销售额(万元）
                 #region 设置第十行
                 IRow MoneySellNameRowHSSF = mysheetHSSF.CreateRow(nextRow);
                 MoneySellNameRowHSSF.Height = 18 * 20;
-                MoneySellNameRowHSSF.CreateCell(0).SetCellValue("销售额(万元）");
-                MoneySellNameRowHSSF.GetCell(0).CellStyle = style1;//将CellStyle应用于具体单元格 
+                MoneySellNameRowHSSF.CreateCell(0).SetCellValue("工场别销售销售额(万元)");
+                MoneySellNameRowHSSF.GetCell(0).CellStyle = style11;//将CellStyle应用于具体单元格 
                 nextRow++;
                 #endregion
                 #region 销售万元明细
@@ -673,29 +759,115 @@ namespace SPPSApi.Controllers.G06
                     NextRowHSSF.GetCell(14).CellStyle = style6;//将CellStyle应用于具体单元格 
                     #endregion
                     nextRow++;
-                    for (int i = 0; i < dtMonty.Rows.Count; i++)
+
+
+                    for (int i = 0; i < dtSelectGC.Rows.Count; i++)
                     {
-                        string strPlantName = dtMonty.Rows[i]["vcInjectionFactory"].ToString();
+                        string strPlantName = dtSelectGC.Rows[i]["vcInjectionFactory"].ToString();
+                        DataRow[] drArrayM = dtMonty.Select("vcInjectionFactory='" + strPlantName + "'  ");//and vcWorkArea='" + vcWorkArea + "'
+                        DataTable dtNewFaZhuGCMoney = drArrayM[0].Table.Clone(); // 复制DataRow的表结构
+                        string msg = string.Empty;
+                        //Console.WriteLine(vcSupplier_id+":"+ vcSupplier_name);
+                        foreach (DataRow dr in drArrayM)
+                        {
+                            dtNewFaZhuGCMoney.ImportRow(dr);
+                        }
+                        //合并工厂带有合计行
+                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow + dtNewFaZhuGCMoney.Rows.Count + 1, 0, 0));
+
                         IRow NextRowHSSFM = mysheetHSSF.CreateRow(nextRow);
                         NextRowHSSFM.Height = 18 * 20;
                         NextRowHSSFM.CreateCell(0).SetCellValue(strPlantName);
                         NextRowHSSFM.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                        int colNum = 1;//用于计数
-                        for (var k = 1; k < dtMonty.Columns.Count; k++)
+                        for (int h = 0; h < dtNewFaZhuGCMoney.Rows.Count; h++)
                         {
-                            if (k != 2)//k=2是 年份 去掉
+                            int colNum = 1;//用于计数
+                            for (var k = 1; k < dtNewFaZhuGCMoney.Columns.Count; k++)
                             {
-                                NextRowHSSFM.CreateCell(colNum).SetCellValue(dtMonty.Rows[i][k].ToString());
-                                NextRowHSSFM.GetCell(colNum).CellStyle = style6;
-                                colNum++;
+                                if (k != 2)//k=2是 年份 去掉
+                                {
+                                    NextRowHSSFM.CreateCell(colNum).SetCellValue((Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[h][k].ToString()) / 10000).RoundFirstSignificantDigit().ToString());
+                                    NextRowHSSFM.GetCell(colNum).CellStyle = style6;
+                                    colNum++;
+                                }
                             }
+                            nextRow++;
                         }
+                        //创建销售数据最后一行
+                        #region
+                        decimal heJiMoneySumF1 = 0;
+                        decimal heJiMoneySumF2 = 0;
+                        decimal heJiMoneySumF3 = 0;
+                        decimal heJiMoneySumF4 = 0;
+                        decimal heJiMoneySumF5 = 0;
+                        decimal heJiMoneySumF6 = 0;
+                        decimal heJiMoneySumF7 = 0;
+                        decimal heJiMoneySumF8 = 0;
+                        decimal heJiMoneySumF9 = 0;
+                        decimal heJiMoneySumF10 = 0;
+                        decimal heJiMoneySumF11 = 0;
+                        decimal heJiMoneySumF12 = 0;
+                        decimal heJiMoneySumF13 = 0;
+                        for (int k = 0; k < dtNewFaZhuGCMoney.Rows.Count; k++)
+                        {
+                            heJiMoneySumF1 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["1月"].ToString());
+                            heJiMoneySumF2 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["2月"].ToString());
+                            heJiMoneySumF3 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["3月"].ToString());
+                            heJiMoneySumF4 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["4月"].ToString());
+                            heJiMoneySumF5 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["5月"].ToString());
+                            heJiMoneySumF6 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["6月"].ToString());
+                            heJiMoneySumF7 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["7月"].ToString());
+                            heJiMoneySumF8 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["8月"].ToString());
+                            heJiMoneySumF9 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["9月"].ToString());
+                            heJiMoneySumF10 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["10月"].ToString());
+                            heJiMoneySumF11 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["11月"].ToString());
+                            heJiMoneySumF12 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["12月"].ToString());
+                            heJiMoneySumF13 += Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[k]["合计"].ToString());
+                        }
+                        IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                        NineRowHSSF.Height = 18 * 20;
+                        NineRowHSSF.CreateCell(0).SetCellValue("");
+                        NineRowHSSF.GetCell(0).CellStyle = style7;//将CellStyle应用于具体单元格 
+
+                        NineRowHSSF.CreateCell(1).SetCellValue("合计");
+                        NineRowHSSF.CreateCell(1).CellStyle = style7;
+                        //for (var i = 3; i < dtNum.Columns.Count; i++)
+                        //{
+                        //    NineRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[dtNum.Rows.Count - 1][i].ToString());
+                        //    NineRowHSSF.GetCell(i - 1).CellStyle = style7;
+                        //}
+                        NineRowHSSF.CreateCell(2).SetCellValue((heJiMoneySumF1/10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(2).CellStyle = style7;               
+                        NineRowHSSF.CreateCell(3).SetCellValue((heJiMoneySumF2 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(3).CellStyle = style7;               
+                        NineRowHSSF.CreateCell(4).SetCellValue((heJiMoneySumF3 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(4).CellStyle = style7;               
+                        NineRowHSSF.CreateCell(5).SetCellValue((heJiMoneySumF4 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(5).CellStyle = style7;               
+                        NineRowHSSF.CreateCell(6).SetCellValue((heJiMoneySumF5 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(6).CellStyle = style7;               
+                        NineRowHSSF.CreateCell(7).SetCellValue((heJiMoneySumF6 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(7).CellStyle = style7;               
+                        NineRowHSSF.CreateCell(8).SetCellValue((heJiMoneySumF7 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(8).CellStyle = style7;               
+                        NineRowHSSF.CreateCell(9).SetCellValue((heJiMoneySumF8 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(9).CellStyle = style7;
+                        NineRowHSSF.CreateCell(10).SetCellValue((heJiMoneySumF9 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(10).CellStyle = style7;               
+                        NineRowHSSF.CreateCell(11).SetCellValue((heJiMoneySumF10 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(11).CellStyle = style7;               
+                        NineRowHSSF.CreateCell(12).SetCellValue((heJiMoneySumF11 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(12).CellStyle = style7;               
+                        NineRowHSSF.CreateCell(13).SetCellValue((heJiMoneySumF12 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(13).CellStyle = style7;               
+                        NineRowHSSF.CreateCell(14).SetCellValue((heJiMoneySumF13 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(14).CellStyle = style7;
                         nextRow++;
+                        #endregion
                     }
                     //创建销售数据最后一行
                     #region
-                    IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                    /*/IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
                     NineRowHSSF.Height = 18 * 20;
                     NineRowHSSF.CreateCell(0).SetCellValue("");
                     NineRowHSSF.GetCell(0).CellStyle = style7;//将CellStyle应用于具体单元格 
@@ -707,7 +879,7 @@ namespace SPPSApi.Controllers.G06
                         NineRowHSSF.CreateCell(i - 1).SetCellValue(dtMonty.Rows[dtMonty.Rows.Count - 1][i].ToString());
                         NineRowHSSF.GetCell(i - 1).CellStyle = style7;
                     }
-                    nextRow++;
+                    nextRow++;*/
                     #endregion
                 }
 

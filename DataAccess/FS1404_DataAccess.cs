@@ -40,7 +40,7 @@ namespace DataAccess
                 if (strPartId != "")
                 {
                     strSql.AppendLine(" and a.vcPartId like '" + strPartId + "%'");
-}
+                }
                 if (strSupplierId != "")
                 {
                     strSql.AppendLine(" and a.vcSupplierCode='" + strSupplierId + "'");
@@ -54,12 +54,18 @@ namespace DataAccess
             }
         }
 
-        public DataTable getSearchsubInfo(string strSupplierId, List<Object> listTime)
+        public DataTable getSearchsubInfo(string strCarModel, string strSupplierId, List<Object> listTime)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select * from tSPISQf where vcSupplierCode='"+ strSupplierId + "'");
+                strSql.AppendLine("select a.* from (");
+                strSql.AppendLine("select * from tSPISQf where 1=1");
+                if (strSupplierId != "")
+                {
+                    strSql.AppendLine(" and vcSupplierCode='" + strSupplierId + "'");
+
+                }
                 if (listTime.Count != 0)
                 {
                     strSql.AppendLine("and ( ");
@@ -84,6 +90,15 @@ namespace DataAccess
                     }
                     strSql.AppendLine(") ");
                 }
+                strSql.AppendLine(")a ");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(select * from tCheckMethod_Master)b");
+                strSql.AppendLine("on a.vcSupplierCode=b.vcSupplierId and a.vcPartId=b.vcPartId");
+                if (strCarModel != "")
+                {
+                    strSql.AppendLine(" where b.vcCarfamilyCode='" + strCarModel + "'");
+
+                }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -107,6 +122,7 @@ namespace DataAccess
                 StringBuilder strSql_addinfo = new StringBuilder();
 
                 #region SQL and Parameters
+                strSql_addinfo.AppendLine("UPDATE tCheckMethod_Master SET vcSPISStatus='3' WHERE vcSupplierId=@vcSupplierCode and vcPartId=@vcPartId  ");
                 strSql_addinfo.AppendLine("INSERT INTO [dbo].[tSPISQf]");
                 strSql_addinfo.AppendLine("           ([vcPartId]");
                 strSql_addinfo.AppendLine("           ,[vcTimeFrom]");

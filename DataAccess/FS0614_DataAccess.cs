@@ -824,7 +824,7 @@ namespace DataAccess
                 //N+1
                 DateTime N = time;
                 DateTime N1 = time.AddMonths(1);
-                DateTime N2 = time.AddMonths(1);
+                DateTime N2 = time.AddMonths(2);
                 DateTime CL = time.AddMonths(-1);
 
                 //sbr.AppendLine("DECLARE @TargetYM VARCHAR(6)");

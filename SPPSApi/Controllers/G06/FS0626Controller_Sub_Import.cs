@@ -121,9 +121,8 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //fs0626_Logic.importSave(importDt, vcDates[0], vcDates[1], loginInfo.UserId);
-                fs0626_Logic.importSave(importDt, loginInfo.UserId);
 
+                fs0626_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

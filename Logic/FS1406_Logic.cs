@@ -297,8 +297,8 @@ namespace Logic
                     string strSPISUrl = dtImport.Rows[i]["vcSPISUrl"].ToString();//正式文件
                     string sources_spis = strPath_sips + strSPISUrl;//式文件地址
 
-                    string strSupplier_1 = dtImport.Rows[i]["vcSupplier_1"].ToString();
-                    string strSupplier_2 = dtImport.Rows[i]["vcSupplier_2"].ToString();
+                    //string strSupplier_1 = dtImport.Rows[i]["vcSupplier_1"].ToString();
+                    //string strSupplier_2 = dtImport.Rows[i]["vcSupplier_2"].ToString();
                     string strOperName = dtImport.Rows[i]["vcOperName"].ToString();
                     string strGM = dtImport.Rows[i]["vcGM"].ToString();
                     #endregion

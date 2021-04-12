@@ -526,7 +526,7 @@ namespace DataAccess
                 {
                     StringBuilder sbr = new StringBuilder();
                     string time = DateTime.Now.ToString("yyyyMMdd");
-                    sbr.AppendLine("SELECT * WHERE vcChangeNo = '" + time + "'");
+                    sbr.AppendLine("SELECT * from TSoqDayChange WHERE vcChangeNo = '" + time + "'");
                     DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
                     if (dt.Rows.Count > 0)
                     {

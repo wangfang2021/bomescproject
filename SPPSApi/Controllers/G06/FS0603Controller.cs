@@ -300,9 +300,11 @@ namespace SPPSApi.Controllers.G06
 
 
                 string[] fields = {"dSyncTime","vcChanges_name","vcPackingPlant_name","vcPartId","vcPartENName","vcCarfamilyCode",
-                    "vcReceiver","dFromTime","dToTime","vcPartId_Replace","vcOrderPlant_name","dOrderPlantFromTime","dOrderPlantToTime",
-                    "vcInOut_name","vcSufferIn","dSufferInFromTime","dSufferInToTime","vcOESP_name","vcHaoJiu_name","vcOldProduction_name",
-                    "dDebugTime","vcSupplierName","vcSupplierId","dSupplierFromTime","dSupplierToTime","vcSupplierPlant","dSupplierPlantFromTime","dSupplierPlantToTime",
+                    "vcReceiver","dFromTime","dToTime","vcPartId_Replace",
+                    "vcOESP_name","vcHaoJiu_name","vcOldProduction_name",
+                    "dDebugTime","vcInOut_name","vcSupplierName","vcSupplierId","dSupplierFromTime","dSupplierToTime","vcSupplierPlant","dSupplierPlantFromTime","dSupplierPlantToTime",
+                    "vcOrderPlant_name","dOrderPlantFromTime","dOrderPlantToTime",
+                    "vcSufferIn","dSufferInFromTime","dSufferInToTime",
                     "vcSupplierPlace","iPackingQty","vcBoxType","iLength","iWidth","iHeight","iVolume","dBoxFromTime","dBoxToTime",
                     "vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime","dShipmentTime",
                     "vcPartImage","vcBillType_name","vcOrderingMethod_name","vcMandOrder_name","vcSupplierPacking_name",
@@ -1275,10 +1277,10 @@ namespace SPPSApi.Controllers.G06
                 dataTable.Columns.Add("vcType");
                 string[] fields = {"vcType",
                     "dSyncTime","vcChanges_name","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode",
-                    "vcReceiver","dFromTime","dToTime","vcPartId_Replace","vcOrderPlant_name",
-                    "vcInOut_name","SufferIn_ed","SufferInFromTime_ed","SufferInToTime_ed","vcOESP_name","vcHaoJiu_name","vcOldProduction_name",
-                    "dDebugTime","vcSupplierName","vcSupplierId","dSupplierFromTime","dSupplierToTime","SupplierPlant_ed","SupplierPlantFromTime_ed","SupplierPlantToTime_ed",
-                    "vcSupplierPlace",
+                    "vcReceiver","dFromTime","dToTime","vcPartId_Replace","vcOESP_name","vcHaoJiu_name","vcOldProduction_name",
+                    "dDebugTime","vcInOut_name","vcSupplierName","vcSupplierId","dSupplierFromTime","dSupplierToTime","SupplierPlant_ed","SupplierPlantFromTime_ed","SupplierPlantToTime_ed",
+                    "vcOrderPlant_name",
+                    "SufferIn_ed","SufferInFromTime_ed","SufferInToTime_ed","vcSupplierPlace",
                     "BoxPackingQty_ed","BoxFromTime_ed","BoxToTime_ed","BoxType_ed","BoxLength_ed","BoxWidth_ed","BoxHeight_ed","BoxVolume_ed",
                     "vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime","dShipmentTime",
                     "vcPartImage","vcBillType_name","vcOrderingMethod_name","vcMandOrder_name","vcSupplierPacking_name",
@@ -1440,56 +1442,62 @@ namespace SPPSApi.Controllers.G06
                 string[,] headers = new string[,] {
                     {"操作类型","同步时间","变更事项","包装工场","补给品番","英文品名","车型",//1
                         "收货方","品番-使用开始","品番-使用结束","替代品番",//2
-                        "内外",
+                        
+                        
+                        "OE=SP","号旧","旧型年限生产区分","实施年月(年限)","内外",//3
+                        "供应商名称","供应商代码","供应商-开始","供应商-结束",//4
+                        "工区","工区-使用开始","工区-使用结束",
                         "发注工场",//8
                         "受入","受入-使用开始","受入-使用结束",//7
-                        "OE=SP","号旧","旧型年限生产区分","实施年月(年限)",//3
-                        "供应商名称","供应商代码","供应商-开始","供应商-结束",//4
-                        "工区","工区-使用开始","工区-使用结束","出荷场",//5
+                        "出荷场",//5
                         "收容数","收容数-使用开始","收容数-使用结束","箱种","长(mm)","宽(mm)","高(mm)","体积(m³)",//6
                         "内制工程","通过工程","前工程","前工程通过时间","自工程出货时间","照片",//9
                         "单据区分","订货方式","强制订货","供应商包装","备注1","备注2"},//10
                     {"vcType","dSyncTime","vcChanges_name","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode",//1
                         "vcReceiver","dFromTime","dToTime","vcPartId_Replace",//2
-                        "vcInOut_name",
-                        "vcOrderPlant_name",//8
-                        "SufferIn_ed","SufferInFromTime_ed","SufferInToTime_ed",//7
-                        "vcOESP_name","vcHaoJiu_name","vcOldProduction_name","dDebugTime",//3
+                        
+                        
+                        "vcOESP_name","vcHaoJiu_name","vcOldProduction_name","dDebugTime","vcInOut_name",//3
                         "vcSupplierName","vcSupplierId","dSupplierFromTime","dSupplierToTime",//4
-                        "SupplierPlant_ed","SupplierPlantFromTime_ed","SupplierPlantToTime_ed","vcSupplierPlace",//5
+                        "SupplierPlant_ed","SupplierPlantFromTime_ed","SupplierPlantToTime_ed","vcOrderPlant_name",//8
+                        "SufferIn_ed","SufferInFromTime_ed","SufferInToTime_ed",//7
+                        "vcSupplierPlace",//5
                         "BoxPackingQty_ed","BoxFromTime_ed","BoxToTime_ed","BoxType_ed","BoxLength_ed","BoxWidth_ed","BoxHeight_ed","BoxVolume_ed",//6
                         "vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime","dShipmentTime","vcPartImage",//9
                         "vcBillType_name","vcOrderingMethod_name","vcMandOrder_name","vcSupplierPacking_name","vcRemark1","vcRemark2"},//10
                     {"","","","","","","",//1
                         "","","","",//2
-                        "",
-                        "",//8
-                        FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,//7
-                        "","","","",//3
+                        
+                        
+                        "","","","","",//3
                         "","","","",//4
-                        FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"",//5
+                        FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"",//8
+                        FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,//7
+                        "",//5
                         FieldCheck.Num,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumCharLLL,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",//6
                         "","","",FieldCheck.Date,FieldCheck.Date,"",//9
                         "","","","","",""},//10
                     {"0","0","0","0","0","0","0",//1
                         "0","0","0","0",//2
-                        "0",
-                        "0",//8
-                        "0","0","0",//7
-                        "0","0","0","0",//3
+                        
+                        
+                        "0","0","0","0","0",//3
                         "0","0","0","0",//4
-                        "1","0","0","0",//5
+                        "1","0","0","0",//8
+                        "0","0","0",//7
+                        "0",//5
                         "0","0","0","0","0","0","0","0",//6
                         "0","0","0","0","0","0",//9
                         "0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0//10
                     {"0","0","0","0","0","0","0",//1
                         "0","0","0","0",//2
-                        "0",
-                        "0",//8
-                        "0","0","0",//7
-                        "0","0","0","0",//3
+                        
+                        
+                        "0","0","0","0","0",//3
                         "0","0","0","0",//4
-                        "1","0","0","0",//5
+                        "1","0","0","0",//8
+                        "0","0","0",//7
+                        "0",//5
                         "0","0","0","0","0","0","0","0",//6
                         "0","0","0","0","0","0",//9
                         "0","0","0","0","0","0"}};//最小长度设定,可以为空用0//10

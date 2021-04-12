@@ -98,5 +98,10 @@ namespace Logic
         {
             return fs0622_DataAccess.GetSubPartByGroup(listInfoData);
         }
+
+        public DataTable checkAddData(List<Dictionary<string, object>> listInfoData)
+        {
+            return fs0622_DataAccess.checkAddData(listInfoData);
+        }
     }
 }

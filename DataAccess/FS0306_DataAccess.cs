@@ -101,21 +101,21 @@ namespace DataAccess
                         sbr.Append(" vcNum8= " + ComFunction.getSqlValue(listInfoData[i]["vcNum8"], false) + ", \r\n");
                         sbr.Append(" vcNum9= " + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + ", \r\n");
                         sbr.Append(" vcNum10=" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + ", \r\n");
-                        sbr.Append(" vcIsLock='1' \r\n");
+                        sbr.Append(" vcIsLock='2' \r\n");
                         sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
 
 
-                        sbr.Append(" UPDATE TUnit SET vcNum1= " + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], false) + ", \r\n");
-                        sbr.Append(" vcNum2= " + ComFunction.getSqlValue(listInfoData[i]["vcNum2"], false) + ", \r\n");
-                        sbr.Append(" vcNum3= " + ComFunction.getSqlValue(listInfoData[i]["vcNum3"], false) + ", \r\n");
-                        sbr.Append(" vcNum4= " + ComFunction.getSqlValue(listInfoData[i]["vcNum4"], false) + ", \r\n");
-                        sbr.Append(" vcNum5= " + ComFunction.getSqlValue(listInfoData[i]["vcNum5"], false) + ", \r\n");
-                        sbr.Append(" vcNum6= " + ComFunction.getSqlValue(listInfoData[i]["vcNum6"], false) + ", \r\n");
-                        sbr.Append(" vcNum7= " + ComFunction.getSqlValue(listInfoData[i]["vcNum7"], false) + ", \r\n");
-                        sbr.Append(" vcNum8= " + ComFunction.getSqlValue(listInfoData[i]["vcNum8"], false) + ", \r\n");
-                        sbr.Append(" vcNum9= " + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + ", \r\n");
-                        sbr.Append(" vcNum10=" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + " \r\n");
-                        sbr.Append(" WHERE vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + " \r\n");
+                        //sbr.Append(" UPDATE TUnit SET vcNum1= " + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], false) + ", \r\n");
+                        //sbr.Append(" vcNum2= " + ComFunction.getSqlValue(listInfoData[i]["vcNum2"], false) + ", \r\n");
+                        //sbr.Append(" vcNum3= " + ComFunction.getSqlValue(listInfoData[i]["vcNum3"], false) + ", \r\n");
+                        //sbr.Append(" vcNum4= " + ComFunction.getSqlValue(listInfoData[i]["vcNum4"], false) + ", \r\n");
+                        //sbr.Append(" vcNum5= " + ComFunction.getSqlValue(listInfoData[i]["vcNum5"], false) + ", \r\n");
+                        //sbr.Append(" vcNum6= " + ComFunction.getSqlValue(listInfoData[i]["vcNum6"], false) + ", \r\n");
+                        //sbr.Append(" vcNum7= " + ComFunction.getSqlValue(listInfoData[i]["vcNum7"], false) + ", \r\n");
+                        //sbr.Append(" vcNum8= " + ComFunction.getSqlValue(listInfoData[i]["vcNum8"], false) + ", \r\n");
+                        //sbr.Append(" vcNum9= " + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + ", \r\n");
+                        //sbr.Append(" vcNum10=" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + " \r\n");
+                        //sbr.Append(" WHERE vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + " \r\n");
                     }
                     else
                     {
@@ -128,6 +128,24 @@ namespace DataAccess
                     }
                     if (!string.IsNullOrWhiteSpace(sbr.ToString()))
                     {
+                        sbr.Append("UPDATE TUnit SET ");
+                        sbr.Append("vcNum1  = b.vcNum1 ,");
+                        sbr.Append("vcNum2  = b.vcNum2 ,");
+                        sbr.Append("vcNum3  = b.vcNum3 ,");
+                        sbr.Append("vcNum4  = b.vcNum4 ,");
+                        sbr.Append("vcNum5  = b.vcNum5 ,");
+                        sbr.Append("vcNum6  = b.vcNum6 ,");
+                        sbr.Append("vcNum7  = b.vcNum7 ,");
+                        sbr.Append("vcNum8  = b.vcNum8 ,");
+                        sbr.Append("vcNum9  = b.vcNum9 ,");
+                        sbr.Append("vcNum10 = b.vcNum10 ");
+                        sbr.Append("FROM  ");
+                        sbr.Append("TUnit a ");
+                        sbr.Append("LEFT JOIN ");
+                        sbr.Append(" (SELECT vcPart_id,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock,dJiuBegin FROM TJiuTenYear) b ON a.vcPart_id = b.vcPart_id  AND a.dJiuBegin = b.dJiuBegin");
+                        sbr.Append(" WHERE b.vcIsLock = '2' ");
+                        sbr.Append(" UPDATE TJiuTenYear SET vcIsLock = '1' WHERE vcIsLock = '2' \r\n");
+
                         excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                     }
                 }
@@ -189,9 +207,9 @@ namespace DataAccess
                     sbr.Append("FROM  ");
                     sbr.Append("TUnit a ");
                     sbr.Append("LEFT JOIN ");
-                    sbr.Append("(SELECT vcPart_id,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock FROM TJiuTenYear) b ON a.vcPart_id = b.vcPart_id ");
-                    sbr.Append("WHERE b.vcIsLock = '2' ");
-                    sbr.Append("UPDATE TJiuTenYear SET vcIsLock = '1' WHERE vcIsLock = '2' \r\n");
+                    sbr.Append(" (SELECT vcPart_id,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock,dJiuBegin FROM TJiuTenYear) b ON a.vcPart_id = b.vcPart_id  AND a.dJiuBegin = b.dJiuBegin");
+                    sbr.Append(" WHERE b.vcIsLock = '2' ");
+                    sbr.Append(" UPDATE TJiuTenYear SET vcIsLock = '1' WHERE vcIsLock = '2' \r\n");
 
                     excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }

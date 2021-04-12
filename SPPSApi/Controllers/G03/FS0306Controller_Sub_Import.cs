@@ -70,7 +70,7 @@ namespace SPPSApi.Controllers.G03
                 string[,] headers = new string[,] {{"品番","车型","旧型开始时间","变更事项","N+1", "N+2","N+3","N+4","N+5","N+6","N+7","N+8","N+9","N+10",},
                                                 {"vcPart_id", "vcCarTypeDesign", "dJiuBegin","vcChange", "vcNum1","vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8","vcNum9","vcNum10"},
                                                 {FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
-                                                {"12","0","0","0", "0", "0", "0", "0","0", "0", "0", "0","0", "0"},//最大长度设定,不校验最大长度用0
+                                                {"14","0","0","0", "0", "0", "0", "0","0", "0", "0", "0","0", "0"},//最大长度设定,不校验最大长度用0
                                                 {"1","1","1","1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())

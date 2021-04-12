@@ -165,7 +165,7 @@ namespace SPPSApi.Controllers.G12
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"iAutoId","对象月","工厂","品番","受入","车型","数量","看板订单号","工程0日期","工程0值别","工程1日期","工程1值别","工程2日期","工程2值别","工程3日期","工程3值别","工程4日期","工程4值别","状态"},
+                    string[,] strField = new string[,] {{"iAutoId","对象月","工场","品番","受入","车型","数量","看板订单号","工程0日期","工程0值别","工程1日期","工程1值别","工程2日期","工程2值别","工程3日期","工程3值别","工程4日期","工程4值别","状态"},
                                                 {"iAutoId","vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcNum","vcOrderNo","vcPro0Day","vcPro0Zhi","vcPro1Day","vcPro1Zhi","vcPro2Day","vcPro2Zhi","vcPro3Day","vcPro3Zhi","vcPro4Day","vcPro4Zhi","vcState"},
                                                 {"","","","","","",FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",""},
                                                 {"0","7","7","12","2","5","10","12","10","2","10","2","10","2","10","2","10","2","3"},//最大长度设定,不校验最大长度用0

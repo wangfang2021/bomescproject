@@ -1831,48 +1831,62 @@ namespace Common
             //+ "02.切替文件-0412.rar"
             //, "02.切替文件-0412.rar"
             //, "Doc\\Export\\");
+            try
+            {
+                string url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/uploadDMZApi";
+                // 设置参数
+                HttpWebRequest request = WebRequest.Create(url + "?name=" + strFileName + "&dir=" + strToDir) as HttpWebRequest;
+                CookieContainer cookieContainer = new CookieContainer();
+                request.CookieContainer = cookieContainer;
+                request.AllowAutoRedirect = true;
+                request.Method = "POST";
+                string boundary = DateTime.Now.Ticks.ToString("X"); // 随机分隔线
+                request.ContentType = "multipart/form-data;charset=utf-8;boundary=" + boundary;
+                byte[] itemBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "\r\n");
+                byte[] endBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n");
+                int pos = filepath.LastIndexOf("\\");
+                string fileName = filepath.Substring(pos + 1);
 
-            string url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/uploadDMZApi";
-            // 设置参数
-            HttpWebRequest request = WebRequest.Create(url+"?name="+ strFileName+"&dir="+ strToDir) as HttpWebRequest;
-            CookieContainer cookieContainer = new CookieContainer();
-            request.CookieContainer = cookieContainer;
-            request.AllowAutoRedirect = true;
-            request.Method = "POST";
-            string boundary = DateTime.Now.Ticks.ToString("X"); // 随机分隔线
-            request.ContentType = "multipart/form-data;charset=utf-8;boundary=" + boundary;
-            byte[] itemBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "\r\n");
-            byte[] endBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n");
-            int pos = filepath.LastIndexOf("\\");
-            string fileName = filepath.Substring(pos + 1);
+                //请求头部信息
+                StringBuilder sbHeader = new StringBuilder(string.Format("Content-Disposition:form-data;name=\"file\";filename=\"{0}\"\r\nContent-Type:application/octet-stream\r\n\r\n", fileName));
+                byte[] postHeaderBytes = Encoding.UTF8.GetBytes(sbHeader.ToString());
 
-            //请求头部信息
-            StringBuilder sbHeader = new StringBuilder(string.Format("Content-Disposition:form-data;name=\"file\";filename=\"{0}\"\r\nContent-Type:application/octet-stream\r\n\r\n", fileName));
-            byte[] postHeaderBytes = Encoding.UTF8.GetBytes(sbHeader.ToString());
+                FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read);
+                byte[] bArr = new byte[fs.Length];
+                fs.Read(bArr, 0, bArr.Length);
+                fs.Close();
 
-            FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read);
-            byte[] bArr = new byte[fs.Length];
-            fs.Read(bArr, 0, bArr.Length);
-            fs.Close();
+                Stream postStream = request.GetRequestStream();
+                postStream.Write(itemBoundaryBytes, 0, itemBoundaryBytes.Length);
+                postStream.Write(postHeaderBytes, 0, postHeaderBytes.Length);
+                postStream.Write(bArr, 0, bArr.Length);
+                postStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);
+                postStream.Close();
 
-            Stream postStream = request.GetRequestStream();
-            postStream.Write(itemBoundaryBytes, 0, itemBoundaryBytes.Length);
-            postStream.Write(postHeaderBytes, 0, postHeaderBytes.Length);
-            postStream.Write(bArr, 0, bArr.Length);
-            postStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);
-            postStream.Close();
+                Convert.ToInt32("aa");
 
-            //发送请求并获取相应回应数据
-            HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-            //直到request.GetResponse()程序才开始向目标网页发送Post请求
-            Stream instream = response.GetResponseStream();
-            StreamReader sr = new StreamReader(instream, Encoding.UTF8);
-            //返回结果网页（html）代码
-            string content = sr.ReadToEnd();
-            if (content == "error")
+                //发送请求并获取相应回应数据
+                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                //直到request.GetResponse()程序才开始向目标网页发送Post请求
+                Stream instream = response.GetResponseStream();
+                StreamReader sr = new StreamReader(instream, Encoding.UTF8);
+                //返回结果网页（html）代码
+                string content = sr.ReadToEnd();
+                if (content == "error")
+                {
+                    ComMessage.WriteInDB("dmzUpload", "E", "文件上传异常", "参数filepath=" + filepath + ",strFileName=" + strFileName + ",strToDir=" + strToDir, "", "system");
+                    return false;
+                }
+                    
+                else
+                    return true;
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.WriteInDB("dmzUpload", "E", "文件上传异常", "参数filepath="+ filepath + ",strFileName="+ strFileName + ",strToDir=" + strToDir, ex.StackTrace, "system");
                 return false;
-            else
-                return true;
+            }
         }
         /// <summary>
         /// Http下载文件

@@ -251,6 +251,8 @@ namespace SPPSApi.Controllers.G07
                                             "iDay31","dZYTime"};
                         string strfileName = "月度内示书_"+strYearMonth+"_"+i+"_";
                         string filepath = ComFunction.DataTableToExcel(head, fields, dt_Month, _webHostEnvironment.ContentRootPath, loginInfo.UserId, strfileName, ref resMsg);
+                        Console.WriteLine(_webHostEnvironment.ContentRootPath);
+                        Console.WriteLine(strfileName);
                         if (filepath == "")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -479,6 +481,7 @@ namespace SPPSApi.Controllers.G07
 
     }
 
+    #region 压缩包帮助类
     /// <summary>
     /// 压缩包帮助类
     /// </summary>
@@ -502,7 +505,7 @@ namespace SPPSApi.Controllers.G07
         /// <summary>
         /// 实例化函数
         /// </summary>
-        public ZIPHelper() 
+        public ZIPHelper()
         {
             this.strZIPFileName = "";
             this.strZIPFilePath = "";
@@ -513,7 +516,7 @@ namespace SPPSApi.Controllers.G07
         /// 设置文件对应文件二进制流List
         /// </summary>
         /// <param name="fileLists"></param>
-        public void setFiles(List<FileHelper> fileLists) 
+        public void setFiles(List<FileHelper> fileLists)
         {
             foreach (var item in fileLists)
             {
@@ -526,7 +529,7 @@ namespace SPPSApi.Controllers.G07
             }
         }
 
-        public void addFiles(string strFileName,string strFilePath) 
+        public void addFiles(string strFileName, string strFilePath)
         {
             string strFilePath_All = strFilePath + Path.DirectorySeparatorChar + strFileName;
             files.Add(strFileName, File.ReadAllBytes(strFilePath_All));
@@ -541,7 +544,7 @@ namespace SPPSApi.Controllers.G07
         /// </summary>
         public void createZIPFile()
         {
-            using (FileStream zip = File.Create(strZIPFilePath +Path.DirectorySeparatorChar+ strZIPFileName))
+            using (FileStream zip = File.Create(strZIPFilePath + Path.DirectorySeparatorChar + strZIPFileName))
             {
                 using (ZipOutputStream zipStream = new ZipOutputStream(zip))
                 {
@@ -560,7 +563,7 @@ namespace SPPSApi.Controllers.G07
             }
         }
     }
-
+    #endregion
 
     #region 文件帮助类
     /// <summary>

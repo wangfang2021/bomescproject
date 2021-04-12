@@ -247,7 +247,8 @@ namespace SPPSApi.Controllers.G02
 
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    ComFunction.FtpUpload("TTCC" + Path.DirectorySeparatorChar + Type, info.FullName);
+                    //ComFunction.FtpUpload("TTCC" + Path.DirectorySeparatorChar + Type, info.FullName);
+                    ComFunction.HttpUploadFile(info.FullName, info.Name, @"Doc\TTCC\" + Type + @"\");
                 }
 
             }

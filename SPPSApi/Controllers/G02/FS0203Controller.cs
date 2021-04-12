@@ -127,9 +127,45 @@ namespace SPPSApi.Controllers.G02
             string carType = dataForm.carType == null ? "" : dataForm.carType;
             try
             {
-                string realPath = ComFunction.FtpDownload("TTCC/SPRL", _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export", carType + ".xlsx");
-                string filepath = System.IO.Path.GetFileName(realPath);
+                string environment = Environment.OSVersion.ToString().ToLower();
+                if (!environment.Contains("windows"))
+                {
+                    string realPath = ComFunction.HttpDownload(@"Doc\Export\", carType + ".xlsx", _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export");
+                    string filepath = System.IO.Path.GetFileName(realPath);
+                    
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = filepath;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                else
+                {
+                    //string realPath = ComFunction.FtpDownload("TTCC/SPRL", _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export", carType + ".xlsx");
+                    ////转存下载
+                    //string realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                    //                  Path.DirectorySeparatorChar + "TTCC" + Path.DirectorySeparatorChar + "SPRL" + Path.DirectorySeparatorChar + carType + ".xlsx";
 
+                    //string filepath = "";
+                    //if (System.IO.File.Exists(realPath))
+                    //{
+                    //    filepath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                    //               Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar + "SPRL" + Path.DirectorySeparatorChar;
+
+                    //    if (Directory.Exists(filepath))
+                    //    {
+                    //        ComFunction.DeleteFolder(filepath);
+                    //    }
+
+                    //    Directory.CreateDirectory(filepath);
+
+                    //    filepath = filepath + System.IO.Path.GetFileName(realPath);
+                    //    System.IO.File.Copy(realPath, filepath, true);
+                    //    filepath = "SPRL" + Path.DirectorySeparatorChar + System.IO.Path.GetFileName(realPath);
+                    }
+
+
+
+
+                //string realPath = ComFunction.FtpDownload("TTCC/SPRL", _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export", carType + ".xlsx");
                 ////转存下载
                 //string realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
                 //                  Path.DirectorySeparatorChar + "TTCC" + Path.DirectorySeparatorChar + "SPRL" + Path.DirectorySeparatorChar + carType + ".xlsx";
@@ -156,7 +192,7 @@ namespace SPPSApi.Controllers.G02
 
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = filepath;
+                //apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

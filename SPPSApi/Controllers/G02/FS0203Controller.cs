@@ -127,6 +127,9 @@ namespace SPPSApi.Controllers.G02
             string carType = dataForm.carType == null ? "" : dataForm.carType;
             try
             {
+                string environment = Environment.OSVersion.ToString();
+
+                bool flag = ComFunction.HttpDownload(@"Doc\Export\", carType + ".xlsx", _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export");
                 string realPath = ComFunction.FtpDownload("TTCC/SPRL", _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export", carType + ".xlsx");
                 string filepath = System.IO.Path.GetFileName(realPath);
 

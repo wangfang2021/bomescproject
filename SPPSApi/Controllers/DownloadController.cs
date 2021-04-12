@@ -731,7 +731,6 @@ namespace SPPSApi.Controllers
         [RequestSizeLimit(100_000_000)]
         public string uploadDMZApi(IFormFile file, string name, string dir)
         {
-            ApiResult apiResult = new ApiResult();
             try
             {
                 string filename = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + dir + name; // 新文件名（包括路径）

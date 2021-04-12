@@ -42,8 +42,47 @@ namespace Logic
             return fs0705_DataAccess.getSupplier();
         }
         #endregion
- 
 
+        #region 获取所有当前时间段内所有品番的包材信息和有效信息
+        public string[] getPackCheckDT(string strFaZhuID,string strPackSpot)
+        {
+            DataTable packCheckDT = fs0705_DataAccess.getPackCheckDT(strFaZhuID, strPackSpot);
+            string[] strArray = new string[2];
+            //记录无包材构成的品番
+            string strErr1 = "";
+            //记录包材构成无效的品番
+            string strErr2 = "";
+
+            //取到本次计算时段的所有品番(不重复)
+            List<string> partLists = new List<string>();
+            for (int i = 0; i < packCheckDT.Rows.Count; i++)
+            {
+                partLists.Add(packCheckDT.Rows[i]["vcPart_id"].ToString());
+            }
+             partLists = partLists.Distinct().ToList();
+
+            for (int i = 0; i < partLists.Count; i++)
+            {
+                DataRow[] drs = packCheckDT.Select("vcPart_id='" + partLists[i]+ "' and vcPartsNo is null");
+                if (drs.Length>0)
+                {
+                    strErr1 += partLists[i]+" ";
+                }
+                else
+                {
+                    drs = packCheckDT.Select("vcPart_id='" + partLists[i] + "' and dUsedFrom<'" + DateTime.Now.ToString() + "' and '" + DateTime.Now.ToString() + "'<dUsedTo");
+                    if (drs.Length<=0)
+                    {
+                        strErr2 += partLists[i]+" ";
+                    }
+                }
+            }
+
+            strArray[0] = strErr1;
+            strArray[1] = strErr2;
+            return strArray;
+        }
+        #endregion
 
         #region 发注便次更新
         public ArrayList SearchFaZhuTime(string strPackSpot)
@@ -177,6 +216,21 @@ namespace Logic
                 return "";
             else
                 return dt.Rows[0]["vcBanZhi"].ToString();
+        }
+        #endregion
+
+        #region 获取用户计算过程检索和调整数据输入按钮的权限
+        public bool getUserDisable(string strUserId)
+        {
+            DataTable dt = fs0705_DataAccess.getUserDisabledDT();
+            if (dt.Select("userID=" + strUserId).Length>0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
         #endregion
 

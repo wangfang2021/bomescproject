@@ -45,8 +45,8 @@ namespace Logic
                     }
                 }
             }
-            dt_All.DefaultView.Sort = "dFaBuTime desc";
-            dt_All = dt_All.DefaultView.ToTable();
+            returnDT.DefaultView.Sort = "dFaBuTime desc";
+            returnDT = returnDT.DefaultView.ToTable();
             return returnDT;
         }
         #endregion

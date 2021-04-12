@@ -249,7 +249,7 @@ namespace DataAccess
                 sql.AppendLine("	from");
                 sql.AppendLine("	(select '"+ strYearMonth + "' as vcYM ,1 as item union all select '"+ strYearMonth_2 + "' as vcYM,2 as item union all select '"+ strYearMonth_3 + "' as vcYM,3 as item)a");
                 sql.AppendLine("	left join");
-                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+"')b on 1=1");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+ "' and vcYearMonth='" + strYearMonth + "')b on 1=1");
                 sql.AppendLine(")t1");
                 sql.AppendLine("left join");
                 sql.AppendLine("(");
@@ -279,7 +279,7 @@ namespace DataAccess
                 sql.AppendLine("	from");
                 sql.AppendLine("	(select '"+strYearMonth+"' as vcYM ,1 as item union all select '"+strYearMonth_2+"' as vcYM,2 as item union all select '"+strYearMonth_3+"' as vcYM,3 as item)a");
                 sql.AppendLine("	left join");
-                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+"')b on 1=1");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+ "' and vcYearMonth='" + strYearMonth + "')b on 1=1");
                 sql.AppendLine(")t1");
                 sql.AppendLine("left join");
                 sql.AppendLine("(--手配主表");
@@ -312,7 +312,7 @@ namespace DataAccess
                 sql.AppendLine("	from    ");
                 sql.AppendLine("	(select '"+ strYearMonth + "' as vcYM ,1 as item union all select '"+ strYearMonth_2 + "' as vcYM,2 as item union all select '"+ strYearMonth_3 + "' as vcYM,3 as item)a    ");
                 sql.AppendLine("	left join    ");
-                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+"')b on 1=1    ");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+ "' and vcYearMonth='" + strYearMonth + "')b on 1=1    ");
                 sql.AppendLine(")t1    ");
                 sql.AppendLine("left join    ");
                 sql.AppendLine("(--手配主表    ");
@@ -378,7 +378,7 @@ namespace DataAccess
                 sql.AppendLine("	from    ");
                 sql.AppendLine("	(select '"+ strYearMonth + "' as vcYM ,1 as item union all select '"+strYearMonth_2+"' as vcYM,2 as item union all select '"+strYearMonth_3+"' as vcYM,3 as item)a    ");
                 sql.AppendLine("	left join    ");
-                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+"')b on 1=1    ");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+ "' and vcYearMonth='" + strYearMonth + "')b on 1=1    ");
                 sql.AppendLine(")t1    ");
                 sql.AppendLine("left join    ");
                 sql.AppendLine("(--手配主表    ");
@@ -412,7 +412,7 @@ namespace DataAccess
                 sql.AppendLine("	from");
                 sql.AppendLine("	(select '"+strYearMonth+"' as vcYM ,1 as item union all select '"+strYearMonth_2+"' as vcYM,2 as item union all select '"+strYearMonth_3+"' as vcYM,3 as item)a");
                 sql.AppendLine("	left join");
-                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+"')b on 1=1");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+ "' and vcYearMonth='" + strYearMonth + "')b on 1=1");
                 sql.AppendLine(")t1");
                 sql.AppendLine("left join");
                 sql.AppendLine("(--手配主表");
@@ -442,7 +442,7 @@ namespace DataAccess
                 sql.AppendLine("	from");
                 sql.AppendLine("	(select '"+strYearMonth+"' as vcYM ,1 as item union all select '"+strYearMonth_2+"' as vcYM,2 as item union all select '"+strYearMonth_3+"' as vcYM,3 as item)a");
                 sql.AppendLine("	left join");
-                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+"')b on 1=1");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='"+strUserId+ "' and vcYearMonth='" + strYearMonth + "')b on 1=1");
                 sql.AppendLine(")t1");
                 sql.AppendLine("left join");
                 sql.AppendLine("(--手配主表");
@@ -881,7 +881,7 @@ namespace DataAccess
                     #endregion
                 }
 
-                strSql.AppendLine(" UPDATE TSoq SET ");
+                strSql.AppendLine(" UPDATE a SET ");
                 strSql.AppendLine("      iHySOQN=iTzhSOQN,");
                 strSql.AppendLine("      iHySOQN1=iTzhSOQN1,");
                 strSql.AppendLine("      iHySOQN2=iTzhSOQN2,");
@@ -993,7 +993,7 @@ namespace DataAccess
                     #endregion
                 }
 
-                strSql.AppendLine(" UPDATE TSoq SET ");
+                strSql.AppendLine(" UPDATE a SET ");
                 strSql.AppendLine("      vcHyState='3'  ");
                 strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
                 strSql.AppendLine("      ,dOperatorTime=getDate() ");

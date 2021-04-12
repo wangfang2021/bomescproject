@@ -31,9 +31,9 @@ namespace Logic
         #endregion
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
-            fs0806_DataAccess.Save(listInfoData, strUserId);
+            fs0806_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
 
@@ -60,6 +60,29 @@ namespace Logic
             }
             else
                 return true;
+        }
+        #endregion
+
+        public bool isHaveAfterProject(string vcPart_id,string vcKBOrderNo,string vcKBLFNo,string vcSR,string vcZYType)
+        {
+            int num = fs0806_DataAccess.isHaveAfterProject(vcPart_id, vcKBOrderNo, vcKBLFNo, vcSR, vcZYType);
+            if (num > 0)
+                return true;
+            else
+                return false;
+        }
+
+        #region 保存_NG明细
+        public void Save_sub(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0806_DataAccess.Save_sub(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 删除_NG明细
+        public void Del_sub(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            fs0806_DataAccess.Del_sub(checkedInfoData, strUserId);
         }
         #endregion
     }

@@ -548,13 +548,13 @@ namespace Logic
             {
                 string strDyState = "";
                 string strHyState = "1";
-                for (int i = 0; i < dtImport.Rows.Count; i++)
-                {
-                    if (dtImport.Rows[i]["vcHy4"].ToString() == "")
-                    {
-                        dtImport.Rows[i]["vcHy4"] = "1";
-                    }
-                }
+                //for (int i = 0; i < dtImport.Rows.Count; i++)
+                //{
+                //    if (dtImport.Rows[i]["vcHy4"].ToString() == "")
+                //    {
+                //        dtImport.Rows[i]["vcHy4"] = "1";
+                //    }
+                //}
                 fs0602_DataAccess.setSaveInfo_rp(dtImport, strDyState, strHyState, strOperId, ref dtMessage);
             }
             catch (Exception ex)

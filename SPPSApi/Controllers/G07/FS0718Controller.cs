@@ -33,6 +33,7 @@ namespace SPPSApi.Controllers.G07
 
         FS0718_Logic FS0718_Logic = new FS0718_Logic();
         ZIPHelper zIPHelper = new ZIPHelper();
+        FileHelper fileHelper = new FileHelper();
         private readonly string FunctionID = "FS0718";
 
         public FS0718Controller(IWebHostEnvironment webHostEnvironment)
@@ -514,9 +515,14 @@ namespace SPPSApi.Controllers.G07
         /// <param name="fileLists"></param>
         public void setFiles(List<FileHelper> fileLists) 
         {
-            foreach (var fileHelper in fileLists)
+            foreach (var item in fileLists)
             {
-                files.Add(fileHelper.strFileName, File.ReadAllBytes(fileHelper.strFilePath+ Path.DirectorySeparatorChar + fileHelper.strFileName));
+                string strFilePath_All = item.strFilePath + Path.DirectorySeparatorChar + item.strFileName;
+                files.Add(item.strFileName, File.ReadAllBytes(strFilePath_All));
+                if (File.Exists(strFilePath_All))
+                {
+                    File.Delete(strFilePath_All);
+                }
             }
         }
 
@@ -524,14 +530,16 @@ namespace SPPSApi.Controllers.G07
         {
             string strFilePath_All = strFilePath + Path.DirectorySeparatorChar + strFileName;
             files.Add(strFileName, File.ReadAllBytes(strFilePath_All));
+            if (File.Exists(strFilePath_All))
+            {
+                File.Delete(strFilePath_All);
+            }
         }
 
         /// <summary>
         /// 创建压缩包文件
         /// </summary>
-        /// <param name="strFileName">文件名</param>
-        /// <param name="strFilePath">文件路径</param>
-        public void createZIPFile() 
+        public void createZIPFile()
         {
             using (FileStream zip = File.Create(strZIPFilePath +Path.DirectorySeparatorChar+ strZIPFileName))
             {
@@ -551,11 +559,12 @@ namespace SPPSApi.Controllers.G07
                 }
             }
         }
-
     }
 
+
+    #region 文件帮助类
     /// <summary>
-    /// 文件类
+    /// 文件帮助类
     /// </summary>
     public class FileHelper
     {
@@ -568,6 +577,18 @@ namespace SPPSApi.Controllers.G07
         /// 文件路径
         /// </summary>
         public string strFilePath { get; set; }
+
+
+        /// <summary>
+        /// 无参实例化
+        /// </summary>
+        public FileHelper()
+        {
+            strFileName = "";
+            strFilePath = "";
+        }
     }
+    #endregion
+
 
 }

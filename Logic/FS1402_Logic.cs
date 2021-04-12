@@ -19,9 +19,9 @@ namespace Logic
         {
             fs1402_DataAccess = new FS1402_DataAccess();
         }
-        public DataTable getSearchInfo(string strCheckType, string strPartId, string strSupplierId)
+        public DataTable getSearchInfo(string strCheckType, string strPartId, string strSupplierId,string strCarModel)
         {
-            return fs1402_DataAccess.getSearchInfo(strCheckType, strPartId, strSupplierId);
+            return fs1402_DataAccess.getSearchInfo(strCheckType, strPartId, strSupplierId, strCarModel);
         }
         public DataTable checkSaveInfo(DataTable dtImport, ref DataTable dtMessage)
         {
@@ -53,7 +53,7 @@ namespace Logic
                             }
                             else
                             {
-                                DataTable dtCheckTime = getSearchInfo("", strPartId, strSupplierId);
+                                DataTable dtCheckTime = getSearchInfo("", strPartId, strSupplierId,"");
                                 if (dtCheckTime.Rows.Count > 0)
                                 {
                                     string strLinid_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["LinId"].ToString();
@@ -110,6 +110,7 @@ namespace Logic
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcMessage"] = "导入终止，文件" + info.Name + ":" + strMessage;
                         dtMessage.Rows.Add(dataRow);
+                        return null;
                     }
                     if (dataTable.Columns.Count == 0)
                         dataTable = dt.Clone();
@@ -119,6 +120,7 @@ namespace Logic
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcMessage"] = "导入终止，文件" + info.Name + "没有要导入的数据";
                         dtMessage.Rows.Add(dataRow);
+                        return null;
                     }
                     foreach (DataRow row in dt.Rows)
                     {

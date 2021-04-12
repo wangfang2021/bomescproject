@@ -24,9 +24,9 @@ namespace Logic
             return fs1404_DataAccess.getSearchInfo(strPartId, strSupplierId);
 
         }
-        public DataTable getSearchsubInfo(string strSupplierId, List<Object> listTime)
+        public DataTable getSearchsubInfo(string strCarModel, string strSupplierId, List<Object> listTime)
         {
-            return fs1404_DataAccess.getSearchsubInfo(strSupplierId, listTime);
+            return fs1404_DataAccess.getSearchsubInfo(strCarModel, strSupplierId, listTime);
 
         }
         public DataTable checkSaveInfo(DataTable dtImport, string strPath, ref DataTable dtMessage)
@@ -43,6 +43,7 @@ namespace Logic
                         string strFromTime = dtImport.Rows[i]["dFromTime"].ToString();
                         string strToTime = dtImport.Rows[i]["dToTime"].ToString();
                         string strPicUrl = dtImport.Rows[i]["vcPicUrl"].ToString();
+                        string strChangeReason = dtImport.Rows[i]["vcChangeRea"].ToString();
                         if (strPartId == "" || strSupplierId == "" || strFromTime == "" || strToTime == "")
                         {
                             DataRow dataRow = dtMessage.NewRow();
@@ -54,15 +55,15 @@ namespace Logic
                             if (strPicUrl == "")
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = strPartId + "品番SPIS路径为空请完善数据。";
+                                dataRow["vcMessage"] = strPartId + "品番SPIS为空请完善数据。";
                                 dtMessage.Rows.Add(dataRow);
                             }
                             else
                             {
-                                if (!System.IO.File.Exists(strPath+ strPicUrl))
+                                if (!System.IO.File.Exists(strPath + strPicUrl))
                                 {
                                     DataRow dataRow = dtMessage.NewRow();
-                                    dataRow["vcMessage"] = strPartId + "品番SPIS路径没有图片请重新上传。";
+                                    dataRow["vcMessage"] = strPartId + "品番SPIS没有找到图片请重新上传。";
                                     dtMessage.Rows.Add(dataRow);
                                 }
                                 else
@@ -110,47 +111,49 @@ namespace Logic
                 throw ex;
             }
         }
-        public DataTable ImportFile(DirectoryInfo theFolder, string fileSavePath, string sheetName, string[,] headers, bool bSourceFile, string strOperId, ref DataTable dtMessage)
+        public DataTable ImportFile(FileInfo info, string fileSavePath, string sheetName, string[,] headers, bool bSourceFile, string strOperId, ref DataTable dtMessage)
         {
             try
             {
                 DataTable dataTable = new DataTable();
                 //读取导入文件信息
                 string strMessage = "";
-                foreach (FileInfo info in theFolder.GetFiles())
+                //foreach (FileInfo info in theFolder.GetFiles())
+                //{
+                if (info.FullName.IndexOf(".xlsx") > 0 || info.FullName.IndexOf(".xls") > 0)
                 {
-                    if (info.FullName.IndexOf(".xlsx") > 0 || info.FullName.IndexOf(".xlsm") > 0 || info.FullName.IndexOf(".xls") > 0)
+                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, sheetName, headers, ref strMessage);
+                    if (strMessage != "")
                     {
-                        DataTable dt = ComFunction.ExcelToDataTable(info.FullName, sheetName, headers, ref strMessage);
-                        if (strMessage != "")
-                        {
-                            ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                            DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcMessage"] = "导入终止，文件" + info.Name + ":" + strMessage;
-                            dtMessage.Rows.Add(dataRow);
-                        }
-                        if (dataTable.Columns.Count == 0)
-                            dataTable = dt.Clone();
-                        if (dt.Rows.Count == 0)
-                        {
-                            ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                            DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcMessage"] = "导入终止，文件" + info.Name + "没有要导入的数据";
-                            dtMessage.Rows.Add(dataRow);
-                        }
-                        foreach (DataRow row in dt.Rows)
-                        {
-                            dataTable.ImportRow(row);
-                        }
+                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "导入终止，文件" + info.Name + ":" + strMessage;
+                        dtMessage.Rows.Add(dataRow);
+                        return null;
                     }
+                    if (dataTable.Columns.Count == 0)
+                        dataTable = dt.Clone();
+                    if (dt.Rows.Count == 0)
+                    {
+                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "导入终止，文件" + info.Name + "没有要导入的数据";
+                        dtMessage.Rows.Add(dataRow);
+                        return null;
+                    }
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        dataTable.ImportRow(row);
+                    }
+                    //}
                     //读取数据后删除文件夹
-                    if (bSourceFile)
-                    {
-                        ComFunction.DeleteFolder(fileSavePath);
-                    }
+                    //if (bSourceFile)
+                    //{
+                    //    ComFunction.DeleteFolder(fileSavePath);
+                    //}
                     //查重
                     var result = from r in dataTable.AsEnumerable()
-                                 group r by new { r2 = r.Field<string>("vcPartId"), r3 = r.Field<string>("vcSupplierCode"), r4 = r.Field<string>("vcSupplierPlant") } into g
+                                 group r by new { r2 = r.Field<string>("vcPartId"), r3 = r.Field<string>("vcSupplierId") } into g
                                  where g.Count() > 1
                                  select g;
                     if (result.Count() > 0)
@@ -159,30 +162,32 @@ namespace Logic
                         sbr.Append("导入数据重复:<br/>");
                         foreach (var item in result)
                         {
-                            sbr.Append("品番:" + item.Key.r2 + " 供应商编码:" + item.Key.r3 + " 供应商工区:" + item.Key.r4 + "<br/>");
+                            sbr.Append("品番:" + item.Key.r2 + " 供应商编码:" + item.Key.r3 + "<br/>");
                         }
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcMessage"] = sbr.ToString();
                         dtMessage.Rows.Add(dataRow);
                     }
+                    dataTable.Columns.Add("LinId");
                     dataTable.Columns.Add("vcType");
+                    dataTable.Columns.Add("vcPicUrlUUID");
                     for (int i = 0; i < dataTable.Rows.Count; i++)
                     {
-                        dataTable.Rows[i]["vcPartId"] = "add";
+                        dataTable.Rows[i]["vcType"] = "add";
                         if (dataTable.Rows[i]["vcPartId"].ToString().Replace("-", "").Length != 12)
                         {
                             DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcMessage"] = "Excel第" + (i + 1) + "行品番格式错误";
+                            dataRow["vcMessage"] = "Excel文件第" + (i + 1) + "行品番格式错误";
                             dtMessage.Rows.Add(dataRow);
                         }
                         try
                         {
-                            Convert.ToDateTime(dataTable.Rows[i]["vcTimeFrom"].ToString());
-                            Convert.ToDateTime(dataTable.Rows[i]["vcTimeTo"].ToString());
-                            if (Convert.ToDateTime(dataTable.Rows[i]["vcTimeFrom"].ToString()) > Convert.ToDateTime(dataTable.Rows[i]["vcTimeTo"].ToString()))
+                            Convert.ToDateTime(dataTable.Rows[i]["dFromTime"].ToString());
+                            Convert.ToDateTime(dataTable.Rows[i]["dToTime"].ToString());
+                            if (Convert.ToDateTime(dataTable.Rows[i]["dFromTime"].ToString()) > Convert.ToDateTime(dataTable.Rows[i]["dToTime"].ToString()))
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = "Excel第" + (i + 1) + "行起始时间大于结束时间";
+                                dataRow["vcMessage"] = "Excel文件第" + (i + 1) + "行起始时间大于结束时间";
                                 dtMessage.Rows.Add(dataRow);
                             }
                         }
@@ -192,16 +197,16 @@ namespace Logic
                             dataRow["vcMessage"] = "Excel文件中第" + (i + 1) + "行日期格式有误";
                             dtMessage.Rows.Add(dataRow);
                         }
-                        if (!(dataTable.Rows[i]["vcSupplierCode"].ToString().Length == 4 && dataTable.Rows[i]["vcSupplierPlant"].ToString().Length == 1))
+                        if (!(dataTable.Rows[i]["vcSupplierId"].ToString().Length == 4))
                         {
                             DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcMessage"] = "Excel第" + (i + 1) + "行车种代码、供应商(工区)格式错误";
+                            dataRow["vcMessage"] = "Excel文件第" + (i + 1) + "行供应商格式错误";
                             dtMessage.Rows.Add(dataRow);
                         }
-                        if (!(dataTable.Rows[i]["vcPicUrl"].ToString() == ""))
+                        if (dataTable.Rows[i]["vcPicUrl"].ToString() == "")
                         {
                             DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcMessage"] = "Excel第" + (i + 1) + "行SPIS区分为空";
+                            dataRow["vcMessage"] = "Excel文件第" + (i + 1) + "行SPIS为空";
                             dtMessage.Rows.Add(dataRow);
                         }
                     }

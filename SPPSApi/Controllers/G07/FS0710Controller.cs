@@ -5,10 +5,12 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.ServiceModel;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -20,6 +22,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using WebServiceAPI;
 
 namespace SPPSApi.Controllers.G07
 {
@@ -116,6 +119,7 @@ namespace SPPSApi.Controllers.G07
             }
             string dFrom = dataForm.dFrom;
             string dTo = dataForm.dTo;
+            string reason = "";
             try
             {
                 DataTable dt = FS0710_Logic.Search_NR(PackSpot, strSupplierCode, dFrom, dTo);
@@ -129,12 +133,63 @@ namespace SPPSApi.Controllers.G07
                 }
                 else
                 {
-                    FS0710_Logic.Save_NR(dt, ref strErrorPartId);
+
+                    //插入纳入统计表
+                    FS0710_Logic.Save_NR(dt, ref strErrorPartId, loginInfo.UserId);
                     if (strErrorPartId == "")
                     {
                         strErrorPartId = "纳入统计计算成功！";
+                        reason = "纳入统计计算成功";
+
+                    }
+                    //Crystal
+                    for (int i = 0; i < strSupplierCode.Count; i++)
+                    {
+                        DataTable drc = FS0710_Logic.SearchNRCaystal(strSupplierCode[i].ToString(), PackSpot[0].ToString());
+                        if (drc.Rows.Count > 0)
+                        {
+                            //插入待生成数据
+                            FS0710_Logic.InsertCaystal(drc, PackSpot[0].ToString(), strSupplierCode[i].ToString(), dFrom, dTo);
+                            #region 调用webApi打印
+                            FS0603_Logic fS0603_Logic = new FS0603_Logic();
+                            string strPrinterName = fS0603_Logic.getPrinterName("FS0710", loginInfo.UserId);
+                            //创建 HTTP 绑定对象
+                            string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                            var binding = new BasicHttpBinding();
+                            //根据 WebService 的 URL 构建终端点对象
+                            var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
+                            //创建调用接口的工厂，注意这里泛型只能传入接口
+                            var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                            //从工厂获取具体的调用实例
+                            var callClient = factory.CreateChannel();
+                            setCRVToPDFRequestBody Body = new setCRVToPDFRequestBody();
+                            Body.strCRVName = file_crv + "crv_FS0710.rpt";
+                            Body.strScrpit = "select * from TPackNRTJ_Caystal ";
+                            Body.strDiskFileName = "D:/3.启明系统开发/62.2021年补给管理运用平台/API/SPPSApi/Doc/Image/SPISPdf/内示"+DateTime.Now.ToString("yyyyMMddHHssmm")+".PDF";
+                            Body.sqlUserID = "sa";
+                            Body.sqlPassword = "SPPS_Server2019";
+                            Body.sqlCatalog = "SPPSdb";
+                            Body.sqlSource = "172.23.180.116";
+                            //调用具体的方法，这里是 HelloWorldAsync 方法
+                            Task<setCRVToPDFResponse> responseTask = callClient.setCRVToPDFAsync(new setCRVToPDFRequest(Body));
+                            //获取结果
+                            setCRVToPDFResponse response = responseTask.Result;
+                            if (response.Body.setCRVToPDFResult != "导出成功")
+                            {
+                                if (reason == "纳入统计计算成功")
+                                {
+
+                                    strErrorPartId = "生成PDF失败,纳入统计计算成功";
+                                    break;
+                                }
+                            }
+
+                            #endregion
+                        }
+
                     }
                 }
+
                 DataTable dt1 = new DataTable();
                 dt1.Columns.Add("vcName", Type.GetType("System.String"));
                 DataRow dr = dt1.NewRow();
@@ -183,8 +238,8 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-                string[] head = { "供应商", "供应商名称", "GPS品番", "品名", "规格", "数量", "单位", "备注","费用负担" };
-                string[] fields = { "vcSupplieCode", "vcSupplieName", "vcPackGPSNo", "vcParstName", "vcFormat", "isjNum", "vcUnit",  "Memo","vcCostID" };
+                string[] head = { "供应商", "供应商名称", "GPS品番", "品名", "规格", "数量", "单位", "备注", "费用负担" };
+                string[] fields = { "vcSupplieCode", "vcSupplieName", "vcPackGPSNo", "vcParstName", "vcFormat", "isjNum", "vcUnit", "Memo", "vcCostID" };
 
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")

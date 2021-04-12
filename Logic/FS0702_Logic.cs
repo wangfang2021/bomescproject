@@ -53,9 +53,9 @@ namespace Logic
         #region 形成纵向导出
 
 
-        public DataTable SearchEXZ(string iautoID, List<Object> strNote, List<Object> strPackSpot, List<Object> strShouhuofang, string strPartsNo, string strCar, string strPackNO, string strPackGPSNo, string strFromBegin, string strFromEnd, string strToBegin, string strToEnd)
+        public DataTable SearchEXZ(string iautoID, List<Object> strNote, List<Object> strPackSpot, List<Object> strShouhuofang, string strPartsNo, string strCar, string strPackNO, string strPackGPSNo, string strFromBegin, string strFromEnd, string strToBegin, string strToEnd,string strExport)
         {
-            return FS0702_DataAccess.SearchEXZ(iautoID, strNote, strPackSpot, strShouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strFromEnd, strToBegin);
+            return FS0702_DataAccess.SearchEXZ(iautoID, strNote, strPackSpot, strShouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strFromEnd, strToBegin, strExport);
         }
         #endregion
 

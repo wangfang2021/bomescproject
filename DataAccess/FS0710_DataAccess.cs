@@ -20,7 +20,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("     select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null ");
+                strSql.AppendLine("     select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where isnull(vcSupplierCode,'')<>''  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -51,7 +51,7 @@ namespace DataAccess
 
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("  select a.vcSupplieCode,b.vcSupplierName,a.vcPackGPSNo,b.vcParstName,b.vcFormat     ");
-                strSql.AppendLine("  ,a.vcUnit,sum(a.iSJNum) as isjNum,a.vcCostID      ");
+                strSql.AppendLine("  ,a.vcUnit,sum(a.iSJNum) as isjNum,a.vcCostID ,a.vcPackSpot        ");
                 strSql.AppendLine("   from      ");
                 strSql.AppendLine("  (     ");
                 strSql.AppendLine("  select * from TPackRuKuInFo where vcSJTime is not null      ");
@@ -75,7 +75,7 @@ namespace DataAccess
                     strSql.AppendLine($"      AND vcSupplieCode in( ");
                     for (int i = 0; i < strSupplierCode.Count; i++)
                     {
-                        if (PackSpot.Count - i == 1)
+                        if (strSupplierCode.Count - i == 1)
                         {
                             strSql.AppendLine("   '" + strSupplierCode[i] + "'   \n");
                         }
@@ -91,7 +91,107 @@ namespace DataAccess
                 strSql.AppendLine("      where getdate() between dPackFrom and dPackTo      ");
                 strSql.AppendLine("   )b on a.vcPackNo=b.vcPackNo     ");
                 strSql.AppendLine("   group by  a.vcSupplieCode,b.vcSupplierName,a.vcPackGPSNo,b.vcParstName,b.vcFormat    ");
-                strSql.AppendLine("   ,a.vcUnit,a.vcCostID    ");
+                strSql.AppendLine("   ,a.vcUnit,a.vcCostID ,a.vcPackSpot      ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+
+
+        #region 水晶报表
+        public void Save_Caystal(DataTable dt, string packSpot, string strSupplierCode, string dFrom, string dTo)
+        {
+            try
+            {
+                DataTable dt1 = this.SearchSupplier();
+                DataRow[] dr = dt1.Select("vcValue='"+ strSupplierCode + "'");
+                StringBuilder sql = new StringBuilder();
+                sql.AppendLine("   delete from TPackNRTJ_Caystal ;  ");
+                //sql.AppendLine("   delete from TpackNRTJ_List ;  ");
+                //sql.AppendLine(" INSERT INTO [dbo].[TpackNRTJ_List]     ");
+                //sql.AppendLine("  ([vcPackSpot]   ");
+                //sql.AppendLine("  ,[vcSupplieCode],vcSupplieName   ");
+                //sql.AppendLine("  ,[dfrom]   ");
+                //sql.AppendLine("  ,[dto]   ");
+                //sql.AppendLine("  ,[dMyTime])   ");
+                //sql.AppendLine("   values ");
+                //sql.AppendLine("   ( ");
+                //sql.AppendLine("  '"+ packSpot + "',  ");
+                //sql.AppendLine("  '"+ strSupplierCode + "',  ");
+                //sql.AppendLine("  '"+ dr[0]["vcName"].ToString() + "',  ");
+                //sql.AppendLine("  '"+ dFrom + "',  ");
+                //sql.AppendLine("  '"+ dTo + "',  ");
+                //sql.AppendLine("  getdate()  ");
+                //sql.AppendLine("    )");
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql.AppendLine(" INSERT INTO [dbo].[TPackNRTJ_Caystal]     ");
+                    sql.AppendLine("   ([iNum]   ");
+                    sql.AppendLine("   ,[vcPackGPSNo],[vcPackSpot]   ");
+                    sql.AppendLine("   ,[vcSupplieCode],vcSupplieName   ");
+                    sql.AppendLine("   ,[vcParstName]   ");
+                    sql.AppendLine("   ,[vcFormat]   ");
+                    sql.AppendLine("   ,[vcUnit]   ");
+                    sql.AppendLine("   ,[isjNum]   ");
+                    sql.AppendLine("   ,[Memo]   ");
+                    sql.AppendLine("   ,[vcCostID]   ");
+                    sql.AppendLine("   ,[dfrom]   ");
+                    sql.AppendLine("   ,[dto]   ");
+                    sql.AppendLine("   ,[dMyTime])   ");
+                    sql.AppendLine("   VALUES ");
+                    sql.AppendLine("   ( ");
+                    sql.AppendLine("   '"+(i+1)+"', ");
+                    sql.AppendLine("   '"+ dt.Rows[i]["vcPackGPSNo"].ToString() + "', ");
+                    sql.AppendLine("  '" + packSpot + "',  ");
+                    sql.AppendLine("  '" + strSupplierCode + "',  ");
+                    sql.AppendLine("  '" + dr[0]["vcName"].ToString() + "',  ");
+                    sql.AppendLine("   '" + dt.Rows[i]["vcParstName"].ToString() + "', ");
+                    sql.AppendLine("   '" + dt.Rows[i]["vcFormat"].ToString() + "' ,");
+                    sql.AppendLine("   '" + dt.Rows[i]["vcUnit"].ToString() + "', ");
+                    sql.AppendLine("   '" + dt.Rows[i]["isjNum"].ToString() + "',");
+                    sql.AppendLine("   '" + dt.Rows[i]["Memo"].ToString() + "', ");
+                    sql.AppendLine("   '" + dt.Rows[i]["vcCostID"].ToString() + "', ");
+                    sql.AppendLine("  '" + dFrom + "',  ");
+                    sql.AppendLine("  '" + dTo + "',  ");
+                    sql.AppendLine("  getdate()  ");
+                    sql.AppendLine("   ) ");
+
+
+
+                }
+
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                //if (ex.Message.IndexOf("-->") != -1)
+                //{//主动判断抛出的异常
+                //    int startIndex = ex.Message.IndexOf("-->");
+                //    int endIndex = ex.Message.LastIndexOf("<--");
+                //    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                //}
+                //else
+                    throw ex;
+            }
+        }
+        #endregion
+
+
+        public DataTable SearchNRCaystal(string strSupplierCode, string packSpot)
+        {
+            try
+            {
+
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select* from TPackNRTJ_Temp where vcPackSpot='"+ packSpot + "'and vcSupplieCode='"+ strSupplierCode + "'  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -102,10 +202,9 @@ namespace DataAccess
         }
 
 
-        #endregion
 
         #region 保存
-        public void Save_NR(DataTable listInfoData, ref string strErrorPartId)
+        public void Save_NR(DataTable listInfoData, ref string strErrorPartId, string UserId)
         {
             try
             {
@@ -115,7 +214,7 @@ namespace DataAccess
                 for (int i = 0; i < listInfoData.Rows.Count; i++)
                 {
                     sql.AppendLine(" INSERT INTO [dbo].[TPackNRTJ_Temp]     ");
-                    sql.AppendLine("            ([vcSupplieCode]     ");
+                    sql.AppendLine("            (iNum,[vcSupplieCode]     ");
                     sql.AppendLine("            ,[vcSupplieName]     ");
                     sql.AppendLine("            ,[vcPackGPSNo]     ");
                     sql.AppendLine("            ,[vcParstName]     ");
@@ -123,9 +222,9 @@ namespace DataAccess
                     sql.AppendLine("            ,[vcUnit]     ");
                     sql.AppendLine("            ,[isjNum]     ");
                     sql.AppendLine("            ,[Memo]     ");
-                    sql.AppendLine("            ,[vcCostID])     ");
+                    sql.AppendLine("            ,[vcCostID],vcPackSpot,vcOperatorID,dOperatorTime)     ");
                     sql.AppendLine("      VALUES     ");
-                    sql.AppendLine("    (  ");
+                    sql.AppendLine("    ( '"+i.ToString()+"', ");
                     sql.AppendLine("    '"+ listInfoData.Rows[i]["vcSupplieCode"].ToString()+ "',   ");
                     sql.AppendLine("    '" + listInfoData.Rows[i]["vcSupplierName"].ToString() + "',   ");
                     sql.AppendLine("    '" + listInfoData.Rows[i]["vcPackGPSNo"].ToString() + "',   ");
@@ -134,7 +233,10 @@ namespace DataAccess
                     sql.AppendLine("    '" + listInfoData.Rows[i]["vcUnit"].ToString() + "',   ");
                     sql.AppendLine("    '" + Decimal.ToInt32(Convert.ToDecimal(listInfoData.Rows[i]["isjNum"].ToString())) + "',   ");
                     sql.AppendLine("    '',   ");
-                    sql.AppendLine("    '" + listInfoData.Rows[i]["vcCostID"].ToString() + "'  ");
+                    sql.AppendLine("    '" + listInfoData.Rows[i]["vcCostID"].ToString() + "' , ");
+                    sql.AppendLine("    '" + listInfoData.Rows[i]["vcPackSpot"].ToString() + "',  ");
+                    sql.AppendLine("    '" +UserId+ "',  ");
+                    sql.AppendLine("    getdate() ");
                     sql.AppendLine("     ) ");
 
 

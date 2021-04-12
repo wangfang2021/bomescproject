@@ -1877,7 +1877,11 @@ namespace Common
         /// <summary>
         /// Http下载文件
         /// </summary>
-        public static bool HttpDownload(string strFromDir,string strFileName, string strToPath)
+        /// <param name="strFromDir"></param>
+        /// <param name="strFileName"></param>
+        /// <param name="strToPath"></param>
+        /// <returns></returns>
+        public static string HttpDownload(string strFromDir,string strFileName, string strToPath)
         {
             //调用例子
             //ComFunction.HttpDownload("Doc\\Export\\",
@@ -1915,11 +1919,11 @@ namespace Common
                 //stream.Close();
                 fs.Close();
                 responseStream.Close();
-                return true;
+                return strToPath+ strFileName;
             }
             catch (Exception ex)
             {
-                return false;
+                return "";
             }
         }
 

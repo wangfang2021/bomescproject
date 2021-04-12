@@ -731,14 +731,6 @@ namespace SPPSApi.Controllers
         [RequestSizeLimit(100_000_000)]
         public string uploadDMZApi(IFormFile file, string name, string dir)
         {
-    //        调用例子
-    //        ComFunction.HttpUploadFile(_webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar
-    //+ "Doc" + Path.DirectorySeparatorChar
-    //+ "Export" + Path.DirectorySeparatorChar
-    //+ "02.切替文件-0412.rar"
-    //, "02.切替文件-0412.rar"
-    //, "Doc\\Export\\");
-
             ApiResult apiResult = new ApiResult();
             try
             {
@@ -764,12 +756,6 @@ namespace SPPSApi.Controllers
         #region DMZ下载API
         public IActionResult downloadDMZApi(string name, string dir)
         {
-            //调用例子
-            //ComFunction.HttpDownload("Doc\\Export\\",
-            //   "02.切替文件-0412.rar",
-            //   _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar
-            //   + "Doc" + Path.DirectorySeparatorChar
-            //   + "PDF" + Path.DirectorySeparatorChar);
             try
             {
                 string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar ;//文件临时目录，导入完成后 删除

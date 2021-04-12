@@ -1824,6 +1824,14 @@ namespace Common
         /// <returns></returns>
         public static bool HttpUploadFile( string filepath,string strFileName,string strToDir)
         {
+            //        调用例子
+            //        ComFunction.HttpUploadFile(_webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar
+            //+ "Doc" + Path.DirectorySeparatorChar
+            //+ "Export" + Path.DirectorySeparatorChar
+            //+ "02.切替文件-0412.rar"
+            //, "02.切替文件-0412.rar"
+            //, "Doc\\Export\\");
+
             string url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/uploadDMZApi";
             // 设置参数
             HttpWebRequest request = WebRequest.Create(url+"?name="+ strFileName+"&dir="+ strToDir) as HttpWebRequest;
@@ -1871,6 +1879,13 @@ namespace Common
         /// </summary>
         public static bool HttpDownload(string strFromDir,string strFileName, string strToPath)
         {
+            //调用例子
+            //ComFunction.HttpDownload("Doc\\Export\\",
+            //   "02.切替文件-0412.rar",
+            //   _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar
+            //   + "Doc" + Path.DirectorySeparatorChar
+            //   + "PDF" + Path.DirectorySeparatorChar);
+
             string url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/downloadDMZApi" + "?name=" + strFileName + "&dir=" + strFromDir;
 
             string tempFile = strToPath + Path.DirectorySeparatorChar + strFileName; 

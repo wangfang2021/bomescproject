@@ -27,10 +27,10 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
-                    "SELECT a.iAutoId,a.vcOrderNo,a.vcTargetYear+a.vcTargetMonth+a.vcTargetDay AS vcTargetYM,c.vcOrderDifferentiation as vcOrderType,b.vcName as vcOrderState,a.vcMemo,a.dUploadDate,a.dCreateDate,a.vcFilePath,a.vcTargetWeek FROM ");
+                    "SELECT a.iAutoId,a.vcTargetYear+a.vcTargetMonth+a.vcTargetDay AS vcTargetYM,c.vcOrderDifferentiation as vcOrderType,b.vcName as vcOrderState,a.vcMemo,REPLACE(CONVERT(VARCHAR(16),a.dUploadDate,21),'-','/') AS dUploadDate,REPLACE(CONVERT(VARCHAR(16),a.dCreateDate,21),'-','/') AS dCreateDate,a.vcFilePath,a.vcTargetWeek,a.vcFileOrderNo as vcOrderNo FROM ");
                 sbr.AppendLine("(");
                 sbr.AppendLine(
-                    "SELECT iAutoId,vcOrderNo,vcTargetYear,vcTargetMonth,vcTargetDay,vcOrderType,vcOrderState,vcMemo,dUploadDate,dCreateDate,vcFilePath,vcTargetWeek");
+                    "SELECT iAutoId,vcOrderNo,vcTargetYear,vcTargetMonth,vcTargetDay,vcOrderType,vcOrderState,vcMemo,dUploadDate,dCreateDate,vcFilePath,vcTargetWeek,vcFileOrderNo");
                 sbr.AppendLine("FROM TOrderUploadManage  WHERE vcOrderShowFlag='1' ");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("LEFT JOIN ");
@@ -54,7 +54,7 @@ namespace DataAccess
 
                 if (!string.IsNullOrWhiteSpace(orderNo))
                 {
-                    sbr.AppendLine("AND a.vcOrderNo like '" + orderNo + "%'");
+                    sbr.AppendLine("AND a.vcFileOrderNo like '" + orderNo + "%'");
                 }
 
                 if (!string.IsNullOrWhiteSpace(vcOrderType))
@@ -72,7 +72,7 @@ namespace DataAccess
                     sbr.AppendLine("AND vcMemo LIKE '%" + memo + "%'");
                 }
 
-                sbr.AppendLine(" ORDER BY CASE a.vcOrderState WHEN '0' THEN '0' WHEN '3' THEN '1' WHEN '4' THEN '2' WHEN '1' THEN '3' WHEN '2' THEN '4' END");
+                sbr.AppendLine(" ORDER BY CASE a.vcOrderState WHEN '0' THEN '0' WHEN '3' THEN '1' WHEN '4' THEN '2' WHEN '1' THEN '3' WHEN '2' THEN '4' END, a.dUploadDate desc");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
@@ -1345,7 +1345,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT vcFilePath FROM TOrderUploadManage WHERE vcOrderNo = '" + orderNo + "'");
+                sbr.AppendLine("SELECT vcFilePath FROM TOrderUploadManage WHERE vcFileOrderNo = '" + orderNo + "'");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
                 if (dt.Rows.Count > 0)
                 {
@@ -1537,9 +1537,9 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT a.vcOrderNo AS vcName,a.vcOrderNo AS vcValue FROM ");
+                sbr.AppendLine("SELECT a.vcFileOrderNo AS vcName,a.vcFileOrderNo AS vcValue FROM ");
                 sbr.AppendLine("(");
-                sbr.AppendLine("SELECT DISTINCT vcOrderNo FROM dbo.TOrderUploadManage");
+                sbr.AppendLine("SELECT DISTINCT vcFileOrderNo FROM dbo.TOrderUploadManage WHERE vcOrderShowFlag='1'");
                 sbr.AppendLine(") a");
 
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());

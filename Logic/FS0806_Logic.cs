@@ -71,6 +71,20 @@ namespace Logic
             else
                 return false;
         }
+
+        #region 保存_NG明细
+        public void Save_sub(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0806_DataAccess.Save_sub(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 删除_NG明细
+        public void Del_sub(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            fs0806_DataAccess.Del_sub(checkedInfoData, strUserId);
+        }
+        #endregion
     }
 
 }

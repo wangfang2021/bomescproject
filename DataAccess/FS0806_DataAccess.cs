@@ -269,5 +269,63 @@ namespace DataAccess
                 throw ex;
             }
         }
+        #region 保存_NG明细
+        public void Save_sub(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    string iNGQuantity = listInfoData[i]["iNGQuantity"].ToString();
+                    string vcNGReason = listInfoData[i]["vcNGReason"].ToString();
+                    string vcZRBS = listInfoData[i]["vcZRBS"].ToString();
+
+                    if (baddflag == true && bmodflag == true)
+                    {//新增
+                        
+                    }
+                    else if (baddflag == false && bmodflag == true)
+                    {//修改
+                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
+                        sql.Append("update TOperateSJ_NG set iNGQuantity=nullif('" + iNGQuantity + "',''),vcNGReason='" + vcNGReason + "',vcZRBS='" + vcZRBS + "',vcOperatorID='"+strUserId+ "',dOperatorTime=getdate() where iAutoId=" + iAutoId + "    \n");
+                    }
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 删除_NG明细
+        public void Del_sub(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < checkedInfoData.Count; i++)
+                {
+                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    sql.Append("delete from TOperateSJ_NG where iAutoId=" + iAutoId + "   \n");
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

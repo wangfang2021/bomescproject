@@ -67,9 +67,9 @@ namespace SPPSApi.Controllers.G07
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"包装场","包装材品番","GPS品番","供应商", "修正标识", "数量","修正时间","修正原因"},
-                                                {"vcPackSpot","vcPackNo","vcPackGPSNo","vcSupplierID","vcXiuZhengFlag","iNumber","dBuJiTime","vcXiuZhengNote"},
-                                                {"",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,"","",FieldCheck.Num,FieldCheck.Date,""},
+                string[,] headers = new string[,] {{"包装场","GPS品番","修正标识", "数量","修正原因"},
+                                                {"vcPackSpot","vcPackGPSNo","vcXiuZhengFlag","iNumber","vcXiuZhengNote"},
+                                                {"","","",FieldCheck.Num,""},
                                                };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -109,7 +109,7 @@ namespace SPPSApi.Controllers.G07
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("包装场:" + item.Key.r2 + " 包材品番:" + item.Key.r3 + " GPS品番:" + item.Key.r4 + "<br/>");
+                        sbr.Append("包装场:" + item.Key.r2 + " GPS品番:" + item.Key.r4 + "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();

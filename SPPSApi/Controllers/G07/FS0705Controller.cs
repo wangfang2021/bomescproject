@@ -53,8 +53,14 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
- 
-                
+
+                bool IsUserDisabled = false;
+
+                #region 获取当前用户能否使用计算过程检索和调整数据输入按钮
+                IsUserDisabled = fs0705_Logic.getUserDisable(loginInfo.UserId);
+                #endregion
+
+                res.Add("btnUserDisabled", IsUserDisabled);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -84,7 +90,7 @@ namespace SPPSApi.Controllers.G07
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string PackSpot = "H2";
+            string PackSpot = loginInfo.BaoZhuangPlace;
             try
             {
                 ArrayList list = fs0705_Logic.SearchFaZhuTime(PackSpot);
@@ -117,6 +123,8 @@ namespace SPPSApi.Controllers.G07
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            Dictionary<string, object> res = new Dictionary<string, object>();
+
             try
             {
                 JArray listInfo = dataForm.multipleSelection;
@@ -134,10 +142,48 @@ namespace SPPSApi.Controllers.G07
                     lists.Add(listInfoData[i]["strFaZhuID"].ToString());
                 }
                 string strFaZhuID = lists.Distinct().ToList()[0];
-                fs0705_Logic.computer(strFaZhuID);
+
+
+                /*
+                 * 添加校验此次补给品番是否维护包材构成
+                 * 是否维护：有包材构成数据，并且包材构成数据是有效的(开始时间<=当前时间 and 当前时间<=结束时间)
+                 * 数据源：部品入库表，时间段取上次计算结束时间到(当前时间包材自动发注对应的入荷结束时间)
+                 * 包材构成表：TPackItem
+                 */
+                #region 验证补给品番是否存在有效的包材构成
+                string[] strArray = fs0705_Logic.getPackCheckDT(strFaZhuID,loginInfo.BaoZhuangPlace);
+
+                string strErr1 = strArray[0];
+                string strErr2 = strArray[1];
+
+                if (true)
+                {
+                    res.Add("errPart", "发注数量计算失败,以下品番无维护包材构成！" +"<br/>" +"0001 0002");
+                    apiResult.code = 2;
+                    apiResult.data = res;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (strErr1 != "")
+                {
+                    res.Add("errPart", "<br/>" + "发注数量计算失败,以下品番无维护包材构成！"+strErr1);
+                    apiResult.code = 2;
+                    apiResult.data = res;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (strErr2 != "")
+                {
+                    res.Add("errPart", "<br/>" + "发注数量计算失败,以下品番包材构成无效！"+strErr2);
+                    apiResult.code = 2;
+                    apiResult.data = res;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                #endregion
+
+                fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace);
 
                 #region 计算完毕检索计算结果
-                DataTable computeJGDT = fs0705_Logic.searchComputeJG();
+                DataTable computeJGDT = fs0705_Logic.searchComputeJG(loginInfo.BaoZhuangPlace);
 
                 DtConverter dtConverter = new DtConverter();
 
@@ -179,8 +225,8 @@ namespace SPPSApi.Controllers.G07
                 /*
                  * 查询出计算结果中订单号未空的数据
                  */
-                DataTable JGDT = fs0705_Logic.SCFZDataSearchComputeJG();
-                fs0705_Logic.SCFZData(JGDT,strOrderNo);
+                DataTable JGDT = fs0705_Logic.SCFZDataSearchComputeJG(loginInfo.BaoZhuangPlace);
+                fs0705_Logic.SCFZData(JGDT, strOrderNo);
 
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

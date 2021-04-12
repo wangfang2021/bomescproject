@@ -54,8 +54,8 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-
-                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(FS0701_Logic.SearchPackSpot(loginInfo.UserId));//包装场
 
                 res.Add("C023", dataList_C023);
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0719_Logic.SearchSupplier());//供应商
@@ -226,6 +226,14 @@ namespace SPPSApi.Controllers.G07
                         }
 
                     }
+                    if (listInfoData[i]["VCFaBuType"].ToString() == "0")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "订购数量不能为0！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
+
 
                 }
                 if (!hasFind)
@@ -243,8 +251,7 @@ namespace SPPSApi.Controllers.G07
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败";
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    apiResult.data = strErrorPartId;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;

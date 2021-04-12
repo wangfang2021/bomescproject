@@ -20,7 +20,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("       select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null ");
+                strSql.AppendLine("       select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where isnull(vcSupplierCode,'')<>''  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -142,6 +142,7 @@ namespace DataAccess
 
                 strSql.AppendLine($"      AND dFrom BETWEEN '{dtFromBegin}' and '{dtFromEnd}'");
                 strSql.AppendLine($"      AND dTo BETWEEN '{dtToBegin}' and '{dtToEnd}'");
+               
                 strSql.AppendLine("  	)a left join    ");
                 strSql.AppendLine("  	(    ");
                 strSql.AppendLine("   select * from TCode where vcCodeName='收货方'  and vcCodeId='C005'     ");
@@ -176,8 +177,8 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append(" delete from TPackItem where vcPartsNo in ('"+ strPartNoAll + "') and isnull(vcPackNo,'')='' and  iBiYao is  null and isnull(vcDistinguish,'')=''  \r\n ");
-                
+                sql.Append(" delete from TPackItem where vcPartsNo in ('" + strPartNoAll + "') and isnull(vcPackNo,'')='' and  iBiYao is  null and isnull(vcDistinguish,'')=''  \r\n ");
+
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
@@ -189,7 +190,7 @@ namespace DataAccess
 
 
         #region check时间有效性
-        public DataTable searchcheckTime(string vcPackSpot, string vcPartsNo, string vcPackNo, string dUsedFrom, string dUsedTo, int iAutoId,string vcShouhuofangID)
+        public DataTable searchcheckTime(string vcPackSpot, string vcPartsNo, string vcPackNo, string dUsedFrom, string dUsedTo, int iAutoId, string vcShouhuofangID)
         {
             try
             {
@@ -202,7 +203,8 @@ namespace DataAccess
                 strSql.AppendLine("  select * from TPackageMaster  ");
                 strSql.AppendLine("  )b on a.vcPartsNo=b.vcPart_id  ");
                 strSql.AppendLine("    where   a.iAutoId<>'" + iAutoId + "'  ");
-                if (!string.IsNullOrEmpty(vcPackSpot)) {
+                if (!string.IsNullOrEmpty(vcPackSpot))
+                {
                     strSql.AppendLine("and b.vcBZPlant='" + vcPackSpot + "'   ");
                 }
                 if (!string.IsNullOrEmpty(vcPartsNo))
@@ -217,7 +219,7 @@ namespace DataAccess
                 {
                     strSql.AppendLine("and a.vcPackNo='" + vcPackNo + "'  ");
                 }
-                strSql.AppendLine("and a.dFrom<='"+ dUsedTo + "' and a.dTo>='"+ dUsedFrom + "' ");
+                strSql.AppendLine("and a.dFrom<='" + dUsedTo + "' and a.dTo>='" + dUsedFrom + "' ");
                 strSql.AppendLine("and isnull(a.vcPackNo,'')<>'' and  a.iBiYao is not null and isnull(a.vcDistinguish,'')<>'' ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -258,14 +260,14 @@ namespace DataAccess
 
 
         #region 纵向导出
-        public DataTable SearchEXZ(string iAutoID, List<Object> Note, List<Object> PackSpot, List<Object> Shouhuofang, string Pinfan, string Car, string PackNO, string PackGPSNo, string dtFromBegin, string dtFromEnd, string dtToBegin, string dtToEnd)
+        public DataTable SearchEXZ(string iAutoID, List<Object> Note, List<Object> PackSpot, List<Object> Shouhuofang, string Pinfan, string Car, string PackNO, string PackGPSNo, string dtFromBegin, string dtFromEnd, string dtToBegin, string dtToEnd,string strExport)
         {
             try
             {
 
                 if (string.IsNullOrEmpty(dtFromBegin))
                 {
-                    dtFromBegin = "1990-01-01 0:00:00";
+                    dtFromBegin = "1900-01-01 0:00:00";
 
                 }
 
@@ -276,7 +278,7 @@ namespace DataAccess
                 }
                 if (string.IsNullOrEmpty(dtToBegin))
                 {
-                    dtToBegin = "1990-01-01 0:00:00";
+                    dtToBegin = "1900-01-01 0:00:00";
 
                 }
 
@@ -346,6 +348,10 @@ namespace DataAccess
 
                 strSql.AppendLine($"      AND dFrom BETWEEN '{dtFromBegin}' and '{dtFromEnd}'");
                 strSql.AppendLine($"      AND dTo BETWEEN '{dtToBegin}' and '{dtToEnd}'");
+                if (strExport == "1")
+                {
+                    strSql.AppendLine($"      AND getdate()  BETWEEN dFrom and dTo");
+                }
                 strSql.AppendLine("  	)a left join    ");
                 strSql.AppendLine("  	(    ");
                 strSql.AppendLine("   select * from TCode where vcCodeName='收货方'  and vcCodeId='C005'     ");
@@ -472,7 +478,8 @@ namespace DataAccess
                         {
                             sql.AppendLine("NULL,\r\n");
                         }
-                        else {
+                        else
+                        {
                             sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["iBiYao"], false) + ",\r\n");
                         }
                         sql.AppendLine($"     		{strUserId},\r\n");
@@ -501,15 +508,16 @@ namespace DataAccess
                         sql.AppendLine($"   dFrom ={ComFunction.getSqlValue(dfrom, false)},\r\n");
                         sql.AppendLine($"   dTo = {ComFunction.getSqlValue(dto, false)},\r\n");
                         sql.AppendLine($"   vcDistinguish = {ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false)},\r\n");
-                        if (ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false)=="null")
+                        if (ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false) == "null")
                         {
                             sql.AppendLine("   iBiYao = NULL,\r\n");
                         }
-                        else {
+                        else
+                        {
 
                             sql.AppendLine($"   iBiYao = {ComFunction.getSqlValue(listInfoData[i]["iBiYao"], false)},\r\n");
                         }
-                            
+
 
                         sql.AppendLine($"   vcOperatorID = '{strUserId}',\r\n");
                         sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}',\r\n");
@@ -519,7 +527,7 @@ namespace DataAccess
 
 
                     }
-                   
+
 
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());
@@ -570,7 +578,7 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append("  select distinct vcPart_id from TSoqReply   \r\n ");
-               
+
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -584,7 +592,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                
+
                 sql.Append(" select vcPartsNo from TPackItem  \r\n ");
 
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
@@ -609,7 +617,7 @@ namespace DataAccess
                 DataTable dtSH = ComFunction.getTCode("C018");//价格系数
 
                 StringBuilder sql = new StringBuilder();
-           
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     string PackGPSNo = "";
@@ -678,7 +686,8 @@ namespace DataAccess
                             sql.AppendLine("NULL,\r\n");
 
                         }
-                        else {
+                        else
+                        {
                             sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["iBiYao"], false) + ",\r\n");
 
                         }
@@ -688,7 +697,8 @@ namespace DataAccess
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + "\r\n");
                         sql.AppendLine("     )  \r\n");
                     }
-                    else {
+                    else
+                    {
 
 
                         sql.AppendLine("  UPDATE TPackItem");
@@ -709,11 +719,12 @@ namespace DataAccess
                         {
                             sql.AppendLine("   iBiYao = NULL,\r\n");
                         }
-                        else {
+                        else
+                        {
 
                             sql.AppendLine($"   iBiYao = {ComFunction.getSqlValue(dt.Rows[i]["iBiYao"], false)},\r\n");
                         }
-                        
+
 
                         sql.AppendLine($"   vcOperatorID = '{strUserId}',\r\n");
                         sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}',\r\n");
@@ -723,7 +734,7 @@ namespace DataAccess
 
 
                     }
-                    
+
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }

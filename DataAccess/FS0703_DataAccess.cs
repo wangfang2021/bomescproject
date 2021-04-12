@@ -19,7 +19,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null ");
+                strSql.AppendLine("      select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where isnull(vcSupplierCode,'')<>''  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -231,6 +231,8 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+       
         #endregion
 
 
@@ -272,7 +274,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("       select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null");
+                strSql.AppendLine("       select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where isnull(vcSupplierCode,'')<>'' ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -332,7 +334,7 @@ namespace DataAccess
                 strSql.Append("   ,sum(iDay28)as iDay28,sum(iDay29)as iDay29,sum(iDay30)as iDay30,sum(iDay31)as iDay31,dZYTime         \n");
                 strSql.Append("      from TPackNSCalculation         \n");
                 strSql.Append("       where          \n");
-                strSql.Append("       vcIsorNoPrint='1'         \n");
+                strSql.Append("       1=1        \n");
                 if (PackSpot.Count != 0)
                 {
                     strSql.AppendLine($"   and   vcPackSpot in (   ");
@@ -481,7 +483,7 @@ namespace DataAccess
                     sql.AppendLine("   '" + listInfoData.Rows[i]["iD31"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["dZCTime"].ToString() + "',   \n");
                     sql.AppendLine("   '0', \n");
-                    sql.AppendLine("   '1', \n");
+                    sql.AppendLine("   '0', \n");
                     sql.AppendLine("   '" + strUserId + "',   \n");
                     sql.AppendLine("   getdate()  \n");
                     sql.AppendLine("    )  \n");
@@ -706,5 +708,20 @@ namespace DataAccess
             }
         }
         #endregion
+
+        public void Updateprint()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.AppendLine("      update TPackNSCalculation set vcIsorNoPrint='1'     ");
+
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

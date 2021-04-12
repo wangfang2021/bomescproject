@@ -321,7 +321,7 @@ namespace SPPSApi.Controllers.G12
                 if (CheckWeek(vcMonth, vcWeek, vcPlant) == false)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "对象月#" + vcPlant + "厂" + NumberToText(vcWeek) + "的稼动日历不存在！";
+                    apiResult.data = "对象月#" + vcPlant + "场" + NumberToText(vcWeek) + "的稼动日历不存在！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
@@ -377,17 +377,18 @@ namespace SPPSApi.Controllers.G12
                             if (_Plant == string.Empty)
                             {
                                 apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = "第" + (i + 1).ToString() + "行，品番：" + vcPartsno + "没有厂区信息！";
+                                apiResult.data = "第" + (i + 1).ToString() + "行，品番：" + vcPartsno + "没有场区信息！";
                                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                             }
                             else
                             {
                                 if (_Plant != vcPlant)
                                 {
-                                    apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "第" + (i + 1).ToString() + "行，品番：" + vcPartsno + "的厂区为" + _Plant + "，不在所选厂区" + vcPlant + "中！";
-                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                }
+                                    //apiResult.code = ComConstant.ERROR_CODE;
+                                    //apiResult.data = "第" + (i + 1).ToString() + "行，品番：" + vcPartsno + "的厂区为" + _Plant + "，不在所选厂区" + vcPlant + "中！";
+                                    //return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                                    continue;
+                                }               
                             }
                             //部署组别唯一性校验
 

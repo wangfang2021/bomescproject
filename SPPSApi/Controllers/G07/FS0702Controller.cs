@@ -53,8 +53,8 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-
-                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(FS0701_Logic.SearchPackSpot(loginInfo.UserId));//包装场
                 res.Add("C023", dataList_C023);
 
 
@@ -180,6 +180,8 @@ namespace SPPSApi.Controllers.G07
             string dtFromEnd = dataForm.dtFromEnd;
             string dtToBegin = dataForm.dtToBegin;
             string dtToEnd = dataForm.dtToEnd;
+            
+
             try
             {
                 DataTable dt = FS0702_Logic.Search(Note, PackSpot, Shouhuofang, Pinfan, Car, PackNO, PackGPSNo, dtFromBegin, dtFromEnd, dtToBegin, dtToEnd);
@@ -263,10 +265,15 @@ namespace SPPSApi.Controllers.G07
             string strFromEnd = dataForm.dFromEnd;//From结束
             string strToBegin = dataForm.dToBegin;//To开始
             string strToEnd = dataForm.dToEnd;//To结束
-
+            string strExport = dataForm.vcIsExport;
+            if (strExport==null) {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "请选择导出有效性筛选！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
             try
             {
-                DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
+                DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd,strExport);
                 string resMsg = "";
                 string[] head = { "变更事项", "包装场", "收货方", "品番", "车型", "开始时间", "结束时间", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数" };
 
@@ -360,7 +367,7 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = FS0702_Logic.SearchEXZ("", strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
+                DataTable dt = FS0702_Logic.SearchEXZ("", strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd,"0");
                 string resMsg = "";
                 string[] head = { "导入状态", "对应标识", "变更事项", "包装场", "收货方", "品番,", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数" };
 
@@ -451,10 +458,16 @@ namespace SPPSApi.Controllers.G07
             string strFromEnd = dataForm.dFromEnd;//From结束
             string strToBegin = dataForm.dToBegin;//To开始
             string strToEnd = dataForm.dToEnd;//To结束
-
+            string strExport = dataForm.vcIsExport;
+            if (strExport == null)
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "请选择导出有效性筛选！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
             try
             {
-                DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
+                DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd, strExport);
 
                 DataTable dtcope = dt.Copy();
 
@@ -598,8 +611,8 @@ namespace SPPSApi.Controllers.G07
                 #endregion
 
                 string resMsg = "";
-                string[] head = new string[dtcope.Columns.Count];
-                string[] fields = new string[dtcope.Columns.Count];
+                string[] head = new string[dt_EX.Columns.Count];
+                string[] fields = new string[dt_EX.Columns.Count];
 
                 head[0] = "变更事项";
                 fields[0] = "varChangedItem";
@@ -616,37 +629,37 @@ namespace SPPSApi.Controllers.G07
                 head[6] = "品番结束时间";
                 fields[6] = "dUsedTo";
 
-                int xx = dtcope.Columns.Count / 6;
+                int xx = (dt_EX.Columns.Count-7) / 6;
                 for (int x = 1; x <= xx; x++)
                 {
                     for (int zz = 1; zz <= 6; zz++)
                     {
-                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("vcPackNo") != -1)
+                        if (dt_EX.Columns[6 + zz * x].ColumnName.IndexOf("vcPackNo") != -1)
                         {
                             head[6 + zz * x] = "包材品番" + x.ToString();
                             fields[6 + zz * x] = "vcPackNo" + x.ToString();
                         }
-                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("vcPackGPSNo") != -1)
+                        if (dt_EX.Columns[6 + zz * x].ColumnName.IndexOf("vcPackGPSNo") != -1)
                         {
                             head[6 + zz * x] = "GPS品番" + x.ToString();
                             fields[6 + zz * x] = "vcPackGPSNo" + x.ToString();
                         }
-                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("dFrom") != -1)
+                        if (dt_EX.Columns[6 + zz * x].ColumnName.IndexOf("dFrom") != -1)
                         {
                             head[6 + zz * x] = "包材开始时间" + x.ToString();
                             fields[6 + zz * x] = "dFrom" + x.ToString();
                         }
-                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("dTo") != -1)
+                        if (dt_EX.Columns[6 + zz * x].ColumnName.IndexOf("dTo") != -1)
                         {
                             head[6 + zz * x] = "包材结束时间" + x.ToString();
                             fields[6 + zz * x] = "dTo" + x.ToString();
                         }
-                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("vcDistinguish") != -1)
+                        if (dt_EX.Columns[6 + zz * x].ColumnName.IndexOf("vcDistinguish") != -1)
                         {
                             head[6 + zz * x] = "包材区分" + x.ToString();
                             fields[6 + zz * x] = "vcDistinguish" + x.ToString();
                         }
-                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("iBiYao") != -1)
+                        if (dt_EX.Columns[6 + zz * x].ColumnName.IndexOf("iBiYao") != -1)
                         {
                             head[6 + zz * x] = "必要数" + x.ToString();
                             fields[6 + zz * x] = "iBiYao" + x.ToString();
@@ -658,7 +671,7 @@ namespace SPPSApi.Controllers.G07
 
 
 
-                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "包材基础数据导出", ref resMsg);
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt_EX, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "包材构成数据导出", ref resMsg);
 
 
 

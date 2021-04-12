@@ -55,7 +55,7 @@ namespace DataAccess
                     strSql.AppendLine($"      AND vcYearMonth = '{YearMonth}'");
                 strSql.AppendLine("  )a left join    	");
                 strSql.AppendLine("  (    	");
-                strSql.AppendLine("   select '无稼动'as vcName,'#adb2b8' as backColor    	");
+                strSql.AppendLine("   select '非稼动'as vcName,'#adb2b8' as backColor    	");
                 strSql.AppendLine("  )b on a.vcBZ=b.vcName    	");
 
 

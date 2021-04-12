@@ -90,9 +90,10 @@ namespace SPPSApi.Controllers.G14
             string strCheckType = dataForm.CheckType == null ? "" : dataForm.CheckType;
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
             string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
+            string strCarModel = "";
             try
             {
-                DataTable dataTable = fS1402_Logic.getSearchInfo(strCheckType, strPartId, strSupplierId);
+                DataTable dataTable = fS1402_Logic.getSearchInfo(strCheckType, strPartId, strSupplierId, strCarModel);
                 DtConverter dtConverter = new DtConverter();
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -129,9 +130,10 @@ namespace SPPSApi.Controllers.G14
             string strCheckType = dataForm.CheckType == null ? "" : dataForm.CheckType;
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
             string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
+            string strCarModel = "";
             try
             {
-                DataTable dataTable = fS1402_Logic.getSearchInfo(strCheckType, strPartId, strSupplierId);
+                DataTable dataTable = fS1402_Logic.getSearchInfo(strCheckType, strPartId, strSupplierId, strCarModel);
                 string[] fields = { "vcPartId", "dFromTime", "dToTime", "vcSupplierId", "vcCheckP", "vcChangeRea", "vcTJSX", "vcOperator", "dOperatorTime" };
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS1402_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
@@ -272,7 +274,7 @@ namespace SPPSApi.Controllers.G14
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "生成印刷文件失败";
+                apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -297,7 +299,7 @@ namespace SPPSApi.Controllers.G14
 
             try
             {
-                DataTable dataTable = fS1402_Logic.getSearchInfo("模板", "", "");
+                DataTable dataTable = fS1402_Logic.getSearchInfo("模板", "", "","");
                 string[] fields = { "vcPartId", "dFromTime", "dToTime", "vcSupplierId", "vcCheckP", "vcChangeRea", "vcTJSX", "vcOperator", "dOperatorTime" };
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS1402_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")

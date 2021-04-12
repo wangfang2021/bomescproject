@@ -19,7 +19,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null ");
+                strSql.AppendLine("      select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where isnull(vcSupplierCode,'')<>''  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -49,7 +49,11 @@ namespace DataAccess
                 }
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select *,'0' as vcModFlag,'0' as vcAddFlag ");
+                strSql.AppendLine("      select '0' as vcModFlag,'0' as vcAddFlag, ");
+                strSql.AppendLine("     vcZuoYeQuFen,vcOrderNo,vcPackNo,vcPackGPSNo,vcSupplierID,vcPackSpot,iNumber,  ");
+                strSql.AppendLine("     CONVERT(varchar(100),dBuJiTime,21)as dBuJiTime,  ");
+                strSql.AppendLine("     CONVERT(varchar(100),dZiCaiTime,21)as dZiCaiTime,  ");
+                strSql.AppendLine("     vcYanShouID  ");
                 strSql.AppendLine("      FROM");
                 strSql.AppendLine("      	TPackWork");
                 strSql.AppendLine("      WHERE");

@@ -213,6 +213,8 @@ namespace SPPSApi.Controllers.G14
                 string strColourCode = listInfoData[0]["vcColourCode"] == null ? "" : listInfoData[0]["vcColourCode"].ToString();
                 string strColourName = listInfoData[0]["vcColourName"] == null ? "" : listInfoData[0]["vcColourName"].ToString();
                 string strModItem = listInfoData[0]["vcModItem"] == null ? "" : listInfoData[0]["vcModItem"].ToString();
+                string strSupplier_1 = listInfoData[0]["vcSupplier_1"] == null ? "" : listInfoData[0]["vcSupplier_1"].ToString();
+                string strSupplier_2 = listInfoData[0]["vcSupplier_2"] == null ? "" : listInfoData[0]["vcSupplier_2"].ToString();
 
                 string strPicUrl = listInfoData[0]["vcPICUrl"] == null ? "" : listInfoData[0]["vcPICUrl"].ToString();
                 string strSPISUrl = listInfoData[0]["vcSPISUrl"] == null ? "" : listInfoData[0]["vcSPISUrl"].ToString();
@@ -233,6 +235,8 @@ namespace SPPSApi.Controllers.G14
                 res.Add("ColourNoItem", strColourNo);
                 res.Add("ColourCodeItem", strColourCode);
                 res.Add("ColourNameItem", strColourName);
+                res.Add("Supplier_1", strSupplier_1);
+                res.Add("Supplier_2", strSupplier_2);
                 res.Add("PicUrlItem", strPicUrl);
                 res.Add("ModItemItem", strModItem);
                 res.Add("model", model);

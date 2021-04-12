@@ -19,7 +19,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null ");
+                strSql.AppendLine("      select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where isnull(vcSupplierCode,'')<>''  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -222,7 +222,7 @@ namespace DataAccess
                         sql.AppendLine("     VALUES");
                         sql.AppendLine("     	(");
 
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false) + ",");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false).Replace(" ","") + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackFrom"].ToString().Split(' ')[0], true) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackTo"].ToString().Split(' ')[0], true) + ",");
@@ -251,7 +251,7 @@ namespace DataAccess
 
                         sql.AppendLine("  UPDATE TPackBase");
                         sql.AppendLine("  SET ");
-                        sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false)},");
+                        sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false).Replace(" ", "")},");
                         sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)},");
                         sql.AppendLine($"   dPackFrom = {ComFunction.getSqlValue(listInfoData[i]["dPackFrom"].ToString().Split(' ')[0], true)},");
                         sql.AppendLine($"   dPackTo = {ComFunction.getSqlValue(listInfoData[i]["dPackTo"].ToString().Split(' ')[0], true)},");
@@ -366,7 +366,7 @@ namespace DataAccess
                         sql.Append("             ,[dOperatorTime])   \r\n");
                         sql.Append("       VALUES   \r\n");
                         sql.Append("             (   \r\n");
-                        sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false) + ", \r\n");
+                        sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false).Replace(" ", "") + ", \r\n");
                         sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + ", \r\n");
                         sql.Append(ComFunction.getSqlValue(dt.Rows[i]["dPackFrom"], false) + ", \r\n");
                         sql.Append(ComFunction.getSqlValue(dt.Rows[i]["dPackTo"], false) + ", \r\n");
@@ -395,7 +395,7 @@ namespace DataAccess
 
                         sql.AppendLine("  UPDATE TPackBase");
                         sql.AppendLine("  SET ");
-                        sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false)},");
+                        sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false).Replace(" ", "")},");
                         sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false)},");
                         sql.AppendLine($"   dPackFrom = {ComFunction.getSqlValue(dt.Rows[i]["dPackFrom"].ToString().Split(' ')[0], true)},");
                         sql.AppendLine($"   dPackTo = {ComFunction.getSqlValue(dt.Rows[i]["dPackTo"].ToString().Split(' ')[0], true)},");
@@ -561,12 +561,19 @@ namespace DataAccess
         #endregion
 
         #region 查找工厂
-        public DataTable SearchPackSpot()
+        public DataTable SearchPackSpot(string userid)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("       SELECT * FROM TCode where vcCodeId='C023'       \n");
+                strSql.Append("   select a.vcBaoZhuangPlace as vcValue,b.vcName as vcName from (      \n");
+                strSql.Append("   select vcBaoZhuangPlace from SUser where vcUserID='"+ userid + "'      \n");
+                strSql.Append("   )a left join      \n");
+                strSql.Append("   (      \n");
+                strSql.Append("   select * from TCode where vcCodeId='C023'      \n");
+                strSql.Append("   )b on a.vcBaoZhuangPlace=b.vcValue      \n");
+                strSql.Append("         \n");
+                strSql.Append("         \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

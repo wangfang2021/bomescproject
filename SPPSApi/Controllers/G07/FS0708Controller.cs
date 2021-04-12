@@ -54,8 +54,8 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-
-                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(FS0701_Logic.SearchPackSpot(loginInfo.UserId));//包装场
                 res.Add("C023", dataList_C023);
 
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0708_Logic.SearchSupplier());//供应商
@@ -104,7 +104,15 @@ namespace SPPSApi.Controllers.G07
             string OrderTo = dataForm.OrderTo;
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
-            string Type = dataForm.Type;
+            List<Object> Type = new List<object>();
+            if (dataForm.Type.ToObject<List<Object>>() == null)
+            {
+                Type = new List<object>();
+            }
+            else
+            {
+                Type = dataForm.Type.ToObject<List<Object>>();
+            }
             List<Object> OrderState = new List<object>();
 
             if (dataForm.OrderState.ToObject<List<Object>>() == null)
@@ -198,7 +206,15 @@ namespace SPPSApi.Controllers.G07
             string OrderTo = dataForm.OrderTo;
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
-            string Type = dataForm.Type;
+            List<Object> Type = new List<object>();
+            if (dataForm.Type.ToObject<List<Object>>() == null)
+            {
+                Type = new List<object>();
+            }
+            else
+            {
+                Type = dataForm.Type.ToObject<List<Object>>();
+            }
             List<Object> OrderState = new List<object>();
 
             if (dataForm.SupplierName.ToObject<List<Object>>() == null)

@@ -53,8 +53,8 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-
-                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(FS0701_Logic.SearchPackSpot(loginInfo.UserId));//包装场
 
                 res.Add("C023", dataList_C023);
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0712_Logic.SearchSupplier());//供应商
@@ -131,8 +131,6 @@ namespace SPPSApi.Controllers.G07
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dBuJiTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dZiCaiTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 

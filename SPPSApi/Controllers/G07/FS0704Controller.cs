@@ -56,10 +56,10 @@ namespace SPPSApi.Controllers.G07
 
 
 
-                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(FS0701_Logic.SearchPackSpot(loginInfo.UserId));//包装场
 
                 res.Add("C023", dataList_C023);
-                FS0701_Logic FS0701_Logic = new FS0701_Logic();
                 List<Object> dataList_C042 = ComFunction.convertAllToResult(FS0701_Logic.SearchFZLJ());//发注逻辑
 
                 res.Add("C042", dataList_C042);
@@ -242,19 +242,19 @@ namespace SPPSApi.Controllers.G07
                         DateTime dNaQiToDay1 = DateTime.Parse(dtLJtime.Rows[j]["dNaQiToTime"].ToString());
                       
 
-                        if (!(dRuHeFromDay < dRuHeFromDay1 && dRuHeToDay < dRuHeFromDay1) || !(dRuHeFromDay > dRuHeToDay1 && dRuHeToDay > dRuHeToDay1))
+                        if (dRuHeFromDay<= dRuHeToDay1&& dRuHeToDay>= dRuHeFromDay1)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = listInfoData[i]["vcFaZhuID"].ToString()+"部品入荷时间有重叠";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        if (!(dFaZhuFromDay < dFaZhuFromDay1 && dFaZhuToDay < dFaZhuFromDay1) || !(dFaZhuFromDay > dFaZhuToDay1 && dFaZhuToDay > dFaZhuToDay1))
+                        if (dFaZhuFromDay<= dFaZhuToDay1&& dFaZhuToDay>= dFaZhuFromDay1)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "发注作业时间有重叠";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        if (!(dNaQiFromDay < dNaQiFromDay1 && dNaQiToDay < dNaQiFromDay1) || !(dNaQiFromDay > dNaQiToDay1 && dNaQiToDay > dNaQiToDay1))
+                        if (dNaQiFromDay<= dNaQiToDay1&& dNaQiToDay>= dNaQiFromDay1)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "部品入荷时间有重叠";

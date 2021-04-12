@@ -881,7 +881,7 @@ namespace DataAccess
                     #endregion
                 }
 
-                strSql.AppendLine(" UPDATE TSoq SET ");
+                strSql.AppendLine(" UPDATE a SET ");
                 strSql.AppendLine("      iHySOQN=iTzhSOQN,");
                 strSql.AppendLine("      iHySOQN1=iTzhSOQN1,");
                 strSql.AppendLine("      iHySOQN2=iTzhSOQN2,");
@@ -993,7 +993,7 @@ namespace DataAccess
                     #endregion
                 }
 
-                strSql.AppendLine(" UPDATE TSoq SET ");
+                strSql.AppendLine(" UPDATE a SET ");
                 strSql.AppendLine("      vcHyState='3'  ");
                 strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
                 strSql.AppendLine("      ,dOperatorTime=getDate() ");

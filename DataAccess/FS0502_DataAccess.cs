@@ -117,7 +117,7 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.AppendLine("select * from TUrgentOrder");
-                sql.AppendLine("where isnull(vcSupplier_id,'')='1810' and isnull(vcGQ,'')='0'");
+                sql.AppendLine("where isnull(vcSupplier_id,'')='"+ vcSupplier_id + "' and isnull(vcGQ,'')='0'");
                 sql.AppendLine("and dSupReplyTime is null ");
                 sql.AppendLine("and isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1'");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());

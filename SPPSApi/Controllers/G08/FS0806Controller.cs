@@ -291,6 +291,7 @@ namespace SPPSApi.Controllers.G08
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "数量不能为0！";
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     
@@ -300,27 +301,44 @@ namespace SPPSApi.Controllers.G08
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "不能大于他自己("+ iQuantity_old + ")！";
+                            apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                     }
-                    else if (fs0806_Logic.isQuantityOK(vcPart_id, vcKBOrderNo, vcKBLFNo, vcSR, vcZYType, iQuantity_input) == false)
-                    {//校验 录入数量<上一层数量
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "不能大于上一层数量！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    
+                    //else if (fs0806_Logic.isQuantityOK(vcPart_id, vcKBOrderNo, vcKBLFNo, vcSR, vcZYType, iQuantity_input) == false)
+                    //{//校验 录入数量<上一层数量
+                    //    apiResult.code = ComConstant.ERROR_CODE;
+                    //    apiResult.data = "不能大于上一层数量！";
+                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    //}
                    
                     //校验 出荷和检查的不能修改
-                    if(vcZYType=="S1" || vcZYType=="S4")
+                    if((vcZYType=="S1" && iQuantity_input!=iQuantity_old) || vcZYType=="S4")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "检查和出荷的不能修改！";
+                        apiResult.data = "检查和出荷的不能修改数量！";
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    //检查状态是NG时不能有后工程
+                    string vcCheckStatus= listInfo[i]["vcCheckStatus"].ToString();
+                    if(vcCheckStatus=="NG" && fs0806_Logic.isHaveAfterProject(vcPart_id, vcKBOrderNo, vcKBLFNo, vcSR, vcZYType))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "检查状态是NG时不能有后工程！";
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-
-                fs0806_Logic.Save(listInfoData, loginInfo.UserId);
+                string strErrorPartId = "";
+                fs0806_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                if (strErrorPartId != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "不能大于上一层数量！(品番-看板订单号-看板连番-受入)：<br/>" + strErrorPartId;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -411,6 +429,8 @@ namespace SPPSApi.Controllers.G08
                 DataTable dt = fs0806_Logic.initSubApi(vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR);
 
                 DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);

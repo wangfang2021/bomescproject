@@ -220,7 +220,20 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-
+                //验证新增的数据是否已存在数据库
+                DataTable dtCheck = fs0622_Logic.checkAddData(listInfoData);
+                if (dtCheck.Rows.Count>0)
+                {
+                    string partsNosStr = "";
+                    for (int m=0;m< dtCheck.Rows.Count;m++)
+                    {
+                        partsNosStr += dtCheck.Rows[m]["vcPartNo"].ToString() + ",";
+                    }
+                    partsNosStr = partsNosStr.Substring(0, partsNosStr.Length - 1);
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "新增的品番"+partsNosStr+"已存在,无法新增！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 string strErrorPartId = "";
                 fs0622_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")

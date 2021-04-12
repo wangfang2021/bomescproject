@@ -66,14 +66,14 @@ namespace Logic
                 sbr.AppendLine("   <p><span style=\"background-color: yellow;\">2.【荷姿】</span></p>   ");
                 sbr.AppendLine("   <p>号试补给品请按TFTM要求的正规箱种出货（EU/PL），每箱放1个零件（按照看板上的提示的数量）</p>   ");
                 sbr.AppendLine("   <p><span style=\"background-color: yellow; color: rgb(31, 73, 125);\">3.【看板、托盘标签】</span></p>   ");
-                sbr.AppendLine("   <p>&nbsp;&nbsp;&nbsp;号试补给品纳入时，为区别号口品和补给品，请将<strong style=\"color: red;\">补给品</strong><strong style=\"color: blue;\">所有帐票（包括：订单、看板、货垛标签）用</strong><strong style=\"color: rgb(31, 73, 125);\">" + color + "颜色</strong><strong style=\"color: blue;\">A4纸打印</strong>。</p>   ");
-                sbr.AppendLine("   <p>&nbsp;&nbsp;&nbsp;看板的插放以及货垛标签的张贴方法以号口的要求为准。</p>   ");
+                sbr.AppendLine("   <p>号试补给品纳入时，为区别号口品和补给品，请将<strong style=\"color: red;\">补给品</strong><strong style=\"color: blue;\">所有帐票（包括：订单、看板、货垛标签）用</strong><strong style=\"color: rgb(31, 73, 125);\">" + color + "颜色</strong><strong style=\"color: blue;\">A4纸打印</strong>。</p>   ");
+                sbr.AppendLine("   <p>看板的插放以及货垛标签的张贴方法以号口的要求为准。</p>   ");
                 sbr.AppendLine("   <p><span style=\"background-color: yellow;\">4.【出货货垛】</span></p>   ");
-                sbr.AppendLine("   <p>&nbsp;&nbsp;<span style=\"color: rgb(31, 73, 125);\">&nbsp;   ");
+                sbr.AppendLine("   <p><span style=\"color: rgb(31, 73, 125);\">&nbsp;   ");
                 sbr.AppendLine("   </span>请将<strong style=\"color: blue;\">补给品单独捆货垛</strong>（避免与号口号试品混载），EU箱出货时如一层未码平，请用空箱填平，并在外侧粘贴“空箱”标识</p>   ");
                 sbr.AppendLine("   <p><span style=\"background-color: yellow;\">5.【空箱返还】</span></p>   ");
-                sbr.AppendLine("   <p>&nbsp;&nbsp;&nbsp;与号口同期同车返回</p>   ");
-                sbr.AppendLine("  <p><br></p><p><br></p><p>关于补给品号试相关内容，如有不明，请随时与我联络</p><p><br></p><p>以上</p>    ");
+                sbr.AppendLine("   <p>与号口同期同车返回</p>   ");
+                sbr.AppendLine("  <p><br></p><p>关于补给品号试相关内容，如有不明，请随时与我联络</p><p><br></p><p>以上</p>    ");
                 sbr.AppendLine("      ");
                 sbr.AppendLine("      ");
 

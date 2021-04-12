@@ -99,7 +99,7 @@ namespace SPPSApi.Controllers.G06
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
+                    DataTable dt = fs0611_Logic.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
                     if (strMsg != "")
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
@@ -143,27 +143,35 @@ namespace SPPSApi.Controllers.G06
                 
                 //验证修改后每日平准箱数是否跟总箱数一致
                 StringBuilder errPart = new StringBuilder();
+                StringBuilder errPartPCS = new StringBuilder();
                 StringBuilder errPart_SRS = new StringBuilder();//不是收容数整数倍的异常品番
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
                     string strPart_id = importDt.Rows[i]["vcPart_id"].ToString();
                     string strTemp = importDt.Rows[i]["iBoxes"] == System.DBNull.Value ? "" : importDt.Rows[i]["iBoxes"].ToString();
+                    string strTempPCS = importDt.Rows[i]["iPartNums"] == System.DBNull.Value ? "" : importDt.Rows[i]["iPartNums"].ToString();
                     int iBoxes = strTemp.Trim()==""?0:Convert.ToInt32(strTemp.Trim());
+                    int iPCS = strTempPCS.Trim() == "" ? 0 : Convert.ToInt32(strTempPCS.Trim());
                     int iCheck = 0;
+                    int iCheckPCS = 0;
                     for (int j = 1; j < 32; j++)
                     {
                         string strIDTemp = importDt.Rows[i]["iD" + j] == System.DBNull.Value ? "" : importDt.Rows[i]["iD" + j].ToString();
                         string strSRS = importDt.Rows[i]["iQuantityPercontainer"] == System.DBNull.Value ? "" : importDt.Rows[i]["iQuantityPercontainer"].ToString();//箱数*收容数
                         int iSRS = strSRS.Trim() == "" ? 1 : Convert.ToInt32(strSRS.Trim());//收容数
                         int iD = strIDTemp.Trim() == "" ? 0 : Convert.ToInt32(strIDTemp.Trim()) / iSRS;
+                        int iD_PCS = strIDTemp.Trim() == "" ? 0 : Convert.ToInt32(strIDTemp.Trim());
                         if (strIDTemp.Trim() != "" && Convert.ToInt32(strIDTemp.Trim()) % iSRS != 0)//用户输入的不符合收容数要求
                         {
                             errPart_SRS.Append(strPart_id + ":D"+j+",");
                         }
                         iCheck = iCheck + iD;
+                        iCheckPCS = iCheckPCS + iD_PCS;
                     }
                     if(iBoxes!= iCheck)
                         errPart.Append(strPart_id+",");
+                    if (iPCS != iCheckPCS)
+                        errPartPCS.Append(strPart_id + ",");
                 }
                 if (errPart_SRS.Length > 0)
                 {
@@ -179,6 +187,15 @@ namespace SPPSApi.Controllers.G06
                     StringBuilder sbr = new StringBuilder();
                     sbr.Append("以下品番修改后每日平准箱数跟总箱数不一致:<br/>");
                     sbr.Append(errPart);
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = sbr.ToString();
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (errPartPCS.Length > 0)
+                {
+                    StringBuilder sbr = new StringBuilder();
+                    sbr.Append("以下品番修改后每日平准PCS数跟总PCS数不一致:<br/>");
+                    sbr.Append(errPartPCS);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -12,7 +12,7 @@ namespace DataAccess
     public class FS1402_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public DataTable getSearchInfo(string strCheckType, string strPartId, string strSupplierId)
+        public DataTable getSearchInfo(string strCheckType, string strPartId, string strSupplierId, string strCarModel)
         {
             try
             {
@@ -96,7 +96,7 @@ namespace DataAccess
                 strSql_addinfo.AppendLine("           ,@vcCheckP");
                 strSql_addinfo.AppendLine("           ,@vcChangeRea");
                 strSql_addinfo.AppendLine("           ,@vcTJSX");
-                strSql_addinfo.AppendLine("           ,'"+ strOperId + "'");
+                strSql_addinfo.AppendLine("           ,'" + strOperId + "'");
                 strSql_addinfo.AppendLine("           ,GETDATE())");
                 sqlCommand_addinfo.CommandText = strSql_addinfo.ToString();
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcPartId", "");

@@ -31,6 +31,7 @@ namespace SPPSApi.Controllers.G14
         private readonly IWebHostEnvironment _webHostEnvironment;
         FS1404_Logic fS1404_Logic = new FS1404_Logic();
         FS0603_Logic fs0603_Logic = new FS0603_Logic();
+        FS1310_Logic fS1310_Logic = new FS1310_Logic();
         private readonly string FunctionID = "FS1404";
 
         public FS1404Controller(IWebHostEnvironment webHostEnvironment)
@@ -386,6 +387,7 @@ namespace SPPSApi.Controllers.G14
             JArray fileNameList = dataForm.fileNameList;
             string hashCode = dataForm.hashCode;
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
+            string strDestPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_pack" + Path.DirectorySeparatorChar + Guid.NewGuid().ToString("N");
             try
             {
                 if (!Directory.Exists(fileSavePath))
@@ -397,16 +399,46 @@ namespace SPPSApi.Controllers.G14
                 }
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
-                string[,] headers = new string[,] {{"品番","使用开始","使用结束","供应商代码", "SPIS照片路径","变更理由"},
+                bool bExcelfile = false;
+                bool bImagefile = false;
+                DataTable dtImport = new DataTable();
+                foreach (FileInfo info in theFolder.GetFiles())
+                {
+                    string strFileType = info.Name.Substring(info.Name.LastIndexOf('.') + 1).Replace("\"", "");// 扩展名
+                    if (strFileType.ToLower() == "xls" || strFileType.ToLower() == "xlsx")
+                    {
+                        bExcelfile = true;
+                        if (bExcelfile)
+                        {
+                            //处理Excel文件
+                            string[,] headers = new string[,] {{"品番","使用开始","使用结束","供应商代码", "SPIS","变更理由"},
                                                 {"vcPartId", "dFromTime", "dToTime", "vcSupplierId","vcPicUrl","vcChangeRea"},
                                                 {FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"","",""},
                                                 {"12","10","10","5", "0", "0"},//最大长度设定,不校验最大长度用0
                                                 {"12","10","10","0", "0", "0"}};//最小长度设定,可以为空用0
-                foreach (FileInfo info in theFolder.GetFiles())
-                {
-                    string ssss = info.FullName;
+                            dtImport = fS1404_Logic.ImportFile(info, fileSavePath, "sheet1", headers, true, loginInfo.UserId, ref dtMessage);
+                        }
+                    }
+                    if (strFileType.ToLower() == "rar" || strFileType.ToLower() == "zip" || strFileType.ToLower() == "7z")
+                    {
+                        bImagefile = true;
+                        if (bImagefile)
+                        {
+                            //处理压缩文件
+                            string strSourcesPath = info.FullName;
+                            fS1310_Logic.sharpCompress(strFileType, strSourcesPath, strDestPath);
+                        }
+                    }
                 }
-                DataTable dtImport = fS1404_Logic.ImportFile(theFolder, fileSavePath, "sheet1", headers, true, loginInfo.UserId, ref dtMessage);
+                DirectoryInfo theFolder_file = new DirectoryInfo(strDestPath + Path.DirectorySeparatorChar);
+                if (!(bExcelfile && bImagefile))
+                {
+                    if (theFolder_file.Exists)
+                        theFolder_file.Delete(true);
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "请确保上传的文件类型为.xls|.xlsx和.rar|.zip|.7z，保证文件齐全。";
+                    dtMessage.Rows.Add(dataRow);
+                }
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -414,8 +446,7 @@ namespace SPPSApi.Controllers.G14
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string strPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_spis" + Path.DirectorySeparatorChar + "spis" + Path.DirectorySeparatorChar;
-                DataTable dtInfo = fS1404_Logic.checkSaveInfo(dtImport, strPath, ref dtMessage);
+                DataTable dtInfo = fS1404_Logic.checkSaveInfo(dtImport, strDestPath + Path.DirectorySeparatorChar, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -424,6 +455,20 @@ namespace SPPSApi.Controllers.G14
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 fS1404_Logic.setSaveInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                //保存图片
+                for (int i = 0; i < dtImport.Rows.Count; i++)
+                {
+                    if (dtImport.Rows[i]["vcType"].ToString() == "add")
+                    {
+                        string sources = strDestPath + Path.DirectorySeparatorChar + dtImport.Rows[i]["vcPicUrl"].ToString();
+                        string dest = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar + dtImport.Rows[i]["vcPicUrlUUID"].ToString();
+                        fS1404_Logic.CopyFile(sources, dest);
+                    }
+                }
+                #region 删除照片
+                if (theFolder_file.Exists)
+                    theFolder_file.Delete(true);
+                #endregion
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -462,16 +507,17 @@ namespace SPPSApi.Controllers.G14
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
             string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
             List<Object> listTime = dataForm.TimeList.ToObject<List<Object>>();
             Dictionary<string, byte[]> files = new Dictionary<string, byte[]>();
             string destpic = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
-            string zipName = "SPIS_" + strSupplierId + "_" + System.DateTime.Now.ToString("yyyyMMddhhmmss") + ".zip";
+            string zipName = "SPIS_DownLoadFile_" + System.DateTime.Now.ToString("yyyyMMddhhmmss") + ".zip";
             try
             {
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
-                DataTable dtInfo = fS1404_Logic.getSearchsubInfo(strSupplierId, listTime);
-                if(dtInfo.Rows.Count==0)
+                DataTable dtInfo = fS1404_Logic.getSearchsubInfo(strCarModel,strSupplierId, listTime);
+                if (dtInfo.Rows.Count == 0)
                 {
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = "未查询出任何数据，请检查条件。";
@@ -489,7 +535,7 @@ namespace SPPSApi.Controllers.G14
                     string key = dtInfo.Rows[i]["vcPicUrl"].ToString();
                     files.Add(key, System.IO.File.ReadAllBytes(destpic + key));
                 }
-                if (files.Count > 1)
+                if (files.Count > 0)
                 {
                     string destZip = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;
                     using (FileStream zip = System.IO.File.Create(destZip + zipName))

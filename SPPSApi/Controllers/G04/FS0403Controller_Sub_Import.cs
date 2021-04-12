@@ -76,7 +76,7 @@ namespace SPPSApi.Controllers.G04
             if (!fs0403_Logic.isUpload())
             {
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导入终止:10点后导入,或今日已经导入";
+                apiResult.data = "导入终止:9点40后禁止导入,或今日已经导入";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
             }

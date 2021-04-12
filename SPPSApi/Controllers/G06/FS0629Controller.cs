@@ -910,7 +910,7 @@ namespace SPPSApi.Controllers.G06
                                 //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style11;
                                 sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["qianPinSum"].ToString()));
                                 //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style11;
-                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 9, 11));
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 8, 11));
                                 sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 13, 15));
                                 nextRowNum++;
                             }
@@ -935,7 +935,7 @@ namespace SPPSApi.Controllers.G06
                                 //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style11;
                                 sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["qianPinSum"].ToString()));
                                 //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style11;
-                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 9, 11));
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 8, 11));
                                 sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 13, 15));
                                 nextRowNum++;
                             }
@@ -953,7 +953,7 @@ namespace SPPSApi.Controllers.G06
                                 //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style11;
                                 sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["qianPinSum"].ToString()));
                                 //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style11;
-                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 9, 11));
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 8, 11));
                                 sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 13, 15));
                                 nextRowNum++;
                             }

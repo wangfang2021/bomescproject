@@ -111,6 +111,32 @@ namespace DataAccess
             }
         }
 
+        public DataTable checkAddData(List<Dictionary<string, object>> listInfoData)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                string partsNosStr = "";
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    
+                    if (bAddFlag == true)
+                    {
+                        partsNosStr += "'"+listInfoData[i]["vcPartNo"].ToString()+"',";
+                    }
+                }
+                partsNosStr = partsNosStr.Substring(0, partsNosStr.Length - 1);
+                strSql.AppendLine("  select  distinct vcPartNo from TDaysChangeOrdersBaseData where vcPartNo in (" + partsNosStr + ")  ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         /// <summary>
         /// 保存

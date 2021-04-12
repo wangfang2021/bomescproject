@@ -24,11 +24,11 @@ namespace Logic
         FS0625_Logic fs0625_Logic = new FS0625_Logic();
         FS0603_Logic fs0603_Logic = new FS0603_Logic();
 
-        public DataTable getFormOptions()
+        public DataTable getFormOptions(string strType)
         {
-            return fs0616_DataAccess.getFormOptions();
+            return fs0616_DataAccess.getFormOptions(strType);
         }
-        public DataTable getSearchInfo(string strState, List<Object> listOrderNo, string strPartId, string strHaoJiu, string strOrderPlant, string strSupplierId, string strSupplierPlant, string strReplyOverDate, string strOutPutDate)
+        public DataTable getSearchInfo(string strState, List<Object> listOrderNo, string strPartId, string strInOut, string strHaoJiu, string strOrderPlant, string strSupplierId, string strSupplierPlant, string strReplyOverDate, string strOutPutDate)
         {
             string strOrderNoList = "";
             if (listOrderNo.Count != 0)
@@ -49,7 +49,7 @@ namespace Logic
                     }
                 }
             }
-            DataTable dataTable = fs0616_DataAccess.getSearchInfo(strState, strOrderNoList, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
+            DataTable dataTable = fs0616_DataAccess.getSearchInfo(strState, strOrderNoList, strPartId, strInOut, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
@@ -117,13 +117,13 @@ namespace Logic
                     string strSupplierId = listInfoData[i]["vcSupplierId"] == null ? "" : listInfoData[i]["vcSupplierId"].ToString();
                     string strPackingQty = listInfoData[i]["iPackingQty"] == null ? "0" : listInfoData[i]["iPackingQty"].ToString();
                     string strOrderQuantity = listInfoData[i]["iOrderQuantity"] == null ? "0" : listInfoData[i]["iOrderQuantity"].ToString();
-                    string strDuiYingQuantity = listInfoData[i]["iDuiYingQuantity"] == null ? "0" : listInfoData[i]["iDuiYingQuantity"].ToString();
+                    string strDuiYingQuantity = listInfoData[i]["iDuiYingQuantity"] == null ? "-1" : listInfoData[i]["iDuiYingQuantity"].ToString();
                     string strDeliveryDate = listInfoData[i]["dDeliveryDate"] == null ? "" : listInfoData[i]["dDeliveryDate"].ToString();
                     string strOutPutDate = listInfoData[i]["dOutPutDate"] == null ? "" : listInfoData[i]["dOutPutDate"].ToString();
                     string strInputType = "company";
                     if (dtMultiple.Select("vcOrderNo='" + strOrderNo + "' and vcPart_id='" + strPart_id + "' and vcSupplierId='" + strSupplierId + "'").Length != 0)
                     {
-                        if (strDuiYingQuantity != "0")
+                        if (strDuiYingQuantity != "-1")
                         {
                             DataRow drInfo = dtInfo.NewRow();
                             drInfo["vcOrderNo"] = strOrderNo;
@@ -136,6 +136,12 @@ namespace Logic
                             drInfo["dOutPutDate"] = strOutPutDate;
                             drInfo["vcInputType"] = strInputType;
                             dtInfo.Rows.Add(drInfo);
+                        }
+                        else
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("订单号{0}，品番{1}，供应商{2}的可对应数量不能为空", strOrderNo, strPart_id, strSupplierId);
+                            dtMessage.Rows.Add(dataRow);
                         }
                     }
                 }
@@ -518,7 +524,7 @@ namespace Logic
                 sbr.AppendLine("<p>相关各位：大家好</p>");
                 sbr.AppendLine("<p>TFTM补给资材企管课 ***</p>");
                 sbr.AppendLine("<p><br></p>");
-                sbr.AppendLine("<p>贵司发行的紧急订单<u style=\"color: rgb(230, 0, 0);\">" + strInfo + "</u>（FTMS订单号）纳期已确认，请在补给系统进行查收~</p>");
+                sbr.AppendLine("<p>贵司发行的紧急订单<u style=\"color: rgb(230, 0, 0);\">" + strInfo + "</u>纳期已确认，请在补给系统进行查收~</p>");
                 sbr.AppendLine("<p>请于<u style=\"color: rgb(230, 0, 0);\">本日内</u>进行订单修正并回传，谢谢</p>");
                 sbr.AppendLine("<p>请查收。</p>");
                 sbr.AppendLine("<p>以上。</p><p><br></p>");

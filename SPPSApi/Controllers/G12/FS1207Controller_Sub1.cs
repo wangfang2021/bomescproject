@@ -494,11 +494,12 @@ namespace SPPSApi.Controllers.G12
                 //将信息写到模板中 单元格必须留一行空行(dtSSP中已有发注品番、数量、类别）
                 //数据信息：
 
+                int j = 0;
                 for (int i = 0; i < dtSSP.Rows.Count; i++)
                 {
                     if (dtSSP.Rows[i]["iFZNum"].ToString() != "0")//去除发注数为0
                     {
-                        int ItemNo = i + 1;
+                        int ItemNo = ++j;
                         DataRow drDetail = dtDetail.NewRow();
                         drDetail["TASSCODE"] = "TFTM2";
                         drDetail["OrderDate"] = DateTime.Now.ToString("yyyyMMdd");

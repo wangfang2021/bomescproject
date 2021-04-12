@@ -140,6 +140,8 @@ namespace Logic
                 string strColourCode = dataForm.ColourCode == null ? "" : dataForm.ColourCode.ToString();
                 string strColourName = dataForm.ColourName == null ? "" : dataForm.ColourName.ToString();
                 string strModItem = dataForm.ModItem == null ? "" : dataForm.ModItem.ToString();
+                string strSupplier_1 = dataForm.strSupplier_1 == null ? "" : dataForm.strSupplier_1.ToString();
+                string strSupplier_2 = dataForm.strSupplier_2 == null ? "" : dataForm.strSupplier_2.ToString();
                 string strOperImage = dataForm.PicRoutes == null ? "" : dataForm.PicRoutes.ToString();
                 string strDelImageRoutes = dataForm.DelPicRoutes == null ? "" : dataForm.DelPicRoutes.ToString();
                 DataRow drImport = dtImport.NewRow();
@@ -156,6 +158,8 @@ namespace Logic
                 drImport["vcColourCode"] = strColourCode;
                 drImport["vcColourName"] = strColourName;
                 drImport["vcModItem"] = strModItem;
+                drImport["vcSupplier_1"] = strSupplier_1;
+                drImport["vcSupplier_2"] = strSupplier_2;
                 drImport["vcTempUrl"] = strOperImage;
                 drImport["vcSPISStatus"] = strSPISStatus;
                 dtImport.Rows.Add(drImport);
@@ -187,10 +191,12 @@ namespace Logic
                     string strColourCode = dtImport.Rows[i]["vcColourCode"].ToString();
                     string strColourName = dtImport.Rows[i]["vcColourName"].ToString();
                     string strModItem = dtImport.Rows[i]["vcModItem"].ToString();
+                    string strSupplier_1 = dtImport.Rows[i]["vcSupplier_1"].ToString();
+                    string strSupplier_2 = dtImport.Rows[i]["vcSupplier_2"].ToString();
                     string strOperImage = dtImport.Rows[i]["vcTempUrl"].ToString();
                     string strSPISStatus = dtImport.Rows[i]["vcSPISStatus"].ToString();
 
-                    if (strSupplierName == "" || strColourNo == "" || strColourCode == "" || strColourName == "" || strModItem == "")
+                    if (strSupplierName == ""|| strSupplier_1 == "" || strSupplier_2=="")
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcMessage"] = "缺少必填项请完善数据。";
@@ -201,7 +207,7 @@ namespace Logic
                         if (strOperImage == "")
                         {
                             DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcMessage"] = strPartId + "品番SPIS路径为空请完善数据。";
+                            dataRow["vcMessage"] = strPartId + "品番SPIS为空请完善数据。";
                             dtMessage.Rows.Add(dataRow);
                         }
                         else
@@ -269,6 +275,8 @@ namespace Logic
                     string strColourCode = dtImport.Rows[i]["vcColourCode"].ToString();
                     string strColourName = dtImport.Rows[i]["vcColourName"].ToString();
                     string strModItem = dtImport.Rows[i]["vcModItem"].ToString();
+                    string strSupplier_1 = dtImport.Rows[i]["vcSupplier_1"].ToString();
+                    string strSupplier_2 = dtImport.Rows[i]["vcSupplier_2"].ToString();
 
                     string strTempUrl = dtImport.Rows[i]["vcTempUrl"].ToString();//原图临时文件
                     string sources_temp = strPath_temp + strTempUrl;//原图临时文件地址

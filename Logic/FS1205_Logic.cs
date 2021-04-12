@@ -435,15 +435,15 @@ namespace Logic
                 DataTable dtWeekPackPlan = fs0610_DataAccess.getWeekPackPlan_Sum(strMonth, strPlant);//获取周度包装计划管理表信息
                 if (dtPercentage.Rows.Count <= 0)
                 {
-                    msg = "对象月为" + strMonth + "，第" + strWeek + "周的厂区为" + strPlant + "的周计划变动幅度管理表信息不存在！";
+                    msg = "对象月为" + strMonth + "，第" + strWeek + "周的场区为" + strPlant + "的周计划变动幅度管理表信息不存在！";
                 }
                 if (dtSchedule.Rows.Count <= 0)
                 {
-                    msg = "对象月为" + strMonth + "，第" + strWeek + "周的厂区为" + strPlant + "的周度订单平准化管理表信息不存在！";
+                    msg = "对象月为" + strMonth + "，第" + strWeek + "周的场区为" + strPlant + "的周度订单平准化管理表信息不存在！";
                 }
                 if (dtWeekPackPlan.Rows.Count <= 0)
                 {
-                    msg = "对象月为" + strMonth + "，厂区为" + strPlant + "的周度包装计划信息不存在！";
+                    msg = "对象月为" + strMonth + "，场区为" + strPlant + "的周度包装计划信息不存在！";
                 }
                 if (msg.Length <= 0)
                 {
@@ -465,12 +465,12 @@ namespace Logic
                         DataTable dtRow = dtWeekPackPlan.Select(strSelect).CopyToDataTable();//按对象月、品番、车型筛选周度包装计划管理表信息
                         if (dtRow.Rows.Count > 1)
                         {
-                            msg = "品番：" + _vcPartsno + "在对象月为" + _vcMonth + "厂区为" + strPlant + "的周度包装计划中信息不唯一！";
+                            msg = "品番：" + _vcPartsno + "在对象月为" + _vcMonth + "场区为" + strPlant + "的周度包装计划中信息不唯一！";
                             break;
                         }
                         else if (dtRow.Rows.Count <= 0)
                         {
-                            msg = "品番：" + _vcPartsno + "在对象月为" + _vcMonth + "，第" + strWeek + "周的厂区为" + strPlant + "的周度包装计划中信息不存在！";
+                            msg = "品番：" + _vcPartsno + "在对象月为" + _vcMonth + "，第" + strWeek + "周的场区为" + strPlant + "的周度包装计划中信息不存在！";
                             break;
                         }
                         string _vcCalendar1 = dtRow.Rows[0]["vcProject1"].ToString();

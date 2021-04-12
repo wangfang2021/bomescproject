@@ -52,9 +52,9 @@ namespace DataAccess
                 strSql.AppendLine("		CAST(CASE WHEN T1.iTzhSOQN IS NULL THEN ISNULL(T8.iTzhSOQN,ISNULL(T1.iCbSOQN,0)) ELSE ISNULL(T1.iTzhSOQN,0) END AS INT) AS iTzhSOQN,");
                 strSql.AppendLine("		CAST(CASE WHEN T1.iTzhSOQN1 IS NULL THEN ISNULL(T8.iTzhSOQN1,ISNULL(T1.iCbSOQN1,0)) ELSE ISNULL(T1.iTzhSOQN1,0) END AS INT) AS iTzhSOQN1,");
                 strSql.AppendLine("		CAST(CASE WHEN T1.iTzhSOQN2 IS NULL THEN ISNULL(T8.iTzhSOQN2,ISNULL(T1.iCbSOQN2,0)) ELSE ISNULL(T1.iTzhSOQN2,0) END AS INT) AS iTzhSOQN2,");
-                strSql.AppendLine("		CASE WHEN T1.iHySOQN IS NOT NULL THEN CAST(T1.iHySOQN AS INT) ELSE '' END AS iHySOQN,");
-                strSql.AppendLine("		CASE WHEN T1.iHySOQN1 IS NOT NULL THEN CAST(T1.iHySOQN1 AS INT) ELSE '' END AS iHySOQN1,");
-                strSql.AppendLine("		CASE WHEN T1.iHySOQN2 IS NOT NULL THEN CAST(T1.iHySOQN2 AS INT) ELSE '' END AS iHySOQN2,");
+                strSql.AppendLine("		CASE WHEN T1.iHySOQN IS NOT NULL THEN CAST(T1.iHySOQN AS INT) ELSE NULL END AS iHySOQN,");
+                strSql.AppendLine("		CASE WHEN T1.iHySOQN1 IS NOT NULL THEN CAST(T1.iHySOQN1 AS INT) ELSE NULL END AS iHySOQN1,");
+                strSql.AppendLine("		CASE WHEN T1.iHySOQN2 IS NOT NULL THEN CAST(T1.iHySOQN2 AS INT) ELSE NULL END AS iHySOQN2,");
                 strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dExpectTime,111) END AS dExpectTime,");
                 strSql.AppendLine("		CASE WHEN T1.dSReplyTime IS NULL THEN '' ELSE replace(CONVERT(VARCHAR(20),T1.dSReplyTime,120),'-','/') END AS dSReplyTime,");
                 strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE (");

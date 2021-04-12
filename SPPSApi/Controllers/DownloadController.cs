@@ -725,5 +725,71 @@ namespace SPPSApi.Controllers
             }
         }
         #endregion
+
+        #region DMZ上传文件
+        [HttpPost]
+        [RequestSizeLimit(100_000_000)]
+        public string uploadDMZApi(IFormFile file, string name, string dir)
+        {
+    //        调用例子
+    //        ComFunction.HttpUploadFile(_webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar
+    //+ "Doc" + Path.DirectorySeparatorChar
+    //+ "Export" + Path.DirectorySeparatorChar
+    //+ "02.切替文件-0412.rar"
+    //, "02.切替文件-0412.rar"
+    //, "Doc\\Export\\");
+
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                string filename = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + dir + name; // 新文件名（包括路径）
+                FileInfo fileInfo = new FileInfo(filename);
+                if (fileInfo.Exists)
+                    fileInfo.Delete();
+                using (FileStream fs = System.IO.File.Create(filename)) // 创建新文件
+                {
+                    file.CopyTo(fs);// 复制文件
+                    fs.Flush();// 清空缓冲区数据
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("文件上传失败! " + ex.Message);
+                return "error";
+            }
+        }
+        #endregion
+
+        #region DMZ下载API
+        public IActionResult downloadDMZApi(string name, string dir)
+        {
+            //调用例子
+            //ComFunction.HttpDownload("Doc\\Export\\",
+            //   "02.切替文件-0412.rar",
+            //   _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar
+            //   + "Doc" + Path.DirectorySeparatorChar
+            //   + "PDF" + Path.DirectorySeparatorChar);
+            try
+            {
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar ;//文件临时目录，导入完成后 删除
+                var provider = new FileExtensionContentTypeProvider();
+                FileInfo fileInfo = new FileInfo(fileSavePath + dir+ name);
+                var ext = fileInfo.Extension;
+                new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + dir + name);
+                return File(bt, contenttype ?? "application/octet-stream", fileInfo.Name);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("文件下载失败! " + ex.Message);
+                ContentResult result = new ContentResult();
+                result.Content = "error";
+                result.ContentType = "text/html;charset=utf-8";
+                Console.WriteLine("文件下载失败! " + ex.Message);
+                return result;
+            }
+        }
+        #endregion
     }
 }

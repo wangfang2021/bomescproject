@@ -76,12 +76,10 @@ namespace Common
         }
         #endregion
 
-        #region 获取数据库连接字符串 子获取主
-        public static string GetConnectionString_UnitToMain(string strUnitCode)
+        #region 获取DMZ从现地服务器同步文件的地址，文件统一由该地址下的Doc进行存储
+        public static string GetFileUploadHost()
         {
-            //return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb; Data Source =172.23.180.116";
-            return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb; Data Source =172.23.140.169";
-            //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =.";
+            return "http://172.23.180.116:5000";
         }
         #endregion
 

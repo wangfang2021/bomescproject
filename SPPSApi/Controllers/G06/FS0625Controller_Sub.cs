@@ -427,7 +427,7 @@ namespace SPPSApi.Controllers.G06
                     style2.VerticalAlignment = VerticalAlignment.Center;
                     style2.BorderLeft = BorderStyle.Thin;
                     //style2.BorderRight = BorderStyle.Thin;
-                    style2.BorderTop = BorderStyle.Thin;
+                    style2.BorderTop = BorderStyle.Medium;
 
                     style3.SetFont(font);
                     style3.Alignment = HorizontalAlignment.Center;
@@ -739,11 +739,13 @@ namespace SPPSApi.Controllers.G06
                     #endregion
                     //填写数据
                     int nextRow = 0;
+                    int numLeiji = 0;
                     for (int irow = 0; irow < dtNewSupplierandWorkArea.Rows.Count; irow++)
                     {
                         int haoShiNum = int.Parse(dtNewSupplierandWorkArea.Rows[i]["vcNumber"].ToString());
                         for (int k = 1; k <= haoShiNum; k++)
                         {
+                            numLeiji++;
                             #region 模板第一行
                             mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 2, 5));
                             mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
@@ -917,7 +919,7 @@ namespace SPPSApi.Controllers.G06
                             mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 4));
                             mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 6, 8));
                             IRow next8RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                            next8RowHSSFCol.Height = 39 * 20;
+                            next8RowHSSFCol.Height = 40 * 20;
                             next8RowHSSFCol.CreateCell(1).SetCellValue("注：每一箱都要贴此标签,且装箱内容要和此标签一致");
                             next8RowHSSFCol.GetCell(1).CellStyle = style24;
                             next8RowHSSFCol.CreateCell(2).SetCellValue("");
@@ -933,7 +935,7 @@ namespace SPPSApi.Controllers.G06
                             #region 分割线
                             mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 8));
                             IRow next9RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                            next8RowHSSFCol.Height = 40 * 20;
+                            next9RowHSSFCol.Height = 20 * 20;
                             next9RowHSSFCol.CreateCell(1).SetCellValue("");
                             next9RowHSSFCol.GetCell(1).CellStyle = style26;
                             next9RowHSSFCol.CreateCell(2).SetCellValue("");
@@ -951,7 +953,31 @@ namespace SPPSApi.Controllers.G06
                             next9RowHSSFCol.CreateCell(8).SetCellValue("");
                             next9RowHSSFCol.GetCell(8).CellStyle = style26;
                             nextRow++;
+                            IRow next10RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                            next10RowHSSFCol.Height = 20 * 20;
+                            next10RowHSSFCol.CreateCell(1).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(2).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(3).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(4).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(5).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(6).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(7).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(8).SetCellValue("");
                             nextRow++;
+                            if (numLeiji%3==0)
+                            {
+                                IRow next11RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                                next11RowHSSFCol.Height = 45 * 20;
+                                next11RowHSSFCol.CreateCell(1).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(2).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(3).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(4).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(5).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(6).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(7).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(8).SetCellValue("");
+                                nextRow++;
+                            }
                             #endregion
 
                         }

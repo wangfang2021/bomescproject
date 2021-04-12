@@ -67,7 +67,7 @@ namespace SPPSApi.Controllers.G12
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"类别", "工厂", "生产部署", "组别",
+                string[,] headers = new string[,] {{"类别", "工场", "生产部署", "组别",
                         "1日（白）", "1日（夜）","2日（白）", "2日（夜）","3日（白）","3日（夜）","4日（白）", "4日（夜）","5日（白）", "5日（夜）",  "6日（白）",  "6日（夜）",
                         "7日（白）", "7日（夜）","8日（白）", "8日（夜）","9日（白）","9日（夜）","10日（白）","10日（夜）","11日（白）", "11日（夜）","12日（白）", "12日（夜）",
                         "13日（白）", "13日（夜）","14日（白）", "14日（夜）", "15日（白）", "15日（夜）","16日（白）", "16日（夜）","17日（白）", "17日（夜）","18日（白）", "18日（夜）",
@@ -139,7 +139,7 @@ namespace SPPSApi.Controllers.G12
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("类别:" + item.Key.r2 + " 工厂:" + item.Key.r3 + " 生产部署:" + item.Key.r4 + " 组别:" + item.Key.r5 + "<br/>");
+                        sbr.Append("类别:" + item.Key.r2 + " 工场:" + item.Key.r3 + " 生产部署:" + item.Key.r4 + " 组别:" + item.Key.r5 + "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();

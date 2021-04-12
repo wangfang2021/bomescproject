@@ -111,7 +111,7 @@ namespace SPPSApi.Controllers.G03
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selection", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dZhanKaiTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dZhanKaiTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
@@ -158,7 +158,7 @@ namespace SPPSApi.Controllers.G03
 
                 #region 校验所选数据的状态必须为可下载
 
-                string strZKState = listInfoData[0]["vcZKState"].ToString();
+                string strZKState = listInfoData[0]["State"].ToString();
                 if (strZKState!="可下载")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -168,10 +168,10 @@ namespace SPPSApi.Controllers.G03
 
                 #endregion
 
-                string strCLYM = listInfoData[0]["vcDXYM"].ToString()+"01";
+                string strCLYM = listInfoData[0]["vcCLYM"].ToString()+"01";
                 strCLYM = strCLYM.Insert(6, "-");
                 strCLYM = strCLYM.Insert(4, "-");
-                DateTime dCLYM = Convert.ToDateTime(strCLYM).AddMonths(-1);
+                DateTime dCLYM = Convert.ToDateTime(strCLYM);
                 strCLYM = dCLYM.ToString("yyyy") + dCLYM.ToString("MM");
                 string strInOutFlag = listInfoData[0]["vcInOutFlag"].ToString();
                 string strDXYM1 = dCLYM.AddMonths(1).ToString("yyyy") + dCLYM.AddMonths(1).ToString("MM");

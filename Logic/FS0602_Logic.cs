@@ -312,7 +312,7 @@ namespace Logic
                 if (dtImport.Rows.Count == 0)
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "没有可供内示展开的数据";
+                    dataRow["vcMessage"] = "没有可供内示展开的数据(原因：内示数据已经展开或销售退回内示不能再次展开)";
                     dtMessage.Rows.Add(dataRow);
                 }
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
@@ -519,7 +519,7 @@ namespace Logic
                 if (dtImport.Rows.Count == 0)
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "没有可供内示回复的数据";
+                    dataRow["vcMessage"] = "没有可供内示回复的数据(原因：内示数据已经完成回复不能重复该操作)";
                     dtMessage.Rows.Add(dataRow);
                     return null;
                 }

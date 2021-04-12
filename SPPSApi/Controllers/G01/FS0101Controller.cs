@@ -104,7 +104,7 @@ namespace SPPSApi.Controllers.G00
                 List<Object> list_AllSpecialRole = ComFunction.convertToResult(dt_Special, new string[] { "label", "value" });//返回所有特别角色
                 List<Object> list_AllPlant = ComFunction.convertToResult(dt_PlantAll, new string[] { "vcPlantCode", "vcPlantName" });//返回所有工厂代码
 
-                List<Object> dataList_C001 = ComFunction.convertAllToResult(ComFunction.getTCode("C001"));//包装场
+                List<Object> dataList_C001 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
                 List<Object> dataList_C010 = ComFunction.convertAllToResult(ComFunction.getTCode("C010"));//班值
  
 

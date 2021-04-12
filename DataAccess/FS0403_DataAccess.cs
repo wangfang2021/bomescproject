@@ -521,12 +521,12 @@ namespace DataAccess
                 DateTime t2;
 
                 //DateTime.TryParseExact(DateTime.Now.Year + "-" + DateTime.Now.Month + "-" + DateTime.Now.Day + " 10:00:00", "yyyy-MM-dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out t2);
-                t2 = DateTime.Parse(DateTime.Now.Year + "-" + DateTime.Now.Month + "-" + DateTime.Now.Day + " 10:00:00");
+                t2 = DateTime.Parse(DateTime.Now.Year + "-" + DateTime.Now.Month + "-" + DateTime.Now.Day + " 09:40:00");
                 if (DateTime.Now <= t2)
                 {
                     StringBuilder sbr = new StringBuilder();
                     string time = DateTime.Now.ToString("yyyyMMdd");
-                    sbr.AppendLine("SELECT * WHERE vcChangeNo = '" + time + "'");
+                    sbr.AppendLine("SELECT * from TSoqDayChange WHERE vcChangeNo = '" + time + "'");
                     DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
                     if (dt.Rows.Count > 0)
                     {
@@ -697,6 +697,36 @@ namespace DataAccess
             catch (Exception ex)
             {
                 return "";
+            }
+        }
+
+        public bool checkJD(DateTime time)
+        {
+            try
+            {
+                string YM = time.ToString("yyyyMM");
+                string day = Convert.ToInt32(time.ToString("dd")).ToString();
+
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT ISNULL(TARGETDAY" + day + ",0) AS flag FROM TCalendar_PingZhun_Wai WHERE vcFZGC = '2' AND TARGETMONTH = '" + YM + "'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+
+                if (dt.Rows.Count == 0)
+                {
+                    return false;
+                }
+
+                string flag = dt.Rows[0]["flag"].ToString();
+                if (flag.Equals("0"))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

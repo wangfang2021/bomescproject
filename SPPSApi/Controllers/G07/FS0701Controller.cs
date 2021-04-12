@@ -55,7 +55,7 @@ namespace SPPSApi.Controllers.G07
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
-                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(FS0701_Logic.SearchPackSpot(loginInfo.UserId));//包装场
 
                 res.Add("C023", dataList_C023);
 
@@ -398,17 +398,19 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "收容数不能是'0'！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-
-                    if (!string.IsNullOrEmpty(listInfoData[i]["iRelease"].ToString()) && !string.IsNullOrEmpty(listInfoData[i]["iZCRelease"].ToString()))
-                    {
-                        if ( Convert.ToInt32(listInfoData[i]["iRelease"])% Convert.ToInt32(listInfoData[i]["iZCRelease"]) != 0)
+                    if (listInfoData[i]["iRelease"]!=null&& listInfoData[i]["iZCRelease"]!=null) {
+                        if (!string.IsNullOrEmpty(listInfoData[i]["iRelease"].ToString()) && !string.IsNullOrEmpty(listInfoData[i]["iZCRelease"].ToString()))
                         {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "收容数不是订购批量的整数倍！";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
+                            if (Convert.ToInt32(listInfoData[i]["iRelease"]) % Convert.ToInt32(listInfoData[i]["iZCRelease"]) != 0)
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "收容数不是订购批量的整数倍！";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
 
+                        }
                     }
+                   
 
                 }
                 if (!hasFind)

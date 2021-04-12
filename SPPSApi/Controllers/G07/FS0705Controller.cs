@@ -84,7 +84,7 @@ namespace SPPSApi.Controllers.G07
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string PackSpot = "H2";
+            string PackSpot = loginInfo.BaoZhuangPlace;
             try
             {
                 ArrayList list = fs0705_Logic.SearchFaZhuTime(PackSpot);
@@ -134,10 +134,10 @@ namespace SPPSApi.Controllers.G07
                     lists.Add(listInfoData[i]["strFaZhuID"].ToString());
                 }
                 string strFaZhuID = lists.Distinct().ToList()[0];
-                fs0705_Logic.computer(strFaZhuID);
+                fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace);
 
                 #region 计算完毕检索计算结果
-                DataTable computeJGDT = fs0705_Logic.searchComputeJG();
+                DataTable computeJGDT = fs0705_Logic.searchComputeJG(loginInfo.BaoZhuangPlace);
 
                 DtConverter dtConverter = new DtConverter();
 
@@ -179,8 +179,8 @@ namespace SPPSApi.Controllers.G07
                 /*
                  * 查询出计算结果中订单号未空的数据
                  */
-                DataTable JGDT = fs0705_Logic.SCFZDataSearchComputeJG();
-                fs0705_Logic.SCFZData(JGDT,strOrderNo);
+                DataTable JGDT = fs0705_Logic.SCFZDataSearchComputeJG(loginInfo.BaoZhuangPlace);
+                fs0705_Logic.SCFZData(JGDT, strOrderNo);
 
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

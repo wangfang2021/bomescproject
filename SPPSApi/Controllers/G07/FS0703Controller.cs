@@ -54,11 +54,11 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-
-                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(FS0701_Logic.SearchPackSpot(loginInfo.UserId));//包装场
 
                 res.Add("C023", dataList_C023);
-                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                
 
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0701_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
@@ -262,8 +262,7 @@ namespace SPPSApi.Controllers.G07
                     "iDay31","dZYTime"
                 };
 
-
-
+            
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "月度内饰书导出", ref resMsg);
                 if (filepath == "")
                 {
@@ -271,6 +270,9 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "导出生成文件失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                FS0703_Logic.Updateprint();
+
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -390,7 +392,7 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "没有可发送数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                
                 if (dt.Rows.Count == 0)
                 {
 
@@ -398,6 +400,11 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "没有可发送数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
+                }
+                if (dt.Rows[0]["vcIsorNoPrint"].ToString()!="1") {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请导出再发送！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
                 FS0703_Logic.Save(dt, loginInfo.UserId, ref strErrorPartId, PackFrom, SupplierCodeList, PackSpot);

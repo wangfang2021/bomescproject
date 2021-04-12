@@ -12,44 +12,73 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        public DataTable getFormOptions()
+        public DataTable getFormOptions(string strType)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select distinct isnull(t1.vcOrderNo,'--') as vcOrderNo_Value");
-                strSql.AppendLine("		,isnull(t1.vcOrderNo,'--') as vcOrderNo_Name");
-                strSql.AppendLine("		,isnull(t1.vcHaoJiu,'--') as vcHaoJiu_Value");
-                strSql.AppendLine("		,isnull(t3.vcName,'--') as vcHaoJiu_Name");
-                strSql.AppendLine("		,isnull(t1.vcOrderPlant,'--') as vcOrderPlant_Value");
-                strSql.AppendLine("		,isnull(t4.vcName,'--') as vcOrderPlant_Name");
-                strSql.AppendLine("		,isnull(t1.vcSupplier_id,'--') as vcSupplierId_Value");
-                strSql.AppendLine("		,isnull(t1.vcSupplier_id,'--') as vcSupplierId_Name");
-                strSql.AppendLine("		,isnull(t1.vcGQ,'--') as vcSupplierPlant_Value");
-                strSql.AppendLine("		,isnull(t1.vcGQ,'--') as vcSupplierPlant_Name");
-                strSql.AppendLine("		,isnull(CONVERT(VARCHAR(10),t1.dReplyOverDate,111),'--') as vcReplyOverDate_Value");
-                strSql.AppendLine("		,isnull(CONVERT(VARCHAR(10),t1.dReplyOverDate,111),'--') as vcReplyOverDate_Name");
-                strSql.AppendLine("		,isnull(CONVERT(VARCHAR(10),t2.dOutPutDate,111),'--') as vcOutPutDate_Value");
-                strSql.AppendLine("		,isnull(CONVERT(VARCHAR(10),t2.dOutPutDate,111),'--') as vcOutPutDate_Name");
-                strSql.AppendLine("		from ");
-                strSql.AppendLine("(select * from TUrgentOrder");
-                strSql.AppendLine("where vcShowFlag='1' and vcStatus<>'3'");
-                strSql.AppendLine(")t1");
-                strSql.AppendLine("left join");
-                strSql.AppendLine("(select * from VI_UrgentOrder_OperHistory where cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0)t2");
-                strSql.AppendLine("ON T1.vcOrderNo=T2.vcOrderNo AND T1.vcPart_id=T2.vcPart_id AND T1.vcSupplier_id=T2.vcSupplier_id");
-                strSql.AppendLine("left join");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')t3");
-                strSql.AppendLine("on t1.vcHaoJiu=t3.vcValue");
-                strSql.AppendLine("left join");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')t4");
-                strSql.AppendLine("on t1.vcOrderPlant=t4.vcValue");
-                strSql.AppendLine("left join");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C012')t5");
-                strSql.AppendLine("on t1.vcOESP=t5.vcValue");
-                strSql.AppendLine("left join");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C056')t6");
-                strSql.AppendLine("on t1.vcStatus=t6.vcValue");
+                if (strType == "orderno")
+                {
+                    strSql.AppendLine("SELECT vcOrderNo_Value,vcOrderNo_Name FROM (");
+                    strSql.AppendLine("select ROW_NUMBER() OVER(PARTITION BY t1.vcOrderNo ORDER BY t1.iAutoId DESC) AS TAKN");
+                    strSql.AppendLine("		,isnull(t1.vcOrderNo,'--') as vcOrderNo_Value");
+                    strSql.AppendLine("		,isnull(t1.vcOrderNo,'--') as vcOrderNo_Name");
+                    strSql.AppendLine("		from ");
+                    strSql.AppendLine("(select * from TUrgentOrder where vcShowFlag='1')t1");
+                    strSql.AppendLine("left join");
+                    strSql.AppendLine("(select * from VI_UrgentOrder_OperHistory where cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0)t2");
+                    strSql.AppendLine("ON T1.vcOrderNo=T2.vcOrderNo AND T1.vcPart_id=T2.vcPart_id AND T1.vcSupplier_id=T2.vcSupplier_id)T1");
+                    strSql.AppendLine("WHERE TAKN=1");
+                }
+                if (strType == "info")
+                {
+                    strSql.AppendLine("select distinct isnull(t1.vcInOut,'--') as vcInOut_Value");
+                    strSql.AppendLine("		,isnull(t7.vcName,'--') as vcInOut_Name");
+                    strSql.AppendLine("		,isnull(t1.vcHaoJiu,'--') as vcHaoJiu_Value");
+                    strSql.AppendLine("		,isnull(t3.vcName,'--') as vcHaoJiu_Name");
+                    strSql.AppendLine("		,isnull(t1.vcOrderPlant,'--') as vcOrderPlant_Value");
+                    strSql.AppendLine("		,isnull(t4.vcName,'--') as vcOrderPlant_Name");
+                    strSql.AppendLine("		,isnull(t1.vcSupplier_id,'--') as vcSupplierId_Value");
+                    strSql.AppendLine("		,isnull(t1.vcSupplier_id,'--') as vcSupplierId_Name");
+                    strSql.AppendLine("		,isnull(t1.vcGQ,'--') as vcSupplierPlant_Value");
+                    strSql.AppendLine("		,isnull(t1.vcGQ,'--') as vcSupplierPlant_Name");
+                    strSql.AppendLine("		,isnull(CONVERT(VARCHAR(10),t2.dOutPutDate,111),'--') as vcOutPutDate_Value");
+                    strSql.AppendLine("		,isnull(CONVERT(VARCHAR(10),t2.dOutPutDate,111),'--') as vcOutPutDate_Name");
+                    strSql.AppendLine("		from ");
+                    strSql.AppendLine("(select * from TUrgentOrder");
+                    strSql.AppendLine("where vcShowFlag='1'");
+                    strSql.AppendLine(")t1");
+                    strSql.AppendLine("left join");
+                    strSql.AppendLine("(select * from VI_UrgentOrder_OperHistory where cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0)t2");
+                    strSql.AppendLine("ON T1.vcOrderNo=T2.vcOrderNo AND T1.vcPart_id=T2.vcPart_id AND T1.vcSupplier_id=T2.vcSupplier_id");
+                    strSql.AppendLine("left join");
+                    strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')t3");
+                    strSql.AppendLine("on t1.vcHaoJiu=t3.vcValue");
+                    strSql.AppendLine("left join");
+                    strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')t4");
+                    strSql.AppendLine("on t1.vcOrderPlant=t4.vcValue");
+                    strSql.AppendLine("left join");
+                    strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C012')t5");
+                    strSql.AppendLine("on t1.vcOESP=t5.vcValue");
+                    strSql.AppendLine("left join");
+                    strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C056')t6");
+                    strSql.AppendLine("on t1.vcStatus=t6.vcValue");
+                    strSql.AppendLine("left join");
+                    strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')t7");
+                    strSql.AppendLine("on t1.vcInOut=t7.vcValue");
+                }
+                if (strType == "overdate")
+                {
+                    strSql.AppendLine("select distinct isnull(CONVERT(VARCHAR(10),t1.dReplyOverDate,111),'--') as vcReplyOverDate_Value");
+                    strSql.AppendLine("		,isnull(CONVERT(VARCHAR(10),t1.dReplyOverDate,111),'--') as vcReplyOverDate_Name");
+                    strSql.AppendLine("		from ");
+                    strSql.AppendLine("(select * from TUrgentOrder");
+                    strSql.AppendLine("where vcShowFlag='1' and vcStatus<>'3'");
+                    strSql.AppendLine(")t1");
+                    strSql.AppendLine("left join");
+                    strSql.AppendLine("(select * from VI_UrgentOrder_OperHistory where cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0)t2");
+                    strSql.AppendLine("ON T1.vcOrderNo=T2.vcOrderNo AND T1.vcPart_id=T2.vcPart_id AND T1.vcSupplier_id=T2.vcSupplier_id");
+                }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
 
             }
@@ -58,7 +87,7 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public DataTable getSearchInfo(string strState, string strOrderNoList, string strPartId, string strHaoJiu, string strOrderPlant, string strSupplierId, string strSupplierPlant, string strReplyOverDate, string strOutPutDate)
+        public DataTable getSearchInfo(string strState, string strOrderNoList, string strPartId, string strInOut, string strHaoJiu, string strOrderPlant, string strSupplierId, string strSupplierPlant, string strReplyOverDate, string strOutPutDate)
         {
             try
             {
@@ -69,6 +98,7 @@ namespace DataAccess
                 strSql.AppendLine("		,t1.vcOrderNo as vcOrderNo");
                 strSql.AppendLine("		,t1.vcPart_id as vcPart_id");
                 strSql.AppendLine("		,t4.vcName as vcOrderPlant");
+                strSql.AppendLine("		,t8.vcName as vcInOut");
                 strSql.AppendLine("		,t3.vcName as vcHaoJiu");
                 strSql.AppendLine("		,t5.vcName as vcOESP");
                 strSql.AppendLine("		,t1.vcSupplier_id as vcSupplierId");
@@ -102,6 +132,17 @@ namespace DataAccess
                 if (strPartId != "")
                 {
                     strSql.AppendLine("AND [vcPart_id] LIKE '" + strPartId + "%'");
+                }
+                if (strInOut != "")
+                {
+                    if (strInOut == "--")
+                    {
+                        strSql.AppendLine("AND isnull(vcInOut,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND [vcInOut]='" + strInOut + "'");
+                    }
                 }
                 if (strHaoJiu != "")
                 {
@@ -160,7 +201,8 @@ namespace DataAccess
                 }
                 strSql.AppendLine(")t1");
                 strSql.AppendLine("left join");
-                strSql.AppendLine("(select * from VI_UrgentOrder_OperHistory where cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0 )t2");
+                strSql.AppendLine("(select * from VI_UrgentOrder_OperHistory)t2");
+                //strSql.AppendLine("(select * from VI_UrgentOrder_OperHistory where cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0 )t2");
                 strSql.AppendLine("ON T1.vcOrderNo=T2.vcOrderNo AND T1.vcPart_id=T2.vcPart_id AND T1.vcSupplier_id=T2.vcSupplier_id");
                 strSql.AppendLine("left join");
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')t3");
@@ -175,7 +217,11 @@ namespace DataAccess
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C056')t6");
                 strSql.AppendLine("on t1.vcStatus=t6.vcValue");
                 strSql.AppendLine("left join");
-                strSql.AppendLine("(select vcOrderNo,vcPart_id,vcSupplier_id,sum(CAST(iDuiYingQuantity as int)) as iDuiYingSum from VI_UrgentOrder_OperHistory where cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')t8");
+                strSql.AppendLine("on t1.vcInOut=t8.vcValue");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(select vcOrderNo,vcPart_id,vcSupplier_id,sum(CAST(iDuiYingQuantity as int)) as iDuiYingSum from VI_UrgentOrder_OperHistory");
+                //strSql.AppendLine("(select vcOrderNo,vcPart_id,vcSupplier_id,sum(CAST(iDuiYingQuantity as int)) as iDuiYingSum from VI_UrgentOrder_OperHistory where cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0");
                 strSql.AppendLine("group by vcOrderNo,vcPart_id,vcSupplier_id)t7");
                 strSql.AppendLine("ON T1.vcOrderNo=t7.vcOrderNo AND T1.vcPart_id=t7.vcPart_id AND T1.vcSupplier_id=t7.vcSupplier_id");
                 if (strOutPutDate != "")
@@ -189,7 +235,7 @@ namespace DataAccess
                         strSql.AppendLine("AND CONVERT(VARCHAR(10),t2.dOutPutDate,111)='" + strOutPutDate + "'");
                     }
                 }
-                strSql.AppendLine("ORDER BY t1.iAutoId desc,t1.vcPart_id");
+                strSql.AppendLine("ORDER BY t1.iAutoId desc,t2.dDeliveryDate");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -204,7 +250,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("select vcValue1 from TOutCode where vcIsColum=0 and vcCodeId='C013'");
                 DataTable dataTable = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-                if(dataTable.Rows.Count!=0)
+                if (dataTable.Rows.Count != 0)
                 {
                     return Convert.ToInt32(dataTable.Rows[0]["vcValue1"].ToString());
                 }
@@ -251,6 +297,19 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("           ,@vcInputType");
                 strSql_modinfo.AppendLine("           ,'" + strOperId + "'");
                 strSql_modinfo.AppendLine("           ,'" + strNow + "')");
+
+                strSql_modinfo.AppendLine("declare @day int=0");
+                strSql_modinfo.AppendLine("set @day=(select vcValue1 from TOutCode where vcIsColum=0 and vcCodeId='C013')");
+                strSql_modinfo.AppendLine("UPDATE TUrgentOrder_OperHistory SET dDeliveryDate=DATEADD(DAY,@day*-1,[dOutPutDate]) WHERE [dOutPutDate] IS NOT NULL and dDeliveryDate is null");
+                strSql_modinfo.AppendLine(" and vcOrderNo=@vcOrderNo");
+                strSql_modinfo.AppendLine(" and vcPart_id=@vcPart_id");
+                strSql_modinfo.AppendLine(" and vcSupplier_id=@vcSupplier_id");
+                strSql_modinfo.AppendLine(" and vcInputType=@vcInputType");
+                strSql_modinfo.AppendLine("UPDATE TUrgentOrder_OperHistory SET dOutPutDate=DATEADD(DAY,@day,[dDeliveryDate])  WHERE [dOutPutDate] IS NOT NULL and dDeliveryDate is null");
+                strSql_modinfo.AppendLine(" and vcOrderNo=@vcOrderNo");
+                strSql_modinfo.AppendLine(" and vcPart_id=@vcPart_id");
+                strSql_modinfo.AppendLine(" and vcSupplier_id=@vcSupplier_id");
+                strSql_modinfo.AppendLine(" and vcInputType=@vcInputType");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcOrderNo", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcPart_id", "");
@@ -428,6 +487,9 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("UPDATE TUrgentOrder SET vcSaveFlag='1',vcSaveer='" + strOperId + "',dSaveTime='" + strNow + "' WHERE [vcOrderNo]=@vcOrderNo AND vcPart_id=@vcPart_id AND vcSupplier_id=@vcSupplier_id");
                 strSql_modinfo.AppendLine("UPDATE TUrgentOrder_OperHistory SET [dOutPutDate] = CASE WHEN @dOutPutDate='' THEN NULL ELSE @dOutPutDate END,[vcOperatorID] = '" + strOperId + "',[dOperatorTime] = '" + strNow + "'");
                 strSql_modinfo.AppendLine("WHERE [iAutoId]=@LinId");
+                strSql_modinfo.AppendLine("declare @day int=0");
+                strSql_modinfo.AppendLine("set @day=(select vcValue1 from TOutCode where vcIsColum=0 and vcCodeId='C013')");
+                strSql_modinfo.AppendLine("UPDATE TUrgentOrder_OperHistory SET dDeliveryDate=DATEADD(DAY,@day*-1,[dOutPutDate])  WHERE [iAutoId]=@LinId AND  [dOutPutDate] IS NOT NULL");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                 sqlCommand_modinfo.Parameters.AddWithValue("@LinId", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcOrderNo", "");
@@ -499,7 +561,7 @@ namespace DataAccess
                 strSql.AppendLine("where vcShowFlag='1'");
                 if (strOrderNo != "")
                 {
-                    strSql.AppendLine("AND [vcOrderNo] = '"+ strOrderNo + "'");
+                    strSql.AppendLine("AND [vcOrderNo] = '" + strOrderNo + "'");
                 }
                 if (strPart_id != "")
                 {

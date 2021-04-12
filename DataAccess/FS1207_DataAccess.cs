@@ -485,7 +485,7 @@ namespace DataAccess
                 {
                     if (dt.Rows[i]["iAutoId"].ToString() != MaxId(dt.Rows[i]["vcPartsNo"].ToString()))
                     {
-                        return "不能编辑非当前月的发注数据！";
+                        return "只能编辑最新的发注数据！";
                     }
                     StringBuilder sb = new StringBuilder();
                     sb.Length = 0;

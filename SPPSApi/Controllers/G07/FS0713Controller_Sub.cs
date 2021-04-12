@@ -54,8 +54,8 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-
-                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(FS0701_Logic.SearchPackSpot(loginInfo.UserId));//包装场
 
                 res.Add("C023", dataList_C023);
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0713_Logic.SearchSupplier());//供应商
@@ -277,17 +277,18 @@ namespace SPPSApi.Controllers.G07
                 if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
                 {
                     dtJS = getResultCashByKey(strSearchKey);
+                    FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                    DataTable dtPackBase = FS0701_Logic.Search(PackSpot, "", "", new List<object>(), "", "", "", "");
+                    DataTable dt = FS0713_Logic.SearchJYZKCalcuate(PackSpot, PackNo, PackGPSNo, strSupplierCode, strRatio, StrFrom, StrTo, strJiSuanType, strXHJiSuanType, strSaveAdvice, loginInfo.UserId, ref strErrorPartId, dtJS, dtPackBase);
+                   
                 }
                 else
                 {
                     strErrorPartId = "请重新计算平均/峰值！";
                 }
-                FS0701_Logic FS0701_Logic = new FS0701_Logic();
-                DataTable dtPackBase = FS0701_Logic.Search(PackSpot, "", "", new List<object>(), "", "", "", "");
-                DataTable dt = FS0713_Logic.SearchJYZKCalcuate(PackSpot, PackNo, PackGPSNo, strSupplierCode, strRatio, StrFrom, StrTo, strJiSuanType, strXHJiSuanType, strSaveAdvice, loginInfo.UserId, ref strErrorPartId, dtJS, dtPackBase);
-
+                
                 //放入缓存
-                initSearchCash(strSearchKey, dt);
+               // initSearchCash(strSearchKey, dt);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = strErrorPartId;
@@ -376,8 +377,8 @@ namespace SPPSApi.Controllers.G07
                 }
                 else
                 {
-                    ihead = dtJS.Columns.Count - 1;
-                    ifields = dtJS.Columns.Count - 1;
+                    ihead = dtJS.Columns.Count - 2;
+                    ifields = dtJS.Columns.Count - 2;
 
                 }
                 string[] head = new string[ihead];
@@ -394,25 +395,51 @@ namespace SPPSApi.Controllers.G07
                 {
                     head[4] = "平均";
                     fields[4] = "vcAvg";
-                    for (int i = 1; i <= dtJS.Columns.Count - 6; i++)
+                    if (strJiSuanType == "时段")
                     {
-                        head[4 + i] = dtJS.Columns[4 + i].ColumnName.Substring(5, 5);
-                        fields[4 + i] = dtJS.Columns[4 + i].ColumnName;
+                        for (int i = 1; i <= dtJS.Columns.Count - 6; i++)
+                        {
+                            head[4 + i] = dtJS.Columns[4 + i].ColumnName.Substring(5, 17);
+                            fields[4 + i] = dtJS.Columns[4 + i].ColumnName;
+                        }
                     }
+                    else
+                    {
+                        for (int i = 1; i <= dtJS.Columns.Count - 6; i++)
+                        {
+                            head[4 + i] = dtJS.Columns[4 + i].ColumnName.Substring(5, 5);
+                            fields[4 + i] = dtJS.Columns[4 + i].ColumnName;
+                        }
+                    }
+
                 }
                 else
                 {
                     int count = 0;
-                    for (int i = 1; i <= dtJS.Columns.Count - 16; i++)
+                    if (strJiSuanType == "时段")
                     {
-                        head[4 + i] = dtJS.Columns[5 + i].ColumnName.Substring(5, 5);
-                        fields[4 + i] = dtJS.Columns[5 + i].ColumnName;
-                        count++;
+                        for (int i = 1; i <= dtJS.Columns.Count - 16; i++)
+                        {
+                            head[3 + i] = dtJS.Columns[5 + i].ColumnName.Substring(5, 17);
+                            fields[3 + i] = dtJS.Columns[5 + i].ColumnName;
+                            count++;
+                        }
                     }
+                    else
+                    {
+                        for (int i = 1; i <= dtJS.Columns.Count - 16; i++)
+                        {
+                            head[3 + i] = dtJS.Columns[5 + i].ColumnName.Substring(5, 5);
+                            fields[3 + i] = dtJS.Columns[5 + i].ColumnName;
+                            count++;
+                        }
+
+                    }
+
                     for (int j = 1; j <= 10; j++)
                     {
-                        head[4 + count + j] = "Max" + j.ToString();
-                        fields[4 + count + j] = "vcMax" + j.ToString();
+                        head[3 + count + j] = "Max" + j.ToString();
+                        fields[3 + count + j] = "vcMax" + j.ToString();
                     }
 
                 }
@@ -458,8 +485,8 @@ namespace SPPSApi.Controllers.G07
             string vcIsOrNoKTFrom1 = dataForm.vcIsOrNoKTFrom1 == "是" ? "1" : "0";
             string dTo1 = dataForm.dTo1;
             string vcIsOrNoKT1 = dataForm.vcIsOrNoKT1 == "是" ? "1" : "0";
-            DateTime dF1  = new DateTime();
-            DateTime dT1  = new DateTime();
+            DateTime dF1 = new DateTime();
+            DateTime dT1 = new DateTime();
 
             if (!string.IsNullOrEmpty(dFrom1) && !string.IsNullOrEmpty(dTo1))
             {
@@ -474,7 +501,7 @@ namespace SPPSApi.Controllers.G07
 
                 }
             }
-            
+
             string dFrom2 = dataForm.dFrom2;
             string vcIsOrNoKTFrom2 = dataForm.vcIsOrNoKTFrom2 == "是" ? "1" : "0";
             string dTo2 = dataForm.dTo2;
@@ -495,7 +522,8 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-                if (dF1<= dT2&& dT1>= dF2) {
+                if (dF1 <= dT2 && dT1 >= dF2)
+                {
 
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "1-2有重叠时间！";
@@ -549,8 +577,8 @@ namespace SPPSApi.Controllers.G07
             DateTime dT4 = new DateTime();
             if (!string.IsNullOrEmpty(dFrom4) && !string.IsNullOrEmpty(dTo4))
             {
-                 dF4 = vcIsOrNoKTFrom4 == "1" ? Convert.ToDateTime(dFrom4).AddDays(1) : Convert.ToDateTime(dFrom4);
-                 dT4 = vcIsOrNoKT4 == "1" ? Convert.ToDateTime(dTo4).AddDays(1) : Convert.ToDateTime(dTo4);
+                dF4 = vcIsOrNoKTFrom4 == "1" ? Convert.ToDateTime(dFrom4).AddDays(1) : Convert.ToDateTime(dFrom4);
+                dT4 = vcIsOrNoKT4 == "1" ? Convert.ToDateTime(dTo4).AddDays(1) : Convert.ToDateTime(dTo4);
 
 
                 if (dF4 > dT4)
@@ -592,8 +620,8 @@ namespace SPPSApi.Controllers.G07
             DateTime dT5 = new DateTime();
             if (!string.IsNullOrEmpty(dFrom5) && !string.IsNullOrEmpty(dTo5))
             {
-                 dF5 = vcIsOrNoKTFrom5 == "1" ? Convert.ToDateTime(dFrom5).AddDays(1) : Convert.ToDateTime(dFrom5);
-                 dT5 = vcIsOrNoKT5 == "1" ? Convert.ToDateTime(dTo5).AddDays(1) : Convert.ToDateTime(dTo5);
+                dF5 = vcIsOrNoKTFrom5 == "1" ? Convert.ToDateTime(dFrom5).AddDays(1) : Convert.ToDateTime(dFrom5);
+                dT5 = vcIsOrNoKT5 == "1" ? Convert.ToDateTime(dTo5).AddDays(1) : Convert.ToDateTime(dTo5);
 
 
                 if (dF5 > dT5)
@@ -642,8 +670,8 @@ namespace SPPSApi.Controllers.G07
             DateTime dT6 = new DateTime();
             if (!string.IsNullOrEmpty(dFrom6) && !string.IsNullOrEmpty(dTo6))
             {
-                 dF6 = vcIsOrNoKTFrom6 == "1" ? Convert.ToDateTime(dFrom6).AddDays(1) : Convert.ToDateTime(dFrom6);
-                 dT6 = vcIsOrNoKT6 == "1" ? Convert.ToDateTime(dTo6).AddDays(1) : Convert.ToDateTime(dTo6);
+                dF6 = vcIsOrNoKTFrom6 == "1" ? Convert.ToDateTime(dFrom6).AddDays(1) : Convert.ToDateTime(dFrom6);
+                dT6 = vcIsOrNoKT6 == "1" ? Convert.ToDateTime(dTo6).AddDays(1) : Convert.ToDateTime(dTo6);
 
 
                 if (dF6 > dT6)
@@ -675,7 +703,7 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "3-6有重叠时间！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                if (dF4 <= dT6 && dT4>= dF6)
+                if (dF4 <= dT6 && dT4 >= dF6)
                 {
 
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -699,8 +727,8 @@ namespace SPPSApi.Controllers.G07
             DateTime dT7 = new DateTime();
             if (!string.IsNullOrEmpty(dFrom7) && !string.IsNullOrEmpty(dTo7))
             {
-               dF7 = vcIsOrNoKTFrom7 == "1" ? Convert.ToDateTime(dFrom7).AddDays(1) : Convert.ToDateTime(dFrom7);
-               dT7 = vcIsOrNoKT7 == "1" ? Convert.ToDateTime(dTo7).AddDays(1) : Convert.ToDateTime(dTo7);
+                dF7 = vcIsOrNoKTFrom7 == "1" ? Convert.ToDateTime(dFrom7).AddDays(1) : Convert.ToDateTime(dFrom7);
+                dT7 = vcIsOrNoKT7 == "1" ? Convert.ToDateTime(dTo7).AddDays(1) : Convert.ToDateTime(dTo7);
 
 
                 if (dF7 > dT7)

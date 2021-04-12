@@ -531,7 +531,10 @@ namespace SPPSApi.Controllers.G07
 
         public void addFiles(string strFileName, string strFilePath)
         {
+            Console.WriteLine("文件名"+strFileName);
+            Console.WriteLine("文件路径"+strFilePath);
             string strFilePath_All = strFilePath + Path.DirectorySeparatorChar + strFileName;
+            Console.WriteLine("完整路径" + strFilePath_All);
             files.Add(strFileName, File.ReadAllBytes(strFilePath_All));
             if (File.Exists(strFilePath_All))
             {

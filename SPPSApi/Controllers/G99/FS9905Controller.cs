@@ -383,17 +383,22 @@ namespace SPPSApi.Controllers.G99
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    int byteLength = System.Text.Encoding.Default.GetBytes(listInfoData[i]["vcYQorNG"].ToString()).Length;
-                    //延期说明超过了600字节，提示错误
-                    if (byteLength > 600)
+                    if (listInfoData[i]["vcYQorNG"]!=null)
                     {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "保存失败，延期说明文本超长";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        int byteLength = System.Text.Encoding.Default.GetBytes(listInfoData[i]["vcYQorNG"].ToString()).Length;
+                        //延期说明超过了600字节，提示错误
+                        if (byteLength > 600)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "保存失败，延期说明文本超长";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                     }
                 }
+
                 string strErr = "";
                 fs9905_Logic.Save(listInfoData, loginInfo.UserId, ref strErr);
                 if (strErr != "")
@@ -507,7 +512,7 @@ namespace SPPSApi.Controllers.G99
                                                     {""                ,""            },
                                                     {"1"               ,"1"           },//最大长度设定,不校验最大长度用0
                                                     {"1"               ,"1"           },//最小长度设定,可以为空用0
-                                                    {"14"              ,"15"          }//前台显示列号，从0开始计算,注意有选择框的是0
+                                                    {"14"              ,"15"          } //前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 //需要判断时间区间先后关系的字段
                 string[,] strDateRegion = null;
@@ -520,6 +525,16 @@ namespace SPPSApi.Controllers.G99
                          { "执行标准区分"    ,"vcZXBZDiff","CCC"       ,"CCC","执行标准NO"         ,"vcZXBZNo"          ,"1",                      "","" }
                         ,{ "对应可否确认结果","vcIsDYJG"  ,"不可对应"  ,"2"  ,"对应不可理由"       ,"vcNotDY"           ,"1",                      "","" }
                         };
+
+                List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS9905");
+                if (checkRes != null)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = checkRes;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -577,38 +592,6 @@ namespace SPPSApi.Controllers.G99
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "生确回复失败！生产商名称和生产商地址必须填写";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
-
-                List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS9905");
-                if (checkRes != null)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = checkRes;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                #endregion
-
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    if (listInfoData[i]["vcJD"].ToString() == "2")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "已回复的生确单不可重复回复";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-
-                    string strChange = listInfoData[i]["vcChange"] == null ? "" : listInfoData[i]["vcChange"].ToString();
-                    string strSCPlace_City = listInfoData[i]["vcSCPlace_City"] == null ? "" : listInfoData[i]["vcSCPlace_City"].ToString();
-                    string strSCPlace_Province = listInfoData[i]["vcSCPlace_Province"] == null ? "" : listInfoData[i]["vcSCPlace_Province"].ToString();
-                    string strCHPlace_City = listInfoData[i]["vcCHPlace_City"] == null ? "" : listInfoData[i]["vcCHPlace_City"].ToString();
-                    string strCHPlace_Province = listInfoData[i]["vcCHPlace_Province"] == null ? "" : listInfoData[i]["vcCHPlace_Province"].ToString();
-                    if ((strChange == "1" || strChange == "2" || strChange == "3" || strChange == "4") && (string.IsNullOrEmpty(strSCPlace_City) || string.IsNullOrEmpty(strCHPlace_City)))
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "生确回复时，变更事项为新车新设、设变新设、打切旧型、设变旧型时，生产地与出荷地不能为空！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

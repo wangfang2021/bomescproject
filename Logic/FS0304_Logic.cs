@@ -32,6 +32,14 @@ namespace Logic
         }
         #endregion
 
+        #region 织入原单位前校验品番在原单位表中是否存在
+        //getPartidExistsInUnit
+        public DataTable getPartidExistsInUnit(List<Dictionary<string, Object>> listInfoData,string strUserId,ref string strErr)
+        {
+            return fs0304_DataAccess.getPartidExistsInUnit(listInfoData, strUserId, ref strErr);
+        }
+        #endregion
+
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {

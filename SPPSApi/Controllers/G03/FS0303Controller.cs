@@ -554,7 +554,7 @@ namespace SPPSApi.Controllers.G03
                                     ,"vcPartNameEn","vcPartNameCn","vcHKGC","vcBJGC","vcInOutflag_Name"
                                     ,"vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace"
                                     ,"vcSYTCode_Name","vcSCSName","vcSCSAdress","dGYSTimeFromStr","dGYSTimeToStr"
-                                    ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBeginStr","dJiuEndStr","vcJiuYear"
+                                    ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBeginStr","dJiuEndStr","vcJiuYearSearch"
                                     ,"vcNXQF","dSSDateStr","vcMeno","vcFXDiff_Name","vcFXNo"
                                     ,"vcZXBZNo","vcReceiver_Name","vcOriginCompany_Name","vcRemark"
                                     ,"vcNum1","vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8"
@@ -704,6 +704,10 @@ namespace SPPSApi.Controllers.G03
                 System.Data.DataTable dt = new System.Data.DataTable();
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("   select vcName from TCode where vcCodeId='" + strCodeId + "'     \n");
+                if (strCodeId == "C002")//变更事项有排序规定，还有类似的在这加or
+                    strSql.Append("     order by cast(vcMeaning as int) asc     \n");
+                else
+                    strSql.Append("     ORDER BY iAutoId    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
             catch (Exception ex)

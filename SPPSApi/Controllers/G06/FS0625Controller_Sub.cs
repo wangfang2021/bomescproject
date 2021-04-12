@@ -206,6 +206,16 @@ namespace SPPSApi.Controllers.G06
                     dr["vcMemo"] = listInfoData[i]["vcMemo"] == null ? "" : listInfoData[i]["vcMemo"].ToString();
                     dt.Rows.Add(dr);
                 }
+
+                string[] columnArrayP = { "vcCarType" };
+                DataView dtSelectViewP = dt.DefaultView;
+                DataTable dtSelectP = dtSelectViewP.ToTable(true, columnArrayP);//去重后的dt 
+                if (dtSelectP.Rows.Count>1)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "号试数据车型必须唯一！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 #endregion
                 //Console.WriteLine("FS0625 Data获取成功");
                 string[] columnArray = { "vcSupplier_id", "vcSupplier_name" };
@@ -1410,9 +1420,9 @@ namespace SPPSApi.Controllers.G06
                     //Console.WriteLine(vcSupplier_id + "第二个附件结束");
                     //Console.WriteLine(vcSupplier_id + "第三个附件开始");
                     #region 第三个附件
-                    string[] columnArray3 = { "vcCarType" };
-                    DataView dtSelectView3 = dtNewSupplierandWorkArea.DefaultView;
-                    DataTable dtSelect3 = dtSelectView3.ToTable(true, columnArray3);//去重后的dt 
+                    //string[] columnArray3 = { "vcCarType" };
+                    //DataView dtSelectView3 = dtNewSupplierandWorkArea.DefaultView;
+                    //DataTable dtSelect3 = dtSelectView3.ToTable(true, columnArray3);//去重后的dt 
                     XSSFWorkbook hsorderworkbook = null;
 
                     string XltHSOrderPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + "FS0625_HSOrder.xlsx";
@@ -1422,16 +1432,17 @@ namespace SPPSApi.Controllers.G06
                         fs.Close();
                     }
 
-                    ISheet sheetTemp = hsorderworkbook.GetSheet("template");
+                    //ISheet sheetTemp = hsorderworkbook.GetSheet("template");
 
                     IWorkbook dest = hsorderworkbook;
-                    for (int m = 0; m < dtSelect3.Rows.Count; m++)
-                    {
-                        string strCarType = dtSelect3.Rows[m]["vcCarType"].ToString();
-                        //ISheet creatSheet= hsorderworkbook.CreateSheet(strCarType);
-                        sheetTemp.CopyTo(dest, strCarType, true, true);
-                        //sheetTemp.CopySheet("sssd", true);
-                    }
+                    string strCarType = dtSelectP.Rows[0]["vcCarType"].ToString();
+                    //for (int m = 0; m < dtSelect3.Rows.Count; m++)
+                    //{
+                    //    string strCarType = dtSelect3.Rows[m]["vcCarType"].ToString();
+                    //    //ISheet creatSheet= hsorderworkbook.CreateSheet(strCarType);
+                    //    sheetTemp.CopyTo(dest, strCarType, true, true);
+                    //    //sheetTemp.CopySheet("sssd", true);
+                    //}
                     int startRowIndex = 7;
 
                     //sheet.GetRow(1).GetCell(27).SetCellValue(DateTime.Now.ToString("yyyy/MM/dd"));
@@ -1481,16 +1492,16 @@ namespace SPPSApi.Controllers.G06
                     hsOrderstyle4.VerticalAlignment = VerticalAlignment.Center;
 
                     #endregion
-                    for (int m = 0; m < dtSelect3.Rows.Count; m++)
-                    {
-                        string strCarType = dtSelect3.Rows[m]["vcCarType"].ToString();
+                    //for (int m = 0; m < dtSelect3.Rows.Count; m++)
+                    //{
+                        //string strCarType = dtSelect3.Rows[m]["vcCarType"].ToString();
                         DataRow[] drArrayCarType = dtNewSupplierandWorkArea.Select("vcCarType='" + strCarType + "' ");
                         DataTable dtNewCarType = drArrayCarType[0].Table.Clone(); // 复制DataRow的表结构
                         foreach (DataRow dr in drArrayCarType)
                         {
                             dtNewCarType.ImportRow(dr);
                         }
-                        ISheet sheetOrder = hsorderworkbook.GetSheet(strCarType);
+                        ISheet sheetOrder = hsorderworkbook.GetSheet("template");
                         sheetOrder.GetRow(1).GetCell(0).SetCellValue("厂家编码:" + vcSupplier_id);//厂家名称vcSupplier_name
                         sheetOrder.GetRow(1).GetCell(0).CellStyle = hsOrderstyle1;
                         sheetOrder.GetRow(1).GetCell(3).SetCellValue("一汽丰田" + strCarType + "补给品号试订单");//一汽丰田84* B补给品号试订单
@@ -1546,20 +1557,20 @@ namespace SPPSApi.Controllers.G06
                             row.GetCell(7).SetCellValue(strNaruRi);
                             row.GetCell(8).SetCellValue(strChuHeRi);
                         }
-                        IDrawing drawing = (XSSFDrawing)sheetOrder.CreateDrawingPatriarch();
-                        string pubiPath = "." + Path.DirectorySeparatorChar + "Images" + Path.DirectorySeparatorChar + "FS0625bujipin.png";
-                        byte[] buff = System.IO.File.ReadAllBytes(pubiPath);
-                        int pic = hsorderworkbook.AddPicture(buff, XSSFWorkbook.PICTURE_TYPE_PNG);
-                        XSSFClientAnchor anchor = new XSSFClientAnchor(1000000, 0, 0, 0, 8, 3, 9, 5);
-                        drawing.CreatePicture(anchor, pic);
+                        IDrawing drawingOrder = (XSSFDrawing)sheetOrder.CreateDrawingPatriarch();
+                        string pubiPathOrder = "." + Path.DirectorySeparatorChar + "Images" + Path.DirectorySeparatorChar + "FS0625bujipin.png";
+                        byte[] buffOrder = System.IO.File.ReadAllBytes(pubiPathOrder);
+                        int picOrder = hsorderworkbook.AddPicture(buffOrder, XSSFWorkbook.PICTURE_TYPE_PNG);
+                        XSSFClientAnchor anchorOrder = new XSSFClientAnchor(1000000, 0, 0, 0, 8, 3, 9, 5);
+                        drawingOrder.CreatePicture(anchorOrder, picOrder);
 
                         int firstRowHSOrderArea = 0;
                         int lastRowHSorderArea = dtNewCarType.Rows.Count + 14;
-                        int IndexSheet = hsorderworkbook.GetSheetIndex(strCarType);
-                        hsorderworkbook.SetPrintArea(IndexSheet, 0, 9, firstRowHSOrderArea, lastRowHSorderArea);
-                    }
-                    hsorderworkbook.RemoveSheetAt(0);
-
+                        //int IndexSheet = hsorderworkbook.GetSheetIndex(strCarType);
+                        hsorderworkbook.SetPrintArea(0, 0, 8, firstRowHSOrderArea, lastRowHSorderArea);
+                    //}
+                    // hsorderworkbook.RemoveSheetAt(0);
+                    hsorderworkbook.SetSheetName(0, strCarType);
                     string strOrderFunctionName = "FS0625_号试品订单_" + vcSupplier_id;
 
                     string strOrderFileName = strOrderFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";

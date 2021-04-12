@@ -99,10 +99,12 @@ namespace SPPSApi.Controllers.G08
             string vcBoxNo = dataForm.vcBoxNo;
             string dStart = dataForm.dStart;
             string dEnd = dataForm.dEnd;
+            string vcLabelNo = dataForm.vcLabelNo;
+            string vcStatus = dataForm.vcStatus;
 
             try
             {
-                DataTable dt = fs0806_Logic.Search(vcZYType, vcBZPlant, vcInputNo, vcKBOrderNo, vcKBLFNo, vcSellNo, vcPart_id, vcBoxNo, dStart, dEnd);
+                DataTable dt = fs0806_Logic.Search(vcZYType, vcBZPlant, vcInputNo, vcKBOrderNo, vcKBLFNo, vcSellNo, vcPart_id, vcBoxNo, dStart, dEnd, vcLabelNo,vcStatus);
 
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -150,10 +152,12 @@ namespace SPPSApi.Controllers.G08
             string vcBoxNo = dataForm.vcBoxNo;
             string dStart = dataForm.dStart;
             string dEnd = dataForm.dEnd;
+            string vcLabelNo = dataForm.vcLabelNo;
+            string vcStatus = dataForm.vcStatus;
 
             try
             {
-                DataTable dt = fs0806_Logic.Search(vcZYType, vcBZPlant, vcInputNo, vcKBOrderNo, vcKBLFNo, vcSellNo, vcPart_id, vcBoxNo, dStart, dEnd);
+                DataTable dt = fs0806_Logic.Search(vcZYType, vcBZPlant, vcInputNo, vcKBOrderNo, vcKBLFNo, vcSellNo, vcPart_id, vcBoxNo, dStart, dEnd, vcLabelNo,vcStatus);
                 string[] heads = { "作业类型区分","包装场","入库单号","看板订单号","看板连番","品番","内外区分","供应商","供应商工区","开始时间","结束时间",
                     "数量","包装单位","收货方","受入","箱号","设备编号","检查区分","检查个数","检查状态","员工编号","员工姓名","标签ID起","标签ID止","解锁员",
                     "解锁时间","销售单号"
@@ -246,6 +250,31 @@ namespace SPPSApi.Controllers.G08
                     }
                     #endregion
                 }
+                //校验 数量>0、数量<上一层数量
+                for (int i = 0; i < listInfo.Count; i++)
+                {
+                    int iQuantity_input = Convert.ToInt32(listInfo[i]["iQuantity"].ToString());
+                    string vcPart_id = listInfo[i]["vcPart_id"].ToString();
+                    string vcKBOrderNo = listInfo[i]["vcKBOrderNo"].ToString();
+                    string vcKBLFNo = listInfo[i]["vcKBLFNo"].ToString();
+                    string vcSR = listInfo[i]["vcSR"].ToString();
+                    string vcZYType = listInfo[i]["vcZYType"].ToString();
+                    //校验 数量> 0
+                    if (iQuantity_input == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "数量不能为0！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    //校验 录入数量<上一层数量
+                    if (fs0806_Logic.isQuantityOK(vcPart_id, vcKBOrderNo, vcKBLFNo, vcSR, vcZYType, iQuantity_input) == false)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "不能大于上一层数量！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
                 fs0806_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
@@ -296,6 +325,48 @@ namespace SPPSApi.Controllers.G08
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0705", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 子画面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string initSubApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcPart_id = dataForm.vcPart_id;
+            string vcKBOrderNo = dataForm.vcKBOrderNo;
+            string vcKBLFNo = dataForm.vcKBLFNo;
+            string vcSR = dataForm.vcSR;
+
+            try
+            {
+                DataTable dt = fs0806_Logic.initSubApi(vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR);
+
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "子页面初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

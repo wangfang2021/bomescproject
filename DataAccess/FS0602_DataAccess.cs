@@ -1092,6 +1092,7 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("      ,[vcOpenUser] = '" + strOperId + "',vcSReplyUser=null,dSReplyTime=null");
                 strSql_modinfo.AppendLine(" WHERE [vcYearMonth] = @vcYearMonth");
                 strSql_modinfo.AppendLine(" AND [vcPart_id] = @vcPart_id and vcDyState in ('0','2','3') and vcHyState in ('0','3') ");
+                //strSql_modinfo.AppendLine(" AND [vcPart_id] = @vcPart_id and vcDyState in ('0','2','3') and vcHyState in ('0','3') ");
                 strSql_modinfo.AppendLine(" INSERT INTO [dbo].[TSoq_OperHistory]([vcYearMonth],[vcPart_id],[iTzhSOQN],[iTzhSOQN1],[iTzhSOQN2],[vcInputType],[vcOperator],[dOperatorTime])");
                 strSql_modinfo.AppendLine(" select [vcYearMonth],[vcPart_id],[iTzhSOQN],[iTzhSOQN1],[iTzhSOQN2],'supplier' as [vcInputType],'" + strOperId + "' as [vcOperator],GETDATE() as [dOperatorTime] ");
                 strSql_modinfo.AppendLine(" from TSoq_temp where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id and vcHyState in ('0','3') and vcDyState in ('0','2','3') AND vcOperator='" + strOperId + "' ");
@@ -1146,6 +1147,42 @@ namespace DataAccess
             SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
             try
             {
+                #region 主数据更新
+                SqlCommand sqlCommand_maiinfo = sqlConnection.CreateCommand();
+                sqlCommand_maiinfo.Transaction = sqlTransaction;
+                sqlCommand_maiinfo.CommandType = CommandType.Text;
+                StringBuilder strSql_maiinfo = new StringBuilder();
+                strSql_maiinfo.AppendLine("update T1 SET");
+                strSql_maiinfo.AppendLine("	 T1.[vcHyState]=@vcHyState");
+                strSql_maiinfo.AppendLine("	 ,T1.vcDyState=(case when (ISNULL(T2.iTzhSOQN,0)<>ISNULL(T1.iCbSOQN,0) or ");
+                strSql_maiinfo.AppendLine("	 						   ISNULL(T2.iTzhSOQN1,0)<>ISNULL(T1.iCbSOQN1,0) or");
+                strSql_maiinfo.AppendLine("	 						   ISNULL(T2.iTzhSOQN2,0)<>ISNULL(T1.iCbSOQN2,0))");
+                strSql_maiinfo.AppendLine("	 	   then '2' else '3' end)");
+                strSql_maiinfo.AppendLine("	,T1.iTzhSOQN=ISNULL(T2.iTzhSOQN,0)");
+                strSql_maiinfo.AppendLine("	,T1.iTzhSOQN1=ISNULL(T2.iTzhSOQN1,0)");
+                strSql_maiinfo.AppendLine("	,T1.iTzhSOQN2=ISNULL(T2.iTzhSOQN2,0)");
+                strSql_maiinfo.AppendLine("	,T1.dReplyTime=GETDATE()");
+                strSql_maiinfo.AppendLine("	,T1.vcReplyUser='" + strOperId + "' from ");
+                strSql_maiinfo.AppendLine("(select * from TSoq ");
+                strSql_maiinfo.AppendLine("where 1=1 and vcDyState in ('0','1','2','3') and vcHyState in ('0','3') ");
+                strSql_maiinfo.AppendLine("and vcYearMonth=@vcYearMonth )T1");
+                strSql_maiinfo.AppendLine("LEFT JOIN");
+                strSql_maiinfo.AppendLine("(SELECT * from TSoq_temp");
+                strSql_maiinfo.AppendLine("where vcYearMonth=@vcYearMonth  and vcDyState in ('0','1','2','3') and vcHyState in ('0','3') AND vcOperator='" + strOperId + "')T2");
+                strSql_maiinfo.AppendLine("ON T1.vcYearMonth=T2.vcYearMonth AND T1.vcPart_id=T2.vcPart_id ");
+                strSql_maiinfo.AppendLine("where T2.vcPart_id is not null");
+                strSql_maiinfo.AppendLine("INSERT INTO [dbo].[TSoq_OperHistory]([vcYearMonth],[vcPart_id],[iTzhSOQN],[iTzhSOQN1],[iTzhSOQN2],[vcInputType],[vcOperator],[dOperatorTime])");
+                strSql_maiinfo.AppendLine("select [vcYearMonth],[vcPart_id],iTzhSOQN,iTzhSOQN1,iTzhSOQN2,'company' as [vcInputType],'" + strOperId + "' as [vcOperator],GETDATE() as [dOperatorTime] ");
+                strSql_maiinfo.AppendLine("from TSoq_temp where vcYearMonth=@vcYearMonth and vcDyState in ('0','1','2','3') and vcHyState in ('0','3') AND vcOperator='" + strOperId + "' ");
+                sqlCommand_maiinfo.CommandText = strSql_maiinfo.ToString();
+                sqlCommand_maiinfo.Parameters.AddWithValue("@vcHyState", "");
+                sqlCommand_maiinfo.Parameters.AddWithValue("@vcYearMonth", "");
+                sqlCommand_maiinfo.Parameters["@vcHyState"].Value = strHyState;
+                sqlCommand_maiinfo.Parameters["@vcYearMonth"].Value = dtImport.Rows[0]["vcYearMonth"].ToString();
+                sqlCommand_maiinfo.ExecuteNonQuery();
+                #endregion
+
+                #region 他妈的数据更新
                 SqlCommand sqlCommand_modinfo = sqlConnection.CreateCommand();
                 sqlCommand_modinfo.Transaction = sqlTransaction;
                 sqlCommand_modinfo.CommandType = CommandType.Text;
@@ -1162,26 +1199,31 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("	,T1.dReplyTime=GETDATE()");
                 strSql_modinfo.AppendLine("	,T1.vcReplyUser='" + strOperId + "' from ");
                 strSql_modinfo.AppendLine("(select * from TSoq ");
-                strSql_modinfo.AppendLine("where 1=1 and vcDyState in ('0','1','2','3') and vcHyState in ('0','3') ");
+                strSql_modinfo.AppendLine("where 1=1 and vcDyState in ('0','1','2','3') and vcHyState in ('0','3','1') ");
                 strSql_modinfo.AppendLine("and vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id )T1");
                 strSql_modinfo.AppendLine("LEFT JOIN");
                 strSql_modinfo.AppendLine("(SELECT * from TSoq_temp");
-                strSql_modinfo.AppendLine("where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id and vcDyState in ('0','1','2','3') and vcHyState in ('0','3') AND vcOperator='" + strOperId + "')T2");
+                strSql_modinfo.AppendLine("where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id and vcDyState in ('0','1','2','3') and vcHyState in ('0','3','1') AND vcOperator='" + strOperId + "')T2");
                 strSql_modinfo.AppendLine("ON T1.vcYearMonth=T2.vcYearMonth AND T1.vcPart_id=T2.vcPart_id ");
-                strSql_modinfo.AppendLine("INSERT INTO [dbo].[TSoq_OperHistory]([vcYearMonth],[vcPart_id],[iTzhSOQN],[iTzhSOQN1],[iTzhSOQN2],[vcInputType],[vcOperator],[dOperatorTime])");
-                strSql_modinfo.AppendLine("select [vcYearMonth],[vcPart_id],iTzhSOQN,iTzhSOQN1,iTzhSOQN2,'company' as [vcInputType],'" + strOperId + "' as [vcOperator],GETDATE() as [dOperatorTime] ");
-                strSql_modinfo.AppendLine("from TSoq_temp where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id and vcDyState in ('0','1','2','3') and vcHyState in ('0','3') AND vcOperator='" + strOperId + "' ");
+                //strSql_modinfo.AppendLine("INSERT INTO [dbo].[TSoq_OperHistory]([vcYearMonth],[vcPart_id],[iTzhSOQN],[iTzhSOQN1],[iTzhSOQN2],[vcInputType],[vcOperator],[dOperatorTime])");
+                //strSql_modinfo.AppendLine("select [vcYearMonth],[vcPart_id],iTzhSOQN,iTzhSOQN1,iTzhSOQN2,'company' as [vcInputType],'" + strOperId + "' as [vcOperator],GETDATE() as [dOperatorTime] ");
+                //strSql_modinfo.AppendLine("from TSoq_temp where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id and vcDyState in ('0','1','2','3') and vcHyState in ('0','3') AND vcOperator='" + strOperId + "' ");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcYearMonth", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcPart_id", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcHy4", "");
                 foreach (DataRow item in dtImport.Rows)
                 {
-                    sqlCommand_modinfo.Parameters["@vcYearMonth"].Value = item["vcYearMonth"].ToString();
-                    sqlCommand_modinfo.Parameters["@vcPart_id"].Value = item["vcPart_id"].ToString();
-                    sqlCommand_modinfo.Parameters["@vcHy4"].Value = item["vcHy4"].ToString();
-                    sqlCommand_modinfo.ExecuteNonQuery();
+                    if (item["vcHy4"].ToString() != "")
+                    {
+                        sqlCommand_modinfo.Parameters["@vcYearMonth"].Value = item["vcYearMonth"].ToString();
+                        sqlCommand_modinfo.Parameters["@vcPart_id"].Value = item["vcPart_id"].ToString();
+                        sqlCommand_modinfo.Parameters["@vcHy4"].Value = item["vcHy4"].ToString();
+                        sqlCommand_modinfo.ExecuteNonQuery();
+                    }
                 }
+                #endregion
+
                 //提交事务
                 sqlTransaction.Commit();
                 sqlConnection.Close();

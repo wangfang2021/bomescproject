@@ -110,7 +110,7 @@ namespace Common
         /// <param name="strFunctionID">function ID</param>
         /// <param name="oMB">Message body</param>
         /// <param name="strUserID">User ID</param>
-        protected static void WriteInDB(string strFunctionID, string strType, string strMsg,string strExMsg,string strExTrace, string strUserID)
+        public static void WriteInDB(string strFunctionID, string strType, string strMsg,string strExMsg,string strExTrace, string strUserID)
         {
             try
             {

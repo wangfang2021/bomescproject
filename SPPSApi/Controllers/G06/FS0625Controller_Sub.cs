@@ -206,6 +206,16 @@ namespace SPPSApi.Controllers.G06
                     dr["vcMemo"] = listInfoData[i]["vcMemo"] == null ? "" : listInfoData[i]["vcMemo"].ToString();
                     dt.Rows.Add(dr);
                 }
+
+                string[] columnArrayP = { "vcCarType" };
+                DataView dtSelectViewP = dt.DefaultView;
+                DataTable dtSelectP = dtSelectViewP.ToTable(true, columnArrayP);//去重后的dt 
+                if (dtSelectP.Rows.Count>1)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "号试数据车型必须唯一！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 #endregion
                 //Console.WriteLine("FS0625 Data获取成功");
                 string[] columnArray = { "vcSupplier_id", "vcSupplier_name" };
@@ -446,14 +456,14 @@ namespace SPPSApi.Controllers.G06
                     style5.BorderLeft = BorderStyle.Medium;
                     style5.BorderTop = BorderStyle.Dotted;
 
-                    IFont font6 = hssfworkbook.CreateFont();
-                    font6.Color = IndexedColors.Black.Index;
-                    font6.IsBold = true; ;
-                    font6.FontHeightInPoints = 14;
+                    //IFont font6 = hssfworkbook.CreateFont();
+                    //font6.Color = IndexedColors.Black.Index;
+                    //font6.IsBold = true; ;
+                    //font6.FontHeightInPoints = 14;
                     //font6.FontName = "宋体";
                     //style6.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.LightTurquoise.Index;
                     //style6.FillPattern = FillPattern.SolidForeground;
-                    style6.SetFont(font6);
+                    style6.SetFont(font4);
                     style6.Alignment = HorizontalAlignment.Center;
                     style6.VerticalAlignment = VerticalAlignment.Center;
                     style6.BorderLeft = BorderStyle.Thin;
@@ -493,11 +503,11 @@ namespace SPPSApi.Controllers.G06
 
                     //style6.BorderBottom = BorderStyle.Medium;
 
-                    IFont font8 = hssfworkbook.CreateFont();
+                    /*IFont font8 = hssfworkbook.CreateFont();
                     font8.Color = IndexedColors.Black.Index;
                     font8.IsBold = true; ;
-                    font8.FontHeightInPoints = 14;
-                    style8.SetFont(font8);
+                    font8.FontHeightInPoints = 14;*/
+                    style8.SetFont(font4);
                     //style8.Alignment = HorizontalAlignment.Right;
                     //style8.VerticalAlignment = VerticalAlignment.Center;
                     //style8.BorderLeft = BorderStyle.Thin;
@@ -508,11 +518,11 @@ namespace SPPSApi.Controllers.G06
                     //style6.BorderRight = BorderStyle.Thin;
                     style8.BorderTop = BorderStyle.Dotted;
 
-                    IFont font9 = hssfworkbook.CreateFont();
+                    /*IFont font9 = hssfworkbook.CreateFont();
                     font9.Color = IndexedColors.Black.Index;
                     font9.IsBold = true; ;
-                    font9.FontHeightInPoints = 14;
-                    style9.SetFont(font9);
+                    font9.FontHeightInPoints = 14;*/
+                    style9.SetFont(font);
                     style9.Alignment = HorizontalAlignment.Center;
                     style9.VerticalAlignment = VerticalAlignment.Center;
                     style9.BorderLeft = BorderStyle.Thin;
@@ -530,22 +540,22 @@ namespace SPPSApi.Controllers.G06
                     style91.BorderLeft = BorderStyle.Thin;
                     style91.BorderTop = BorderStyle.Dotted;
 
-                    IFont font10 = hssfworkbook.CreateFont();
+                    /*IFont font10 = hssfworkbook.CreateFont();
                     font10.Color = IndexedColors.Black.Index;
                     font10.IsBold = true; ;
-                    font10.FontHeightInPoints = 14;
-                    style10.SetFont(font10);
+                    font10.FontHeightInPoints = 14;*/
+                    style10.SetFont(font);
                     style10.Alignment = HorizontalAlignment.Center;
                     style10.VerticalAlignment = VerticalAlignment.Center;
                     style10.BorderLeft = BorderStyle.Medium;
                     style10.BorderTop = BorderStyle.Thin;
 
-                    IFont font111 = hssfworkbook.CreateFont();
+                  /*  IFont font111 = hssfworkbook.CreateFont();
                     font111.Color = IndexedColors.Black.Index;
                     font111.IsBold = false; ;
-                    font111.FontHeightInPoints = 16;
+                    font111.FontHeightInPoints = 16;*/
                     //font.FontName = "宋体";
-                    style111.SetFont(font111);
+                    style111.SetFont(font91);
                     style111.Alignment = HorizontalAlignment.Left;
                     style111.VerticalAlignment = VerticalAlignment.Center;
                     //style111.BorderLeft = BorderStyle.Thin;
@@ -553,12 +563,12 @@ namespace SPPSApi.Controllers.G06
                     style111.BorderTop = BorderStyle.Thin;
                     //style111.BorderDiagonal = BorderDiagonal.Both;
 
-                    IFont font112 = hssfworkbook.CreateFont();
-                    font112.Color = IndexedColors.Black.Index;
-                    font112.IsBold = true; ;
-                    font112.FontHeightInPoints = 14;
+                    //IFont font112 = hssfworkbook.CreateFont();
+                    //font112.Color = IndexedColors.Black.Index;
+                    //font112.IsBold = true; ;
+                    //font112.FontHeightInPoints = 14;
                     //font.FontName = "宋体";
-                    style112.SetFont(font112);
+                    style112.SetFont(font);
                     style112.Alignment = HorizontalAlignment.Center;
                     style112.VerticalAlignment = VerticalAlignment.Center;
                     style112.BorderLeft = BorderStyle.Thin;
@@ -597,14 +607,14 @@ namespace SPPSApi.Controllers.G06
                     style12.BorderRight = BorderStyle.Medium;
                     style12.BorderTop = BorderStyle.Thin;
 
-                    IFont font13 = hssfworkbook.CreateFont();
+                   /* IFont font13 = hssfworkbook.CreateFont();
                     font13.Color = IndexedColors.Black.Index;
                     font13.IsBold = false; ;
-                    font13.FontHeightInPoints = 14;
+                    font13.FontHeightInPoints = 14;*/
                     //font.FontName = "宋体";
                     //style13.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Grey25Percent.Index;//灰色
                     //style13.FillPattern = FillPattern.SolidForeground;
-                    style13.SetFont(font13);
+                    style13.SetFont(font4);
                     style13.Alignment = HorizontalAlignment.Center;
                     style13.VerticalAlignment = VerticalAlignment.Center;
                     style13.BorderLeft = BorderStyle.Medium;
@@ -644,14 +654,14 @@ namespace SPPSApi.Controllers.G06
                     style22.BorderBottom = BorderStyle.Medium;
 
 
-                    IFont font20 = hssfworkbook.CreateFont();
+                    /*IFont font20 = hssfworkbook.CreateFont();
                     font20.Color = IndexedColors.Black.Index;
                     font20.IsBold = false; ;
-                    font20.FontHeightInPoints = 16;
+                    font20.FontHeightInPoints = 16;*/
                     //font.FontName = "宋体";
                     //style13.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Grey25Percent.Index;//灰色
                     //style13.FillPattern = FillPattern.SolidForeground;
-                    style20.SetFont(font20);
+                    style20.SetFont(font91);
                     style20.Alignment = HorizontalAlignment.Center;
                     style20.VerticalAlignment = VerticalAlignment.Center;
                     //style20.BorderLeft = BorderStyle.Thin;
@@ -671,24 +681,24 @@ namespace SPPSApi.Controllers.G06
                     style24.Alignment = HorizontalAlignment.Left;
                     style24.VerticalAlignment = VerticalAlignment.Center;
 
-                    IFont font25 = hssfworkbook.CreateFont();
+                   /* IFont font25 = hssfworkbook.CreateFont();
                     font25.Color = IndexedColors.Black.Index;
                     font25.IsBold = false; ;
-                    font25.FontHeightInPoints = 11;
+                    font25.FontHeightInPoints = 11;*/
                     //font.FontName = "宋体";
-                    style25.SetFont(font25);
+                    style25.SetFont(font24);
                     style25.Alignment = HorizontalAlignment.Right;
                     style25.VerticalAlignment = VerticalAlignment.Center;
 
                     style26.BorderBottom = BorderStyle.MediumDashed;
 
 
-                    IFont font27 = hssfworkbook.CreateFont();
+                   /* IFont font27 = hssfworkbook.CreateFont();
                     font27.Color = IndexedColors.Black.Index;
                     font27.IsBold = true; ;
-                    font27.FontHeightInPoints = 16;
+                    font27.FontHeightInPoints = 16;*/
                     //font.FontName = "宋体";
-                    style27.SetFont(font27);
+                    style27.SetFont(font2);
                     style27.Alignment = HorizontalAlignment.Center;
                     style27.VerticalAlignment = VerticalAlignment.Center;
                     style27.BorderLeft = BorderStyle.Thin;
@@ -698,12 +708,12 @@ namespace SPPSApi.Controllers.G06
                     style28.BorderRight = BorderStyle.Medium;
                     style28.BorderTop = BorderStyle.Dotted;
 
-                    IFont font29 = hssfworkbook.CreateFont();
-                    font29.Color = IndexedColors.Black.Index;
-                    font29.IsBold = true; ;
-                    font29.FontHeightInPoints = 14;
+                    //IFont font29 = hssfworkbook.CreateFont();
+                    //font29.Color = IndexedColors.Black.Index;
+                    //font29.IsBold = true; ;
+                    //font29.FontHeightInPoints = 14;
                     //font.FontName = "宋体";
-                    style29.SetFont(font29);
+                    style29.SetFont(font);
                     style29.Alignment = HorizontalAlignment.Center;
                     style29.VerticalAlignment = VerticalAlignment.Center;
                     style29.BorderLeft = BorderStyle.Thin;
@@ -729,11 +739,13 @@ namespace SPPSApi.Controllers.G06
                     #endregion
                     //填写数据
                     int nextRow = 0;
+                    int numLeiji = 0;
                     for (int irow = 0; irow < dtNewSupplierandWorkArea.Rows.Count; irow++)
                     {
                         int haoShiNum = int.Parse(dtNewSupplierandWorkArea.Rows[i]["vcNumber"].ToString());
                         for (int k = 1; k <= haoShiNum; k++)
                         {
+                            numLeiji++;
                             #region 模板第一行
                             mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 2, 5));
                             mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 7, 8));
@@ -907,7 +919,7 @@ namespace SPPSApi.Controllers.G06
                             mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 4));
                             mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 6, 8));
                             IRow next8RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                            next8RowHSSFCol.Height = 39 * 20;
+                            next8RowHSSFCol.Height = 40 * 20;
                             next8RowHSSFCol.CreateCell(1).SetCellValue("注：每一箱都要贴此标签,且装箱内容要和此标签一致");
                             next8RowHSSFCol.GetCell(1).CellStyle = style24;
                             next8RowHSSFCol.CreateCell(2).SetCellValue("");
@@ -923,7 +935,7 @@ namespace SPPSApi.Controllers.G06
                             #region 分割线
                             mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 1, 8));
                             IRow next9RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                            next8RowHSSFCol.Height = 40 * 20;
+                            next9RowHSSFCol.Height = 20 * 20;
                             next9RowHSSFCol.CreateCell(1).SetCellValue("");
                             next9RowHSSFCol.GetCell(1).CellStyle = style26;
                             next9RowHSSFCol.CreateCell(2).SetCellValue("");
@@ -941,7 +953,31 @@ namespace SPPSApi.Controllers.G06
                             next9RowHSSFCol.CreateCell(8).SetCellValue("");
                             next9RowHSSFCol.GetCell(8).CellStyle = style26;
                             nextRow++;
+                            IRow next10RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                            next10RowHSSFCol.Height = 20 * 20;
+                            next10RowHSSFCol.CreateCell(1).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(2).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(3).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(4).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(5).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(6).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(7).SetCellValue("");
+                            next10RowHSSFCol.CreateCell(8).SetCellValue("");
                             nextRow++;
+                            if (numLeiji%3==0)
+                            {
+                                IRow next11RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
+                                next11RowHSSFCol.Height = 45 * 20;
+                                next11RowHSSFCol.CreateCell(1).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(2).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(3).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(4).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(5).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(6).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(7).SetCellValue("");
+                                next11RowHSSFCol.CreateCell(8).SetCellValue("");
+                                nextRow++;
+                            }
                             #endregion
 
                         }
@@ -960,7 +996,7 @@ namespace SPPSApi.Controllers.G06
                         lastRow += int.Parse(dtNewSupplierandWorkArea.Rows[i]["vcNumber"].ToString())*10;
                     }
                     //int lastRow = dtNewSupplierandWorkArea.Rows.Count * 10;
-                    hssfworkbook.SetPrintArea(0, 0, 8, firstRow, lastRow);
+                    hssfworkbook.SetPrintArea(0, 0, 8, firstRow, lastRow+2);
                     string rootPath = _webHostEnvironment.ContentRootPath;
                     string strFunctionName = "FS0625_号试看板标签_" + vcSupplier_id;
 
@@ -1410,9 +1446,9 @@ namespace SPPSApi.Controllers.G06
                     //Console.WriteLine(vcSupplier_id + "第二个附件结束");
                     //Console.WriteLine(vcSupplier_id + "第三个附件开始");
                     #region 第三个附件
-                    string[] columnArray3 = { "vcCarType" };
-                    DataView dtSelectView3 = dtNewSupplierandWorkArea.DefaultView;
-                    DataTable dtSelect3 = dtSelectView3.ToTable(true, columnArray3);//去重后的dt 
+                    //string[] columnArray3 = { "vcCarType" };
+                    //DataView dtSelectView3 = dtNewSupplierandWorkArea.DefaultView;
+                    //DataTable dtSelect3 = dtSelectView3.ToTable(true, columnArray3);//去重后的dt 
                     XSSFWorkbook hsorderworkbook = null;
 
                     string XltHSOrderPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + "FS0625_HSOrder.xlsx";
@@ -1422,16 +1458,17 @@ namespace SPPSApi.Controllers.G06
                         fs.Close();
                     }
 
-                    ISheet sheetTemp = hsorderworkbook.GetSheet("template");
+                    //ISheet sheetTemp = hsorderworkbook.GetSheet("template");
 
                     IWorkbook dest = hsorderworkbook;
-                    for (int m = 0; m < dtSelect3.Rows.Count; m++)
-                    {
-                        string strCarType = dtSelect3.Rows[m]["vcCarType"].ToString();
-                        //ISheet creatSheet= hsorderworkbook.CreateSheet(strCarType);
-                        sheetTemp.CopyTo(dest, strCarType, true, true);
-                        //sheetTemp.CopySheet("sssd", true);
-                    }
+                    string strCarType = dtSelectP.Rows[0]["vcCarType"].ToString();
+                    //for (int m = 0; m < dtSelect3.Rows.Count; m++)
+                    //{
+                    //    string strCarType = dtSelect3.Rows[m]["vcCarType"].ToString();
+                    //    //ISheet creatSheet= hsorderworkbook.CreateSheet(strCarType);
+                    //    sheetTemp.CopyTo(dest, strCarType, true, true);
+                    //    //sheetTemp.CopySheet("sssd", true);
+                    //}
                     int startRowIndex = 7;
 
                     //sheet.GetRow(1).GetCell(27).SetCellValue(DateTime.Now.ToString("yyyy/MM/dd"));
@@ -1481,16 +1518,16 @@ namespace SPPSApi.Controllers.G06
                     hsOrderstyle4.VerticalAlignment = VerticalAlignment.Center;
 
                     #endregion
-                    for (int m = 0; m < dtSelect3.Rows.Count; m++)
-                    {
-                        string strCarType = dtSelect3.Rows[m]["vcCarType"].ToString();
+                    //for (int m = 0; m < dtSelect3.Rows.Count; m++)
+                    //{
+                        //string strCarType = dtSelect3.Rows[m]["vcCarType"].ToString();
                         DataRow[] drArrayCarType = dtNewSupplierandWorkArea.Select("vcCarType='" + strCarType + "' ");
                         DataTable dtNewCarType = drArrayCarType[0].Table.Clone(); // 复制DataRow的表结构
                         foreach (DataRow dr in drArrayCarType)
                         {
                             dtNewCarType.ImportRow(dr);
                         }
-                        ISheet sheetOrder = hsorderworkbook.GetSheet(strCarType);
+                        ISheet sheetOrder = hsorderworkbook.GetSheet("template");
                         sheetOrder.GetRow(1).GetCell(0).SetCellValue("厂家编码:" + vcSupplier_id);//厂家名称vcSupplier_name
                         sheetOrder.GetRow(1).GetCell(0).CellStyle = hsOrderstyle1;
                         sheetOrder.GetRow(1).GetCell(3).SetCellValue("一汽丰田" + strCarType + "补给品号试订单");//一汽丰田84* B补给品号试订单
@@ -1546,20 +1583,20 @@ namespace SPPSApi.Controllers.G06
                             row.GetCell(7).SetCellValue(strNaruRi);
                             row.GetCell(8).SetCellValue(strChuHeRi);
                         }
-                        IDrawing drawing = (XSSFDrawing)sheetOrder.CreateDrawingPatriarch();
-                        string pubiPath = "." + Path.DirectorySeparatorChar + "Images" + Path.DirectorySeparatorChar + "FS0625bujipin.png";
-                        byte[] buff = System.IO.File.ReadAllBytes(pubiPath);
-                        int pic = hsorderworkbook.AddPicture(buff, XSSFWorkbook.PICTURE_TYPE_PNG);
-                        XSSFClientAnchor anchor = new XSSFClientAnchor(1000000, 0, 0, 0, 8, 3, 9, 5);
-                        drawing.CreatePicture(anchor, pic);
+                        IDrawing drawingOrder = (XSSFDrawing)sheetOrder.CreateDrawingPatriarch();
+                        string pubiPathOrder = "." + Path.DirectorySeparatorChar + "Images" + Path.DirectorySeparatorChar + "FS0625bujipin.png";
+                        byte[] buffOrder = System.IO.File.ReadAllBytes(pubiPathOrder);
+                        int picOrder = hsorderworkbook.AddPicture(buffOrder, XSSFWorkbook.PICTURE_TYPE_PNG);
+                        XSSFClientAnchor anchorOrder = new XSSFClientAnchor(1000000, 0, 0, 0, 8, 3, 9, 5);
+                        drawingOrder.CreatePicture(anchorOrder, picOrder);
 
                         int firstRowHSOrderArea = 0;
                         int lastRowHSorderArea = dtNewCarType.Rows.Count + 14;
-                        int IndexSheet = hsorderworkbook.GetSheetIndex(strCarType);
-                        hsorderworkbook.SetPrintArea(IndexSheet, 0, 9, firstRowHSOrderArea, lastRowHSorderArea);
-                    }
-                    hsorderworkbook.RemoveSheetAt(0);
-
+                        //int IndexSheet = hsorderworkbook.GetSheetIndex(strCarType);
+                        hsorderworkbook.SetPrintArea(0, 0, 8, firstRowHSOrderArea, lastRowHSorderArea);
+                    //}
+                    // hsorderworkbook.RemoveSheetAt(0);
+                    hsorderworkbook.SetSheetName(0, strCarType);
                     string strOrderFunctionName = "FS0625_号试品订单_" + vcSupplier_id;
 
                     string strOrderFileName = strOrderFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";

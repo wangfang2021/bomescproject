@@ -40,9 +40,9 @@ namespace Logic
         #endregion
 
         #region 保存
-        public void Save_NR(DataTable listInfoData, ref string strErrorPartId)
+        public void Save_NR(DataTable listInfoData, ref string strErrorPartId,string UserId)
         {
-           FS0710_DataAccess.Save_NR(listInfoData, ref strErrorPartId);
+           FS0710_DataAccess.Save_NR(listInfoData, ref strErrorPartId,UserId);
         }
         #endregion
 
@@ -81,9 +81,21 @@ namespace Logic
         {
             FS0710_DataAccess.Save_GS(listInfoData, strUserId, ref strErrorName);
         }
-
         #endregion
 
-   
+        #region 生成水晶报表数据
+        public void InsertCaystal(DataTable dt,string PackSpot,string strSupplierCode,string  dFrom,string dTo)
+        {
+            FS0710_DataAccess.Save_Caystal(dt, PackSpot, strSupplierCode, dFrom, dTo);
+        }
+        #endregion
+
+
+        #region 
+        public DataTable SearchNRCaystal(string strSupplierCode, string PackSpot)
+        {
+            return FS0710_DataAccess.SearchNRCaystal(strSupplierCode, PackSpot);
+        }
+        #endregion
     }
 }

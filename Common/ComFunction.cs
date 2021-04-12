@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Net.Mail;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -1813,6 +1814,134 @@ namespace Common
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// DMZ上传文件
+        /// </summary>
+        /// <param name="filepath">文件名绝对路径</param>
+        /// <param name="strFileName">文件名</param>
+        /// <param name="strToDir">Doc\\Export\\  或者其他</param>
+        /// <returns></returns>
+        public static bool HttpUploadFile( string filepath,string strFileName,string strToDir)
+        {
+            //        调用例子
+            //        ComFunction.HttpUploadFile(_webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar
+            //+ "Doc" + Path.DirectorySeparatorChar
+            //+ "Export" + Path.DirectorySeparatorChar
+            //+ "02.切替文件-0412.rar"
+            //, "02.切替文件-0412.rar"
+            //, "Doc\\Export\\");
+            try
+            {
+                string url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/uploadDMZApi";
+                // 设置参数
+                HttpWebRequest request = WebRequest.Create(url + "?name=" + strFileName + "&dir=" + strToDir) as HttpWebRequest;
+                CookieContainer cookieContainer = new CookieContainer();
+                request.CookieContainer = cookieContainer;
+                request.AllowAutoRedirect = true;
+                request.Method = "POST";
+                string boundary = DateTime.Now.Ticks.ToString("X"); // 随机分隔线
+                request.ContentType = "multipart/form-data;charset=utf-8;boundary=" + boundary;
+                byte[] itemBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "\r\n");
+                byte[] endBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n");
+                int pos = filepath.LastIndexOf("\\");
+                string fileName = filepath.Substring(pos + 1);
+
+                //请求头部信息
+                StringBuilder sbHeader = new StringBuilder(string.Format("Content-Disposition:form-data;name=\"file\";filename=\"{0}\"\r\nContent-Type:application/octet-stream\r\n\r\n", fileName));
+                byte[] postHeaderBytes = Encoding.UTF8.GetBytes(sbHeader.ToString());
+
+                FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read);
+                byte[] bArr = new byte[fs.Length];
+                fs.Read(bArr, 0, bArr.Length);
+                fs.Close();
+
+                Stream postStream = request.GetRequestStream();
+                postStream.Write(itemBoundaryBytes, 0, itemBoundaryBytes.Length);
+                postStream.Write(postHeaderBytes, 0, postHeaderBytes.Length);
+                postStream.Write(bArr, 0, bArr.Length);
+                postStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);
+                postStream.Close();
+
+                Convert.ToInt32("aa");
+
+                //发送请求并获取相应回应数据
+                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                //直到request.GetResponse()程序才开始向目标网页发送Post请求
+                Stream instream = response.GetResponseStream();
+                StreamReader sr = new StreamReader(instream, Encoding.UTF8);
+                //返回结果网页（html）代码
+                string content = sr.ReadToEnd();
+                if (content == "error")
+                {
+                    ComMessage.WriteInDB("dmzUpload", "E", "文件上传异常", "参数filepath=" + filepath + ",strFileName=" + strFileName + ",strToDir=" + strToDir, "", "system");
+                    return false;
+                }
+                    
+                else
+                    return true;
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.WriteInDB("dmzUpload", "E", "文件上传异常", "参数filepath="+ filepath + ",strFileName="+ strFileName + ",strToDir=" + strToDir, ex.StackTrace, "system");
+                return false;
+            }
+        }
+        /// <summary>
+        /// Http下载文件
+        /// </summary>
+        /// <param name="strFromDir"></param>
+        /// <param name="strFileName"></param>
+        /// <param name="strToPath"></param>
+        /// <returns></returns>
+        public static string HttpDownload(string strFromDir,string strFileName, string strToPath)
+        {
+            //调用例子
+            //ComFunction.HttpDownload("Doc\\Export\\",
+            //   "02.切替文件-0412.rar",
+            //   _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar
+            //   + "Doc" + Path.DirectorySeparatorChar
+            //   + "PDF" + Path.DirectorySeparatorChar);
+
+            string url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/downloadDMZApi" + "?name=" + strFileName + "&dir=" + strFromDir;
+
+            string tempFile = strToPath + Path.DirectorySeparatorChar + strFileName; 
+            if (System.IO.File.Exists(tempFile))
+            {
+                System.IO.File.Delete(tempFile);    //存在则删除
+            }
+            try
+            {
+                FileStream fs = new FileStream(tempFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite);
+                // 设置参数
+                HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+                //发送请求并获取相应回应数据
+                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                //直到request.GetResponse()程序才开始向目标网页发送Post请求
+                Stream responseStream = response.GetResponseStream();
+                //创建本地文件写入流
+                //Stream stream = new FileStream(tempFile, FileMode.Create);
+                byte[] bArr = new byte[1024];
+                int size = responseStream.Read(bArr, 0, (int)bArr.Length);
+                while (size > 0)
+                {
+                    //stream.Write(bArr, 0, size);
+                    fs.Write(bArr, 0, size);
+                    size = responseStream.Read(bArr, 0, (int)bArr.Length);
+                }
+                //stream.Close();
+                fs.Close();
+                responseStream.Close();
+                return strToPath+ strFileName;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+
+
 
     }
 

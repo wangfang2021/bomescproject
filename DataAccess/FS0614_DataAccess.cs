@@ -151,7 +151,8 @@ namespace DataAccess
 
                     //读取Order
                     Order order = GetPartFromFile(path + listInfoData[i]["vcFilePath"].ToString(), listInfoData[i]["vcOrderNo"].ToString(), ref msg);
-                    string vcOrderNo = listInfoData[i]["vcOrderNo"].ToString();
+                    string vcOrderNo = order.Head.No;
+                    //string vcOrderNo = listInfoData[i]["vcOrderNo"].ToString();
 
                     StringBuilder sbr = new StringBuilder();
 

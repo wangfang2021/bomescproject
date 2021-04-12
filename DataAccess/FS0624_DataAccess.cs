@@ -25,7 +25,7 @@ namespace DataAccess
                 strSql.Append("       as decimal(18,2)         \n");
                 strSql.Append("       )        \n");
                 strSql.Append("       end as decChangePercent        \n");
-                strSql.Append("       ,b.iQuantityBeforeTotal,b.iQuantityNowTotal,c.vcState  from        \n");
+                strSql.Append("       ,b.iQuantityBeforeTotal,b.iQuantityNowTotal,c.vcState,a.vcChangeNo as bgll  from        \n");
                 strSql.Append("       (        \n");
                 strSql.Append("       	select a.vcChangeDate,a.vcChangeNo,a.vcChangeType,a.vcGroupName,a.dFileUpload,a.vcOrderNo        \n");
                 strSql.Append("       	,sum(a.iQuantityBefore) as iQuantityBefore         \n");

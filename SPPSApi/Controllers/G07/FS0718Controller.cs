@@ -33,6 +33,7 @@ namespace SPPSApi.Controllers.G07
 
         FS0718_Logic FS0718_Logic = new FS0718_Logic();
         ZIPHelper zIPHelper = new ZIPHelper();
+        FileHelper fileHelper = new FileHelper();
         private readonly string FunctionID = "FS0718";
 
         public FS0718Controller(IWebHostEnvironment webHostEnvironment)
@@ -250,6 +251,8 @@ namespace SPPSApi.Controllers.G07
                                             "iDay31","dZYTime"};
                         string strfileName = "月度内示书_"+strYearMonth+"_"+i+"_";
                         string filepath = ComFunction.DataTableToExcel(head, fields, dt_Month, _webHostEnvironment.ContentRootPath, loginInfo.UserId, strfileName, ref resMsg);
+                        Console.WriteLine(_webHostEnvironment.ContentRootPath);
+                        Console.WriteLine(strfileName);
                         if (filepath == "")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -478,6 +481,7 @@ namespace SPPSApi.Controllers.G07
 
     }
 
+    #region 压缩包帮助类
     /// <summary>
     /// 压缩包帮助类
     /// </summary>
@@ -501,7 +505,7 @@ namespace SPPSApi.Controllers.G07
         /// <summary>
         /// 实例化函数
         /// </summary>
-        public ZIPHelper() 
+        public ZIPHelper()
         {
             this.strZIPFileName = "";
             this.strZIPFilePath = "";
@@ -512,28 +516,38 @@ namespace SPPSApi.Controllers.G07
         /// 设置文件对应文件二进制流List
         /// </summary>
         /// <param name="fileLists"></param>
-        public void setFiles(List<FileHelper> fileLists) 
+        public void setFiles(List<FileHelper> fileLists)
         {
-            foreach (var fileHelper in fileLists)
+            foreach (var item in fileLists)
             {
-                files.Add(fileHelper.strFileName, File.ReadAllBytes(fileHelper.strFilePath+ Path.DirectorySeparatorChar + fileHelper.strFileName));
+                string strFilePath_All = item.strFilePath + Path.DirectorySeparatorChar + item.strFileName;
+                files.Add(item.strFileName, File.ReadAllBytes(strFilePath_All));
+                if (File.Exists(strFilePath_All))
+                {
+                    File.Delete(strFilePath_All);
+                }
             }
         }
 
-        public void addFiles(string strFileName,string strFilePath) 
+        public void addFiles(string strFileName, string strFilePath)
         {
+            Console.WriteLine("文件名"+strFileName);
+            Console.WriteLine("文件路径"+strFilePath);
             string strFilePath_All = strFilePath + Path.DirectorySeparatorChar + strFileName;
+            Console.WriteLine("完整路径" + strFilePath_All);
             files.Add(strFileName, File.ReadAllBytes(strFilePath_All));
+            if (File.Exists(strFilePath_All))
+            {
+                File.Delete(strFilePath_All);
+            }
         }
 
         /// <summary>
         /// 创建压缩包文件
         /// </summary>
-        /// <param name="strFileName">文件名</param>
-        /// <param name="strFilePath">文件路径</param>
-        public void createZIPFile() 
+        public void createZIPFile()
         {
-            using (FileStream zip = File.Create(strZIPFilePath +Path.DirectorySeparatorChar+ strZIPFileName))
+            using (FileStream zip = File.Create(strZIPFilePath + Path.DirectorySeparatorChar + strZIPFileName))
             {
                 using (ZipOutputStream zipStream = new ZipOutputStream(zip))
                 {
@@ -551,11 +565,12 @@ namespace SPPSApi.Controllers.G07
                 }
             }
         }
-
     }
+    #endregion
 
+    #region 文件帮助类
     /// <summary>
-    /// 文件类
+    /// 文件帮助类
     /// </summary>
     public class FileHelper
     {
@@ -568,6 +583,18 @@ namespace SPPSApi.Controllers.G07
         /// 文件路径
         /// </summary>
         public string strFilePath { get; set; }
+
+
+        /// <summary>
+        /// 无参实例化
+        /// </summary>
+        public FileHelper()
+        {
+            strFileName = "";
+            strFilePath = "";
+        }
     }
+    #endregion
+
 
 }

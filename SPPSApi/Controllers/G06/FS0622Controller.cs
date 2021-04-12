@@ -227,7 +227,7 @@ namespace SPPSApi.Controllers.G06
                     string partsNosStr = "";
                     for (int m=0;m< dtCheck.Rows.Count;m++)
                     {
-                        partsNosStr += "'" + dtCheck.Rows[m]["vcPartNo"].ToString() + "',";
+                        partsNosStr += dtCheck.Rows[m]["vcPartNo"].ToString() + ",";
                     }
                     partsNosStr = partsNosStr.Substring(0, partsNosStr.Length - 1);
                     apiResult.code = ComConstant.ERROR_CODE;

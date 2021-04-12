@@ -19,7 +19,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("     select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null ");
+                strSql.AppendLine("     select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where isnull(vcSupplierCode,'')<>''  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -2003,7 +2003,7 @@ namespace DataAccess
                 strSql.Append("  sum(vcD23bT) as vcD23bT,sum(vcD24bT) as vcD24bT,            \n");
                 strSql.Append("  sum(vcD25bT) as vcD25bT,sum(vcD26bT) as vcD26bT,            \n");
                 strSql.Append("  sum(vcD27bT) as vcD27bT,sum(vcD28bT) as vcD28bT,            \n");
-                strSql.Append("  sum(vcD29bT) as vcD29bT,sum(vcD30bT) as vcD30bT,sum(vcD31bT) as vcD31bT            \n");
+                strSql.Append("  sum(vcD29bT) as vcD29bT,sum(vcD30bT) as vcD30bT,sum(vcD31bT) as vcD31bT ,vcIsorNoPrint           \n");
                 strSql.Append("              \n");
                 strSql.Append("   from TPackWeekInfo         \n");
                 strSql.Append("   group by vcPackNo,vcPackGPSNo,vcSupplierName, vcSupplierCode,           \n");
@@ -2034,7 +2034,7 @@ namespace DataAccess
                 strSql.Append("   vcD11yTShow,vcD12yTShow,vcD13yTShow,vcD14yTShow,vcD15yTShow,vcD16yTShow         \n");
                 strSql.Append("   ,vcD17yTShow,vcD18yTShow,vcD19yTShow,vcD20yTShow,                     \n");
                 strSql.Append("   vcD21yTShow,vcD22yTShow,vcD23yTShow,vcD24yTShow,vcD25yTShow,vcD26yTShow         \n");
-                strSql.Append("   ,vcD27yTShow,vcD28yTShow,vcD29yTShow,vcD30yTShow,vcD31yTShow                   \n");
+                strSql.Append("   ,vcD27yTShow,vcD28yTShow,vcD29yTShow,vcD30yTShow,vcD31yTShow,vcIsorNoPrint                   \n");
 
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

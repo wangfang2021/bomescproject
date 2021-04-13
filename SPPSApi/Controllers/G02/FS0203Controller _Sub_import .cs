@@ -244,13 +244,24 @@ namespace SPPSApi.Controllers.G02
             {
 
                 DirectoryInfo theFolder = new DirectoryInfo(filePath);
-
-                foreach (FileInfo info in theFolder.GetFiles())
+                string environment = Environment.OSVersion.ToString().ToLower();
+                if (!environment.Contains("windows"))
                 {
-                    //ComFunction.FtpUpload("TTCC" + Path.DirectorySeparatorChar + Type, info.FullName);
-                    ComFunction.HttpUploadFile(info.FullName, info.Name, @"Doc\TTCC\" + Type + @"\");
+                    foreach (FileInfo info in theFolder.GetFiles())
+                    {
+                        ComFunction.HttpUploadFile(info.FullName, info.Name, @"Doc\TTCC\" + Type + @"\");
+                    }
                 }
+                else
+                {
+                    //转存下载
+                    foreach (FileInfo info in theFolder.GetFiles())
+                    {
+                        string realPath = _webHostEnvironment.ContentRootPath + @"\Doc\TTCC\" + Type + @"\" + info.Name;
+                        System.IO.File.Copy(info.FullName, realPath, true);
+                    }
 
+                }
             }
             catch (Exception ex)
             {

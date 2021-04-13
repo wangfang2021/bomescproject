@@ -142,15 +142,19 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("     select a.vcPackSpot,a.vcFaZhuID,b.dEnd  from     \n");
-                strSql.AppendLine("     (     \n");
-                strSql.AppendLine("        select distinct vcPackSpot,vcFaZhuID from TPackFaZhuTime  where vcPackSpot='"+ strPackSpot + "'     \n");
-                strSql.AppendLine("     )a     \n");
-                strSql.AppendLine("     left join     \n");
-                strSql.AppendLine("     (     \n");
-                strSql.AppendLine("        select vcPackSpot,vcFaZhuID,max(dEnd) as dEnd from TPackCompute_Time     \n");
-                strSql.AppendLine("    	 group by  vcPackSpot,vcFaZhuID     \n");
-                strSql.AppendLine("     )b on   a.vcPackSpot=b.vcPackSpot and a.vcFaZhuID=b.vcFaZhuID     \n");
+                strSql.AppendLine("    select a.vcPackSpot,a.vcFaZhuID,b.dEnd  from           \n");
+                strSql.AppendLine("    (           \n");
+                strSql.AppendLine("       select distinct vcPackSpot,vcFaZhuID from TPackFaZhuTime  where vcPackSpot='"+ strPackSpot + "'        \n");
+                strSql.AppendLine("    )a           \n");
+                strSql.AppendLine("    left join           \n");
+                strSql.AppendLine("    (           \n");
+                strSql.AppendLine("       select a.vcPackSpot,a.vcFaZhuID,max(dEnd) as dEnd from TPackCompute_Time a      \n");
+                strSql.AppendLine("      inner join      \n");
+                strSql.AppendLine("      (      \n");
+                strSql.AppendLine("         select distinct vcFlag from TPackCompute where vcOrderNo is not null      \n");
+                strSql.AppendLine("      )b on a.vcFlag=b.vcFlag      \n");
+                strSql.AppendLine("   	   group by  vcPackSpot,vcFaZhuID           \n");
+                strSql.AppendLine("    )b on   a.vcPackSpot=b.vcPackSpot and a.vcFaZhuID=b.vcFaZhuID           \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

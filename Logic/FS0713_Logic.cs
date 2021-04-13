@@ -86,11 +86,23 @@ namespace Logic
 
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId,DataTable dtbase)
         {
-            FS0713_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+            
+            FS0713_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId, dtbase);
         }
         #endregion
+
+        #region 包材基础数据
+        public DataTable SearchBase()
+        {
+            FS0719_DataAccess FS0719_DataAccess = new FS0719_DataAccess();
+            DataTable dtbase = FS0719_DataAccess.SearchBase();
+            return dtbase;
+        }
+        #endregion
+
+
 
         #region 导入后保存
         public void importSave(DataTable dt, string strUserId)

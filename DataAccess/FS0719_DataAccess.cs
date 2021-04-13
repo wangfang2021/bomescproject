@@ -54,9 +54,84 @@ namespace DataAccess
                 strSql.AppendLine("        ,[vcPackSpot]    ");
                 strSql.AppendLine("        ,[vcCangKuCode]    ");
                 strSql.AppendLine("        ,[vcOperatorID]    ");
-                strSql.AppendLine("        ,[dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag    ");
+                strSql.AppendLine("        ,[dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag,vcIsStop    ");
                 strSql.AppendLine("      FROM");
-                strSql.AppendLine("      	TPackOrderFaZhu where vcIsorNoFaZhu='0' ");
+                strSql.AppendLine("      	TPackOrderFaZhu where vcIsorNoFaZhu='0' and vcIsStop='0'");
+
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 恢复
+        public void recover(List<Dictionary<string, object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+
+                    sql.Append("  update TPackOrderFaZhu set    \r\n");
+                    sql.Append("  vcIsStop='0'   \r\n");
+                    sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
+                    sql.Append("  ,dOperatorTime=getdate()   \r\n");
+                    sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.IndexOf("-->") != -1)
+                {//主动判断抛出的异常
+                    int startIndex = ex.Message.IndexOf("-->");
+                    int endIndex = ex.Message.LastIndexOf("<--");
+                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                }
+                else
+                    throw ex;
+            }
+        }
+        #endregion
+
+
+
+
+        #region 发注检索
+        public DataTable Search_F()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  SELECT     ");
+                strSql.AppendLine("         [vcOrderNo]    ");
+                strSql.AppendLine("        ,[vcPackNo]    ");
+                strSql.AppendLine("        ,[vcPackGPSNo]    ");
+                strSql.AppendLine("        ,[vcPartName]    ");
+                strSql.AppendLine("        ,[iOrderNumber]    ");
+                strSql.AppendLine("        ,[vcIsorNoFaZhu]    ");
+                strSql.AppendLine("        ,case when [VCFaBuType]='0' then '自动发注'else'手动发注'end as [VCFaBuType]    ");
+                strSql.AppendLine("        ,CONVERT(varchar(100),[dNaRuTime],20) as   [dNaRuTime]      ");
+                strSql.AppendLine("        ,[vcNaRuBianci]    ");
+                strSql.AppendLine("        ,[vcNaRuUnit]    ");
+                strSql.AppendLine("        ,[vcSupplierCode]    ");
+                strSql.AppendLine("        ,[vcSupplierName]    ");
+                strSql.AppendLine("        ,[vcBuShu]    ");
+                strSql.AppendLine("        ,[vcPackSpot]    ");
+                strSql.AppendLine("        ,[vcCangKuCode]    ");
+                strSql.AppendLine("        ,[vcOperatorID]    ");
+                strSql.AppendLine("        ,[dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag,vcIsStop    ");
+                strSql.AppendLine("      FROM");
+                strSql.AppendLine("      	TPackOrderFaZhu where vcIsorNoFaZhu='0' and vcIsStop<>'1'");
 
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -69,6 +144,9 @@ namespace DataAccess
 
 
         #endregion
+
+
+
 
 
         public DataTable SearchFaZhuTime()
@@ -145,6 +223,45 @@ namespace DataAccess
 
         #endregion
 
+        #region 检查是否超月度
+        public DataTable Search_PassMoonoth()
+        {
+            try
+            {
+
+                string strN = DateTime.Now.ToString("yyyyMM");
+                string strN_CL = DateTime.Now.AddMonths(-1).ToString("yyyyMM");
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine(" select t1.vcPackGPSNo,t1.vcBZPlant,   ");
+                strSql.AppendLine(" case when ISNULL(t2.iNumber,0)<>0 then t1.iPartNums-t2.iNumber else t1.iPartNums end as iNum   ");
+                strSql.AppendLine(" from (   ");
+                strSql.AppendLine(" select b.vcPackGPSNo,sum(a.iPartNums) as iPartNums,c.vcBZPlant from (   ");
+                strSql.AppendLine(" select * from TSoqReply where vcCLYM='" + strN_CL + "'and vcDXYM='" + strN + "'   ");
+                strSql.AppendLine(" )a left join   ");
+                strSql.AppendLine(" (   ");
+                strSql.AppendLine(" select * from TPackItem    ");
+                strSql.AppendLine(" )b on a.vcPart_id=b.vcPartsNo   ");
+                strSql.AppendLine(" left join   ");
+                strSql.AppendLine(" (   ");
+                strSql.AppendLine(" select * from TPackageMaster   ");
+                strSql.AppendLine(" )c on a.vcPart_id=c.vcPart_id   ");
+                strSql.AppendLine(" group by b.vcPackGPSNo,c.vcBZPlant   ");
+                strSql.AppendLine(" )t1 left join   ");
+                strSql.AppendLine(" (   ");
+                strSql.AppendLine(" select vcPackGPSNo,sum(iNumber)as iNumber from TPackWork where vcZuoYeQuFen='1'   ");
+                strSql.AppendLine(" group by vcPackGPSNo   ");
+                strSql.AppendLine(" )t2 on t1.vcPackGPSNo=t2.vcPackGPSNo   ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        #endregion
 
         public string GetOrderNo(string strOrderNo)
         {
@@ -196,6 +313,8 @@ namespace DataAccess
                     StringBuilder sql = new StringBuilder();
                     //取最后一位订单号
                     DataTable dt = this.Search_1();
+                    //DataTable dtPM = this.Search_PassMoonoth();
+                    //DataTable dtPMCopy = dtPM.Copy();
                     string OrderNoOld = "";
                     string strOrderNo = "";
                     if (dt.Rows.Count == 0)
@@ -206,11 +325,11 @@ namespace DataAccess
                     {
                         OrderNoOld = dt.Rows[0]["vcOrderNo"].ToString();
                     }
-
                     for (int i = 0; i < listInfoData.Count; i++)
                     {
                         bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                         bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                        //DataRow[] drpm = dtPMCopy.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString() + "' and  vcBZPlant='" + listInfoData[i]["vcPackSpot"] + "'");
                         if (bAddFlag == true)
                         {//新增
                             strOrderNo = GetOrderNo(OrderNoOld);
@@ -221,19 +340,16 @@ namespace DataAccess
                             string bianci = "";
                             for (int y = 0; y < dr1.Length; y++)
                             {
-                                DateTime time1= Convert.ToDateTime(dr1[y]["dNaQiFromTime"].ToString());
+                                DateTime time1 = Convert.ToDateTime(dr1[y]["dNaQiFromTime"].ToString());
                                 DateTime time2 = Convert.ToDateTime(dr1[y]["dNaQiToTime"].ToString());
-                                if (time1<= time && time2>= time) {
+                                if (time1 <= time && time2 >= time)
+                                {
 
                                     bianci = dr1[y]["vcBianCi"].ToString();
                                     break;
                                 }
                             }
-
-
-
                             DataRow[] dr2 = dtCode.Select(" vcValue2='" + listInfoData[i]["vcPackSpot"] + "'");
-
                             if (Convert.ToInt32(dr[0]["iRelease"].ToString()) % Convert.ToInt32(listInfoData[i]["iOrderNumber"]) != 0)
                             {
                                 strErrorPartId = "维护的订购数量错误！发注收容数不是订购数量的整数倍";
@@ -259,7 +375,7 @@ namespace DataAccess
                             sql.AppendLine("      vcSupplierName,");
                             sql.AppendLine("      vcBuShu,");
                             sql.AppendLine("      vcPackSpot,");
-                            sql.AppendLine("      vcCangKuCode,");
+                            sql.AppendLine("      vcCangKuCode,vcIsStop");
                             sql.AppendLine("      vcOperatorID,");
                             sql.AppendLine("      dOperatorTime");
                             sql.AppendLine("     )");
@@ -284,6 +400,15 @@ namespace DataAccess
                             sql.AppendLine("'" + dr2[0]["vcValue3"].ToString() + "',");
                             sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
                             sql.AppendLine("'" + dr2[0]["vcValue4"].ToString() + "',");
+                            ////插入是否超月度
+                            //if (Convert.ToInt32(drpm[0]["iNum"].ToString()) > 0)
+                            //{
+                            sql.AppendLine("   '0',");
+                            //}
+                            //else
+                            //{
+                            //    sql.AppendLine("   '1',");
+                            //}
                             sql.AppendLine($"     		{strUserId},");
                             sql.AppendLine("     		getDate()");
                             sql.AppendLine("     	); ");
@@ -314,44 +439,23 @@ namespace DataAccess
                             sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["VCFaBuType"], false) + ",");
                             sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dNaRuTime"], false) + ",");
 
-                            sql.AppendLine("'"+ vcNaRuBianci + "',");
+                            sql.AppendLine("'" + vcNaRuBianci + "',");
                             sql.AppendLine("'" + dr[0]["iRelease"].ToString() + "',");
+                            //if (Convert.ToInt32(drpm[0]["iNum"].ToString()) > 0)
+                            //{
                             sql.AppendLine("   '0',  	");//纳入状态未发注
+                            //}
+                            //else
+                            //{
+                            //    sql.AppendLine("   '7',  	");//超月度禁止发注
+                            //}
                             sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
                             sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
-                            sql.AppendLine("'"+ dr2[0]["vcValue3"].ToString() + "',");
+                            sql.AppendLine("'" + dr2[0]["vcValue3"].ToString() + "',");
                             sql.AppendLine("'" + dr2[0]["vcValue4"].ToString() + "',");
                             sql.AppendLine($"     		{strUserId},");
                             sql.AppendLine("     		getDate()");
                             sql.AppendLine("     	); ");
-                            ////插入作业实际
-                            //sql.Append("  INSERT INTO [dbo].[TPackWork]    \n");
-                            //sql.Append("             ([vcZuoYeQuFen]    \n");
-                            //sql.Append("             ,[vcOrderNo]    \n");
-                            //sql.Append("             ,[vcPackNo]    \n");
-                            //sql.Append("             ,[vcPackGPSNo]    \n");
-                            //sql.Append("             ,[vcSupplierID]    \n");
-                            //sql.Append("             ,[vcPackSpot]    \n");
-                            //sql.Append("             ,[iNumber]    \n");
-                            //sql.Append("             ,[dBuJiTime]    \n");
-                            //sql.Append("             ,[vcOperatorID]    \n");
-                            //sql.Append("             ,[dOperatorTime])    \n");
-                            //sql.Append("       VALUES    \n");
-                            //sql.Append("    (  \n");
-                            //sql.Append("    '1',  \n");
-                            //sql.AppendLine("'" + strOrderNo + "',");
-                            //sql.AppendLine("'" + dr[0]["vcPackNo"].ToString() + "',");
-                            //sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true) + ",");
-                            //sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
-                            //sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
-                            //sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["iOrderNumber"], false) + ",");
-                            //sql.Append("   GETDATE(),  \n");
-                            //sql.Append("  '" + strUserId + "', \n");
-                            //sql.Append("   GETDATE()  \n");
-                            //sql.Append("     ) \n");
-
-
-
 
                         }
                         else if (bAddFlag == false && bModFlag == true)
@@ -366,7 +470,6 @@ namespace DataAccess
 
                                 VCFaBuType = "1";
                             }
-
                             sql.AppendLine("  UPDATE TPackOrderFaZhu");
                             sql.AppendLine("  SET ");
                             sql.AppendLine($"   vcOrderNo = {ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], false)},");
@@ -383,6 +486,10 @@ namespace DataAccess
                             sql.AppendLine($"   vcBuShu = {ComFunction.getSqlValue(listInfoData[i]["vcBuShu"], false)},");
                             sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)},");
                             sql.AppendLine($"   vcCangKuCode = {ComFunction.getSqlValue(listInfoData[i]["vcCangKuCode"], false)},");
+                            //if (Convert.ToInt32(drpm[0]["iNum"].ToString()) > 0)
+                            sql.AppendLine($"   vcIsStop ='0' ,");
+                            //else
+                            //    sql.AppendLine($"   vcIsStop ='1' ,");
                             sql.AppendLine($"   vcOperatorID = {strUserId},");
                             sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
                             sql.AppendLine($"  WHERE");
@@ -401,25 +508,25 @@ namespace DataAccess
                             sql.AppendLine($"   vcNaRuUnit={ComFunction.getSqlValue(listInfoData[i]["vcNaRuUnit"], false)},");
                             sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)},");
                             sql.AppendLine($"   vcCangKuID = {ComFunction.getSqlValue(listInfoData[i]["vcCangKuCode"], false)},");
+                            //if (Convert.ToInt32(drpm[0]["iNum"].ToString()) <= 0)
+                            //    sql.AppendLine($"   vcState ='7' ,");
                             sql.AppendLine($"   vcOperatorID = {strUserId},");
                             sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
                             sql.AppendLine($"  WHERE");
                             sql.AppendLine($"  vcOrderNo={ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], false)};");
-                            //修改作业实际
-                            //sql.AppendLine("  UPDATE TPackWork");
-                            //sql.AppendLine("  SET ");
-                            //sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false)},");
-                            //sql.AppendLine($"   vcPackGPSNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true)},");
-                            //sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)},");
-                            //sql.AppendLine($"   iNumber = {ComFunction.getSqlValue(listInfoData[i]["iOrderNumber"], false)},");
-                            //sql.AppendLine($"   dBuJiTime = '{DateTime.Now.ToString()}'");
-                            //sql.AppendLine($"   vcOperatorID = {strUserId},");
-                            //sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
-                            //sql.AppendLine($"  WHERE");
-                            //sql.AppendLine($"  vcOrderNo='{ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], false)}';");
 
                         }
 
+                        ////更新
+                        //DataRow drpmc = dtPMCopy.NewRow();
+                        //drpmc["vcPackGPSNo"] = dtPMCopy.Rows[0]["vcPackGPSNo"].ToString();
+                        //drpmc["vcBZPlant"] = dtPMCopy.Rows[0]["vcBZPlant"].ToString();
+                        //drpmc["iNum"] = Convert.ToInt32(dtPMCopy.Rows[0]["iNum"]) + Convert.ToInt32(listInfoData[i]["iOrderNumber"].ToString());
+                        //foreach (DataRow row in drpm)
+                        //{
+                        //    dtPMCopy.Rows.Remove(row);
+                        //}
+                        //dtPMCopy.Rows.Add(drpmc);
 
                     }
                     IsEnd = true;
@@ -490,6 +597,8 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 DataTable dt1 = this.Search_1();
+                //DataTable dtPM = this.Search_PassMoonoth();
+                //DataTable dtPMCopy = dtPM.Copy();
                 string OrderNoOld = "";
                 string strOrderNo = "";
                 if (dt1.Rows.Count == 0)
@@ -502,35 +611,39 @@ namespace DataAccess
                 }
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    DataRow[] drorder = dtOrderNO.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'");
-                    if (Convert.ToInt32(drorder[i]["vcNaRuUnit"]) % Convert.ToInt32(drorder[i]["iOrderNumber"]) != 0)
+                    if (!string.IsNullOrEmpty(dt.Rows[i]["vcOrderNo"].ToString()))
                     {
-                        strErrorPartId = "此订单号:" + drorder[i]["vcOrderNo"].ToString() + "的发注收容数不是订购数量的整数倍！请修改订购数量";
-                        return;
-                    }
-                    if (drorder.Length > 0)
-                    {
-
+                        DataRow[] drorder = dtOrderNO.Select("vcOrderNo='" + dt.Rows[i]["vcOrderNo"] + "'");
+                        if (Convert.ToInt32(drorder[i]["vcNaRuUnit"]) % Convert.ToInt32(drorder[i]["iOrderNumber"]) != 0)
+                        {
+                            strErrorPartId = "此订单号:" + drorder[i]["vcOrderNo"].ToString() + "的发注收容数不是订购数量的整数倍！请修改订购数量";
+                            return;
+                        }
                         sql.AppendLine("  UPDATE TPackOrderFaZhu");
                         sql.AppendLine("  SET ");
-                        //sql.AppendLine($"   vcOrderNo = {ComFunction.getSqlValue(drorder[i]["vcOrderNo"], false)},");
-                        //sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(drorder[i]["vcPackNo"], false)},");
-                        //sql.AppendLine($"   vcPartName = {ComFunction.getSqlValue(drorder[i]["vcPartName"], true)},");
-                        sql.AppendLine($"   iOrderNumber = {ComFunction.getSqlValue(drorder[i]["iOrderNumber"], false)},");
-                        sql.AppendLine($"   dNaRuTime = {ComFunction.getSqlValue(drorder[i]["dNaRuTime"], false)},");
-                        //sql.AppendLine($"   vcNaRuBianci = {ComFunction.getSqlValue(drorder[i]["vcNaRuBianci"], false)},");
-                        //sql.AppendLine($"   vcNaRuUnit = {ComFunction.getSqlValue(drorder[i]["vcNaRuUnit"], false)},");
-                        //sql.AppendLine($"   vcSupplierCode = {ComFunction.getSqlValue(drorder[i]["vcSupplierCode"], false)},");
-                        //sql.AppendLine($"   vcBuShu = {ComFunction.getSqlValue(drorder[i]["vcBuShu"], false)},");
-                        sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(drorder[i]["vcPackSpot"], false)},");
-                        //sql.AppendLine($"   vcCangKuCode = {ComFunction.getSqlValue(drorder[i]["vcCangKuCode"], false)},");
+                        sql.AppendLine($"   iOrderNumber = {ComFunction.getSqlValue(dt.Rows[i]["iOrderNumber"], false)},");
+                        sql.AppendLine($"   dNaRuTime = {ComFunction.getSqlValue(dt.Rows[i]["dNaRuTime"], false)},");
+                        sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false)},");
                         sql.AppendLine($"   vcOperatorID = {strUserId},");
                         sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
                         sql.AppendLine($"  WHERE");
-                        sql.AppendLine($"  vcPackGPSNo='{drorder[i]["vcPackGPSNo"].ToString()}';");
+                        sql.AppendLine($"  vcOrderNo='{drorder[i]["vcOrderNo"].ToString()}'and vcIsorNoFaZhu='0';");
+
+                        sql.AppendLine("  UPDATE TPack_FaZhu_ShiJi");
+                        sql.AppendLine("  SET ");
+                        sql.AppendLine($"   iOrderNumber = {ComFunction.getSqlValue(dt.Rows[i]["iOrderNumber"], false)},");
+                        sql.AppendLine($"   dNaRuYuDing = {ComFunction.getSqlValue(dt.Rows[i]["dNaRuTime"], false)},");
+                        sql.AppendLine($"   vcNaRuUnit={ComFunction.getSqlValue(dt.Rows[i]["vcNaRuUnit"], false)},");
+                        sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false)},");
+                        sql.AppendLine($"   vcOperatorID = {strUserId},");
+                        sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
+                        sql.AppendLine($"  WHERE");
+                        sql.AppendLine($"  vcOrderNo={ComFunction.getSqlValue(drorder[i]["vcOrderNo"], false)}and vcState='0';");
+
                     }
                     else
                     {
+
                         //插入
                         DataRow[] dr = dtbase.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackGPSNo"] + "'");
                         string time = dt.Rows[i]["dNaRuTime"].ToString().Split(' ')[1];
@@ -555,7 +668,7 @@ namespace DataAccess
                         sql.AppendLine("      vcSupplierCode,");
                         sql.AppendLine("      vcBuShu,");
                         sql.AppendLine("      vcPackSpot,");
-                        sql.AppendLine("      vcCangKuCode,");
+                        sql.AppendLine("      vcCangKuCode,vcIsStop");
                         sql.AppendLine("      vcOperatorID,");
                         sql.AppendLine("      dOperatorTime");
                         sql.AppendLine("     )");
@@ -573,18 +686,67 @@ namespace DataAccess
                         string vcNaRuBianci = dr1[0]["vcFaZhuID"].ToString() == "" ? dt.Rows[i]["vcNaRuBianci"].ToString() : dr1[0]["vcFaZhuID"].ToString();
 
                         sql.AppendLine("'" + vcNaRuBianci + "',");
-
-
                         sql.AppendLine("'" + dr[0]["iRelease"].ToString() + "',");
                         sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcBuShu"], false) + ",");
                         sql.AppendLine("'" + dr2[0]["vcValue3"].ToString() + "',");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + ",");
                         sql.AppendLine("'" + dr2[0]["vcValue4"].ToString() + "',");
+                        //if (Convert.ToInt32(drpm[0]["iNum"].ToString()) > 0)
+                        sql.AppendLine($"   '0',");
+                        //else
+                        //    sql.AppendLine($"   '1',");
                         sql.AppendLine($"     		{strUserId},");
                         sql.AppendLine("     		getDate()");
                         sql.AppendLine("     	); ");
+
+
+                        ////插入订单维护
+                        sql.AppendLine("     INSERT INTO [TPack_FaZhu_ShiJi]( ");
+                        sql.AppendLine("     vcOrderNo,	 ");
+                        sql.AppendLine("     vcPackNo,	 ");
+                        sql.AppendLine("     vcPackGPSNo,	 ");
+                        sql.AppendLine("     vcPartName,	 ");
+                        sql.AppendLine("     iOrderNumber,	 ");
+                        sql.AppendLine("     vcType,	 ");
+                        sql.AppendLine("     dNaRuYuDing,	 ");
+                        sql.AppendLine("     vcNaRuBianCi,	 ");
+                        sql.AppendLine("     vcNaRuUnit,	 ");
+                        sql.AppendLine("     vcState,	 ");//纳入状态
+                        sql.AppendLine("     vcPackSupplierID,	 ");
+                        sql.AppendLine("     vcPackSpot,	 ");
+                        sql.AppendLine("     vcCangKuID,vcFeiYongID,vcOperatorID,dOperatorTime	 ");
+                        sql.AppendLine("     	) ");
+                        sql.AppendLine("     VALUES");
+                        sql.AppendLine("     	(");
+                        sql.AppendLine("'" + strOrderNo + "',");
+                        sql.AppendLine("'" + dr[0]["vcPackNo"].ToString() + "',");
+                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], true) + ",");
+                        sql.AppendLine("'" + dr[0]["vcParstName"].ToString() + "',");
+                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["iOrderNumber"], false) + ",");
+                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["VCFaBuType"], false) + ",");
+                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dNaRuTime"], false) + ",");
+
+                        sql.AppendLine("'" + vcNaRuBianci + "',");
+                        sql.AppendLine("'" + dr[0]["iRelease"].ToString() + "',");
+                        //if (Convert.ToInt32(drpm[0]["iNum"].ToString()) > 0)
+                        //{
+                        sql.AppendLine("   '0',  	");//纳入状态未发注
+                        //}
+                        //else
+                        //{
+                        //    sql.AppendLine("   '7',  	");//超月度禁止发注
+                        //}
+                        sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
+                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + ",");
+                        sql.AppendLine("'" + dr2[0]["vcValue3"].ToString() + "',");
+                        sql.AppendLine("'" + dr2[0]["vcValue4"].ToString() + "',");
+                        sql.AppendLine($"     		{strUserId},");
+                        sql.AppendLine("     		getDate()");
+                        sql.AppendLine("     	); ");
+
                     }
+
 
                 }
                 if (sql.Length > 0)
@@ -749,103 +911,101 @@ namespace DataAccess
                 string dtime = DateTime.Now.ToString("yyyyMMdd");
                 string dtime1 = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 DataTable dtamps = this.Search_MAPSPartID();
+                DataTable dtpm = this.Search_PassMoonoth();
                 StringBuilder sql = new StringBuilder();
                 StringBuilder sql1 = new StringBuilder();
-
-                sql.AppendLine("  INSERT INTO [dbo].[TB_B0030]    \r\n");
-                sql.AppendLine("             ([ORDER_NO]    \r\n");
-                sql.AppendLine("             ,[FI_STORE_CODE]    \r\n");
-                sql.AppendLine("             ,[FI_STOCK_FLAG]    \r\n");
-                sql.AppendLine("             ,[ORDER_TYPE]    \r\n");
-                sql.AppendLine("             ,[PART_ID]    \r\n");
-                sql.AppendLine("             ,[ORDER_DATE]    \r\n");
-                sql.AppendLine("             ,[ORDER_QUANTITY]    \r\n");
-                sql.AppendLine("             ,[DELIVERY_DATE]    \r\n");
-                sql.AppendLine("             ,[COST_GROUP]    \r\n");
-                sql.AppendLine("             ,[UNIT]    \r\n");
-                sql.AppendLine("             ,[CREATE_USER]   \r\n");
-                sql.AppendLine("             ,[CREATE_TIME]   \r\n");
-                sql.AppendLine("             ,[IsEmail]   \r\n");
-
-                sql.AppendLine("            ) VALUES   \r\n");
-
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if (i != 0)
-                        sql.AppendLine("       ,   \r\n");
-                    DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'");
-                    sql.AppendLine("       (   \r\n");
-                    sql.AppendLine("     '" + dt.Rows[i]["vcOrderNo"].ToString() + "' ,\r\n");
-                    sql.AppendLine("     '" + dt.Rows[i]["vcCangKuCode"].ToString() + "' ,\r\n");//一级仓库代码
-                    sql.AppendLine("     '' , \r\n");//一级仓库库存标志
-                    sql.AppendLine("     '3' ,  \r\n");
-                    sql.AppendLine("     '" + dr[0]["PART_ID"].ToString() + "', \r\n");
-                    sql.AppendLine("     '" + dtime + "', \r\n");
-                    sql.AppendLine("     '" + dt.Rows[i]["iOrderNumber"].ToString() + "' ,  \r\n");
-                    string dNaRuTime = dt.Rows[i]["dNaRuTime"].ToString().Split(' ')[0].Replace("-", "");
-                    sql.AppendLine("     '" + dNaRuTime + "' ,  \r\n");
-                    sql.AppendLine("     '" + dt.Rows[i]["vcBuShu"].ToString() + "' , \r\n");
-                    sql.AppendLine("      '" + dt.Rows[i]["vcNaRuUnit"].ToString() + "' , \r\n");//单位
-                    sql.AppendLine("     '" + userId + "', \r\n");//创建用户??要备注成补给么
-                    sql.AppendLine("     '" + dtime1 + "', \r\n");//创建时间
-                    sql.AppendLine("     '0' \r\n");//是否已经发邮件标识
-                    sql.AppendLine("       ) \r\n");
+                    DataRow[] drpm = dtpm.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "' and  vcBZPlant='" + dt.Rows[i]["vcPackSpot"] + "'");
+                    if (Convert.ToInt32(drpm[0]["iNum"].ToString()) > 0)
+                    {
+                        sql.AppendLine("  INSERT INTO [dbo].[TB_B0030]    \r\n");
+                        sql.AppendLine("             ([ORDER_NO]    \r\n");
+                        sql.AppendLine("             ,[FI_STORE_CODE]    \r\n");
+                        sql.AppendLine("             ,[FI_STOCK_FLAG]    \r\n");
+                        sql.AppendLine("             ,[ORDER_TYPE]    \r\n");
+                        sql.AppendLine("             ,[PART_ID]    \r\n");
+                        sql.AppendLine("             ,[ORDER_DATE]    \r\n");
+                        sql.AppendLine("             ,[ORDER_QUANTITY]    \r\n");
+                        sql.AppendLine("             ,[DELIVERY_DATE]    \r\n");
+                        sql.AppendLine("             ,[COST_GROUP]    \r\n");
+                        sql.AppendLine("             ,[UNIT]    \r\n");
+                        sql.AppendLine("             ,[CREATE_USER]   \r\n");
+                        sql.AppendLine("             ,[CREATE_TIME]   \r\n");
+                        sql.AppendLine("             ,[IsEmail]   \r\n");
 
-                    string vcOrderNo = dt.Rows[i]["vcOrderNo"].ToString();
+                        sql.AppendLine("            ) VALUES   \r\n");
+                        //if (i != 0)
+                        //    sql.AppendLine("       ,   \r\n");
+                        DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'");
+                        sql.AppendLine("       (   \r\n");
+                        sql.AppendLine("     '" + dt.Rows[i]["vcOrderNo"].ToString() + "' ,\r\n");
+                        sql.AppendLine("     '" + dt.Rows[i]["vcCangKuCode"].ToString() + "' ,\r\n");//一级仓库代码
+                        sql.AppendLine("     '' , \r\n");//一级仓库库存标志
+                        sql.AppendLine("     '3' ,  \r\n");
+                        sql.AppendLine("     '" + dr[0]["PART_ID"].ToString() + "', \r\n");
+                        sql.AppendLine("     '" + dtime + "', \r\n");
+                        sql.AppendLine("     '" + dt.Rows[i]["iOrderNumber"].ToString() + "' ,  \r\n");
+                        string dNaRuTime = dt.Rows[i]["dNaRuTime"].ToString().Split(' ')[0].Replace("-", "");
+                        sql.AppendLine("     '" + dNaRuTime + "' ,  \r\n");
+                        sql.AppendLine("     '" + dt.Rows[i]["vcBuShu"].ToString() + "' , \r\n");
+                        sql.AppendLine("      '" + dt.Rows[i]["vcNaRuUnit"].ToString() + "' , \r\n");//单位
+                        sql.AppendLine("     '" + userId + "', \r\n");//创建用户??要备注成补给么
+                        sql.AppendLine("     '" + dtime1 + "', \r\n");//创建时间
+                        sql.AppendLine("     '0' \r\n");//是否已经发邮件标识
+                        sql.AppendLine("       ) \r\n");
 
-                    sql1.AppendLine("  UPDATE TPackOrderFaZhu");
-                    sql1.AppendLine("  SET ");
-                    sql1.AppendLine($"   vcIsorNoFaZhu = '1',");
-                    sql1.AppendLine($"   vcOperatorID = {userId},");
-                    sql1.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
-                    sql1.AppendLine($"  WHERE");
-                    sql1.AppendLine($"  vcOrderNo='{vcOrderNo}';");
+                        string vcOrderNo = dt.Rows[i]["vcOrderNo"].ToString();
+
+                        sql1.AppendLine("  UPDATE TPackOrderFaZhu");
+                        sql1.AppendLine("  SET ");
+                        sql1.AppendLine($"   vcIsorNoFaZhu = '1',");
+                        sql1.AppendLine($"   vcOperatorID = {userId},");
+                        sql1.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
+                        sql1.AppendLine($"  WHERE");
+                        sql1.AppendLine($"  vcOrderNo='{vcOrderNo}';");
+
+
+                        ////插入作业实际
+                        sql1.Append("  INSERT INTO [dbo].[TPackWork]    \n");
+                        sql1.Append("             ([vcZuoYeQuFen]    \n");
+                        sql1.Append("             ,[vcOrderNo]    \n");
+                        sql1.Append("             ,[vcPackNo]    \n");
+                        sql1.Append("             ,[vcPackGPSNo]    \n");
+                        sql1.Append("             ,[vcSupplierID]    \n");
+                        sql1.Append("             ,[vcPackSpot]    \n");
+                        sql1.Append("             ,[iNumber]    \n");
+                        sql1.Append("             ,[dBuJiTime]    \n");
+                        sql1.Append("             ,[vcYanShouID]    \n");
+                        sql1.Append("             ,[vcOperatorID]    \n");
+                        sql1.Append("             ,[dOperatorTime])    \n");
+                        sql1.Append("       VALUES    \n");
+                        sql1.Append("    (  \n");
+                        sql1.Append("    '1',  \n");
+                        sql1.AppendLine("     '" + dt.Rows[i]["vcOrderNo"].ToString() + "' ,\r\n");
+                        sql1.AppendLine("     '" + dt.Rows[i]["vcPackNo"].ToString() + "' ,\r\n");
+                        sql1.AppendLine("     '" + dt.Rows[i]["vcPackGPSNo"].ToString() + "' ,\r\n");
+                        sql1.AppendLine("     '" + dt.Rows[i]["vcSupplierCode"].ToString() + "' ,\r\n");
+                        sql1.AppendLine("     '" + dt.Rows[i]["vcPackSpot"].ToString() + "' ,\r\n");
+                        sql1.AppendLine("     '" + dt.Rows[i]["iOrderNumber"].ToString() + "' ,\r\n");
+                        sql1.Append("   '" + dtime1 + "',  \n");
+                        sql1.Append("  '" + userId + "', \n");
+                        sql1.Append("  '" + userId + "', \n");
+                        sql1.Append("   GETDATE()  \n");
+                        sql1.Append("     ) \n");
+
+
+                        sql1.AppendLine("  UPDATE TPack_FaZhu_ShiJi");
+                        sql1.AppendLine("  SET ");
+                        sql1.AppendLine("   dFaZhuTime = '" + dtime1 + "',");
+                        sql1.AppendLine("   vcState = '1'");
+                        sql1.AppendLine($"  WHERE");
+                        sql1.AppendLine("  vcOrderNo='" + dt.Rows[i]["vcOrderNo"].ToString() + "';");
 
 
 
-
+                    }
                 }
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    ////插入作业实际
-                    sql1.Append("  INSERT INTO [dbo].[TPackWork]    \n");
-                    sql1.Append("             ([vcZuoYeQuFen]    \n");
-                    sql1.Append("             ,[vcOrderNo]    \n");
-                    sql1.Append("             ,[vcPackNo]    \n");
-                    sql1.Append("             ,[vcPackGPSNo]    \n");
-                    sql1.Append("             ,[vcSupplierID]    \n");
-                    sql1.Append("             ,[vcPackSpot]    \n");
-                    sql1.Append("             ,[iNumber]    \n");
-                    sql1.Append("             ,[dBuJiTime]    \n");
-                    sql1.Append("             ,[vcYanShouID]    \n");
-                    sql1.Append("             ,[vcOperatorID]    \n");
-                    sql1.Append("             ,[dOperatorTime])    \n");
-                    sql1.Append("       VALUES    \n");
-                    sql1.Append("    (  \n");
-                    sql1.Append("    '1',  \n");
-                    sql1.AppendLine("     '" + dt.Rows[i]["vcOrderNo"].ToString() + "' ,\r\n");
-                    sql1.AppendLine("     '" + dt.Rows[i]["vcPackNo"].ToString() + "' ,\r\n");
-                    sql1.AppendLine("     '" + dt.Rows[i]["vcPackGPSNo"].ToString() + "' ,\r\n");
-                    sql1.AppendLine("     '" + dt.Rows[i]["vcSupplierCode"].ToString() + "' ,\r\n");
-                    sql1.AppendLine("     '" + dt.Rows[i]["vcPackSpot"].ToString() + "' ,\r\n");
-                    sql1.AppendLine("     '" + dt.Rows[i]["iOrderNumber"].ToString() + "' ,\r\n");
-                    sql1.Append("   '" + dtime1 + "',  \n");
-                    sql1.Append("  '" + userId + "', \n");
-                    sql1.Append("  '" + userId + "', \n");
-                    sql1.Append("   GETDATE()  \n");
-                    sql1.Append("     ) \n");
-
-
-                    sql1.AppendLine("  UPDATE TPack_FaZhu_ShiJi");
-                    sql1.AppendLine("  SET ");
-                    sql1.AppendLine("   dFaZhuTime = '" + dtime1 + "',");
-                    sql1.AppendLine("   vcState = '1'");
-                    sql1.AppendLine($"  WHERE");
-                    sql1.AppendLine("  vcOrderNo='" + dt.Rows[i]["vcOrderNo"].ToString() + "';");
-
-                }
-
-
 
                 this.MAPSSearch(sql.ToString());
                 excute.ExcuteSqlWithStringOper(sql1.ToString());

@@ -403,6 +403,14 @@ namespace SPPSApi.Controllers.G07
                             fields[4 + i] = dtJS.Columns[4 + i].ColumnName;
                         }
                     }
+                    else if (strJiSuanType == "班值") {
+
+                        for (int i = 1; i <= dtJS.Columns.Count - 6; i++)
+                        {
+                            head[4 + i] = dtJS.Columns[4 + i].ColumnName.Substring(5, 6);
+                            fields[4 + i] = dtJS.Columns[4 + i].ColumnName;
+                        }
+                    }
                     else
                     {
                         for (int i = 1; i <= dtJS.Columns.Count - 6; i++)
@@ -421,6 +429,15 @@ namespace SPPSApi.Controllers.G07
                         for (int i = 1; i <= dtJS.Columns.Count - 16; i++)
                         {
                             head[3 + i] = dtJS.Columns[5 + i].ColumnName.Substring(5, 17);
+                            fields[3 + i] = dtJS.Columns[5 + i].ColumnName;
+                            count++;
+                        }
+                    }
+                    else if (strJiSuanType == "班值") {
+
+                        for (int i = 1; i <= dtJS.Columns.Count - 16; i++)
+                        {
+                            head[3 + i] = dtJS.Columns[5 + i].ColumnName.Substring(5, 6);
                             fields[3 + i] = dtJS.Columns[5 + i].ColumnName;
                             count++;
                         }

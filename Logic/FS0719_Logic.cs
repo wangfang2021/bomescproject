@@ -30,6 +30,12 @@ namespace Logic
         }
         #endregion
 
+        #region 
+        public DataTable Search_F()
+        {
+            return FS0719_DataAccess.Search_F();
+        }
+        #endregion
 
 
         #region 保存
@@ -47,7 +53,12 @@ namespace Logic
         #endregion
 
 
-
+        #region 恢复
+        public void recover(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            FS0719_DataAccess.recover(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
 
 
 

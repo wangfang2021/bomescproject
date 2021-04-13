@@ -67,46 +67,46 @@ namespace DataAccess
                 strSql.AppendLine("select *,ROW_NUMBER() over(order by id,vcBigPM,vcSmallPM) as xuhao from (");
                 strSql.AppendLine("select vcKind,vcBigPM,vcSmallPM,iD1,iD2,iD3,iD4,iD5,iD6,iD7,iD8,iD9,iD10,iD11,iD12,iD13,iD14,iD15,");
                 strSql.AppendLine("iD16,iD17,iD18,iD19,iD20,iD21,iD22,iD23,iD24,iD25,iD26,iD27,iD28,iD29,iD30,iD31,1 as id");
-                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='纳入计划'");
+                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='" + vcYearMonth + "' and vcKind='纳入计划'");
                 strSql.AppendLine("union all");
-                strSql.AppendLine("select vcKind,'合计' as vcBigPM,'' as vcSmallPM,sum(iD1),sum(iD2),sum(iD3),sum(iD4),sum(iD5),");
-                strSql.AppendLine("sum(iD6),sum(iD7),sum(iD8),sum(iD9),sum(iD10),sum(iD11),sum(iD12),sum(iD13),sum(iD14),sum(iD15),");
-                strSql.AppendLine("sum(iD16),sum(iD17),sum(iD18),sum(iD19),sum(iD20),sum(iD21),sum(iD22),sum(iD23),sum(iD24),sum(iD25),");
-                strSql.AppendLine("sum(iD26),sum(iD27),sum(iD28),sum(iD29),sum(iD30),sum(iD31),2 as id");
-                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='纳入计划'");
-                strSql.AppendLine("group by vcKind");
-                strSql.AppendLine("union all");
+                //strSql.AppendLine("select vcKind,'合计' as vcBigPM,'' as vcSmallPM,sum(iD1),sum(iD2),sum(iD3),sum(iD4),sum(iD5),");
+                //strSql.AppendLine("sum(iD6),sum(iD7),sum(iD8),sum(iD9),sum(iD10),sum(iD11),sum(iD12),sum(iD13),sum(iD14),sum(iD15),");
+                //strSql.AppendLine("sum(iD16),sum(iD17),sum(iD18),sum(iD19),sum(iD20),sum(iD21),sum(iD22),sum(iD23),sum(iD24),sum(iD25),");
+                //strSql.AppendLine("sum(iD26),sum(iD27),sum(iD28),sum(iD29),sum(iD30),sum(iD31),2 as id");
+                //strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='纳入计划'");
+                //strSql.AppendLine("group by vcKind");
+                //strSql.AppendLine("union all");
                 strSql.AppendLine("select vcKind,vcBigPM,vcSmallPM,iD1,iD2,iD3,iD4,iD5,iD6,iD7,iD8,iD9,iD10,iD11,iD12,iD13,iD14,iD15,");
                 strSql.AppendLine("iD16,iD17,iD18,iD19,iD20,iD21,iD22,iD23,iD24,iD25,iD26,iD27,iD28,iD29,iD30,iD31,3 as id");
-                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='当日实际'");
+                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='" + vcYearMonth + "' and vcKind='当日实际'");
                 strSql.AppendLine("union all");
-                strSql.AppendLine("select vcKind,'合计' as vcBigPM,'' as vcSmallPM,sum(iD1),sum(iD2),sum(iD3),sum(iD4),sum(iD5),");
-                strSql.AppendLine("sum(iD6),sum(iD7),sum(iD8),sum(iD9),sum(iD10),sum(iD11),sum(iD12),sum(iD13),sum(iD14),sum(iD15),");
-                strSql.AppendLine("sum(iD16),sum(iD17),sum(iD18),sum(iD19),sum(iD20),sum(iD21),sum(iD22),sum(iD23),sum(iD24),sum(iD25),");
-                strSql.AppendLine("sum(iD26),sum(iD27),sum(iD28),sum(iD29),sum(iD30),sum(iD31),4 as id");
-                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='当日实际'");
-                strSql.AppendLine("group by vcKind");
-                strSql.AppendLine("union all");
+                //strSql.AppendLine("select vcKind,'合计' as vcBigPM,'' as vcSmallPM,sum(iD1),sum(iD2),sum(iD3),sum(iD4),sum(iD5),");
+                //strSql.AppendLine("sum(iD6),sum(iD7),sum(iD8),sum(iD9),sum(iD10),sum(iD11),sum(iD12),sum(iD13),sum(iD14),sum(iD15),");
+                //strSql.AppendLine("sum(iD16),sum(iD17),sum(iD18),sum(iD19),sum(iD20),sum(iD21),sum(iD22),sum(iD23),sum(iD24),sum(iD25),");
+                //strSql.AppendLine("sum(iD26),sum(iD27),sum(iD28),sum(iD29),sum(iD30),sum(iD31),4 as id");
+                //strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='当日实际'");
+                //strSql.AppendLine("group by vcKind");
+                //strSql.AppendLine("union all");
                 strSql.AppendLine("select vcKind,vcBigPM,vcSmallPM,iD1,iD2,iD3,iD4,iD5,iD6,iD7,iD8,iD9,iD10,iD11,iD12,iD13,iD14,iD15,");
                 strSql.AppendLine("iD16,iD17,iD18,iD19,iD20,iD21,iD22,iD23,iD24,iD25,iD26,iD27,iD28,iD29,iD30,iD31,5 as id");
-                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='当日残'");
+                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='" + vcYearMonth + "' and vcKind='当日残'");
                 strSql.AppendLine("union all");
-                strSql.AppendLine("select vcKind,'合计' as vcBigPM,'' as vcSmallPM,sum(iD1),sum(iD2),sum(iD3),sum(iD4),sum(iD5),");
-                strSql.AppendLine("sum(iD6),sum(iD7),sum(iD8),sum(iD9),sum(iD10),sum(iD11),sum(iD12),sum(iD13),sum(iD14),sum(iD15),");
-                strSql.AppendLine("sum(iD16),sum(iD17),sum(iD18),sum(iD19),sum(iD20),sum(iD21),sum(iD22),sum(iD23),sum(iD24),sum(iD25),");
-                strSql.AppendLine("sum(iD26),sum(iD27),sum(iD28),sum(iD29),sum(iD30),sum(iD31),6 as id");
-                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='当日残'");
-                strSql.AppendLine("group by vcKind");
-                strSql.AppendLine("union all");
+                //strSql.AppendLine("select vcKind,'合计' as vcBigPM,'' as vcSmallPM,sum(iD1),sum(iD2),sum(iD3),sum(iD4),sum(iD5),");
+                //strSql.AppendLine("sum(iD6),sum(iD7),sum(iD8),sum(iD9),sum(iD10),sum(iD11),sum(iD12),sum(iD13),sum(iD14),sum(iD15),");
+                //strSql.AppendLine("sum(iD16),sum(iD17),sum(iD18),sum(iD19),sum(iD20),sum(iD21),sum(iD22),sum(iD23),sum(iD24),sum(iD25),");
+                //strSql.AppendLine("sum(iD26),sum(iD27),sum(iD28),sum(iD29),sum(iD30),sum(iD31),6 as id");
+                //strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='当日残'");
+                //strSql.AppendLine("group by vcKind");
+                //strSql.AppendLine("union all");
                 strSql.AppendLine("select vcKind,vcBigPM,vcSmallPM,iD1,iD2,iD3,iD4,iD5,iD6,iD7,iD8,iD9,iD10,iD11,iD12,iD13,iD14,iD15,");
                 strSql.AppendLine("iD16,iD17,iD18,iD19,iD20,iD21,iD22,iD23,iD24,iD25,iD26,iD27,iD28,iD29,iD30,iD31,7 as id");
-                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='累计残量'");
+                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='" + vcYearMonth + "' and vcKind='累计残量'");
                 strSql.AppendLine("union all");
                 strSql.AppendLine("select vcKind,'合计' as vcBigPM,'' as vcSmallPM,sum(iD1),sum(iD2),sum(iD3),sum(iD4),sum(iD5),");
                 strSql.AppendLine("sum(iD6),sum(iD7),sum(iD8),sum(iD9),sum(iD10),sum(iD11),sum(iD12),sum(iD13),sum(iD14),sum(iD15),");
                 strSql.AppendLine("sum(iD16),sum(iD17),sum(iD18),sum(iD19),sum(iD20),sum(iD21),sum(iD22),sum(iD23),sum(iD24),sum(iD25),");
                 strSql.AppendLine("sum(iD26),sum(iD27),sum(iD28),sum(iD29),sum(iD30),sum(iD31),8 as id");
-                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='累计残量'");
+                strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='" + vcYearMonth + "' and vcKind='累计残量'");
                 strSql.AppendLine("group by vcKind");
                 strSql.AppendLine(")t");
                 strSql.AppendLine("order by id,vcBigPM,vcSmallPM");
@@ -194,8 +194,8 @@ namespace DataAccess
                         sql.Append(")t2 on t1.iAutoId=t2.iAutoId    \n");
 
                         //更新report表的累计残
-                        sql.AppendLine("update t1 set t1.iD"+ dPackDate_day + "=t2.iLJBZRemain from");
-                        sql.AppendLine("(select * from TPackingPlan_Report where vcKind='累计残量' and vcYearMonth='"+ dPackDate_yyyymm + "')t1");
+                        sql.AppendLine("update t1 set t1.iD" + dPackDate_day + "=t2.iLJBZRemain from");
+                        sql.AppendLine("(select * from TPackingPlan_Report where vcKind='累计残量' and vcYearMonth='" + dPackDate_yyyymm + "')t1");
                         sql.AppendLine("inner join (select * from TPackingPlan_Summary where iAutoId=75)t2 ");
                         sql.AppendLine("on t1.vcPlant=t2.vcPlant and t1.vcYearMonth=CONVERT(varchar(6),t2.dPackDate,112)");
                         sql.AppendLine("and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
@@ -226,8 +226,11 @@ namespace DataAccess
             StringBuilder sql = new StringBuilder();
             try
             {
+                DateTime now = DateTime.Now;
+                string NAdd1_ymd = Convert.ToDateTime(dBZDate).AddDays(1).ToString("yyyy-MM-dd");
                 //删除子表
-                sql.Append("DELETE FROM [TPackingPlan] where vcFZPlant='" + vcFZPlant + "' and vcPackDate='" + dBZDate + "' \n");
+                sql.Append("DELETE FROM [TPackingPlan] where vcFZPlant='" + vcFZPlant + "' and vcPackDate ='" + dBZDate + "' and vcType='N' \n");
+                sql.Append("DELETE FROM [TPackingPlan] where vcFZPlant='" + vcFZPlant + "' and vcPackDate ='" + NAdd1_ymd + "' and vcType='N+1' \n");
                 #region 插入子表
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -245,7 +248,8 @@ namespace DataAccess
                     sql.Append("           ,[vcSR]    \n");
                     sql.Append("           ,[vcOrderNo]    \n");
                     sql.Append("           ,[vcOperatorID]    \n");
-                    sql.Append("           ,[dOperatorTime])    \n");
+                    sql.Append("           ,[dOperatorTime]    \n");
+                    sql.Append("           ,[vcType])    \n");
                     sql.Append("     VALUES    \n");
                     sql.Append("           (null    \n");//包装工厂，下面统一更新
                     sql.Append("           ,'" + dBZDate + "'    \n");
@@ -258,7 +262,8 @@ namespace DataAccess
                     sql.Append("           ,'" + dt.Rows[i]["DOCK"].ToString() + "'    \n");
                     sql.Append("           ,'" + strOrderNo + "'    \n");
                     sql.Append("           ,'" + strUserId + "'    \n");
-                    sql.Append("           ,getdate())    \n");
+                    sql.Append("           ,'"+now+"'    \n");
+                    sql.Append("           ,'N')    \n");
                     #endregion
 
                     if (i % 1000 == 0)
@@ -285,12 +290,25 @@ namespace DataAccess
                 sql.Length = 0;
                 #endregion
                 #region 更新子表班值
+                //先把带N+1的包装日期改为N+1，班值改为白
+                sql.AppendLine("update t1 set t1.vcPackDate='" + NAdd1_ymd + "',t1.vcPackBZ='白',t1.vcType='N+1'");
+                sql.AppendLine("from");
+                sql.AppendLine("(");
+                sql.AppendLine("	select * from TPackingPlan where vcFZPlant='" + vcFZPlant + "' and vcPackDate='" + dBZDate + "'");
+                sql.AppendLine(")t1");
+                sql.AppendLine("inner join (");
+                sql.AppendLine("	select * from TNRBJSKBianCi where vcNRBJSK like '%N+1%'");
+                sql.AppendLine(")t2 on t1.vcSupplier_id=t2.vcSupplier_id and t1.vcGQ=t2.vcGQ");
+                sql.AppendLine("and t1.vcSR=t2.vcSR and t1.vcOrderNo=t2.vcOrderNo");
+                //更新N日的班值
                 sql.Append("update t1 set t1.vcPackBZ=case when t3.vcCodeId is not null then t3.vcValue1 else t4.vcValue1 end    \n");
                 sql.Append("from    \n");
                 sql.Append("(select * from TPackingPlan where vcFZPlant='" + vcFZPlant + "' and vcPackDate='" + dBZDate + "'    \n");
                 sql.Append(")t1    \n");
-                sql.Append("left join  TNRBJSKBianCi t2 on t1.vcSupplier_id=t2.vcSupplier_id and t1.vcGQ=t2.vcGQ        \n");
-                sql.Append("and t1.vcSR=t2.vcSR and t1.vcOrderNo=t2.vcOrderNo        \n");
+                sql.AppendLine("inner join (");
+                sql.AppendLine("	select * from TNRBJSKBianCi where vcNRBJSK not like '%N+1%'");
+                sql.AppendLine(")t2 on t1.vcSupplier_id=t2.vcSupplier_id and t1.vcGQ=t2.vcGQ");
+                sql.AppendLine("and t1.vcSR=t2.vcSR and t1.vcOrderNo=t2.vcOrderNo");
                 sql.Append("left join    \n");
                 sql.Append("(    \n");
                 sql.Append("	select vcCodeId,vcCodeName,vcValue1,    \n");
@@ -337,7 +355,7 @@ namespace DataAccess
                 sql.Append("           ,[vcOperatorID]        \n");
                 sql.Append("           ,[dOperatorTime])        \n");
                 sql.Append("select a1.vcPlant,'" + dBZDate + "',a1.vcBigPM,a1.vcSmallPM,a1.vcStandardTime,    \n");
-                sql.Append("isnull(a2.A,0) as A,isnull(a2.B,0) as B,isnull(a2.C,0) as C,'外注' as kind,'" + strUserId + "',GETDATE()        \n");
+                sql.Append("isnull(a2.A,0) as A,isnull(a2.B,0) as B,isnull(a2.C,0) as C,'外注' as kind,'" + strUserId + "','"+now+"'        \n");
                 sql.Append("from (        \n");
                 sql.Append("	--大品目    \n");
                 sql.Append("	select t1.vcValue as vcPlant,t2.* from (    \n");
@@ -363,7 +381,7 @@ namespace DataAccess
                 sql.Append("			select * from TPackageMaster where vcReceiver='APC06' and vcPackingPlant='" + strUnit + "'    \n");
                 sql.Append("		) t2 on t1.vcPartId=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplierId    \n");
                 sql.Append("		left join TPMRelation t3 on t2.vcSmallPM=t3.vcSmallPM    \n");
-                sql.Append("		group by t1.vcPlant,t3.vcBigPM,t2.vcSmallPM,t1.vcPlant,t1.vcPackBZ    \n");
+                sql.Append("		group by t1.vcPlant,t3.vcBigPM,t2.vcSmallPM,t1.vcPackBZ    \n");
                 sql.Append("	) test pivot(sum(iPackNum) for vcPackBZ in(白,夜)) t1        \n");
                 sql.Append(")a2 on a1.vcBigPM=a2.vcBigPM and a1.vcSmallPM=a2.vcSmallPM and a1.vcPlant=a2.vcPlant    \n");
                 #endregion
@@ -382,7 +400,7 @@ namespace DataAccess
                 sql.Append("           ,[vcOperatorID]        \n");
                 sql.Append("           ,[dOperatorTime])         \n");
                 sql.Append("select a1.vcPlant,'" + dBZDate + "',a1.vcBigPM,a1.vcSmallPM,a1.vcStandardTime,        \n");
-                sql.Append("isnull(a2.A,0) as A,isnull(a2.B,0) as B,isnull(a2.C,0) as C,'内制' as kind,'" + strUserId + "',GETDATE()    \n");
+                sql.Append("isnull(a2.A,0) as A,isnull(a2.B,0) as B,isnull(a2.C,0) as C,'内制' as kind,'" + strUserId + "','"+now+"'    \n");
                 sql.Append("from (        \n");
                 sql.Append("	--大品目        \n");
                 sql.Append("	select t1.vcValue as vcPlant,t2.* from (    \n");

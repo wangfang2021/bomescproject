@@ -645,13 +645,16 @@ namespace SPPSApi.Controllers.G12
                                                 }
                                                 catch (Exception ex)
                                                 {
+                                                    msg = "看板确认单失败！";
+                                                    throw ex;
+
+                                                }
+                                                finally
+                                                {
                                                     lg.DropTempTable(inTable_tmp);//删除打印临时表
                                                     lg.DropTempTable(exdthj_tmp);//删除打印临时表
-                                                    return "看板确认单失败！";
                                                 }
                                             }
-                                            lg.DropTempTable(inTable_tmp);//删除打印临时表
-                                            lg.DropTempTable(exdthj_tmp);//删除打印临时表
                                             #endregion
 
                                             DataTable checkorderno = new DataTable();
@@ -698,13 +701,15 @@ namespace SPPSApi.Controllers.G12
                                         }
                                         catch (Exception ex)
                                         {
+                                            msg = "看板确认单失败！";
+                                            throw ex;
+                                        }
+                                        finally
+                                        {
                                             lg.DropTempTable(exdttt_tmp);//删除打印临时表
                                             lg.DropTempTable(exdthj_tmp);//删除打印临时表
-                                            return "看板确认单失败！";
                                         }
                                     }
-                                    lg.DropTempTable(exdttt_tmp);//删除打印临时表
-                                    lg.DropTempTable(exdthj_tmp);//删除打印临时表
                                     #endregion
 
                                     DataTable checkorderno = new DataTable();

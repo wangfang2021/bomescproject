@@ -130,9 +130,9 @@ namespace SPPSApi.Controllers.G02
                 string environment = Environment.OSVersion.ToString().ToLower();
                 if (!environment.Contains("windows"))
                 {
-                    string realPath = ComFunction.HttpDownload(@"Doc\Export\", carType + ".xlsx", _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export");
+                    string realPath = ComFunction.HttpDownload(@"Doc\TTCC\SPRL\", carType + ".xlsx", _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export");
                     string filepath = System.IO.Path.GetFileName(realPath);
-                    
+
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = filepath;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

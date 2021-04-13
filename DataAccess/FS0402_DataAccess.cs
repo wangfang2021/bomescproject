@@ -46,7 +46,8 @@ namespace DataAccess
                 strSql.Append(" when iTzhSOQN is null or iTzhSOQN1 is null or iTzhSOQN2 is null then 'partFS0402A' --无调整      \n");
                 strSql.Append(" when iTzhSOQN=iCbSOQN and iTzhSOQN1=iCbSOQN1 and iTzhSOQN2=iCbSOQN2 then 'partFS0402A' --无调整      \n");
                 strSql.Append(" else 'partFS0402B' --有调整      \n");
-                strSql.Append(" end as vcBgColor                \n");
+                strSql.Append(" end as vcBgColor,                \n");
+                strSql.Append("case when RIGHT(vcPart_id,2)='00' then LEFT(vcPart_id,10) else vcPart_id end as vcPart_id_export \n");
                 strSql.Append("  FROM TSoq a  \n");
                 strSql.Append("  left join      \n");
                 strSql.Append("  (      \n");
@@ -54,7 +55,7 @@ namespace DataAccess
                 strSql.Append("  )b on a.vcDyState=b.vcValue      \n");
                 strSql.Append("  left join      \n");
                 strSql.Append("  (      \n");
-                strSql.Append("     select vcValue,vcName from TCode where vcCodeId='C037'      \n");
+                strSql.Append("     select vcValue,vcName from TCode where vcCodeId='C075'      \n");
                 strSql.Append("  )b2 on a.vcHyState=b2.vcValue      \n");
                 strSql.Append("  WHERE 1=1  \n");
 

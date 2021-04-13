@@ -43,10 +43,10 @@ namespace SPPSApi.Controllers.G04
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> dataList_C036 = ComFunction.convertAllToResult(fs0402_Logic.getTCode("C036"));//月度订单对应状态
-                List<Object> dataList_C037 = ComFunction.convertAllToResult(ComFunction.getTCode("C037"));//月度订单合意状态
+                List<Object> dataList_C075 = ComFunction.convertAllToResult(ComFunction.getTCode("C075"));//月度订单合意状态
 
                 res.Add("C036", dataList_C036);
-                res.Add("C037", dataList_C037);
+                res.Add("C075", dataList_C075);
                 DateTime dNow = DateTime.Now.AddMonths(1);
                 res.Add("yearMonth", dNow.ToString("yyyy/MM"));
 
@@ -335,7 +335,7 @@ namespace SPPSApi.Controllers.G04
             try
             {
                 DataTable dt = fs0402_Logic.Search(strYearMonth, strDyState, strHyState, strPart_id).Tables[0];
-                string[] fields = { "vcYearMonth", "vcDyState_Name", "vcHyState_Name", "vcPart_id", "iCbSOQN", "decCbBdl"
+                string[] fields = { "vcYearMonth", "vcDyState_Name", "vcHyState_Name", "vcPart_id_export", "iCbSOQN", "decCbBdl"
                 ,"iCbSOQN1","iCbSOQN2","iTzhSOQN","iTzhSOQN1","iTzhSOQN2","iHySOQN","iHySOQN1","iHySOQN2"
                 ,"dHyTime"
                 };

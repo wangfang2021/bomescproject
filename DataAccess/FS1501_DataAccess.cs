@@ -115,6 +115,7 @@ namespace DataAccess
             StringBuilder sql = new StringBuilder();
             try
             {
+                DateTime now = DateTime.Now;
                 sql.Append("DELETE FROM [TNRBJSKBianCi_Temp] where vcOperatorID='" + strUserId + "' \n");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -138,13 +139,19 @@ namespace DataAccess
                     sql.Append("               ,'" + dt.Rows[i]["vcSR"].ToString() + "'  \n");
                     sql.Append("               ,'" + dt.Rows[i]["vcOrderNo"].ToString() + "'  \n");
                     sql.Append("               ,'" + dt.Rows[i]["vcNRBianCi"].ToString() + "'  \n");
-                    sql.Append("               ,'" + dt.Rows[i]["vcNRBJSK"].ToString() + "'  \n");
+                    string vcNRBJSK = dt.Rows[i]["vcNRBJSK"].ToString();
+                    if(vcNRBJSK!="N+1")
+                    {
+                        vcNRBJSK = vcNRBJSK.PadLeft(4, '0');
+                        vcNRBJSK = vcNRBJSK.Substring(0, 2) + ":" + vcNRBJSK.Substring(2, 2);
+                    }
+                    sql.Append("               ,'" + vcNRBJSK + "'  \n");
                     sql.Append("               ,'"+strUserId+"'  \n");
-                    sql.Append("               ,getdate())  \n");
+                    sql.Append("               ,'"+ now + "')  \n");
                     sql.Append("end  \n");
                     sql.Append("else  \n");
                     sql.Append("begin    \n");
-                    sql.Append("    update TNRBJSKBianCi_Temp set vcNRBianCi='" + dt.Rows[i]["vcNRBianCi"].ToString() + "',vcNRBJSK='" + dt.Rows[i]["vcNRBJSK"].ToString() + "',vcOperatorID='" + strUserId + "',dOperatorTime=getdate()    \n");
+                    sql.Append("    update TNRBJSKBianCi_Temp set vcNRBianCi='" + dt.Rows[i]["vcNRBianCi"].ToString() + "',vcNRBJSK='" + dt.Rows[i]["vcNRBJSK"].ToString() + "',vcOperatorID='" + strUserId + "',dOperatorTime='"+ now + "'    \n");
                     sql.Append("    where vcSupplier_id='" + dt.Rows[i]["vcSupplier_id"].ToString() + "' and vcGQ='" + dt.Rows[i]["vcGQ"].ToString() + "'\n");
                     sql.Append("    and vcSR='" + dt.Rows[i]["vcSR"].ToString() + "' and vcOrderNo='" + dt.Rows[i]["vcOrderNo"].ToString() + "'   \n");
                     sql.Append("end  \n");

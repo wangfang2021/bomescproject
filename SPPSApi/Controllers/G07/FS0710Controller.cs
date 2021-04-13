@@ -152,7 +152,7 @@ namespace SPPSApi.Controllers.G07
                             FS0710_Logic.InsertCaystal(drc, PackSpot[0].ToString(), strSupplierCode[i].ToString(), dFrom, dTo);
                             #region 调用webApi打印
                             FS0603_Logic fS0603_Logic = new FS0603_Logic();
-                            DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("SPIS生成", "");
+                            DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("包材内示统计", "");
                             if (dtPrinterInfo.Rows.Count != 0)
                             {
                                 //创建 HTTP 绑定对象

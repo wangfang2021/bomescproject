@@ -158,9 +158,8 @@ namespace SPPSApi.Controllers.G12
                 string picnull = _webHostEnvironment.ContentRootPath + "\\images\\picnull.JPG";
                 string tmplatePath = "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
-                string strPrinterName = "";//获取打印机
+                string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
                 string RolePorType = "";//获取生产部署信息
-
 
                 string vcFlagZ = "";
                 byte[] vcPhotoPath = print.PhotoToArray("", picnull);//照片初始化
@@ -430,7 +429,7 @@ namespace SPPSApi.Controllers.G12
                                                 FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
                                                 msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                             }
-                                            catch
+                                            catch(Exception ex)
                                             {
                                                 lg.DropTempTable(inTable_tmp);//删除打印临时表
                                                 lg.DropTempTable(exdthj_tmp);//删除打印临时表
@@ -472,7 +471,7 @@ namespace SPPSApi.Controllers.G12
                                         FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
                                         exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                     }
-                                    catch
+                                    catch(Exception ex)
                                     {
                                         lg.DropTempTable(exdttt_tmp);//删除打印临时表
                                         lg.DropTempTable(exdthj_tmp);//删除打印临时表
@@ -721,7 +720,7 @@ namespace SPPSApi.Controllers.G12
                 string picnull = _webHostEnvironment.ContentRootPath + "\\images\\picnull.JPG";
                 string tmplatePath = _webHostEnvironment.ContentRootPath + "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
-                string strPrinterName = "";//获取打印机
+                string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
                 string vcFlagZ = "";
 
                 #region 检索
@@ -773,18 +772,18 @@ namespace SPPSApi.Controllers.G12
                     string vcDock = dt17.Rows[i]["vcDock"].ToString();//受入
                     string vcCarFamilyCode = dt17.Rows[i]["vcCarType"].ToString();//车型
                     string vcEDflag = dt17.Rows[i]["jinjiqufen"].ToString();//紧急区分
-                    //if (vcEDflag == "通常")
-                    //{
-                    //    vcEDflag = "S";
-                    //}
-                    //else if (vcEDflag == "紧急")
-                    //{
-                    //    vcEDflag = "E";
-                    //}
-                    //else
-                    //{
-                    //    vcEDflag = " ";
-                    //}
+                    if (vcEDflag == "通常")
+                    {
+                        vcEDflag = "S";
+                    }
+                    else if (vcEDflag == "紧急")
+                    {
+                        vcEDflag = "E";
+                    }
+                    else
+                    {
+                        vcEDflag = " ";
+                    }
                     string vcKBorderno = dt17.Rows[i]["vcKBorderno"].ToString(); //看板订单号
                     string vcKBSerial = dt17.Rows[i]["vcKBSerial"].ToString();//连番
                     string vcPlanMonth = "";
@@ -1162,7 +1161,7 @@ namespace SPPSApi.Controllers.G12
                 string picnull = _webHostEnvironment.ContentRootPath + "\\images\\picnull.JPG";
                 string tmplatePath = _webHostEnvironment.ContentRootPath + "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
-                string strPrinterName = "";//获取打印机
+                string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
                 #region 检索
                 string vcKbOrderId = dataForm.vcKbOrderId == null ? "" : dataForm.vcKbOrderId;
                 string vcTF = dataForm.vcTF == null ? "" : dataForm.vcTF;
@@ -1434,5 +1433,7 @@ namespace SPPSApi.Controllers.G12
             return tb;
         }
         #endregion
+
+
     }
 }

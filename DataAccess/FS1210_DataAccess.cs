@@ -134,7 +134,7 @@ namespace DataAccess
                     string flag = "";
                     if (dtflag.Rows.Count != 0)
                     {
-                        if (!(dtflag.Rows[0]["Text"].ToString() == "admin" && dtflag.Rows.Count == 1))
+                        if (!(dtflag.Rows[0]["Text"].ToString() == "000000" && dtflag.Rows.Count == 1))
                         {
                             flag += "'";
                             for (int i = 0; i < dtflag.Rows.Count; i++)
@@ -1043,6 +1043,26 @@ namespace DataAccess
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        #endregion
+
+        #region 获取所属打印机的名称
+        public string PrintMess(string userid)
+        {
+            StringBuilder strSQL = new StringBuilder();
+            strSQL.AppendLine("SELECT [vcPrinterName]");
+            strSQL.AppendLine("  FROM [tPrint]");
+            strSQL.AppendLine(" WHERE [vcUserFlag]='" + userid + "'");
+            strSQL.AppendLine("");
+            DataTable dt = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
+            if (dt.Rows.Count != 0)
+            {
+                return dt.Rows[0][0].ToString();
+            }
+            else
+            {
+                return "";
             }
         }
         #endregion

@@ -78,8 +78,7 @@ namespace SPPSApi.Controllers.G06
                 res.Add("SupplierIdForForm", SupplierIdForForm);
                 res.Add("SupplierPlantForForm", SupplierPlantForForm);
                 res.Add("yearMonth", dNow.ToString("yyyy/MM"));
-
-                DataTable dtTask = fs0602_Logic.getSearchInfo(dNow.ToString("yyyyMM"), "", "", "", "", "", "", "", "", "", "", "", "");
+                DataTable dtTask = fs0602_Logic.getTankInfo(dNow.ToString("yyyyMM"));
                 res.Add("tasknum", dtTask.Rows.Count);
                 res.Add("taskok", dtTask.Select("vcHyState='2'").Length);
                 res.Add("taskng", dtTask.Select("vcHyState='3'").Length);
@@ -141,7 +140,7 @@ namespace SPPSApi.Controllers.G06
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dtInfo, dtConverter);
-                DataTable dtTask = fs0602_Logic.getSearchInfo(strYearMonth, "", "", "", "", "", "", "", "", "", "", "", "");
+                DataTable dtTask = fs0602_Logic.getTankInfo(strYearMonth);
                 res.Add("tasknum", dtTask.Rows.Count);
                 res.Add("taskok", dtTask.Select("vcHyState='2'").Length);
                 res.Add("taskng", dtTask.Select("vcHyState='3'").Length);

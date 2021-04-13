@@ -88,8 +88,8 @@ namespace SPPSApi.Controllers.G02
                         List<Hashtable> list = fs0203_logic.GetPartFromFile(info.FullName);
                         if (list.Count > 0)
                         {
-                            fs0203_logic.importPartList(list, info.Name, loginInfo.UserId);
                             SaveFile(fileSavePath, "PartList");
+                            fs0203_logic.importPartList(list, info.Name, loginInfo.UserId);
                         }
                     }
 
@@ -138,8 +138,8 @@ namespace SPPSApi.Controllers.G02
                         {
                             importDt.ImportRow(row);
                         }
-                        fs0203_logic.importSPRL(importDt, info.Name, loginInfo.UserId);
                         SaveFile(fileSavePath, "SPRL");
+                        fs0203_logic.importSPRL(importDt, info.Name, loginInfo.UserId);
                     }
                     ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 

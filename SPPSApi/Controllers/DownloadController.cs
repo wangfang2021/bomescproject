@@ -39,6 +39,8 @@ namespace SPPSApi.Controllers
                 var ext = fileInfo.Extension;
                 new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
                 byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                if (fileInfo.Exists)
+                    fileInfo.Delete();
                 return File(bt, contenttype ?? "application/octet-stream", fileInfo.Name);
             }
             catch (Exception ex)
@@ -104,7 +106,7 @@ namespace SPPSApi.Controllers
         }
         #endregion
 
-        #region 下载-Doc/Export,下载后会自动删除文件
+        #region 下载-Doc/Template,下载后会自动删除文件
         [HttpGet]
         [EnableCors("any")]
         public IActionResult downloadTplApi(string path)

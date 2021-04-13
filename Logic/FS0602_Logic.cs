@@ -75,6 +75,12 @@ namespace Logic
             return dataTable;
         }
 
+        public DataTable getTankInfo(string strYearMonth)
+        {
+            DataTable dataTable = fs0602_DataAccess.getTankInfo(strYearMonth);
+            return dataTable;
+        }
+
         public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName, string strYearMonth, string strYearMonth_2, string strYearMonth_3)
         {
             try

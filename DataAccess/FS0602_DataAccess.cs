@@ -129,16 +129,12 @@ namespace DataAccess
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C037')T7--合意状态 ");
                 strSql.AppendLine("on T1.vcHyState=T7.vcValue ");
                 strSql.AppendLine("left join ");
-                strSql.AppendLine("(select a.vcYearMonth,a.vcPart_id,a.iTzhSOQN,a.iTzhSOQN1,a.iTzhSOQN2      ");
-                strSql.AppendLine("from  ");
-                strSql.AppendLine("(select * from TSoq_OperHistory  ");
-                strSql.AppendLine("where vcInputType in ('supplier','company'))a     ");
-                strSql.AppendLine("inner join  ");
-                strSql.AppendLine("(select vcYearMonth,vcPart_id,MAX(dOperatorTime) as dOperatorTime from TSoq_OperHistory ");
-                strSql.AppendLine("where vcInputType in ('supplier','company')   ");
-                strSql.AppendLine("group by vcYearMonth,vcPart_id     ");
-                strSql.AppendLine(")b on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id  and a.dOperatorTime=b.dOperatorTime)T8 ");
-                strSql.AppendLine("on T1.vcYearMonth=t8.vcYearMonth and t1.vcPart_id=t8.vcPart_id");
+                strSql.AppendLine("(select * from [VI_Soq_OperHistory]");
+                if (strYearMonth != "")
+                {
+                    strSql.AppendLine("where vcYearMonth='" + strYearMonth + "' ");
+                }
+                strSql.AppendLine(")T8 on T1.vcYearMonth=t8.vcYearMonth and t1.vcPart_id=t8.vcPart_id");
                 strSql.AppendLine(")TT");
                 if (strOverDue == "1")
                 {
@@ -272,16 +268,12 @@ namespace DataAccess
                 //strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C037')T7--合意状态 ");
                 //strSql.AppendLine("on T1.vcHyState=T7.vcValue ");
                 strSql.AppendLine("left join ");
-                strSql.AppendLine("(select a.vcYearMonth,a.vcPart_id,a.iTzhSOQN,a.iTzhSOQN1,a.iTzhSOQN2      ");
-                strSql.AppendLine("from  ");
-                strSql.AppendLine("(select * from TSoq_OperHistory  ");
-                strSql.AppendLine("where vcInputType in ('supplier','company'))a     ");
-                strSql.AppendLine("inner join  ");
-                strSql.AppendLine("(select vcYearMonth,vcPart_id,MAX(dOperatorTime) as dOperatorTime from TSoq_OperHistory ");
-                strSql.AppendLine("where vcInputType in ('supplier','company')   ");
-                strSql.AppendLine("group by vcYearMonth,vcPart_id     ");
-                strSql.AppendLine(")b on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id  and a.dOperatorTime=b.dOperatorTime)T8 ");
-                strSql.AppendLine("on T1.vcYearMonth=t8.vcYearMonth and t1.vcPart_id=t8.vcPart_id");
+                strSql.AppendLine("(select * from [VI_Soq_OperHistory]");
+                if (strYearMonth != "")
+                {
+                    strSql.AppendLine("where vcYearMonth='" + strYearMonth + "' ");
+                }
+                strSql.AppendLine(")T8 on T1.vcYearMonth=t8.vcYearMonth and t1.vcPart_id=t8.vcPart_id");
                 strSql.AppendLine(")TT");
                 if (strOverDue == "1")
                 {
@@ -291,6 +283,20 @@ namespace DataAccess
                 {
                     strSql.AppendLine("WHERE vcOverDue<>'逾期'");
                 }
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getTankInfo(string strYearMonth)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select * from TSoq where vcYearMonth='" + strYearMonth + "'");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

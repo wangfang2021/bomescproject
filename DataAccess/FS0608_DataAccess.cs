@@ -111,113 +111,125 @@ namespace DataAccess
                     return "最少必须维护3天";
                 excute.ExcuteSqlWithStringOper(strSql.ToString(), parameters);
 
-                DataTable ckdt = excute.ExcuteSqlWithSelectToDT("select * from TCalendar_PingZhun_Wai where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "'");
-                double[] weeks = { 0, 0, 0, 0 };
-                double[] weeks_pre = { 0, 0, 0, 0 };
-                string[] weekNames = { "", "", "", "" };
-                string[] weekValue = { "", "", "", "" };
 
+
+                #region 问题方法弃用
+                DataTable ckdt = excute.ExcuteSqlWithSelectToDT("select * from TCalendar_PingZhun_Wai where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "'");
+                #region 准备判断数据
+                double[] weeks = { 0, 0, 0, 0 };
                 for (int i = 0; i < 31; i++)
                 {
                     if (ckdt.Rows[0][i + 3].ToString() == "1")
                     {
                         weeks[0] = weeks[0] + 1;
-                        weekNames[0] = "TARGETDAY" + (i + 1).ToString();
-                        weekValue[0] = "1";
                     }
                     else if (ckdt.Rows[0][i + 3].ToString() == "1*")
                     {
                         weeks[0] = weeks[0] + 0.5;
-                        weekNames[0] = "TARGETDAY" + (i + 1).ToString();
-                        weekValue[0] = "1*";
                     }
                     else if (ckdt.Rows[0][i + 3].ToString() == "2")
                     {
                         weeks[1] = weeks[1] + 1;
-                        weekNames[1] = "TARGETDAY" + (i + 1).ToString();
-                        weekValue[1] = "2";
                     }
                     else if (ckdt.Rows[0][i + 3].ToString() == "2*")
                     {
                         weeks[1] = weeks[1] + 0.5;
-                        weekNames[1] = "TARGETDAY" + (i + 1).ToString();
-                        weekValue[1] = "2*";
                     }
                     else if (ckdt.Rows[0][i + 3].ToString() == "3")
                     {
                         weeks[2] = weeks[2] + 1;
-                        weekNames[2] = "TARGETDAY" + (i + 1).ToString();
-                        weekValue[2] = "3";
                     }
                     else if (ckdt.Rows[0][i].ToString() == "3*")
                     {
                         weeks[2] = weeks[2] + 0.5;
-                        weekNames[2] = "TARGETDAY" + (i + 1).ToString();
-                        weekValue[2] = "3*";
                     }
                     else if (ckdt.Rows[0][i + 3].ToString() == "4")
                     {
                         weeks[3] = weeks[3] + 1;
-                        weekNames[3] = "TARGETDAY" + (i + 1).ToString();
-                        weekValue[3] = "4";
                     }
                     else if (ckdt.Rows[0][i + 3].ToString() == "4*")
                     {
                         weeks[3] = weeks[3] + 0.5;
-                        weekNames[3] = "TARGETDAY" + (i + 1).ToString();
-                        weekValue[3] = "4";
                     }
                 }
-
-                for (int i = 0; i < weeks.Length; i++)
-                {
-                    weeks_pre[i] = weeks[i];
-                }
-
-
+                #endregion
                 Array.Sort(weeks);
-
-                string sql = "";
-                int flag = 0;
-                if (weeks[3] - weeks[0] > 1)
+                if (weeks[3] - weeks[0] > 1) //判断存在差值大于1的，则重新分配
                 {
-                    for (int i = 0; i < 4; i++)
+                    double totals = 0;
+                    double avg_int = 0;
+                    double avg_left = 0;
+                    for (int i = 1; i <= 31; i++)
                     {
-                        if (flag == 1)
+                        if (ckdt.Rows[0]["TARGETDAY" + i.ToString()].ToString().Contains('*'))
+                            totals = totals + 0.5;
+                        else if (!ckdt.Rows[0]["TARGETDAY" + i.ToString()].ToString().Contains('0'))
                         {
-                            if (i < 3)
+                            if (i != 31)
                             {
-                                sql += weekNames[i] + "='" + weekValue[i + 1] + "',";
+                                totals = totals + 1;
                             }
                         }
-                        else
+                    }
+                    avg_int = Math.Floor(totals / 4);
+                    avg_left = totals % 4;
+
+                    DataTable dt = new DataTable();
+                    dt.Columns.Add("c1");
+
+                    for (int i = 1; i < 5; i++)
+                    {
+                        for (int k = 0; k <= avg_int; k++)
                         {
-                            if (weeks_pre[i] == weeks[3])
+                            DataRow r = dt.NewRow();
+                            if (k < avg_int)
+                                r[0] = i.ToString();
+                            else
                             {
-                                flag = 1;
-                                if (i < 3)
+                                if (avg_left == 0.5)
                                 {
-                                    sql += weekNames[i] + "='" + weekValue[i + 1] + "',";
+                                    r[0] = i.ToString() + "*";
+                                    avg_left = 0;
+                                }
+                                else if (avg_left > 0.5)
+                                {
+                                    r[0] = i.ToString();
+                                    avg_left--;
+                                }
+                                else
+                                {
+                                    break;
                                 }
                             }
+                            dt.Rows.Add(r);
                         }
-
                     }
-                }
 
-                sql = sql.TrimEnd(',');
-                if (sql.Length > 0)
-                {
-                    sql = "update TCalendar_PingZhun_Wai set " + sql + " where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "';";
+                    for (int i = 1; i <= 31; i++)
+                    {
+                        if (!ckdt.Rows[0]["TARGETDAY" + i.ToString()].ToString().Contains('0'))
+                        {
+                            if (dt.Rows.Count > 0)
+                            {
+                                ckdt.Rows[0]["TARGETDAY" + i.ToString()] = dt.Rows[0][0];
+                                dt.Rows[0].Delete();
+                            }
+                            else
+                            {
+                                ckdt.Rows[0]["TARGETDAY" + i.ToString()] = "0";
+                            }
+                        }
+                    }
+                    string sql = "update TCalendar_PingZhun_Wai set ";
+                    for (int y = 1; y <= 31; y++)
+                    {
+                        sql += "TARGETDAY" + y.ToString() + "='" + ckdt.Rows[0]["TARGETDAY" + y.ToString()].ToString() + "',";
+                    }
+                    sql = sql.TrimEnd(',');
+                    sql += " where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "'";
                     excute.ExecuteSQLNoQuery(sql);
                 }
-
-
-                //if (week1 - week4 > 1)
-                //{
-                //    //string sql1 = "update TCalendar_PingZhun_Wai set " + week1Name + "='2'," + week2Name + "='3'," + week3Name + "='4' where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "';";
-                //    //excute.ExecuteSQLNoQuery(sql1);
-                //}
+                #endregion
 
                 return msg;
             }

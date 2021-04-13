@@ -95,6 +95,12 @@ namespace SPPSApi.Controllers.G06
             string vcLastTargetMonth = string.Empty;
             if (vcTargetMonth.Length == 0)
             {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "请输入对象年月！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            if (vcTargetMonth.Length == 0)
+            {
                 vcTargetMonth = DateTime.Now.ToString("yyyyMM");
                 vcLastTargetMonth = DateTime.Now.AddMonths(-1).ToString("yyyyMM");
             }
@@ -238,6 +244,12 @@ namespace SPPSApi.Controllers.G06
             string vcConsignee = dataForm.vcConsignee == null ? "" : dataForm.vcConsignee;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
             string vcLastTargetMonth = string.Empty;
+            if (vcTargetMonth.Length == 0)
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "请输入对象年月！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
             if (vcTargetMonth.Length == 0)
             {
                 vcTargetMonth = DateTime.Now.ToString("yyyyMM");

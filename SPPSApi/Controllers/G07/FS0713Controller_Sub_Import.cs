@@ -31,7 +31,7 @@ namespace SPPSApi.Controllers.G07
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         FS0713_Logic fs0713_Logic = new FS0713_Logic();
-        private readonly string FunctionID = "FS0713";
+        private readonly string FunctionID = "FS0713_Sub_Import";
 
         public FS0713Controller_Sub_Import(IWebHostEnvironment webHostEnvironment)
         {

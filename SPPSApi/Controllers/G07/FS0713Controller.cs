@@ -245,6 +245,13 @@ namespace SPPSApi.Controllers.G07
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
+                DataTable dt = FS0713_Logic.SearchBase();
+                bool h = listInfoData.GroupBy(i => i).Where(g => g.Count() > 1).Count() >= 1;
+                if (h) {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "品番有重复！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
@@ -256,6 +263,12 @@ namespace SPPSApi.Controllers.G07
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
+                    }
+                    if (dt.Select("vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString() + "' and vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString() + "'").Length<=0) {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "查无此品番维护信息";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
                     }
                     //Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
                     //bool b = regex.IsMatch(listInfoData[i]["vcKBcycle"].ToString());
@@ -274,7 +287,7 @@ namespace SPPSApi.Controllers.G07
                 }
 
                 string strErrorPartId = "";
-                FS0713_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                FS0713_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId, dt);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

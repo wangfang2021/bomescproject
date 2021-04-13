@@ -163,9 +163,9 @@ namespace SPPSApi.Controllers.G07
                             //从工厂获取具体的调用实例
                             var callClient = factory.CreateChannel();
                             setCRVToPDFRequestBody Body = new setCRVToPDFRequestBody();
-                            Body.strCRVName = file_crv + "crv_FS0710.rpt";
+                            Body.strCRVName = "D:/3.启明系统开发/62.2021年补给管理运用平台/WebAPI/WebAPI/crv_FS0710.rpt";
                             Body.strScrpit = "select * from TPackNRTJ_Caystal ";
-                            Body.strDiskFileName = "D:/3.启明系统开发/62.2021年补给管理运用平台/API/SPPSApi/Doc/Image/SPISPdf/内示"+DateTime.Now.ToString("yyyyMMddHHssmm")+".PDF";
+                            Body.strDiskFileName = "D:/3.启明系统开发/62.2021年补给管理运用平台/WebAPI/WebAPI/内示" + DateTime.Now.ToString("yyyyMMddHHssmm")+".PDF";
                             Body.sqlUserID = "sa";
                             Body.sqlPassword = "SPPS_Server2019";
                             Body.sqlCatalog = "SPPSdb";

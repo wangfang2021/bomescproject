@@ -45,7 +45,7 @@ namespace DataAccess
                 strSql.AppendLine("      	1 = 1");
                 if (strSupplierCode.Count != 0)
                 {
-                    strSql.AppendLine($"      AND vcSupplierID in( ");
+                    strSql.AppendLine($"      AND vcSupplierCode in( ");
                     for (int i = 0; i < strSupplierCode.Count; i++)
                     {
                         if (strSupplierCode.Count - i == 1)
@@ -111,9 +111,17 @@ namespace DataAccess
                     sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
                     sql.AppendLine($"  WHERE");
                     sql.AppendLine($"  vcPackSpot='{dt.Rows[i]["vcPackSpot"].ToString()}'and  vcPackNo='{dt.Rows[i]["vcPackNo"].ToString()}';");
-                    sql.AppendLine("  UPDATE TPackSaveZK");
+
+                    sql.AppendLine("  UPDATE TPackZaiKu");
                     sql.AppendLine("  SET ");
-                    sql.AppendLine($"   iAnQuan = '{dt.Rows[i]["dSaveZK"].ToString()}',");
+                    if (dt.Rows[i]["dSaveZK"].ToString() == "")
+                    {
+                        sql.AppendLine($"   iAnQuan = 0.00,");
+                    }
+                    else {
+                        sql.AppendLine($"   iAnQuan = '{dt.Rows[i]["dSaveZK"].ToString()}',");
+                    }
+                   
                     sql.AppendLine($"   vcOperatorID = {strUserId},");
                     sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
                     sql.AppendLine($"  WHERE");
@@ -280,7 +288,7 @@ namespace DataAccess
         #endregion
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId,DataTable dtbase)
         {
             try
             {
@@ -288,6 +296,9 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
+
+                    DataRow[] dr = dtbase.Select("vcPackSpot='"+ listInfoData[i]["vcPackSpot"].ToString() + "' and vcPackGPSNo='"+ listInfoData[i]["vcPackGPSNo"].ToString() + "'");
+
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     if (bAddFlag == true)
@@ -301,12 +312,11 @@ namespace DataAccess
 
                         sql.AppendLine("     VALUES");
                         sql.AppendLine("     	(");
-
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false) + ",");
+                        sql.AppendLine("'"+ dr[0]["vcPackNo"].ToString() + "',");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcKBcycle"], false) + ",");
+                        sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
+                        sql.AppendLine("'" + dr[0]["vcCycle"].ToString() + "',");
                         sql.AppendLine($"     		{strUserId},");
                         sql.AppendLine("     		getDate()");
                         sql.AppendLine("     	); ");
@@ -318,11 +328,12 @@ namespace DataAccess
 
                         sql.AppendLine("  UPDATE TPackSaveZK");
                         sql.AppendLine("  SET ");
-                        sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)},");
-                        sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false)},");
-                        sql.AppendLine($"   vcPackGPSNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true)},");
-                        sql.AppendLine($"   vcSupplierCode = {ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], true)},");
-                        sql.AppendLine($"   vcKBcycle = {ComFunction.getSqlValue(listInfoData[i]["vcKBcycle"], false)},");
+                        sql.AppendLine($"   vcSaveZK = {ComFunction.getSqlValue(listInfoData[i]["vcSaveZK"], false)},");
+                        //sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)},");
+                        //sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false)},");
+                        //sql.AppendLine($"   vcPackGPSNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true)},");
+                        //sql.AppendLine($"   vcSupplierCode = {ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], true)},");
+                        //sql.AppendLine($"   vcKBcycle = {ComFunction.getSqlValue(listInfoData[i]["vcKBcycle"], false)},");
                         sql.AppendLine($"   vcOperatorID = {strUserId},");
                         sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
                         sql.AppendLine($"  WHERE");
@@ -625,7 +636,7 @@ namespace DataAccess
                                 {
                                     if (dr.Length > z)
                                     {
-                                        drImport["vcDay" + dr[0]["vcYMD"].ToString().Substring(5, 4) + (z + 1).ToString()] = dtCalcuateOld.Rows[z]["inum"].ToString();
+                                        drImport["vcDay" + dr[0]["vcYMD"].ToString().Substring(5, 5)] =Convert.ToDecimal(dtCalcuateOld.Rows[z]["inum"].ToString()).ToString("0.00");
                                         count += Convert.ToDouble(dtCalcuateOld.Rows[z]["inum"].ToString());
                                         iYXDate++;
                                     }
@@ -671,7 +682,7 @@ namespace DataAccess
                                     if (dr.Length > z)
                                     {
 
-                                        drImport["vcDay" + dr[z]["vcBZ"].ToString().Substring(0, 1) + dr[z]["vcYMD"].ToString().Substring(5, 5)] = dtCalcuateOld.Rows[z]["inum"].ToString();
+                                        drImport["vcDay" + dr[z]["vcBZ"].ToString().Substring(0, 1) + dr[z]["vcYMD"].ToString().Substring(5, 5)] = Convert.ToDecimal(dtCalcuateOld.Rows[z]["inum"].ToString()).ToString("0.00");
                                         iYXDate++;
                                         count += Convert.ToDouble(dtCalcuateOld.Rows[z]["inum"].ToString());
 
@@ -719,7 +730,7 @@ namespace DataAccess
                                     {
                                         if (dtendTime.Select("vcDate='" + dr[z]["vcTime"].ToString().Substring(11, 11) + "'").Length != 0)
                                         {
-                                            drImport["vcDay" + dr[z]["vcTime"].ToString().Substring(5, 17)] = dtCalcuateOld.Rows[z]["inum"].ToString();
+                                            drImport["vcDay" + dr[z]["vcTime"].ToString().Substring(5, 17)] = Convert.ToDecimal(dtCalcuateOld.Rows[z]["inum"].ToString()).ToString("0.00");
 
                                         }
                                         else
@@ -780,7 +791,7 @@ namespace DataAccess
                                 {
                                     if (dr.Length > z)
                                     {
-                                        drImport["vcDay" + dr1[z]["vcYMD"].ToString().Substring(5, 5)] = dtCalcuateOld.Rows[z]["inum"].ToString();
+                                        drImport["vcDay" + dr1[z]["vcYMD"].ToString().Substring(5, 5)] = Convert.ToDecimal(dtCalcuateOld.Rows[z]["inum"].ToString()).ToString("0.00");
                                         iYXDate++;
                                         for (int cc = 1; cc <= 10; cc++)
                                         {
@@ -839,7 +850,7 @@ namespace DataAccess
                                     if (dr.Length > z)
                                     {
 
-                                        drImport["vcDay" + dr[z]["vcBZ"].ToString().Substring(0, 1) + dr[z]["vcYMD"].ToString().Substring(5, 5)] = dtCalcuateOld.Rows[z]["inum"].ToString();
+                                        drImport["vcDay" + dr[z]["vcBZ"].ToString().Substring(0, 1) + dr[z]["vcYMD"].ToString().Substring(5, 5)] = Convert.ToDecimal(dtCalcuateOld.Rows[z]["inum"].ToString()).ToString("0.00");
                                         for (int cc = 1; cc <= 10; cc++)
                                         {
                                             if (cc <= dr.Length)
@@ -901,7 +912,7 @@ namespace DataAccess
                                     {
                                         if (dtendTime.Select("vcDate='" + dr1[z]["vcTime"].ToString().Substring(11, 11) + "'").Length != 0)
                                         {
-                                            drImport["vcDay" + dr1[z]["vcTime"].ToString().Substring(5, 17)] = dtCalcuateOld.Rows[z]["inum"].ToString();
+                                            drImport["vcDay" + dr1[z]["vcTime"].ToString().Substring(5, 17)] = Convert.ToDecimal(dtCalcuateOld.Rows[z]["inum"].ToString()).ToString("0.00");
                                         }
                                         else
                                         {
@@ -1121,7 +1132,7 @@ namespace DataAccess
                 {
                     if (i != 0)
                         sql.Append(",");
-                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoID"]);
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");

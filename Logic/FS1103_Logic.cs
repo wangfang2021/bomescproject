@@ -73,13 +73,14 @@ namespace Logic
                     string strInPutOrderNo = dataTable.Rows[i]["vcInPutOrderNo"].ToString();
                     if (bInPutOrder == "1")
                     {
+                        #region 指令书
                         string strLabelNum = dataTable.Rows[i]["vcLabelNum"].ToString();
-                        string strInPutNum= dataTable.Rows[i]["vcInPutNum"].ToString();
-                        if(strInPutNum==""|| strInPutNum=="0")
+                        string strInPutNum = dataTable.Rows[i]["vcInPutNum"].ToString();
+                        if (strInPutNum == "" || strInPutNum == "0")
                         {
                             strInPutNum = strLabelNum;
                         }
-                        if(!fS0603_Logic.IsInt(strInPutNum))
+                        if (!fS0603_Logic.IsInt(strInPutNum))
                         {
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcMessage"] = "所选择的入库指令书" + strInPutOrderNo + "的指令书数量不为数字";
@@ -89,9 +90,11 @@ namespace Logic
                         drInputTemp["vcInno"] = strInPutOrderNo;
                         drInputTemp["vcInPutNum"] = strInPutNum;
                         dtInputTemp.Rows.Add(drInputTemp);
+                        #endregion
                     }
                     if (bTag == "1")
                     {
+                        #region 标签
                         string strTagLianFFrom = dataTable.Rows[i]["vcTagLianFFrom"].ToString();
                         string strTagLianFTo = dataTable.Rows[i]["vcTagLianFTo"].ToString();
                         if (strTagLianFFrom.Length != 11)
@@ -143,16 +146,154 @@ namespace Logic
                                 }
                             }
                         }
+                        #endregion
                     }
                 }
                 if (dtMessage.Rows.Count != 0)
                     return;
-                else
+                //重新设置指令书
+                dtInputTemp = setInvInfo(dtInputTemp, ref dtMessage);
+                if (dtMessage.Rows.Count != 0)
+                    return;
+                //插入临时表准备打印
+                setPrintTemp(dtInputTemp, dtTagTemp, strOperId, ref dtMessage);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable setInvInfo(DataTable dtInputTemp, ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dtInvInfo = dtInputTemp.Clone();
+                for (int i = 0; i < dtInputTemp.Rows.Count; i++)
                 {
-                    //插入临时表准备打印
-                    setPrintTemp(dtInputTemp, dtTagTemp, strOperId, ref dtMessage);
-                }
+                    string strInvo = dtInputTemp.Rows[i]["vcInno"].ToString();
+                    string strInPutNum = dtInputTemp.Rows[i]["vcInPutNum"].ToString();
+                    DataTable dtInvInfo_temp = fs1103_DataAccess.getInvInfo(strInvo);
+                    if (dtInvInfo_temp.Rows.Count != 0)
+                    {
+                        string strInPutNum_temp = dtInvInfo_temp.Rows[0]["vcInputnum"].ToString();
+                        #region 赋值
+                        DataRow drInvInfo = dtInvInfo.NewRow();
+                        drInvInfo["vcNo"] = dtInvInfo_temp.Rows[0]["vcNo"].ToString();
+                        drInvInfo["vcData"] = dtInvInfo_temp.Rows[0]["vcData"].ToString();
+                        drInvInfo["vcPrintdate"] = dtInvInfo_temp.Rows[0]["vcPrintdate"].ToString();
+                        drInvInfo["vcInno"] = dtInvInfo_temp.Rows[0]["vcInno"].ToString();
+                        drInvInfo["vcPart_Id"] = dtInvInfo_temp.Rows[0]["vcPart_Id"].ToString();
+                        drInvInfo["vcPartsnamechn"] = dtInvInfo_temp.Rows[0]["vcPartsnamechn"].ToString();
+                        drInvInfo["vcPartslocation"] = dtInvInfo_temp.Rows[0]["vcPartslocation"].ToString();
+                        drInvInfo["vcInputnum"] = strInPutNum;
+                        drInvInfo["vcPackingquantity"] = dtInvInfo_temp.Rows[0]["vcPackingquantity"].ToString();
+                        drInvInfo["vcItemname1"] = dtInvInfo_temp.Rows[0]["vcItemname1"].ToString();
+                        drInvInfo["vcPackingpartslocation1"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation1"].ToString();
+                        drInvInfo["vcSuppliernamechn1"] = dtInvInfo_temp.Rows[0]["vcSuppliernamechn1"].ToString();
+                        drInvInfo["vcOutnum1"] = dtInvInfo_temp.Rows[0]["vcOutnum1"].ToString();
+                        if (dtInvInfo_temp.Rows[0]["vcOutnum1"].ToString() != "")
+                        {
+                            drInvInfo["vcOutnum1"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum1"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                        }
+                        drInvInfo["vcTemname2"] = dtInvInfo_temp.Rows[0]["vcTemname2"].ToString();
+                        drInvInfo["vcPackingpartslocation2"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation2"].ToString();
+                        drInvInfo["vcSuppliernamechn2"] = dtInvInfo_temp.Rows[0]["vcSuppliernamechn2"].ToString();
+                        drInvInfo["vcOutnum2"] = dtInvInfo_temp.Rows[0]["vcOutnum2"].ToString();
+                        if (dtInvInfo_temp.Rows[0]["vcOutnum2"].ToString() != "")
+                        {
+                            drInvInfo["vcOutnum2"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum2"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                        }
+                        drInvInfo["vcItemname3"] = dtInvInfo_temp.Rows[0]["vcItemname3"].ToString();
+                        drInvInfo["vcPackingpartslocation3"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation3"].ToString();
+                        drInvInfo["vcSuppliernamechn3"] = dtInvInfo_temp.Rows[0]["vcSuppliernamechn3"].ToString();
+                        drInvInfo["vcOutnum3"] = dtInvInfo_temp.Rows[0]["vcOutnum3"].ToString();
+                        if (dtInvInfo_temp.Rows[0]["vcOutnum3"].ToString() != "")
+                        {
+                            drInvInfo["vcOutnum3"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum3"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                        }
+                        drInvInfo["vcItemname4"] = dtInvInfo_temp.Rows[0]["vcItemname4"].ToString();
+                        drInvInfo["vcPackingpartslocation4"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation4"].ToString();
+                        drInvInfo["vcSuppliernamechn4"] = dtInvInfo_temp.Rows[0]["vcSuppliernamechn4"].ToString();
+                        drInvInfo["vcOutnum4"] = dtInvInfo_temp.Rows[0]["vcOutnum4"].ToString();
+                        if (dtInvInfo_temp.Rows[0]["vcOutnum4"].ToString() != "")
+                        {
+                            drInvInfo["vcOutnum4"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum4"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                        }
+                        drInvInfo["vcItemname5"] = dtInvInfo_temp.Rows[0]["vcItemname5"].ToString();
+                        drInvInfo["vcPackingpartslocation5"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation5"].ToString();
+                        drInvInfo["vcSuppliernamechn5"] = dtInvInfo_temp.Rows[0]["vcSuppliernamechn5"].ToString();
+                        drInvInfo["vcOutnum5"] = dtInvInfo_temp.Rows[0]["vcOutnum5"].ToString();
+                        if (dtInvInfo_temp.Rows[0]["vcOutnum5"].ToString() != "")
+                        {
+                            drInvInfo["vcOutnum5"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum5"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                        }
+                        drInvInfo["vcItemname6"] = dtInvInfo_temp.Rows[0]["vcItemname6"].ToString();
+                        drInvInfo["vcPackingpartslocation6"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation6"].ToString();
+                        drInvInfo["vcSuppliernamechn6"] = dtInvInfo_temp.Rows[0]["vcSuppliernamechn6"].ToString();
+                        drInvInfo["vcOutnum6"] = dtInvInfo_temp.Rows[0]["vcOutnum6"].ToString();
+                        if (dtInvInfo_temp.Rows[0]["vcOutnum6"].ToString() != "")
+                        {
+                            drInvInfo["vcOutnum6"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum6"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                        }
+                        drInvInfo["vcItemname7"] = dtInvInfo_temp.Rows[0]["vcItemname7"].ToString();
+                        drInvInfo["vcPackingpartslocation7"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation7"].ToString();
+                        drInvInfo["vcSuppliernamechn7"] = dtInvInfo_temp.Rows[0]["vcSuppliernamechn7"].ToString();
+                        drInvInfo["vcOutnum7"] = dtInvInfo_temp.Rows[0]["vcOutnum7"].ToString();
+                        if (dtInvInfo_temp.Rows[0]["vcOutnum7"].ToString() != "")
+                        {
+                            drInvInfo["vcOutnum7"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum7"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                        }
+                        drInvInfo["vcItemname8"] = dtInvInfo_temp.Rows[0]["vcItemname8"].ToString();
+                        drInvInfo["vcPackingpartslocation8"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation8"].ToString();
+                        drInvInfo["vcSuppliernamechn8"] = dtInvInfo_temp.Rows[0]["vcSuppliernamechn8"].ToString();
+                        drInvInfo["vcOutnum8"] = dtInvInfo_temp.Rows[0]["vcOutnum8"].ToString();
+                        if (dtInvInfo_temp.Rows[0]["vcOutnum8"].ToString() != "")
+                        {
+                            drInvInfo["vcOutnum8"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum8"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                        }
+                        drInvInfo["vcItemname9"] = dtInvInfo_temp.Rows[0]["vcItemname9"].ToString();
+                        drInvInfo["vcPackingpartslocation9"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation9"].ToString();
+                        drInvInfo["vcSuppliernamechn9"] = dtInvInfo_temp.Rows[0]["vcSuppliernamechn9"].ToString();
+                        drInvInfo["vcOutnum9"] = dtInvInfo_temp.Rows[0]["vcOutnum9"].ToString();
+                        if (dtInvInfo_temp.Rows[0]["vcOutnum9"].ToString() != "")
+                        {
+                            drInvInfo["vcOutnum9"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum9"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                        }
+                        drInvInfo["vcItemname10"] = dtInvInfo_temp.Rows[0]["vcItemname10"].ToString();
+                        drInvInfo["vcPackingpartslocation10"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation10"].ToString();
+                        drInvInfo["vcSuppliernamechn10"] = dtInvInfo_temp.Rows[0]["vcSuppliernamechn10"].ToString();
+                        drInvInfo["vcOutnum10"] = dtInvInfo_temp.Rows[0]["vcOutnum10"].ToString();
+                        if (dtInvInfo_temp.Rows[0]["vcOutnum10"].ToString() != "")
+                        {
+                            drInvInfo["vcOutnum10"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum10"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                        }
+                        string strCode = dtInvInfo_temp.Rows[0]["vcPart_Id"].ToString() +
+                            strInPutNum.PadLeft(5, '0') +
+                            //(Convert.ToInt32(strInPutNum) + 100000).ToString().Substring(1, 5) +
+                            dtInvInfo_temp.Rows[0]["vcCpdcompany"].ToString() +
+                            dtInvInfo_temp.Rows[0]["vcInno"].ToString();
 
+                        drInvInfo["vcPartsnoandnum"] = strCode;
+                        drInvInfo["vcLabel"] = strCode;
+                        drInvInfo["vcComputernm"] = dtInvInfo_temp.Rows[0]["vcComputernm"].ToString();
+                        drInvInfo["vcCpdcompany"] = dtInvInfo_temp.Rows[0]["vcCpdcompany"].ToString();
+                        drInvInfo["vcPlantcode"] = dtInvInfo_temp.Rows[0]["vcPlantcode"].ToString();
+                        drInvInfo["vcCompanyname"] = dtInvInfo_temp.Rows[0]["vcCompanyname"].ToString();
+                        drInvInfo["vcPlantname"] = dtInvInfo_temp.Rows[0]["vcPlantname"].ToString();
+                        byte[] bCodemage = fS0617_Logic.GenerateQRCode(strCode);//二维码信息
+                        drInvInfo["iQrcode"] = bCodemage;
+                        dtInvInfo.Rows.Add(drInvInfo);
+                        #endregion
+
+                    }
+                    else
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "所选择的入库指令书" + strInvo + "查询数据为空，不可打印";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                }
+                return dtInvInfo;
             }
             catch (Exception ex)
             {

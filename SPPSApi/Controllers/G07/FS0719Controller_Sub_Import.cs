@@ -70,11 +70,11 @@ namespace SPPSApi.Controllers.G07
                 string strMsg = "";
                                         
 
-                string[,] headers = new string[,] {{"GPS品番", "订购数量","纳入预定日","包装厂"},
-                                                {"vcPackGPSNo","iOrderNumber","dNaRuTime","vcPackSpot"},
-                                                {"",FieldCheck.Num,FieldCheck.Date,""},
-                                                {"50","0","0","0"},
-                                                {"1","0","0","0" }
+                string[,] headers = new string[,] {{"订单号","GPS品番", "订购数量","纳入预定日","包装厂"},
+                                                {"vcOrderNo","vcPackGPSNo","iOrderNumber","dNaRuTime","vcPackSpot"},
+                                                {"","",FieldCheck.Num,FieldCheck.Date,""},
+                                                {"0","50","0","0","0"},
+                                                {"0","1","0","0","0" }
                                                };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -148,7 +148,7 @@ namespace SPPSApi.Controllers.G07
                 #endregion
 
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPackSpot"), r4 = r.Field<string>("vcPackGPSNo") } into g
+                             group r by new { r2 = r.Field<string>("vcOrderNo") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -157,7 +157,7 @@ namespace SPPSApi.Controllers.G07
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("品番:" + item.Key.r4 + "重复<br/>");
+                        sbr.Append("订单号:" + item.Key.r2 + "重复<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();

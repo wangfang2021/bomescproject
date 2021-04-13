@@ -35,7 +35,6 @@ namespace DataAccess
                 parameters[2].Value = TOTALWORKDAYS;
                 parameters[3].Value = DateTime.Now;
                 parameters[4].Value = strUserId;
-
                 StringBuilder strSql = new StringBuilder();
 
                 //先删除
@@ -111,9 +110,7 @@ namespace DataAccess
                     return "最少必须维护3天";
                 excute.ExcuteSqlWithStringOper(strSql.ToString(), parameters);
 
-
-
-                #region 问题方法弃用
+                #region 重新平准化
                 DataTable ckdt = excute.ExcuteSqlWithSelectToDT("select * from TCalendar_PingZhun_Wai where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "'");
                 #region 准备判断数据
                 double[] weeks = { 0, 0, 0, 0 };

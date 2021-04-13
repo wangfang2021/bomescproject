@@ -639,11 +639,11 @@ namespace SPPSApi.Controllers.G12
                                                     binding.OpenTimeout = TimeSpan.MaxValue;
                                                     binding.ReceiveTimeout = TimeSpan.MaxValue;
                                                     binding.SendTimeout = TimeSpan.MaxValue;
-                                                    EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
+                                                    EndpointAddress address = new EndpointAddress("http://localhost:8089/FS1209.asmx");
                                                     FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
                                                     msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                                 }
-                                                catch
+                                                catch (Exception ex)
                                                 {
                                                     lg.DropTempTable(inTable_tmp);//删除打印临时表
                                                     lg.DropTempTable(exdthj_tmp);//删除打印临时表
@@ -692,11 +692,11 @@ namespace SPPSApi.Controllers.G12
                                             binding.OpenTimeout = TimeSpan.MaxValue;
                                             binding.ReceiveTimeout = TimeSpan.MaxValue;
                                             binding.SendTimeout = TimeSpan.MaxValue;
-                                            EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
+                                            EndpointAddress address = new EndpointAddress("http://localhost:8089/FS1209.asmx");
                                             FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
                                             exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                         }
-                                        catch
+                                        catch (Exception ex)
                                         {
                                             lg.DropTempTable(exdttt_tmp);//删除打印临时表
                                             lg.DropTempTable(exdthj_tmp);//删除打印临时表

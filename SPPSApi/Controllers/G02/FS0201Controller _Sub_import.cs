@@ -68,9 +68,10 @@ namespace SPPSApi.Controllers.G02
                 //0 SPI导入
                 if (flag == "0")
                 {
-                    fs0201_logic.importSPI(fileSavePath, loginInfo.UserId, ref strMsg);
                     //存储文件到共享文件夹
                     SaveFile(fileSavePath, "SPI");
+                    fs0201_logic.importSPI(fileSavePath, loginInfo.UserId, ref strMsg);
+
                 }
                 //1 导出导入
                 else if (flag == "1")
@@ -256,16 +257,46 @@ namespace SPPSApi.Controllers.G02
 
         #region 保存文件
 
+        //public void SaveFile(string filePath, string Type)
+        //{
+        //    try
+        //    {
+
+        //        DirectoryInfo theFolder = new DirectoryInfo(filePath);
+
+        //        foreach (FileInfo info in theFolder.GetFiles())
+        //        {
+        //            ComFunction.FtpUpload("TTCC" + Path.DirectorySeparatorChar + Type, info.FullName);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
         public void SaveFile(string filePath, string Type)
         {
             try
             {
 
                 DirectoryInfo theFolder = new DirectoryInfo(filePath);
-
-                foreach (FileInfo info in theFolder.GetFiles())
+                string environment = Environment.OSVersion.ToString().ToLower();
+                if (!environment.Contains("windows"))
                 {
-                    ComFunction.FtpUpload("TTCC" + Path.DirectorySeparatorChar + Type, info.FullName);
+                    foreach (FileInfo info in theFolder.GetFiles())
+                    {
+                        ComFunction.HttpUploadFile(info.FullName, info.Name, @"Doc\TTCC\" + Type + @"\");
+                    }
+                }
+                else
+                {
+                    //转存下载
+                    foreach (FileInfo info in theFolder.GetFiles())
+                    {
+                        string realPath = _webHostEnvironment.ContentRootPath + @"\Doc\TTCC\" + Type + @"\" + info.Name;
+                        System.IO.File.Copy(info.FullName, realPath, true);
+                    }
+
                 }
             }
             catch (Exception ex)

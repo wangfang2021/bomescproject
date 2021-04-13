@@ -156,28 +156,22 @@ namespace SPPSApi.Controllers.G07
                 string strErr1 = strArray[0];
                 string strErr2 = strArray[1];
 
-                if (true)
-                {
-                    res.Add("errPart", "发注数量计算失败,以下品番无维护包材构成！" +"<br/>" +"0001 0002");
-                    apiResult.code = 2;
-                    apiResult.data = res;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
                 if (strErr1 != "")
                 {
-                    res.Add("errPart", "<br/>" + "发注数量计算失败,以下品番无维护包材构成！"+strErr1);
-                    apiResult.code = 2;
+                    res.Add("errPart", "发注数量计算失败,以下品番无维护包材构成！"+ "<br/>" + strErr1);
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.flag = 1;
                     apiResult.data = res;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 if (strErr2 != "")
                 {
-                    res.Add("errPart", "<br/>" + "发注数量计算失败,以下品番包材构成无效！"+strErr2);
-                    apiResult.code = 2;
+                    res.Add("errPart",  "发注数量计算失败,以下品番包材构成无效！"+ "<br/>" + strErr2);
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.flag = 1;
                     apiResult.data = res;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
                 #endregion
 
                 fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace);
@@ -260,10 +254,14 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = fs0705_Logic.exportSearchJG();
-                string[] fields = { "vcFaZhuID","dTimeStr","vcPackNo","vcPackGPSNo", "iA_SRS", "iB_LastShengYu", "iC_LiLun"
-                ,"iD_TiaoZheng","iE_JinJi","iF_DingGou","iG_ShengYu"
-                };
+                DataTable dt = fs0705_Logic.searchComputeJG(loginInfo.BaoZhuangPlace);
+                if (dt.Rows.Count<=0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有找到需要订购的品番信息";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string[] fields = { "vcPackNo","vcPackGPSNo","iF_DingGou","vcBianCi","dTimeStr"};
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {

@@ -152,38 +152,45 @@ namespace SPPSApi.Controllers.G07
                             FS0710_Logic.InsertCaystal(drc, PackSpot[0].ToString(), strSupplierCode[i].ToString(), dFrom, dTo);
                             #region 调用webApi打印
                             FS0603_Logic fS0603_Logic = new FS0603_Logic();
-                            string strPrinterName = fS0603_Logic.getPrinterName("FS0710", loginInfo.UserId);
-                            //创建 HTTP 绑定对象
-                            string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
-                            var binding = new BasicHttpBinding();
-                            //根据 WebService 的 URL 构建终端点对象
-                            var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
-                            //创建调用接口的工厂，注意这里泛型只能传入接口
-                            var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
-                            //从工厂获取具体的调用实例
-                            var callClient = factory.CreateChannel();
-                            setCRVToPDFRequestBody Body = new setCRVToPDFRequestBody();
-                            Body.strCRVName = file_crv + "crv_FS0710.rpt";
-                            Body.strScrpit = "select * from TPackNRTJ_Caystal ";
-                            Body.strDiskFileName = "D:/3.启明系统开发/62.2021年补给管理运用平台/API/SPPSApi/Doc/Image/SPISPdf/内示"+DateTime.Now.ToString("yyyyMMddHHssmm")+".PDF";
-                            Body.sqlUserID = "sa";
-                            Body.sqlPassword = "SPPS_Server2019";
-                            Body.sqlCatalog = "SPPSdb";
-                            Body.sqlSource = "172.23.180.116";
-                            //调用具体的方法，这里是 HelloWorldAsync 方法
-                            Task<setCRVToPDFResponse> responseTask = callClient.setCRVToPDFAsync(new setCRVToPDFRequest(Body));
-                            //获取结果
-                            setCRVToPDFResponse response = responseTask.Result;
-                            if (response.Body.setCRVToPDFResult != "导出成功")
+                            DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("包材内示统计", "");
+                            if (dtPrinterInfo.Rows.Count != 0)
                             {
-                                if (reason == "纳入统计计算成功")
+                                //创建 HTTP 绑定对象
+                                string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                                var binding = new BasicHttpBinding();
+                                //根据 WebService 的 URL 构建终端点对象
+                                var endpoint = new EndpointAddress(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
+                                //创建调用接口的工厂，注意这里泛型只能传入接口
+                                var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                                //从工厂获取具体的调用实例
+                                var callClient = factory.CreateChannel();
+                                setCRVToPDFRequestBody Body = new setCRVToPDFRequestBody();
+                                Body.strScrpit = "select * from TPackNRTJ_Caystal ";
+                                Body.strDiskFileName = "D:/3.启明系统开发/62.2021年补给管理运用平台/WebAPI/WebAPI/内示" + DateTime.Now.ToString("yyyyMMddHHssmm") + ".PDF";
+                                Body.strCRVName = file_crv + dtPrinterInfo.Rows[0]["vcReports"].ToString();
+                                Body.sqlUserID = dtPrinterInfo.Rows[0]["vcSqlUserID"].ToString();
+                                Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();
+                                Body.sqlCatalog = dtPrinterInfo.Rows[0]["vcSqlCatalog"].ToString();
+                                Body.sqlSource = dtPrinterInfo.Rows[0]["vcSqlSource"].ToString();
+                                //调用具体的方法，这里是 HelloWorldAsync 方法
+                                Task<setCRVToPDFResponse> responseTask = callClient.setCRVToPDFAsync(new setCRVToPDFRequest(Body));
+                                //获取结果
+                                setCRVToPDFResponse response = responseTask.Result;
+                                if (response.Body.setCRVToPDFResult != "导出成功")
                                 {
+                                    if (reason == "纳入统计计算成功")
+                                    {
 
-                                    strErrorPartId = "生成PDF失败,纳入统计计算成功";
-                                    break;
+                                        strErrorPartId = "生成PDF失败,纳入统计计算成功";
+                                        break;
+                                    }
                                 }
                             }
-
+                            else
+                            {
+                                
+                                strErrorPartId = "没有接口信息，请联系管理员维护。";
+                            }
                             #endregion
                         }
 

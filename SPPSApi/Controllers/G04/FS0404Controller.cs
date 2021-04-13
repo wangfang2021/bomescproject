@@ -247,8 +247,6 @@ namespace SPPSApi.Controllers.G04
                 //订单类型	3	紧急
                 #region
                 FS0404_DataAccess objDateAccess = new FS0404_DataAccess();
-                Order order = new Order();
-
                 String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "orders";
                 #region delete
                 //if (vcOrderType=="0")
@@ -528,11 +526,26 @@ namespace SPPSApi.Controllers.G04
                     apiResult.data = "上传文件文件不能为空！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                Dictionary<string, string> dicOrderNo = new Dictionary<string, string>();
                 for (int i = 0; i < fileList.Count; i++)
                 {
                     string fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                    string filePath = fileList[i]["filePath"].ToString();
+                    string msg1 = string.Empty;
+                    Order order =  GetPartFromFile(realPath + filePath, fileName, ref msg1);
+                    string fileNameOrder = order.Head.No;
+                    if (!dicOrderNo.ContainsKey(fileNameOrder))
+                    {
+                        dicOrderNo.Add(fileNameOrder, fileNameOrder);
+                    }
+                    else
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = fileNameOrder + "订单号重复，不能上传多次!";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     //判段上传的订单号号是否存在
-                    DataTable dt = fs0404_Logic.isCheckByOrderNo(fileName);
+                    DataTable dt = fs0404_Logic.isCheckByOrderNo(fileNameOrder);
                     if (dt.Rows.Count > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -942,7 +955,8 @@ namespace SPPSApi.Controllers.G04
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-        #region
+        #region 读取txt
+
         public Order GetPartFromFile(string path, string orderNo, ref string msg)
         {
             string[] strs = System.IO.File.ReadAllLines(@path);
@@ -968,9 +982,10 @@ namespace SPPSApi.Controllers.G04
                     detail.DataId = temp.Substring(0, 1);
                     detail.CPD = temp.Substring(1, 5);
                     detail.Date = temp.Substring(6, 8);
+                    detail.ClassType = temp.Substring(14, 1);
                     detail.Type = temp.Substring(14, 8);
                     detail.ItemNo = temp.Substring(22, 4);
-                    detail.PartsNo = temp.Substring(26, 12);
+                    detail.PartsNo = temp.Substring(26, 12).Replace(" ", "0");
                     detail.QTY = temp.Substring(41, 7);
                     detail.Price = temp.Substring(48, 9);
                     details.Add(detail);
@@ -1015,49 +1030,52 @@ namespace SPPSApi.Controllers.G04
 
             return order;
         }
+
         public class Order
-                {
-                    public Order()
-                    {
-                        this.Details = new List<Detail>();
-                    }
+        {
+            public Order()
+            {
+                this.Details = new List<Detail>();
+            }
 
-                    public Head Head;
-                    public List<Detail> Details;
-                    public Tail Tail;
-                }
+            public Head Head;
+            public List<Detail> Details;
+            public Tail Tail;
+        }
 
-                public class Head
-                {
-                    public string DataId;
-                    public string CPD;
-                    public string Date;
-                    public string No;
-                    public string Type;
-                    public string Code;
-                    public string SendDate;
-                }
+        public class Head
+        {
+            public string DataId;
+            public string CPD;
+            public string Date;
 
-                public class Detail
-                {
-                    public string DataId;
-                    public string CPD;
-                    public string Date;
-                    public string Type;
-                    public string ItemNo;
-                    public string PartsNo;
-                    public string QTY;
-                    public string Price;
+            public string No;
+            public string Type;
+            public string Code;
+            public string SendDate;
+        }
 
-                }
+        public class Detail
+        {
+            public string DataId;
+            public string CPD;
+            public string Date;
+            public string ClassType;
+            public string Type;
+            public string ItemNo;
+            public string PartsNo;
+            public string QTY;
+            public string Price;
 
-                public class Tail
-                {
-                    public string DataId;
-                    public string CPD;
-                    public string Date;
-                    public string No;
-                }
+        }
+
+        public class Tail
+        {
+            public string DataId;
+            public string CPD;
+            public string Date;
+            public string No;
+        }
 
         #endregion
     }

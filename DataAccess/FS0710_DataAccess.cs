@@ -130,7 +130,7 @@ namespace DataAccess
                 //sql.AppendLine("  '"+ dTo + "',  ");
                 //sql.AppendLine("  getdate()  ");
                 //sql.AppendLine("    )");
-
+              
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     sql.AppendLine(" INSERT INTO [dbo].[TPackNRTJ_Caystal]     ");
@@ -159,8 +159,21 @@ namespace DataAccess
                     sql.AppendLine("   '" + dt.Rows[i]["isjNum"].ToString() + "',");
                     sql.AppendLine("   '" + dt.Rows[i]["Memo"].ToString() + "', ");
                     sql.AppendLine("   '" + dt.Rows[i]["vcCostID"].ToString() + "', ");
-                    sql.AppendLine("  '" + dFrom + "',  ");
-                    sql.AppendLine("  '" + dTo + "',  ");
+                    if (dFrom == "")
+                    {
+                        sql.AppendLine("  '" + dFrom.Split(' ')[0].ToString() + "',  ");
+                    }
+                    else {
+                        sql.AppendLine(" NULL,  ");
+                    }
+                    if (dTo == "")
+                    {
+                        sql.AppendLine("  '" + dTo.Split(' ')[0].ToString() + "',  ");
+                    }
+                    else
+                    {
+                        sql.AppendLine(" NULL,  ");
+                    }
                     sql.AppendLine("  getdate()  ");
                     sql.AppendLine("   ) ");
 

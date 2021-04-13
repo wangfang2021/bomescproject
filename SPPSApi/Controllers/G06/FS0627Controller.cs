@@ -236,6 +236,13 @@ namespace SPPSApi.Controllers.G06
                 string[] columnArrayP = { "vcInjectionFactory" };
                 DataView dtSelectViewP = dtNum.DefaultView;
                 DataTable dtSelectGC = dtSelectViewP.ToTable(true, columnArrayP);//去重后的dt 
+                for (int o=dtSelectGC.Rows.Count-1;o>=0;o--)
+                {
+                    if (dtSelectGC.Rows[o]["vcInjectionFactory"].ToString()=="合计")
+                    {
+                        dtSelectGC.Rows.RemoveAt(o);
+                    }
+                }
                 #region 导出报表
 
 
@@ -542,7 +549,7 @@ namespace SPPSApi.Controllers.G06
                 int nextRow = 7;
                 bool isNeedNumCol = true;//是否需要设置列头
                 if (dtNum.Rows.Count > 0)
-                {
+                 {
                     #region 追加列头
                     IRow EightRowHSSF = mysheetHSSF.CreateRow(nextRow);
                     EightRowHSSF.Height = 18 * 20;
@@ -603,7 +610,7 @@ namespace SPPSApi.Controllers.G06
                             dtNewFaZhuGC.ImportRow(dr);
                         }
                         //合并工厂带有合计行
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow+dtNewFaZhuGC.Rows.Count+1, 0, 0));
+                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow+dtNewFaZhuGC.Rows.Count, 0, 0));
 
                         IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
                         NextRowHSSF.Height = 18 * 20;
@@ -773,7 +780,7 @@ namespace SPPSApi.Controllers.G06
                             dtNewFaZhuGCMoney.ImportRow(dr);
                         }
                         //合并工厂带有合计行
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow + dtNewFaZhuGCMoney.Rows.Count + 1, 0, 0));
+                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow + dtNewFaZhuGCMoney.Rows.Count, 0, 0));
 
                         IRow NextRowHSSFM = mysheetHSSF.CreateRow(nextRow);
                         NextRowHSSFM.Height = 18 * 20;
@@ -786,7 +793,14 @@ namespace SPPSApi.Controllers.G06
                             {
                                 if (k != 2)//k=2是 年份 去掉
                                 {
-                                    NextRowHSSFM.CreateCell(colNum).SetCellValue((Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[h][k].ToString()) / 10000).RoundFirstSignificantDigit().ToString());
+                                    if (k<2)
+                                    {
+                                        NextRowHSSFM.CreateCell(colNum).SetCellValue(dtNewFaZhuGCMoney.Rows[h][k].ToString());
+                                    }
+                                    else
+                                    {
+                                        NextRowHSSFM.CreateCell(colNum).SetCellValue((Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[h][k].ToString()) / 10000).RoundFirstSignificantDigit().ToString());
+                                    }
                                     NextRowHSSFM.GetCell(colNum).CellStyle = style6;
                                     colNum++;
                                 }

@@ -1444,8 +1444,8 @@ namespace SPPSApi.Controllers.G06
                         //sheetOrder.GetRow(1).GetCell(0).SetCellValue("厂家编码:" + vcSupplier_id);//厂家代码
                         //sheetOrder.GetRow(1).GetCell(0).CellStyle = hsOrderstyle1;
 
-                        sheetOrder.GetRow(9 + dtNewCarType.Rows.Count).GetCell(0).SetCellValue("1）此订单采购的" + strCarType + "号试用补给品，请单独托盘出荷，贴付补给品号试用货垛标签");//厂家代码
-                        sheetOrder.GetRow(9 + dtNewCarType.Rows.Count).GetCell(0).CellStyle = hsOrderstyle5;
+                        //sheetOrder.GetRow(9 + dtNewCarType.Rows.Count).GetCell(0).SetCellValue("1）此订单采购的" + strCarType + "号试用补给品，请单独托盘出荷，贴付补给品号试用货垛标签");//厂家代码
+                        //sheetOrder.GetRow(9 + dtNewCarType.Rows.Count).GetCell(0).CellStyle = hsOrderstyle5;
                         if (dtNewCarType.Rows.Count > 1)
                         {
                             sheetOrder.ShiftRows(startRowIndex, sheetOrder.LastRowNum, dtNewCarType.Rows.Count - 1, true, false);

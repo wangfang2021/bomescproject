@@ -169,6 +169,14 @@ namespace SPPSApi.Controllers.G06
                 DataSet ds = fs0627_Logic.Search(vcInjectionFactory, vcProject, vcTargetYear);
                 DataTable dtNum = ds.Tables[0];
                 DataTable dtMonty = ds.Tables[1];
+                for (int i=0;i<dtMonty.Rows.Count;i++)
+                {
+                    for (var k = 3; k < dtMonty.Columns.Count; k++)
+                    {
+                       dtMonty.Rows[i][k] =  (Convert.ToDecimal(dtMonty.Rows[i][k].ToString()) / 10000).RoundFirstSignificantDigit().ToString(); ;
+                    }
+                }
+
                 // "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType",
                 List<Object> dataListNum = ComFunction.convertAllToResult(dtNum);
                 List<Object> dataListMoney = ComFunction.convertAllToResult(dtMonty);

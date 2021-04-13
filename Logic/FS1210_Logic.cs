@@ -1823,5 +1823,12 @@ namespace Logic
             dataAccess.Del(listInfoData);
         }
         #endregion
+
+        #region 获取所属打印机的名称
+        public string PrintMess(string userid)
+        {
+            return dataAccess.PrintMess(userid);
+        }
+        #endregion
     }
 }

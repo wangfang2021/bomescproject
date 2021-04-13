@@ -255,6 +255,12 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 DataTable dt = fs0705_Logic.searchComputeJG(loginInfo.BaoZhuangPlace);
+                if (dt.Rows.Count<=0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有找到需要订购的品番信息";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 string[] fields = { "vcPackNo","vcPackGPSNo","iF_DingGou","vcBianCi","dTimeStr"};
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")

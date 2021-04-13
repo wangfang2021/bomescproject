@@ -3173,15 +3173,29 @@ namespace DataAccess
             }
         }
 
-        public string getPrinterName(string strPageId, string strOperId)
+        public DataTable getPrinterInfo(string strPrintFunction, string strOperator)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendLine("select vcPrintName from TPrinterName where vcOperator='" + strOperId + "' and vcPageId='" + strPageId + "' order by LinId desc");
-            DataTable dataTable = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            if (dataTable.Rows.Count != 0)
-                return dataTable.Rows[0]["vcPrintName"].ToString();
-            else
-                return "";
+            strSql.AppendLine("SELECT [vcOperator]");
+            strSql.AppendLine("      ,[vcPrintFunction]");
+            strSql.AppendLine("      ,[vcPrinter]");
+            strSql.AppendLine("      ,[vcWebAPI]");
+            strSql.AppendLine("      ,[vcReports]");
+            strSql.AppendLine("      ,[vcSqlSource]");
+            strSql.AppendLine("      ,[vcSqlUserID]");
+            strSql.AppendLine("      ,[vcSqlPassword]");
+            strSql.AppendLine("      ,[vcSqlCatalog]");
+            strSql.AppendLine("  FROM [TPrinterName]");
+            strSql.AppendLine("  WHERE 1=1");
+            if (strPrintFunction != "")
+            {
+                strSql.AppendLine("AND [vcPrintFunction]='"+ strPrintFunction + "' ");
+            }
+            if (strOperator != "")
+            {
+                strSql.AppendLine("AND [vcOperator]='"+ strOperator + "'");
+            }
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
     }
 }

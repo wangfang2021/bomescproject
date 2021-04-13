@@ -363,9 +363,18 @@ namespace BatchProcess
                     {
                         if (dtINFO.Rows[r]["vcIsorNoFaZhu"].ToString() == "0")
                         {
+                            if (dtINFO.Rows[r]["vcIsStop"].ToString() == "0")
+                            {
 
-                            sql.Append($" vcState='0', \n");
-                            sql.Append($" vcColour='0' \n");
+                                sql.Append($" vcState='0', \n");
+                                sql.Append($" vcColour='0' \n");
+                            }
+                            else {
+
+
+                                sql.Append($" vcState='7', \n");
+                                sql.Append($" vcColour='1' \n");
+                            }
                         }
                         else
                         {

@@ -32,7 +32,7 @@ namespace DataAccess
                 strSql.AppendLine("    case when vcOrderType='D' then [vcTargetYear]+'/'+[vcTargetMonth]+'/'+[vcTargetDay]  ");
                 strSql.AppendLine("    	when vcOrderType='W' then [vcTargetYear]+'/'+[vcTargetMonth]+''+c.vcName   ");
                 strSql.AppendLine("    	when vcOrderType='S' then [vcTargetYear]+'/'+[vcTargetMonth]  ");
-                strSql.AppendLine("    else '' end as [dTargetDate],  ");
+                strSql.AppendLine("    else [vcTargetYear]+'/'+[vcTargetMonth] end as [dTargetDate],  ");
                 strSql.AppendLine("  b.vcOrderDifferentiation as [vcOrderType],e.vcName as  vcInOutFlag,f.vcName  as  vcOrderState, [vcMemo],   ");
                 strSql.AppendLine("  [dUploadDate], [vcFilePath], [vcOperatorID], [dOperatorTime],vcLastOrderNo,'0' as vcModFlag,'0' as vcAddFlag from [dbo].[TOrderUploadManage]  a  ");
                 strSql.AppendLine("  left join (select vcOrderDifferentiation,vcOrderInitials from [dbo].[TOrderDifferentiation] )b on a.vcOrderType= b.vcOrderInitials     ");
@@ -511,6 +511,8 @@ namespace DataAccess
                     //    dtNei.ImportRow(dr);
                     //}
                     DataTable dockTmp = getDockTable(dTargetDate.Replace("-", "").Replace("/", ""));
+                    Dictionary<string, string> dicPartNoN = new Dictionary<string, string>();
+                    Dictionary<string, string> dicPartNoW = new Dictionary<string, string>();
                     for (int i = 0; i < fileList.Count; i++)
                     {
                         filePath = fileList[i]["filePath"].ToString();
@@ -519,7 +521,7 @@ namespace DataAccess
                         
                         int No = 1;
                         string strInOutflag = string.Empty;
-                        Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
+                        //Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
                         //读取文件
 
                         string vcPackingFactory = uionCode;
@@ -638,7 +640,40 @@ namespace DataAccess
                                     dtMessage.Rows.Add(dataRow);
                                     bReault = false;
                                 }
-                                if (!dicPartNo.ContainsKey(vcPart_id))
+                                if (inout == "0")
+                                {
+                                    if (!dicPartNoN.ContainsKey(vcPart_id))
+                                    {
+                                        dicPartNoN.Add(vcPart_id, vcPart_id);
+                                    }
+                                    else
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcOrder"] = fileName;
+                                        dataRow["vcPartNo"] = vcPart_id;
+                                        dataRow["vcMessage"] = "该品番重复存在！";
+                                        dtMessage.Rows.Add(dataRow);
+                                        bReault = false;
+                                    }
+
+                                } else
+                                {
+                                    if (!dicPartNoW.ContainsKey(vcPart_id))
+                                    {
+                                        dicPartNoW.Add(vcPart_id, vcPart_id);
+                                    }
+                                    else
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcOrder"] = fileName;
+                                        dataRow["vcPartNo"] = vcPart_id;
+                                        dataRow["vcMessage"] = "该品番重复存在！";
+                                        dtMessage.Rows.Add(dataRow);
+                                        bReault = false;
+                                    }
+                                }
+
+                                /*if (!dicPartNo.ContainsKey(vcPart_id))
                                 {
                                     dicPartNo.Add(vcPart_id, vcPart_id);
                                 }
@@ -650,7 +685,7 @@ namespace DataAccess
                                     dataRow["vcMessage"] = "该品番重复存在！";
                                     dtMessage.Rows.Add(dataRow);
                                     bReault = false;
-                                }
+                                }*/
                                 
                                 ////检测数量
                                 if (SoqDt.Rows.Count>0)
@@ -685,7 +720,7 @@ namespace DataAccess
                                 bReault = false;
                             }
                         }
-                        if (dicPartNo.Count != drArrayTmp.Length)
+                        /*if (dicPartNo.Count != drArrayTmp.Length)
                         {
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcOrder"] = fileName;
@@ -693,7 +728,25 @@ namespace DataAccess
                             dataRow["vcMessage"] = "文件的品番个数与月度replay的品番个数不一样";
                             dtMessage.Rows.Add(dataRow);
                             bReault = false;
-                        }
+                        }*/
+                    }
+                    if (dicPartNoN.Count != drArrayN.Length)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcOrder"] = fileName;
+                        dataRow["vcPartNo"] = "";
+                        dataRow["vcMessage"] = "文件的內制品番个数与月度replay的內制品番个数不一样";
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                    if (dicPartNoW.Count != drArrayW.Length)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcOrder"] = fileName;
+                        dataRow["vcPartNo"] = "";
+                        dataRow["vcMessage"] = "文件的外注品番个数与月度replay的外注品番个数不一样";
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
                     }
                     if (!bReault)
                     {
@@ -703,9 +756,12 @@ namespace DataAccess
                 #endregion
                 for (int i=0;i< fileList.Count;i++)
                 {
-                   
+                    filePath = fileList[i]["filePath"].ToString();
                     fileName = fileList[i]["fileName"].ToString().Trim().Substring(0,fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                     fileOrderNo = fileName.Substring(fileName.LastIndexOf("-")+1);
+                    string msg = string.Empty;
+                    Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
+                    string fileNameOrder = order.Head.No;
                     ////订单类型	0	日度
                     //订单类型	1	周度
                     //订单类型	2	月度
@@ -713,8 +769,8 @@ namespace DataAccess
                     //if (vcOrderType == "2") {
                     //    vcInOutFlag = fileOrderNo.Substring(fileOrderNo.Length - 1, 1);
                     //}
+
                    
-                    filePath = fileList[i]["filePath"].ToString();
                     strSql.AppendLine("  INSERT INTO [dbo].[TOrderUploadManage]   ");
                     strSql.AppendLine("             ([vcOrderNo] ,[vcTargetYear]   ");
                     strSql.AppendLine("             ,[vcTargetMonth] ,[vcTargetDay]   ");
@@ -723,7 +779,8 @@ namespace DataAccess
                     strSql.AppendLine("             ,[dUploadDate]   ");
                     strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,vcOrderShowFlag, [vcOperatorID],[dOperatorTime])   ");
                     strSql.AppendLine("       VALUES   ");
-                    strSql.AppendLine("             ('" + fileName + "',   ");
+                    //strSql.AppendLine("             ('" + fileName + "',   ");
+                    strSql.AppendLine("             ('" + fileNameOrder + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetYear + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetMonth + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetDay + "',   ");
@@ -732,13 +789,13 @@ namespace DataAccess
                     strSql.AppendLine("  		   '" + 0 + "',   ");
                     strSql.AppendLine("  		   '" + vcMemo + "',   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
-                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',1,  ");
+                    strSql.AppendLine("  		   '" + filePath + "', '" + fileNameOrder + "',1,  ");
                     strSql.AppendLine("  		   '"+ userId + "',GETDATE())   ");
                     strSql.AppendLine("   ;  ");
 
                     if (vcOrderType == "D")
                     {
-                        strSql.AppendLine("   update [dbo].[TSoqDayChange] set vcOrderNo='"+ fileName + "' where vcChangeNo='"+ dTargetDate.Replace("-", "").Replace("/", "") + "'  ");
+                        strSql.AppendLine("   update [dbo].[TSoqDayChange] set vcOrderNo='"+ fileNameOrder + "' where vcChangeNo='"+ dTargetDate.Replace("-", "").Replace("/", "") + "'  ");
                     }
                 }
                 
@@ -1129,9 +1186,10 @@ namespace DataAccess
 
                 for (int i = 0; i < fileList.Count; i++)
                 {
-
+                    filePath = fileList[i]["filePath"].ToString();
                     fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                     fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);
+
                     ////订单类型	0	日度
                     //订单类型	1	周度
                     //订单类型	2	月度
@@ -1140,8 +1198,15 @@ namespace DataAccess
                     //{
                     //    vcInOutFlag = fileOrderNo.Substring(fileOrderNo.Length - 1, 1);
                     //}
+                    //获取基础信息
+                    DataTable dockTmp = getJinJiDockTable(DateTime.Now.ToString("yyyyMM"));
+                    //读取文件
+                    string vcPackingFactory = uionCode;
+                    string vcOrderNo = fileName;
+                    //读取Order
+                    Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
+                    string fileNameOrder = order.Head.No;
 
-                    filePath = fileList[i]["filePath"].ToString();
                     strSql.AppendLine("  INSERT INTO [dbo].[TOrderUploadManage]   ");
                     strSql.AppendLine("             ([vcOrderNo] ,[vcTargetYear]   ");
                     strSql.AppendLine("             ,[vcTargetMonth] ,[vcTargetDay]   ");
@@ -1150,7 +1215,8 @@ namespace DataAccess
                     strSql.AppendLine("             ,[dUploadDate]   ");
                     strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,vcOrderShowFlag,[vcOperatorID],[dOperatorTime])   ");
                     strSql.AppendLine("       VALUES   ");
-                    strSql.AppendLine("             ('" + fileName + "',   ");
+                    //strSql.AppendLine("             ('" + fileName + "',   ");
+                    strSql.AppendLine("             ('" + fileNameOrder + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetYear + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetMonth + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetDay + "',   ");
@@ -1159,19 +1225,11 @@ namespace DataAccess
                     strSql.AppendLine("  		   '" + 0 + "',   ");
                     strSql.AppendLine("  		   '" + vcMemo + "',   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
-                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',0,  ");
+                    strSql.AppendLine("  		   '" + filePath + "', '" + fileNameOrder + "',0,  ");
                     strSql.AppendLine("  		   '" + userId + "',GETDATE())   ");
                     strSql.AppendLine("   ;  ");
 
-                    //获取基础信息
-                    DataTable dockTmp = getJinJiDockTable(DateTime.Now.ToString("yyyyMM"));
-                    //读取文件
-
-                    string vcPackingFactory = uionCode;
-                    string vcOrderNo = fileName;
-
-                    //读取Order
-                    Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
+                   
                     //List<string> TargetYM = new List<string>();
                     //追加紧急日期
                     //foreach (Detail detail in order.Details)
@@ -1234,7 +1292,8 @@ namespace DataAccess
                         
                         strSql.Append("  insert into  [dbo].[TUrgentOrder] (vcOrderNo,vcPart_id,vcSupplier_id,vcGQ,vcChuHePlant,  ");
                         strSql.Append("  iOrderQuantity,vcStatus,vcDelete,vcInOut,vcOrderPlant,vcHaoJiu,vcOESP,vcSufferIn,iPackingQty,vcOperatorID,dOperatorTime ) values (  ");
-                        strSql.Append("  '" + fileName + "',  ");
+                        //strSql.Append("  '" + fileName + "',  ");
+                        strSql.Append("  '" + fileNameOrder + "',  ");
                         strSql.Append("  '"+ vcPart_id + "',  ");
                         strSql.Append(ComFunction.getSqlValue(vcSupplierId, false) + ",");
                         strSql.Append(ComFunction.getSqlValue(vcSupplierPlant, false) + ",");
@@ -1575,7 +1634,7 @@ namespace DataAccess
 
                     fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                     fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);
-                    vcMemo = lastOrderNo + "----->" + fileName;
+                    
                     filePath = fileList[i]["filePath"].ToString();
                     string chushiLastOrderNo = string.Empty;
                     if (vcJiLuLastOrderNo.Length > 0)
@@ -1586,6 +1645,10 @@ namespace DataAccess
                     {
                         chushiLastOrderNo = lastOrderNo;
                     }
+                    //读取Order
+                    Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
+                    string fileNameOrder = order.Head.No;
+                    vcMemo = lastOrderNo + "----->" + fileNameOrder;
                     strSql.AppendLine("  INSERT INTO [dbo].[TOrderUploadManage]   ");
                     strSql.AppendLine("             ([vcOrderNo] ,[vcTargetYear]   ");
                     strSql.AppendLine("             ,[vcTargetMonth] ,[vcTargetDay]   ");
@@ -1594,7 +1657,8 @@ namespace DataAccess
                     strSql.AppendLine("             ,[dUploadDate]   ");
                     strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,vcOrderShowFlag,vcLastOrderNo,[vcOperatorID],[dOperatorTime])   ");
                     strSql.AppendLine("       VALUES   ");
-                    strSql.AppendLine("             ('" + fileName + "',   ");
+                    //strSql.AppendLine("             ('" + fileName + "',   ");
+                    strSql.AppendLine("             ('" + fileNameOrder + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetYear + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetMonth + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetDay + "',   ");
@@ -1603,10 +1667,10 @@ namespace DataAccess
                     strSql.AppendLine("  		   '" + 0 + "',   ");
                     strSql.AppendLine("  		   '" + vcMemo + "',   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
-                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',0,'"+ chushiLastOrderNo + "',  ");
+                    strSql.AppendLine("  		   '" + filePath + "', '" + fileNameOrder + "',0,'"+ chushiLastOrderNo + "',  ");
                     strSql.AppendLine("  		   '" + userId + "',GETDATE())   ");
                     strSql.AppendLine("   ;  ");
-                    strSql.AppendLine("   insert into TUploadOrderRelation (vcLastOrderNo,vcNewOrderNo) values ('"+ chushiLastOrderNo + "','"+ fileName + "');   ");
+                    strSql.AppendLine("   insert into TUploadOrderRelation (vcLastOrderNo,vcNewOrderNo) values ('"+ chushiLastOrderNo + "','"+ fileNameOrder + "');   ");
                    
                     //获取基础信息
                     DataTable dockTmp = getJinJiDockTable(DateTime.Now.ToString("yyyyMM"));
@@ -1615,8 +1679,7 @@ namespace DataAccess
                     string vcPackingFactory = uionCode;
                     string vcOrderNo = fileName;
 
-                    //读取Order
-                    Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
+                   
                     //List<string> TargetYM = new List<string>();
                     //foreach (Detail detail in order.Details)
                     //{
@@ -1676,7 +1739,7 @@ namespace DataAccess
                         
                         strSql.Append("  insert into  [dbo].[TUrgentOrder] (vcOrderNo,vcPart_id,[vcOrderPlant], [vcInOut], [vcHaoJiu], [vcOESP],[vcSupplier_id], vcGQ,vcChuHePlant,[vcSufferIn], [iPackingQty],  ");
                         strSql.Append("  iOrderQuantity,vcStatus,vcDelete,vcOperatorID,dOperatorTime ) values (  ");
-                        strSql.Append("  '" + fileName + "',  ");
+                        strSql.Append("  '" + fileNameOrder + "',  ");
                         strSql.Append("  '" + vcPart_id + "',  ");
                         strSql.Append(ComFunction.getSqlValue(vcOrderPlant, true) + ",");
                         strSql.Append(ComFunction.getSqlValue(vcInOut, true) + ",");

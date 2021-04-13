@@ -3765,11 +3765,11 @@ namespace Logic
             }
         }
 
-        public string getPrinterName(string strPageId, string strOperId)
+        public DataTable getPrinterInfo(string strPrintFunction, string strOperator)
         {
             try
             {
-                return fs0603_DataAccess.getPrinterName(strPageId, strOperId);
+                return fs0603_DataAccess.getPrinterInfo(strPrintFunction, strOperator);
             }
             catch (Exception ex)
             {

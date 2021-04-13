@@ -1863,8 +1863,6 @@ namespace Common
                 postStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);
                 postStream.Close();
 
-                Convert.ToInt32("aa");
-
                 //发送请求并获取相应回应数据
                 HttpWebResponse response = request.GetResponse() as HttpWebResponse;
                 //直到request.GetResponse()程序才开始向目标网页发送Post请求
@@ -1874,8 +1872,7 @@ namespace Common
                 string content = sr.ReadToEnd();
                 if (content == "error")
                 {
-                    ComMessage.WriteInDB("dmzUpload", "E", "文件上传异常", "参数filepath=" + filepath + ",strFileName=" + strFileName + ",strToDir=" + strToDir, "", "system");
-                    return false;
+                    throw new Exception("文件上传异常");
                 }
                     
                 else
@@ -1885,15 +1882,15 @@ namespace Common
             catch (Exception ex)
             {
                 ComMessage.WriteInDB("dmzUpload", "E", "文件上传异常", "参数filepath="+ filepath + ",strFileName="+ strFileName + ",strToDir=" + strToDir, ex.StackTrace, "system");
-                return false;
+                throw ex;
             }
         }
         /// <summary>
         /// Http下载文件
         /// </summary>
-        /// <param name="strFromDir"></param>
-        /// <param name="strFileName"></param>
-        /// <param name="strToPath"></param>
+        /// <param name="strFromDir">从116服务器的目录（相对应用目录）</param>
+        /// <param name="strFileName">获取的文件名</param>
+        /// <param name="strToPath">保存到linux的目录（相对应用目录）</param>
         /// <returns></returns>
         public static string HttpDownload(string strFromDir,string strFileName, string strToPath)
         {
@@ -1933,7 +1930,7 @@ namespace Common
                 //stream.Close();
                 fs.Close();
                 responseStream.Close();
-                return strToPath+ strFileName;
+                return strToPath + Path.DirectorySeparatorChar + strFileName;
             }
             catch (Exception ex)
             {

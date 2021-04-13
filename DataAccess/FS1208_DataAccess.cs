@@ -176,7 +176,7 @@ namespace DataAccess
                     }
                     if (tmp["vcPorType"].ToString().Length == 0 || tmp["vcZB"].ToString().Length == 0 || tmp["vcPartPlant"].ToString().Length == 0)
                     {
-                        msg = "品番：" + dt.Rows[i]["vcPartsno"].ToString() + "受入：" + dt.Rows[i]["vcDock"].ToString() + "， 生产部署或组别或工厂未维护。";
+                        msg = "品番：" + dt.Rows[i]["vcPartsno"].ToString() + "受入：" + dt.Rows[i]["vcDock"].ToString() + "， 生产部署或组别或工场未维护。";
                         return msg;
                     }
                     //if (dt.Rows[i]["vcOrderNo"].ToString().Trim().Length != 10 && dt.Rows[i]["vcOrderNo"].ToString().Trim().Length != 12)

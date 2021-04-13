@@ -104,7 +104,7 @@ namespace DataAccess
                 //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily25,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily26,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily27,0) as decimal(18,6))   ");
                 //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily28,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily29,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily30,0) as decimal(18,6))   ");
                 //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily31,0) as decimal(18,6)) as vcResultQtyDailySum,   ");
-                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDailySum],0) as int) as [vcPlantQtyDailySum],cast(isnull(a.[vcInputQtyDailySum],0) as int) as [vcInputQtyDailySum],cast(isnull(a.[vcResultQtyDailySum],0) as int) as [vcResultQtyDailySum],'0' as vcModFlag,'0' as vcAddFlag, case when [vcTargetMonthFlag]='0' then '0:确定月' else vcTargetMonthFlag  end as vcTargetMonthFlag,convert(varchar(10), vcTargetMonthLast,111) as [vcTargetMonthLast], [vcOperatorID], [dOperatorTime]    ");
+                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDailySum],0) as int) as [vcPlantQtyDailySum],cast(isnull(a.[vcInputQtyDailySum],0) as int) as [vcInputQtyDailySum],cast(isnull(a.[vcResultQtyDailySum],0) as int) as [vcResultQtyDailySum],'0' as vcModFlag,'0' as vcAddFlag, case when [vcTargetMonthFlag]='0' then '确定月' else vcTargetMonthFlag  end as vcTargetMonthFlag,convert(varchar(10), vcTargetMonthLast,111) as [vcTargetMonthLast], [vcOperatorID], [dOperatorTime]    ");
                 strSql.AppendLine("  from [dbo].[SP_M_ORD] a    ");
                 strSql.AppendLine("  left join (select vcOrderInitials as vcValue,vcOrderDifferentiation as vcName from TOrderDifferentiation) b on a.vcOrderType = b.vcValue   ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where  vcCodeId='C018') c on a.vcCpdcompany = c.vcValue   ");
@@ -146,7 +146,7 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and   CONVERT(varchar(10),  dOrderExportDate,112) =  '" + dOrderExportDate.Replace("-", "").Replace("/", "") + "' ");
                 }
-                //strSql.AppendLine("  order by  a.vcWorkArea desc,a.vcTargetYearMonth desc,a.vcDock desc,a.vcOrderType desc,a.vcOrderNo desc,a.vcSeqno asc,a.vcPartNo desc ");
+                //strSql.AppendLine("  order by  a.vcTargetYearMonth desc,a.vcOrderType asc,a.vcOrderNo desc,a.vcSeqno asc,a.vcPartNo desc,a.vcDock asc ");
                 strSql.AppendLine("  order by a.vcTargetYearMonth desc,a.vcSeqno asc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

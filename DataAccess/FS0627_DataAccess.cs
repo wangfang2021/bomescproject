@@ -129,7 +129,7 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and vcSupplier_id='" + vcProject + "'    ");
                 }
-                strSql.AppendLine("  ) A  order by A.vcInjectionFactory asc");
+                strSql.AppendLine("  ) A  order by A.vcInjectionFactory asc,A.vcSupplier_id asc");
                 strSql.AppendLine("  ;  ");
 
                 strSql.AppendLine("   select A.*,  ");
@@ -167,7 +167,7 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and vcSupplier_id='" + vcProject + "'    ");
                 }
-                strSql.AppendLine("  ) A  order by A.vcInjectionFactory asc  ");
+                strSql.AppendLine("  ) A  order by A.vcInjectionFactory asc,A.vcSupplier_id asc  ");
                 strSql.AppendLine("  ;  ");
                 return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
             }

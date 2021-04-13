@@ -427,7 +427,7 @@ namespace SPPSApi.Controllers.G06
                     style2.VerticalAlignment = VerticalAlignment.Center;
                     style2.BorderLeft = BorderStyle.Thin;
                     //style2.BorderRight = BorderStyle.Thin;
-                    style2.BorderTop = BorderStyle.Medium;
+                    style2.BorderTop = BorderStyle.Thin;
 
                     style3.SetFont(font);
                     style3.Alignment = HorizontalAlignment.Center;
@@ -456,14 +456,14 @@ namespace SPPSApi.Controllers.G06
                     style5.BorderLeft = BorderStyle.Medium;
                     style5.BorderTop = BorderStyle.Dotted;
 
-                    IFont font6 = hssfworkbook.CreateFont();
-                    font6.Color = IndexedColors.Black.Index;
-                    font6.IsBold = true; ;
-                    font6.FontHeightInPoints = 14;
+                    //IFont font6 = hssfworkbook.CreateFont();
+                    //font6.Color = IndexedColors.Black.Index;
+                    //font6.IsBold = true; ;
+                    //font6.FontHeightInPoints = 14;
                     //font6.FontName = "宋体";
                     //style6.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.LightTurquoise.Index;
                     //style6.FillPattern = FillPattern.SolidForeground;
-                    style6.SetFont(font6);
+                    style6.SetFont(font4);
                     style6.Alignment = HorizontalAlignment.Center;
                     style6.VerticalAlignment = VerticalAlignment.Center;
                     style6.BorderLeft = BorderStyle.Thin;
@@ -503,11 +503,11 @@ namespace SPPSApi.Controllers.G06
 
                     //style6.BorderBottom = BorderStyle.Medium;
 
-                    IFont font8 = hssfworkbook.CreateFont();
+                    /*IFont font8 = hssfworkbook.CreateFont();
                     font8.Color = IndexedColors.Black.Index;
                     font8.IsBold = true; ;
-                    font8.FontHeightInPoints = 14;
-                    style8.SetFont(font8);
+                    font8.FontHeightInPoints = 14;*/
+                    style8.SetFont(font4);
                     //style8.Alignment = HorizontalAlignment.Right;
                     //style8.VerticalAlignment = VerticalAlignment.Center;
                     //style8.BorderLeft = BorderStyle.Thin;
@@ -518,11 +518,11 @@ namespace SPPSApi.Controllers.G06
                     //style6.BorderRight = BorderStyle.Thin;
                     style8.BorderTop = BorderStyle.Dotted;
 
-                    IFont font9 = hssfworkbook.CreateFont();
+                    /*IFont font9 = hssfworkbook.CreateFont();
                     font9.Color = IndexedColors.Black.Index;
                     font9.IsBold = true; ;
-                    font9.FontHeightInPoints = 14;
-                    style9.SetFont(font9);
+                    font9.FontHeightInPoints = 14;*/
+                    style9.SetFont(font);
                     style9.Alignment = HorizontalAlignment.Center;
                     style9.VerticalAlignment = VerticalAlignment.Center;
                     style9.BorderLeft = BorderStyle.Thin;
@@ -540,22 +540,22 @@ namespace SPPSApi.Controllers.G06
                     style91.BorderLeft = BorderStyle.Thin;
                     style91.BorderTop = BorderStyle.Dotted;
 
-                    IFont font10 = hssfworkbook.CreateFont();
+                    /*IFont font10 = hssfworkbook.CreateFont();
                     font10.Color = IndexedColors.Black.Index;
                     font10.IsBold = true; ;
-                    font10.FontHeightInPoints = 14;
-                    style10.SetFont(font10);
+                    font10.FontHeightInPoints = 14;*/
+                    style10.SetFont(font);
                     style10.Alignment = HorizontalAlignment.Center;
                     style10.VerticalAlignment = VerticalAlignment.Center;
                     style10.BorderLeft = BorderStyle.Medium;
                     style10.BorderTop = BorderStyle.Thin;
 
-                    IFont font111 = hssfworkbook.CreateFont();
+                  /*  IFont font111 = hssfworkbook.CreateFont();
                     font111.Color = IndexedColors.Black.Index;
                     font111.IsBold = false; ;
-                    font111.FontHeightInPoints = 16;
+                    font111.FontHeightInPoints = 16;*/
                     //font.FontName = "宋体";
-                    style111.SetFont(font111);
+                    style111.SetFont(font91);
                     style111.Alignment = HorizontalAlignment.Left;
                     style111.VerticalAlignment = VerticalAlignment.Center;
                     //style111.BorderLeft = BorderStyle.Thin;
@@ -563,12 +563,12 @@ namespace SPPSApi.Controllers.G06
                     style111.BorderTop = BorderStyle.Thin;
                     //style111.BorderDiagonal = BorderDiagonal.Both;
 
-                    IFont font112 = hssfworkbook.CreateFont();
-                    font112.Color = IndexedColors.Black.Index;
-                    font112.IsBold = true; ;
-                    font112.FontHeightInPoints = 14;
+                    //IFont font112 = hssfworkbook.CreateFont();
+                    //font112.Color = IndexedColors.Black.Index;
+                    //font112.IsBold = true; ;
+                    //font112.FontHeightInPoints = 14;
                     //font.FontName = "宋体";
-                    style112.SetFont(font112);
+                    style112.SetFont(font);
                     style112.Alignment = HorizontalAlignment.Center;
                     style112.VerticalAlignment = VerticalAlignment.Center;
                     style112.BorderLeft = BorderStyle.Thin;
@@ -607,14 +607,14 @@ namespace SPPSApi.Controllers.G06
                     style12.BorderRight = BorderStyle.Medium;
                     style12.BorderTop = BorderStyle.Thin;
 
-                    IFont font13 = hssfworkbook.CreateFont();
+                   /* IFont font13 = hssfworkbook.CreateFont();
                     font13.Color = IndexedColors.Black.Index;
                     font13.IsBold = false; ;
-                    font13.FontHeightInPoints = 14;
+                    font13.FontHeightInPoints = 14;*/
                     //font.FontName = "宋体";
                     //style13.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Grey25Percent.Index;//灰色
                     //style13.FillPattern = FillPattern.SolidForeground;
-                    style13.SetFont(font13);
+                    style13.SetFont(font4);
                     style13.Alignment = HorizontalAlignment.Center;
                     style13.VerticalAlignment = VerticalAlignment.Center;
                     style13.BorderLeft = BorderStyle.Medium;
@@ -654,14 +654,14 @@ namespace SPPSApi.Controllers.G06
                     style22.BorderBottom = BorderStyle.Medium;
 
 
-                    IFont font20 = hssfworkbook.CreateFont();
+                    /*IFont font20 = hssfworkbook.CreateFont();
                     font20.Color = IndexedColors.Black.Index;
                     font20.IsBold = false; ;
-                    font20.FontHeightInPoints = 16;
+                    font20.FontHeightInPoints = 16;*/
                     //font.FontName = "宋体";
                     //style13.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Grey25Percent.Index;//灰色
                     //style13.FillPattern = FillPattern.SolidForeground;
-                    style20.SetFont(font20);
+                    style20.SetFont(font91);
                     style20.Alignment = HorizontalAlignment.Center;
                     style20.VerticalAlignment = VerticalAlignment.Center;
                     //style20.BorderLeft = BorderStyle.Thin;
@@ -681,24 +681,24 @@ namespace SPPSApi.Controllers.G06
                     style24.Alignment = HorizontalAlignment.Left;
                     style24.VerticalAlignment = VerticalAlignment.Center;
 
-                    IFont font25 = hssfworkbook.CreateFont();
+                   /* IFont font25 = hssfworkbook.CreateFont();
                     font25.Color = IndexedColors.Black.Index;
                     font25.IsBold = false; ;
-                    font25.FontHeightInPoints = 11;
+                    font25.FontHeightInPoints = 11;*/
                     //font.FontName = "宋体";
-                    style25.SetFont(font25);
+                    style25.SetFont(font24);
                     style25.Alignment = HorizontalAlignment.Right;
                     style25.VerticalAlignment = VerticalAlignment.Center;
 
                     style26.BorderBottom = BorderStyle.MediumDashed;
 
 
-                    IFont font27 = hssfworkbook.CreateFont();
+                   /* IFont font27 = hssfworkbook.CreateFont();
                     font27.Color = IndexedColors.Black.Index;
                     font27.IsBold = true; ;
-                    font27.FontHeightInPoints = 16;
+                    font27.FontHeightInPoints = 16;*/
                     //font.FontName = "宋体";
-                    style27.SetFont(font27);
+                    style27.SetFont(font2);
                     style27.Alignment = HorizontalAlignment.Center;
                     style27.VerticalAlignment = VerticalAlignment.Center;
                     style27.BorderLeft = BorderStyle.Thin;
@@ -708,12 +708,12 @@ namespace SPPSApi.Controllers.G06
                     style28.BorderRight = BorderStyle.Medium;
                     style28.BorderTop = BorderStyle.Dotted;
 
-                    IFont font29 = hssfworkbook.CreateFont();
-                    font29.Color = IndexedColors.Black.Index;
-                    font29.IsBold = true; ;
-                    font29.FontHeightInPoints = 14;
+                    //IFont font29 = hssfworkbook.CreateFont();
+                    //font29.Color = IndexedColors.Black.Index;
+                    //font29.IsBold = true; ;
+                    //font29.FontHeightInPoints = 14;
                     //font.FontName = "宋体";
-                    style29.SetFont(font29);
+                    style29.SetFont(font);
                     style29.Alignment = HorizontalAlignment.Center;
                     style29.VerticalAlignment = VerticalAlignment.Center;
                     style29.BorderLeft = BorderStyle.Thin;
@@ -996,7 +996,7 @@ namespace SPPSApi.Controllers.G06
                         lastRow += int.Parse(dtNewSupplierandWorkArea.Rows[i]["vcNumber"].ToString())*10;
                     }
                     //int lastRow = dtNewSupplierandWorkArea.Rows.Count * 10;
-                    hssfworkbook.SetPrintArea(0, 0, 8, firstRow, lastRow);
+                    hssfworkbook.SetPrintArea(0, 0, 8, firstRow, lastRow+2);
                     string rootPath = _webHostEnvironment.ContentRootPath;
                     string strFunctionName = "FS0625_号试看板标签_" + vcSupplier_id;
 

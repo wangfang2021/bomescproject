@@ -1764,7 +1764,7 @@ namespace Logic
             dtSource.Columns[1].ColumnName = "对象月";
             dtSource.Columns[2].ColumnName = "订单号";
             dtSource.Columns[3].ColumnName = "对象周";
-            dtSource.Columns[4].ColumnName = "工厂";
+            dtSource.Columns[4].ColumnName = "工场";
             dtSource.Columns[5].ColumnName = "工程";
             dtSource.Columns[6].ColumnName = "组别";
             dtSource.Columns[7].ColumnName = "品番";

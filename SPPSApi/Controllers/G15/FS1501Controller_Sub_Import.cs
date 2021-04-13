@@ -67,7 +67,7 @@ namespace SPPSApi.Controllers.G15
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"仕入先","工区","受入","Order.","便次","时刻"},
+                string[,] headers = new string[,] {{"仕入先","工区","受入","Order.","便次","纳入补给时刻"},
                                                 {"vcSupplier_id", "vcGQ", "vcSR", "vcOrderNo","vcNRBianCi","vcNRBJSK"},
                                                 {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"","",""},
                                                 {"4","1","2","25","25","25"},//最大长度设定,不校验最大长度用0

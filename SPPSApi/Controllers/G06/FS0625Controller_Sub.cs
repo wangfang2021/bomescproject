@@ -1316,7 +1316,7 @@ namespace SPPSApi.Controllers.G06
                         string ciclyPath = "." + Path.DirectorySeparatorChar + "Images" + Path.DirectorySeparatorChar + "FS0625cicly.png";
                         byte[] buff = System.IO.File.ReadAllBytes(ciclyPath);
                         int pic = hshdworkbook.AddPicture(buff, XSSFWorkbook.PICTURE_TYPE_PNG);
-                        XSSFClientAnchor anchor = new XSSFClientAnchor(250, 0, 250, 0, 2, 3 + (irow * 18), 7, 7 + (irow * 18));
+                        XSSFClientAnchor anchor = new XSSFClientAnchor(50000, 100000, -50000, 0, 2, 3 + (irow * 18), 7, 8 + (irow * 18));
                         //anchor.AnchorType =  AnchorType.MoveAndResize;
                         drawing.CreatePicture(anchor, pic);
                     }

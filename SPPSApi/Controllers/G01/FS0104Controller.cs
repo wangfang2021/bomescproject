@@ -92,7 +92,6 @@ namespace SPPSApi.Controllers.G00
 
             try
             {
-                ComFunction.ConsoleWriteLine("执行检索");
                 //判断是否选择了日期，如果没选，提示并返回
                 if (dataForm.strDateTime==null || dataForm.strDateTime=="")
                 {

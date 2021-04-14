@@ -163,7 +163,7 @@ namespace Logic
                     {
                         string value = dt.Rows[i][field[j]].ToString();
                         ICell cell = row.CreateCell(j);
-                        if (j == 0)
+                        if (j == 0 || j==1)
                             cell.SetCellValue(value);
                         else
                             cell.SetCellValue(Convert.ToInt32(value == "" ? "0" : value));//设置数字格式

@@ -280,7 +280,7 @@ namespace SPPSApi.Controllers.G07
                     FS0701_Logic FS0701_Logic = new FS0701_Logic();
                     DataTable dtPackBase = FS0701_Logic.Search(PackSpot, "", "", new List<object>(), "", "", "", "");
                     DataTable dt = FS0713_Logic.SearchJYZKCalcuate(PackSpot, PackNo, PackGPSNo, strSupplierCode, strRatio, StrFrom, StrTo, strJiSuanType, strXHJiSuanType, strSaveAdvice, loginInfo.UserId, ref strErrorPartId, dtJS, dtPackBase);
-                   
+                    strErrorPartId = "建议在库计算成功！";
                 }
                 else
                 {
@@ -298,7 +298,7 @@ namespace SPPSApi.Controllers.G07
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "建议在库计算失败！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -390,7 +390,7 @@ namespace SPPSApi.Controllers.G07
                 head[2] = "GPS品番";
                 fields[2] = "vcPackGPSNo";
                 head[3] = "建议在库";
-                fields[3] = "dSaveZK";
+                fields[3] = "dAdviceZK";
                 if (strXHJiSuanType == "平均")
                 {
                     head[4] = "平均";

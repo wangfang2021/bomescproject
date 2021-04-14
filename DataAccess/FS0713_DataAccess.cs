@@ -106,7 +106,7 @@ namespace DataAccess
                     {
                         sql.AppendLine($"   dMax = {dt.Rows[i]["vcMax1"].ToString()},");
                     }
-                    sql.AppendLine($"   vcSaveZK = '{dt.Rows[i]["dSaveZK"].ToString()}',");
+                    sql.AppendLine($"   vcadviceZK = '{dt.Rows[i]["dAdviceZK"].ToString()}',");
                     sql.AppendLine($"   vcOperatorID = {strUserId},");
                     sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
                     sql.AppendLine($"  WHERE");
@@ -114,14 +114,15 @@ namespace DataAccess
 
                     sql.AppendLine("  UPDATE TPackZaiKu");
                     sql.AppendLine("  SET ");
-                    if (dt.Rows[i]["dSaveZK"].ToString() == "")
+                    if (dt.Rows[i]["dAdviceZK"].ToString() == "")
                     {
                         sql.AppendLine($"   iAnQuan = 0.00,");
                     }
-                    else {
-                        sql.AppendLine($"   iAnQuan = '{dt.Rows[i]["dSaveZK"].ToString()}',");
+                    else
+                    {
+                        sql.AppendLine($"   iAnQuan = '{dt.Rows[i]["dAdviceZK"].ToString()}',");
                     }
-                   
+
                     sql.AppendLine($"   vcOperatorID = {strUserId},");
                     sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
                     sql.AppendLine($"  WHERE");
@@ -159,7 +160,7 @@ namespace DataAccess
 
                 for (int i = 0; i < dtOldJS.Rows.Count; i++)
                 {
-                    DataRow[] dr = dtPackBase.Select("vcPackNo='" + dtOldJS.Rows[i]["vcPackNo"].ToString() + "'");
+                    DataRow[] dr = dtPackBase.Select("vcPackNo='" + dtOldJS.Rows[i]["vcPackNo"].ToString().Trim() + "'");
                     if (strSaveAdvice == "方法一:使用看板循环")
                     {
                         double A = 0;
@@ -174,13 +175,23 @@ namespace DataAccess
                         {
                             Max = Convert.ToDouble(dtOldJS.Rows[i]["vcMax1"].ToString());
                         }
+                        if (dr.Length > 0&&!string.IsNullOrEmpty(dr[0]["vcCycle"].ToString())&&!string.IsNullOrEmpty(dtOldJS.Rows[i]["iYXDate"].ToString()))
+                        {
+                            A = getA(dr[0]["vcCycle"].ToString().Split('-')[0], dr[0]["vcCycle"].ToString().Split('-')[1],
+                                dr[0]["vcCycle"].ToString().Split('-')[2], Max,
+                                Convert.ToInt32(dtOldJS.Rows[i]["iYXDate"].ToString()));
+                            B = getB(A, Max, Convert.ToDouble(dr[0]["iRelease"].ToString()));
+                            dSaveZK = Convert.ToDecimal(B * Convert.ToDecimal(dr[0]["iRelease"].ToString()) * Convert.ToDecimal(strRatio));
+                            dtOldJS.Rows[i]["dAdviceZK"] = dSaveZK;
+                        }
+                        else {
+                            A = 0;
+                            B = 0;
+                            dtOldJS.Rows[i]["dAdviceZK"] = 0;
 
-                        A = getA(dr[0]["vcCycle"].ToString().Split('-')[0], dr[0]["vcCycle"].ToString().Split('-')[1],
-                            dr[0]["vcCycle"].ToString().Split('-')[2], Max,
-                            Convert.ToInt32(dtOldJS.Rows[i]["iYXDate"].ToString()));
-                        B = getB(A, Max, Convert.ToDouble(dr[0]["iRelease"].ToString()));
-                        dSaveZK = Convert.ToDecimal(B * Convert.ToDecimal(dr[0]["iRelease"].ToString()) * Convert.ToDecimal(strRatio));
-                        dtOldJS.Rows[i]["dSaveZK"] = dSaveZK;
+                        }
+                        
+                        
 
                     }
                     else
@@ -195,7 +206,7 @@ namespace DataAccess
                             decimal dSaveZK_1 = 0;
                             dSaveZK_1 = RoundUp(Convert.ToDecimal(dr[0]["dMax1_10"].ToString()), 0);
                             dSaveZK = dSaveZK_1 * Convert.ToDecimal(dr[0]["iRelease"].ToString()) + (1 * Convert.ToDecimal(dr[0]["iRelease"].ToString()));
-                            dtOldJS.Rows[i]["dSaveZK"] = dSaveZK;
+                            dtOldJS.Rows[i]["dAdviceZK"] = dSaveZK;
                         }
 
 
@@ -225,9 +236,9 @@ namespace DataAccess
             {
 
                 double A = 0;
-                int K3K1 = Convert.ToInt32(K1) + Convert.ToInt32(K3);
+                double K3K1 = Convert.ToDouble(K1) + Convert.ToDouble(K3);
 
-                int KK = Convert.ToInt32(K1) * K3K1 / Convert.ToInt32(K2);
+                double KK = Convert.ToDouble(K1) * K3K1 / Convert.ToDouble(K2);
 
                 A = KK * Max / date;
 
@@ -288,7 +299,7 @@ namespace DataAccess
         #endregion
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId,DataTable dtbase)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, DataTable dtbase)
         {
             try
             {
@@ -297,7 +308,7 @@ namespace DataAccess
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
 
-                    DataRow[] dr = dtbase.Select("vcPackSpot='"+ listInfoData[i]["vcPackSpot"].ToString() + "' and vcPackGPSNo='"+ listInfoData[i]["vcPackGPSNo"].ToString() + "'");
+                    DataRow[] dr = dtbase.Select("vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString() + "' and vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString() + "'");
 
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
@@ -307,15 +318,16 @@ namespace DataAccess
                         sql.AppendLine("      vcPackSpot  \n\r");
                         sql.AppendLine("     , vcPackNo  \n\r");
                         sql.AppendLine("     , vcPackGPSNo  \n\r");
-                        sql.AppendLine("     , vcSupplierCode \n\r");
+                        sql.AppendLine("     , vcSupplierCode,vcSaveZK \n\r");
                         sql.AppendLine("     , vcKBcycle , vcOperatorID,dOperatorTime  ) \n\r");
 
                         sql.AppendLine("     VALUES");
                         sql.AppendLine("     	(");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
-                        sql.AppendLine("'"+ dr[0]["vcPackNo"].ToString() + "',");
+                        sql.AppendLine("'" + dr[0]["vcPackNo"].ToString() + "',");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true) + ",");
                         sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSaveZK"], false) + ",");
                         sql.AppendLine("'" + dr[0]["vcCycle"].ToString() + "',");
                         sql.AppendLine($"     		{strUserId},");
                         sql.AppendLine("     		getDate()");
@@ -616,7 +628,7 @@ namespace DataAccess
                             dtCalcuate.Columns.Add("vcPackNo", Type.GetType("System.String"));
                             dtCalcuate.Columns.Add("vcPackGPSNo", Type.GetType("System.String"));
                             dtCalcuate.Columns.Add("iYXDate", Type.GetType("System.Int32"));
-                            dtCalcuate.Columns.Add("dSaveZK", Type.GetType("System.Decimal"));
+                            dtCalcuate.Columns.Add("dAdviceZK", Type.GetType("System.Decimal"));
                             for (int i = 0; i < days; i++)
                             {
                                 dtCalcuate.Columns.Add("vcDay" + dtc.Rows[i]["vcYMD"].ToString().Substring(5, 5), Type.GetType("System.String"));
@@ -636,13 +648,13 @@ namespace DataAccess
                                 {
                                     if (dr.Length > z)
                                     {
-                                        drImport["vcDay" + dr[0]["vcYMD"].ToString().Substring(5, 5)] =Convert.ToDecimal(dtCalcuateOld.Rows[z]["inum"].ToString()).ToString("0.00");
+                                        drImport["vcDay" + dr[0]["vcYMD"].ToString().Substring(5, 5)] = Convert.ToDecimal(dtCalcuateOld.Rows[z]["inum"].ToString()).ToString("0.00");
                                         count += Convert.ToDouble(dtCalcuateOld.Rows[z]["inum"].ToString());
                                         iYXDate++;
                                     }
                                 }
                                 drImport["iYXDate"] = iYXDate;
-                                drImport["vcAvg"] = count / iYXDate;
+                                drImport["vcAvg"] = Convert.ToDecimal(count / iYXDate).ToString("0.00");
                                 dtCalcuate.Rows.Add(drImport);
                                 foreach (DataRow row in dr)
                                 {
@@ -658,7 +670,7 @@ namespace DataAccess
                             dtCalcuate.Columns.Add("vcPackNo", Type.GetType("System.String"));
                             dtCalcuate.Columns.Add("vcPackGPSNo", Type.GetType("System.String"));
                             dtCalcuate.Columns.Add("iYXDate", Type.GetType("System.Int32"));
-                            dtCalcuate.Columns.Add("dSaveZK", Type.GetType("System.Decimal"));
+                            dtCalcuate.Columns.Add("dAdviceZK", Type.GetType("System.Decimal"));
                             for (int i = 0; i < dtc.Rows.Count; i++)
                             {
 
@@ -689,7 +701,7 @@ namespace DataAccess
                                     }
                                 }
                                 drImport["iYXDate"] = iYXDate;
-                                drImport["vcAvg"] = count / iYXDate;
+                                drImport["vcAvg"] = Convert.ToDecimal(count / iYXDate).ToString("0.00");
                                 dtCalcuate.Rows.Add(drImport);
                                 foreach (DataRow row in dr)
                                 {
@@ -705,7 +717,7 @@ namespace DataAccess
                             dtCalcuate.Columns.Add("vcPackNo", Type.GetType("System.String"));
                             dtCalcuate.Columns.Add("vcPackGPSNo", Type.GetType("System.String"));
                             dtCalcuate.Columns.Add("iYXDate", Type.GetType("System.Int32"));
-                            dtCalcuate.Columns.Add("dSaveZK", Type.GetType("System.Decimal"));
+                            dtCalcuate.Columns.Add("dAdviceZK", Type.GetType("System.Decimal"));
                             for (int i = 0; i < days; i++)
                             {
                                 for (int zz = 0; zz < dtendTime.Rows.Count; zz++)
@@ -742,7 +754,7 @@ namespace DataAccess
                                     }
                                 }
                                 drImport["iYXDate"] = iYXDate;
-                                drImport["vcAvg"] = count / iYXDate;
+                                drImport["vcAvg"] = Convert.ToDecimal(count / iYXDate).ToString("0.00");
                                 dtCalcuate.Rows.Add(drImport);
                                 foreach (DataRow row in dr)
                                 {
@@ -767,7 +779,7 @@ namespace DataAccess
                             dtCalcuate.Columns.Add("vcPackGPSNo", Type.GetType("System.String"));
                             dtCalcuate.Columns.Add("iYXDate", Type.GetType("System.Int32"));
                             dtCalcuate.Columns.Add("dMax1_10", Type.GetType("System.Double"));
-                            dtCalcuate.Columns.Add("dSaveZK", Type.GetType("System.Decimal"));
+                            dtCalcuate.Columns.Add("dAdviceZK", Type.GetType("System.Decimal"));
                             for (int i = 0; i < days; i++)
                             {
                                 dtCalcuate.Columns.Add("vcDay" + dtc.Rows[i]["vcYMD"].ToString().Substring(5, 5), Type.GetType("System.String"));
@@ -826,7 +838,7 @@ namespace DataAccess
                             dtCalcuate.Columns.Add("vcPackGPSNo", Type.GetType("System.String"));
                             dtCalcuate.Columns.Add("iYXDate", Type.GetType("System.Int32"));
                             dtCalcuate.Columns.Add("dMax1_10", Type.GetType("System.Double"));
-                            dtCalcuate.Columns.Add("dSaveZK", Type.GetType("System.Decimal"));
+                            dtCalcuate.Columns.Add("dAdviceZK", Type.GetType("System.Decimal"));
                             for (int i = 0; i < dtc.Rows.Count; i++)
                             {
                                 dtCalcuate.Columns.Add("vcDay" + dtc.Rows[i]["vcBZ"].ToString().Substring(0, 1) + dtc.Rows[i]["vcYMD"].ToString().Substring(5, 5), Type.GetType("System.String"));
@@ -883,7 +895,7 @@ namespace DataAccess
                             dtCalcuate.Columns.Add("vcPackGPSNo", Type.GetType("System.String"));
                             dtCalcuate.Columns.Add("iYXDate", Type.GetType("System.Int32"));
                             dtCalcuate.Columns.Add("dMax1_10", Type.GetType("System.Double"));
-                            dtCalcuate.Columns.Add("dSaveZK", Type.GetType("System.Decimal"));
+                            dtCalcuate.Columns.Add("dAdviceZK", Type.GetType("System.Decimal"));
                             for (int i = 0; i < days; i++)
                             {
                                 for (int zz = 0; zz < dtendTime.Rows.Count; zz++)
@@ -1146,65 +1158,39 @@ namespace DataAccess
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId)
+        public void importSave(DataTable dt, string strUserId, DataTable dtbase)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-
-                //  "vcPackSpot","vcPackNo","vcPackGPSNo","dPackFrom","dPackTo","vcParstName","vcSupplierName",
-                //"vcSupplierCode","iRelease","iZCRelease","vcCycle","vcDistinguish","vcPackLocation","vcFormat","vcReleaseName"
-                //先删除重复待更新的
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    sql.Append("  delete from  TPackBase where vcPackSpot=" + ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + " and vcPackNo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false) + " and vcPackGPSNo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], false) + "   \r\n");
+                    sql.AppendLine("     delete from  TPackSaveZK where vcPackSpot='" + dt.Rows[i]["vcPackSpot"].ToString() + "' and vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "' ");
                 }
-                //插入
-                sql.Append("  INSERT INTO [dbo].[TPackBase]   \r\n");
-                sql.Append("             ([vcPackNo]   \r\n");
-                sql.Append("             ,[vcPackSpot]   \r\n");
-                sql.Append("             ,[dPackFrom]   \r\n");
-                sql.Append("             ,[dPackTo]   \r\n");
-                sql.Append("             ,[vcPackGPSNo]   \r\n");
-                sql.Append("             ,[vcSupplierCode]   \r\n");
-                sql.Append("             ,[vcSupplierPlant]   \r\n");
-                sql.Append("             ,[vcCycle]   \r\n");
-                sql.Append("             ,[vcSupplierName]   \r\n");
-                sql.Append("             ,[vcParstName]   \r\n");
-                sql.Append("             ,[vcPackLocation]   \r\n");
-                sql.Append("             ,[vcDistinguish]   \r\n");
-                sql.Append("             ,[vcFormat]   \r\n");
-                //sql.Append("             ,[vcReleaseID]   \r\n");
-                sql.Append("             ,[vcReleaseName]   \r\n");
-                sql.Append("             ,[iRelease]   \r\n");
-                sql.Append("             ,[iZCRelease]   \r\n");
-                sql.Append("             ,[isYZC]   \r\n");
-                sql.Append("             ,[vcOperatorID]   \r\n");
-                sql.Append("             ,[dOperatorTime])   \r\n");
-                sql.Append("       VALUES   \r\n");
-                sql.Append("             (   \r\n");
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["dPackFrom"], false) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["dPackTo"], false) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], true) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSupplierCode"], true) + ", \r\n");
-                    sql.Append("   null,  \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcCycle"], false) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSupplierName"], true) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcParstName"], true) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackLocation"], false) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcDistinguish"], false) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFormat"], false) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcReleaseName"], false) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["iRelease"], false) + ", \r\n");
-                    sql.Append(ComFunction.getSqlValue(dt.Rows[i]["iZCRelease"], true) + ", \r\n");
-                    sql.Append("   null,  \r\n");
-                    sql.Append("   '" + strUserId + "',  \r\n");
-                    sql.Append("   getdate())  \r\n");
+                    DataRow[] dr = dtbase.Select("vcPackSpot='" + dt.Rows[i]["vcPackSpot"].ToString() + "' and vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'");
 
+                    //新增
+                    sql.AppendLine("     INSERT INTO TPackSaveZK( ");
+                    sql.AppendLine("      vcPackSpot  \n\r");
+                    sql.AppendLine("     , vcPackNo  \n\r");
+                    sql.AppendLine("     , vcPackGPSNo  \n\r");
+                    sql.AppendLine("     , vcSupplierCode,vcSaveZK \n\r");
+                    sql.AppendLine("     , vcKBcycle , vcOperatorID,dOperatorTime  ) \n\r");
+
+                    sql.AppendLine("     VALUES");
+                    sql.AppendLine("     	(");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + ",");
+                    sql.AppendLine("'" + dr[0]["vcPackNo"].ToString() + "',");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], true) + ",");
+                    sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcSaveZK"], false) + ",");
+                    sql.AppendLine("'" + dr[0]["vcCycle"].ToString() + "',");
+                    sql.AppendLine($"     		{strUserId},");
+                    sql.AppendLine("     		getDate()");
+                    sql.AppendLine("     	); ");
                 }
                 if (sql.Length > 0)
                 {
@@ -1358,6 +1344,20 @@ namespace DataAccess
             }
         }
         #endregion
-
+        #region 安全在库
+        public DataTable SearchSZK()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("       SELECT * FROM TPackSaveZK      \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

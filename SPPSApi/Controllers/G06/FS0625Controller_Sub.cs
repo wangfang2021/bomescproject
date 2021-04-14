@@ -512,6 +512,9 @@ namespace SPPSApi.Controllers.G06
                     style91.BorderLeft = BorderStyle.Thin;
                     style91.BorderTop = BorderStyle.Dotted;
 
+                    style19.BorderTop = BorderStyle.Dotted;
+                    style19.BorderBottom = BorderStyle.None;
+
                     style10.SetFont(font);
                     style10.Alignment = HorizontalAlignment.Center;
                     style10.VerticalAlignment = VerticalAlignment.Center;
@@ -578,7 +581,8 @@ namespace SPPSApi.Controllers.G06
 
                     style17.BorderTop = BorderStyle.Medium;
                     style18.BorderTop = BorderStyle.Thin;
-                    style19.BorderTop = BorderStyle.Dotted;
+
+                    
 
                     style22.BorderTop = BorderStyle.Dotted;
                     style22.BorderBottom = BorderStyle.Medium;
@@ -869,10 +873,10 @@ namespace SPPSApi.Controllers.G06
                             next10RowHSSFCol.CreateCell(7).SetCellValue("");
                             next10RowHSSFCol.CreateCell(8).SetCellValue("");
                             nextRow++;
-                            if (numLeiji%3==0)
+                            if (numLeiji % 3 == 0)
                             {
                                 IRow next11RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                                next11RowHSSFCol.Height = 45 * 20;
+                                next11RowHSSFCol.Height = 25 * 20;
                                 next11RowHSSFCol.CreateCell(1).SetCellValue("");
                                 next11RowHSSFCol.CreateCell(2).SetCellValue("");
                                 next11RowHSSFCol.CreateCell(3).SetCellValue("");
@@ -902,7 +906,7 @@ namespace SPPSApi.Controllers.G06
                         heJiNum += int.Parse(dtNewSupplierandWorkArea.Rows[l]["vcNumber"].ToString());
                     }
                     lastRow = heJiNum * 10 + Convert.ToInt32(heJiNum / 3.0f);
-                    //int lastRow = dtNewSupplierandWorkArea.Rows.Count * 10;
+                    
                     hssfworkbook.SetPrintArea(0, 0, 8, firstRow, lastRow-1);
                     string rootPath = _webHostEnvironment.ContentRootPath;
                     string strFunctionName = "FS0625_号试看板标签_" + vcSupplier_id;
@@ -1312,7 +1316,7 @@ namespace SPPSApi.Controllers.G06
                         string ciclyPath = "." + Path.DirectorySeparatorChar + "Images" + Path.DirectorySeparatorChar + "FS0625cicly.png";
                         byte[] buff = System.IO.File.ReadAllBytes(ciclyPath);
                         int pic = hshdworkbook.AddPicture(buff, XSSFWorkbook.PICTURE_TYPE_PNG);
-                        XSSFClientAnchor anchor = new XSSFClientAnchor(250, 0, 250, 0, 2, 3 + (irow * 18), 7, 7 + (irow * 18));
+                        XSSFClientAnchor anchor = new XSSFClientAnchor(50000, 100000, -50000, 0, 2, 3 + (irow * 18), 7, 8 + (irow * 18));
                         //anchor.AnchorType =  AnchorType.MoveAndResize;
                         drawing.CreatePicture(anchor, pic);
                     }

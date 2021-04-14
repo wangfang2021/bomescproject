@@ -151,7 +151,7 @@ namespace DataAccess
                     sql.Append("end  \n");
                     sql.Append("else  \n");
                     sql.Append("begin    \n");
-                    sql.Append("    update TNRBJSKBianCi_Temp set vcNRBianCi='" + dt.Rows[i]["vcNRBianCi"].ToString() + "',vcNRBJSK='" + dt.Rows[i]["vcNRBJSK"].ToString() + "',vcOperatorID='" + strUserId + "',dOperatorTime='"+ now + "'    \n");
+                    sql.Append("    update TNRBJSKBianCi_Temp set vcNRBianCi='" + dt.Rows[i]["vcNRBianCi"].ToString() + "',vcNRBJSK='" + vcNRBJSK + "',vcOperatorID='" + strUserId + "',dOperatorTime='"+ now + "'    \n");
                     sql.Append("    where vcSupplier_id='" + dt.Rows[i]["vcSupplier_id"].ToString() + "' and vcGQ='" + dt.Rows[i]["vcGQ"].ToString() + "'\n");
                     sql.Append("    and vcSR='" + dt.Rows[i]["vcSR"].ToString() + "' and vcOrderNo='" + dt.Rows[i]["vcOrderNo"].ToString() + "'   \n");
                     sql.Append("end  \n");

@@ -873,10 +873,10 @@ namespace SPPSApi.Controllers.G06
                             next10RowHSSFCol.CreateCell(7).SetCellValue("");
                             next10RowHSSFCol.CreateCell(8).SetCellValue("");
                             nextRow++;
-                            if (numLeiji%3==0)
+                            if (numLeiji % 3 == 0)
                             {
                                 IRow next11RowHSSFCol = mysheetHSSF.CreateRow(nextRow); //设置第0行
-                                next11RowHSSFCol.Height = 45 * 20;
+                                next11RowHSSFCol.Height = 25 * 20;
                                 next11RowHSSFCol.CreateCell(1).SetCellValue("");
                                 next11RowHSSFCol.CreateCell(2).SetCellValue("");
                                 next11RowHSSFCol.CreateCell(3).SetCellValue("");
@@ -906,7 +906,7 @@ namespace SPPSApi.Controllers.G06
                         heJiNum += int.Parse(dtNewSupplierandWorkArea.Rows[l]["vcNumber"].ToString());
                     }
                     lastRow = heJiNum * 10 + Convert.ToInt32(heJiNum / 3.0f);
-                    //int lastRow = dtNewSupplierandWorkArea.Rows.Count * 10;
+                    
                     hssfworkbook.SetPrintArea(0, 0, 8, firstRow, lastRow-1);
                     string rootPath = _webHostEnvironment.ContentRootPath;
                     string strFunctionName = "FS0625_号试看板标签_" + vcSupplier_id;

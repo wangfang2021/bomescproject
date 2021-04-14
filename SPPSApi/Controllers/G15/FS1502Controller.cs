@@ -261,12 +261,12 @@ namespace SPPSApi.Controllers.G15
                     #region 数据格式校验
                     string[,] strField = new string[,]
                     {
-                        {"累积包装残","计划调整"},//中文字段名
-                        {"iLJBZRemain","iPlanTZ"},//英文字段名
-                        {FieldCheck.Num,FieldCheck.Num},//数据类型校验
-                        {"0","0"},//最大长度设定,不校验最大长度用0
-                        {"1","1"},//最小长度设定,可以为空用0
-                        {"7","8"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"累积包装残","计划调整","实行计划-白","实行计划-夜"},//中文字段名
+                        {"iLJBZRemain","iPlanTZ","iSSPlan_Day","iSSPlan_Night"},//英文字段名
+                        {FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},//数据类型校验
+                        {"0","0","0","0"},//最大长度设定,不校验最大长度用0
+                        {"0","0","1","1"},//最小长度设定,可以为空用0
+                        {"7","8","9","10"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1502");
                     if (checkRes != null)
@@ -282,13 +282,13 @@ namespace SPPSApi.Controllers.G15
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     string dPackDate = Convert.ToDateTime(listInfoData[i]["dPackDate"].ToString()).ToString("yyyy-MM-dd");
-                    string iLJBZRemain = listInfoData[i]["iLJBZRemain"] == null ? "0" : listInfoData[i]["iLJBZRemain"].ToString();
-                    string iLJBZRemain_old = listInfoData[i]["iLJBZRemain_old"] == null ? "0": listInfoData[i]["iLJBZRemain_old"].ToString();
+                    string iLJBZRemain = listInfoData[i]["iLJBZRemain"] == null ? "" : listInfoData[i]["iLJBZRemain"].ToString();
+                    string iLJBZRemain_old = listInfoData[i]["iLJBZRemain_old"] == null ? "" : listInfoData[i]["iLJBZRemain_old"].ToString();
                     string time = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
                     if (iLJBZRemain != iLJBZRemain_old && dPackDate != time)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "只有修改" + time + "的累计包装残！";
+                        apiResult.data = "只能修改" + time + "的累计包装残！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
@@ -482,10 +482,10 @@ namespace SPPSApi.Controllers.G15
         }
         #endregion
 
-        #region 计算
+        #region 全白
         [HttpPost]
         [EnableCors("any")]
-        public string calApi([FromBody]dynamic data)
+        public string AllDayClickApi([FromBody]dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -499,23 +499,64 @@ namespace SPPSApi.Controllers.G15
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                string dBZDate = dataForm.dBZDate == null ? "" : dataForm.dBZDate;
-                if (dBZDate == "")
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (checkedInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "请选择包装日期！";
+                    apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs1502_Logic.Cal(dBZDate, loginInfo.UserId, loginInfo.UnitCode);
+                fs1502_Logic.AllDay(checkedInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1003", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0705", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
+                apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 全夜
+        [HttpPost]
+        [EnableCors("any")]
+        public string AllNightClickApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (checkedInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选择一行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fs1502_Logic.AllNight(checkedInfoData, loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0705", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

@@ -19,32 +19,38 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag,iLJBZRemain as iLJBZRemain_old,dPackDate from (    \n");
+                strSql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag,iLJBZRemain as iLJBZRemain_old,dPackDate,    \n");
+                strSql.Append("iSSPlan_Day as iSSPlan_Day_old,iSSPlan_Night as iSSPlan_Night_old from (  \n");
                 strSql.Append("select vcBigPM,vcSmallPM,iBZPlan_Day,iBZPlan_Night,iBZPlan_Heji,iEmergencyOrder,iLJBZRemain,iPlanTZ,    \n");
-                strSql.Append("iSSPlan_Day,iSSPlan_Night,iSSPlan_Heji,1 as id,'0' as bSelectFlag,iAutoId,dPackDate    \n");
+                strSql.Append("iSSPlan_Day,iSSPlan_Night,iSSPlan_Heji,1 as id,'0' as bSelectFlag,iAutoId,dPackDate,    \n");
+                strSql.Append("case when isnull(iLJBZRemain,0)>ISNULL(iBZPlan_Heji,0)*0.3 then 'red' else '' end as vcColor  \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='外注'     \n");
                 if (vcBigPM != null && vcBigPM != "")
                     strSql.Append("and vcBigPM = '" + vcBigPM + "'    \n");
                 strSql.Append("union all    \n");
                 strSql.Append("select '外注品合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
-                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),2 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate    \n");
+                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),2 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate,    \n");
+                strSql.Append("'' as vcColor  \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='外注'    \n");
                 strSql.Append("union all     \n");
                 strSql.Append("select vcBigPM,vcSmallPM,iBZPlan_Day,iBZPlan_Night,iBZPlan_Heji,iEmergencyOrder,iLJBZRemain,iPlanTZ,    \n");
-                strSql.Append("iSSPlan_Day,iSSPlan_Night,iSSPlan_Heji,3 as id,'0' as bSelectFlag,iAutoId,dPackDate    \n");
+                strSql.Append("iSSPlan_Day,iSSPlan_Night,iSSPlan_Heji,3 as id,'0' as bSelectFlag,iAutoId,dPackDate,    \n");
+                strSql.Append("case when isnull(iLJBZRemain,0)>ISNULL(iBZPlan_Heji,0)*0.3 then 'red' else '' end as vcColor  \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='内制'    \n");
                 if (vcBigPM != null && vcBigPM != "")
                     strSql.Append("and vcBigPM = '" + vcBigPM + "'    \n");
                 strSql.Append("union all    \n");
                 strSql.Append("select '内制品合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
-                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),4 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate    \n");
+                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),4 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate,    \n");
+                strSql.Append("'' as vcColor  \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='内制'    \n");
                 strSql.Append("union all    \n");
                 strSql.Append("select '全体合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
-                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),5 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate    \n");
+                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),5 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate,    \n");
+                strSql.Append("'' as vcColor  \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "'     \n");
                 strSql.Append(")a    \n");
                 strSql.Append("order by id,vcBigPM,vcSmallPM      \n");
@@ -153,8 +159,12 @@ namespace DataAccess
                     bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
 
-                    string E = listInfoData[i]["iLJBZRemain"].ToString() == "" ? "0" : listInfoData[i]["iLJBZRemain"].ToString();
-                    string F = listInfoData[i]["iPlanTZ"].ToString() == "" ? "0" : listInfoData[i]["iPlanTZ"].ToString();
+                    string E = listInfoData[i]["iLJBZRemain"]==null?"": listInfoData[i]["iLJBZRemain"].ToString();
+                    string F = listInfoData[i]["iPlanTZ"]==null?"": listInfoData[i]["iPlanTZ"].ToString();
+                    string iSSPlan_Day= listInfoData[i]["iSSPlan_Day"]==null?"": listInfoData[i]["iSSPlan_Day"].ToString();
+                    string iSSPlan_Night= listInfoData[i]["iSSPlan_Night"]==null?"": listInfoData[i]["iSSPlan_Night"].ToString();
+                    string iSSPlan_Day_old = listInfoData[i]["iSSPlan_Day_old"]==null?"": listInfoData[i]["iSSPlan_Day_old"].ToString();
+                    string iSSPlan_Night_old = listInfoData[i]["iSSPlan_Night_old"]==null?"": listInfoData[i]["iSSPlan_Night_old"].ToString();
 
                     //标识说明
                     //默认  bmodflag:false  baddflag:false
@@ -172,35 +182,46 @@ namespace DataAccess
                         string dPackDate_yyyymm = Convert.ToDateTime(listInfoData[i]["dPackDate"].ToString()).ToString("yyyyMM");
                         string dPackDate_day = dPackDate.Day.ToString();
 
-                        sql.Append("update TPackingPlan_Summary set iPlanTZ=" + F + ",iLJBZRemain=" + E + ", \n");
+                        sql.Append("update TPackingPlan_Summary set iPlanTZ=nullif('" + F + "',''),iLJBZRemain=nullif('" + E + "',''), \n");
                         sql.Append("vcOperatorID='" + strUserId + "',dOperatorTime=getdate() where iAutoId=" + iAutoId + "    \n");
 
-                        sql.Append("update t1 set     \n");
-                        sql.Append("t1.iSSPlan_Day=case when vcBigPM='成型' then A+ceiling((D+F)/2.0) else ceiling((C+D+F)/2.0) end,    \n");
-                        sql.Append("t1.iSSPlan_Night=case when vcBigPM='成型' then C+ D+F-(A+ceiling((D+F)/2.0)) else C+D+F-ceiling((C+D+F)/2.0) end,    \n");
-                        sql.Append("t1.iSSPlan_Heji=C+D+F   \n");
-                        sql.Append("from (    \n");
-                        sql.Append("	select * from TPackingPlan_Summary where iAutoId=" + iAutoId + "    \n");
-                        sql.Append(")t1    \n");
-                        sql.Append("left join (    \n");
-                        sql.Append("	select iAutoId,     \n");
-                        sql.Append("	case when iBZPlan_Day is null or iBZPlan_Day='' then 0 else iBZPlan_Day end as A,    \n");
-                        sql.Append("	case when iBZPlan_Night is null or iBZPlan_Night='' then 0 else iBZPlan_Night end as B,    \n");
-                        sql.Append("	case when iBZPlan_Heji is null or iBZPlan_Heji='' then 0 else iBZPlan_Heji end as C,    \n");
-                        sql.Append("	case when iEmergencyOrder is null or iEmergencyOrder='' then 0 else iEmergencyOrder end as D,    \n");
-                        sql.Append("	case when iLJBZRemain is null or iLJBZRemain='' then 0 else iLJBZRemain end as E,    \n");
-                        sql.Append("	case when iPlanTZ is null or iPlanTZ='' then 0 else iPlanTZ end as F    \n");
-                        sql.Append("	from TPackingPlan_Summary where iAutoId=" + iAutoId + "    \n");
-                        sql.Append(")t2 on t1.iAutoId=t2.iAutoId    \n");
+                        if(iSSPlan_Day== iSSPlan_Day_old && iSSPlan_Night== iSSPlan_Night_old)
+                        {//实行计划的白夜没改，则按公式计算
+                            sql.Append("update t1 set     \n");
+                            sql.Append("t1.iSSPlan_Day=case when vcBigPM='成型' then A+ceiling((D+F)/2.0) else ceiling((C+D+F)/2.0) end,    \n");
+                            sql.Append("t1.iSSPlan_Night=case when vcBigPM='成型' then C+D+F-(A+ceiling((D+F)/2.0)) else C+D+F-ceiling((C+D+F)/2.0) end,    \n");
+                            sql.Append("t1.iSSPlan_Heji=C+D+F   \n");
+                            sql.Append("from (    \n");
+                            sql.Append("	select iAutoId,vcBigPM,iSSPlan_Day,iSSPlan_Night,iSSPlan_Heji,    \n");
+                            sql.Append("	case when iBZPlan_Day is null or iBZPlan_Day='' then 0 else iBZPlan_Day end as A,    \n");
+                            sql.Append("	case when iBZPlan_Night is null or iBZPlan_Night='' then 0 else iBZPlan_Night end as B,    \n");
+                            sql.Append("	case when iBZPlan_Heji is null or iBZPlan_Heji='' then 0 else iBZPlan_Heji end as C,    \n");
+                            sql.Append("	case when iEmergencyOrder is null or iEmergencyOrder='' then 0 else iEmergencyOrder end as D,    \n");
+                            sql.Append("	case when iLJBZRemain is null or iLJBZRemain='' then 0 else iLJBZRemain end as E,    \n");
+                            sql.Append("	case when iPlanTZ is null or iPlanTZ='' then 0 else iPlanTZ end as F    \n");
+                            sql.Append("	from TPackingPlan_Summary where iAutoId=" + iAutoId + "    \n");
+                            sql.Append(")t1    \n");
+                        }
+                        else
+                        {//否则，按用户修改保存
+                            sql.AppendLine("update TPackingPlan_Summary set iSSPlan_Day=nullif('"+iSSPlan_Day+"',''),iSSPlan_Night=nullif('"+iSSPlan_Night+"','')  ");
+                            sql.AppendLine("where iAutoId=" + iAutoId + " ");
 
+                            sql.AppendLine("update t1 set     ");
+                            sql.AppendLine("t1.iSSPlan_Heji=t1.iSSPlan_Day+t1.iSSPlan_Night  ");
+                            sql.AppendLine("from (    ");
+                            sql.AppendLine("	select iSSPlan_Heji,   ");
+                            sql.AppendLine("	case when iSSPlan_Day is null or iSSPlan_Day='' then 0 else iSSPlan_Day end as iSSPlan_Day,    ");
+                            sql.AppendLine("	case when iSSPlan_Night is null or iSSPlan_Night='' then 0 else iSSPlan_Night end as iSSPlan_Night    ");
+                            sql.AppendLine("	from TPackingPlan_Summary where iAutoId=" + iAutoId + "    ");
+                            sql.AppendLine(")t1    ");
+                        }
                         //更新report表的累计残
                         sql.AppendLine("update t1 set t1.iD" + dPackDate_day + "=t2.iLJBZRemain from");
                         sql.AppendLine("(select * from TPackingPlan_Report where vcKind='累计残量' and vcYearMonth='" + dPackDate_yyyymm + "')t1");
-                        sql.AppendLine("inner join (select * from TPackingPlan_Summary where iAutoId=75)t2 ");
+                        sql.AppendLine("inner join (select * from TPackingPlan_Summary where iAutoId="+iAutoId+")t2 ");
                         sql.AppendLine("on t1.vcPlant=t2.vcPlant and t1.vcYearMonth=CONVERT(varchar(6),t2.dPackDate,112)");
                         sql.AppendLine("and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
-
-
                     }
                 }
                 if (sql.Length > 0)
@@ -886,6 +907,52 @@ namespace DataAccess
                 //#endregion
                 #endregion
                 excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 全白
+        public void AllDay(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < checkedInfoData.Count; i++)
+                {
+                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    sql.Append("update TPackingPlan_Summary set iSSPlan_Day=iSSPlan_Heji,iSSPlan_Night=0 where iAutoId="+iAutoId+"   \n");
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 全夜
+        public void AllNight(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < checkedInfoData.Count; i++)
+                {
+                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    sql.Append("update TPackingPlan_Summary set iSSPlan_Night=iSSPlan_Heji,iSSPlan_Day=0 where iAutoId=" + iAutoId + "   \n");
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
             }
             catch (Exception ex)
             {

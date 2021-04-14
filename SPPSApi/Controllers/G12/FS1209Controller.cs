@@ -1989,19 +1989,19 @@ namespace SPPSApi.Controllers.G12
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("SELECT vcNo1,vcNo2,vcNo3 FROM [testprinterCRMAIN] where vcPorType='" + vcProType + "' ");
+            strSQL.AppendLine("SELECT isnull(vcNo1,'') as vcNo1,isnull(vcNo2,'') as vcNo2,isnull(vcNo3,'') as vcNo3 FROM testprinterCRMAIN where vcPorType='" + vcProType + "' ");
 
             if (vcorderno != "")
             {
-                strSQL.AppendLine("  and vcorderno='" + vcorderno + "'");
+                strSQL.AppendLine(" and vcorderno='" + vcorderno + "'");
             }
             if (vcComDate01 != "")
             {
-                strSQL.AppendLine("  and vcComDate01='" + vcComDate01 + "'");
+                strSQL.AppendLine(" and vcComDate01='" + vcComDate01 + "'");
             }
             if (vcBanZhi01 != "")
             {
-                strSQL.AppendLine("  and vcBanZhi01='" + vcBanZhi01 + "'");
+                strSQL.AppendLine(" and vcBanZhi01='" + vcBanZhi01 + "'");
             }
             if (vcComDate00 != "")
             {
@@ -2009,7 +2009,7 @@ namespace SPPSApi.Controllers.G12
             }
             if (vcBanZhi00 != "")
             {
-                strSQL.AppendLine("  and vcBanZhi00='" + vcBanZhi00 + "'");
+                strSQL.AppendLine(" and vcBanZhi00='" + vcBanZhi00 + "'");
             }
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }

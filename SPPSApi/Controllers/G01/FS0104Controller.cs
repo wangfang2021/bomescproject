@@ -34,8 +34,6 @@ namespace SPPSApi.Controllers.G00
             _webHostEnvironment = webHostEnvironment;
         }
 
-
-
         #region 检索所有角色
         [HttpPost]
         [EnableCors("any")]
@@ -72,6 +70,65 @@ namespace SPPSApi.Controllers.G00
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0104", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 下载日志文件
+        [HttpPost]
+        [EnableCors("any")]
+        public string downloadLogApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            try
+            {
+                //判断是否选择了日期，如果没选，提示并返回
+                if (dataForm.strDateTime==null || dataForm.strDateTime=="")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请选择一个日期";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                //所选择的年
+                string strDateTime = dataForm.strDateTime;
+                string strYear = Convert.ToDateTime(strDateTime).ToString("yyyy");
+                string strDay = Convert.ToDateTime(strDateTime).ToString("yyyyMMdd");
+
+                
+                string path_Year = strYear + System.IO.Path.DirectorySeparatorChar;
+                //所选天的文件路径
+                string path_Day = path_Year + strDay + ".txt";
+
+                //判断文件是否存在
+                bool fileExists = System.IO.File.Exists(_webHostEnvironment.ContentRootPath + System.IO.Path.DirectorySeparatorChar + "Doc" + System.IO.Path.DirectorySeparatorChar + "Log" + System.IO.Path.DirectorySeparatorChar + path_Day);
+
+                if (!fileExists)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "所选日期无记录日志";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = path_Day;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0503", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

@@ -646,7 +646,7 @@ namespace SPPSApi.Controllers.G12
                                                 }
                                                 catch (Exception ex)
                                                 {
-                                                    msg = "看板确认单失败！";
+                                                    msg = "打印看板确认单失败！";
                                                     throw ex;
 
                                                 }
@@ -696,13 +696,13 @@ namespace SPPSApi.Controllers.G12
                                             binding.OpenTimeout = TimeSpan.MaxValue;
                                             binding.ReceiveTimeout = TimeSpan.MaxValue;
                                             binding.SendTimeout = TimeSpan.MaxValue;
-                                            EndpointAddress address = new EndpointAddress("http://localhost:8089/FS12091.asmx");
+                                            EndpointAddress address = new EndpointAddress("http://localhost:8089/FS1209.asmx");
                                             FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
                                             exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                         }
                                         catch (Exception ex)
                                         {
-                                            msg = "看板确认单失败！";
+                                            msg = "打印看板确认单失败！";
                                             throw ex;
                                         }
                                         finally

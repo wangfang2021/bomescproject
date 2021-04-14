@@ -371,12 +371,10 @@ namespace DataAccess
                     SqlCommand cmdUpdate2 = new SqlCommand();
                     cmdUpdate2.Connection = conn;
                     cmdUpdate2.CommandText += "update TOutsidePurchaseManage ";
-                    cmdUpdate2.CommandText += "set TOutsidePurchaseManage.vcPackPlant=c.vcPackingPlant, TOutsidePurchaseManage.vcNewOldFlag=c.vcSupplierPlant ";
-                    cmdUpdate2.CommandText += "from (select a.vcPackingPlant,a.vcSupplierId,d.vcSupplierPlant from TSPMaster a ";
-                    cmdUpdate2.CommandText += "      left join (select * from TSPMaster_SupplierPlant where dFromTime<=GETDATE() and dToTime>=GETDATE()) d ";
-                    cmdUpdate2.CommandText += "      on a.vcPartId=d.vcPartId and a.vcPackingPlant=d.vcPackingPlant and a.vcReceiver=d.vcReceiver and a.vcSupplierId=d.vcSupplierId ";
-                    cmdUpdate2.CommandText += "      where a.vcInOut='1' and a.dFromTime<=GETDATE() and a.dToTime>=GETDATE()) c ";
-                    cmdUpdate2.CommandText += "where TOutsidePurchaseManage.vcWorkArea=c.vcSupplierPlant and TOutsidePurchaseManage.vcSupplier_id=c.vcSupplierId;";
+                    cmdUpdate2.CommandText += "set TOutsidePurchaseManage.vcInjectionFactory=d.vcValue5 ";
+                    cmdUpdate2.CommandText += "from (select vcValue1,vcValue2,vcValue5 from TOutCode ";
+                    cmdUpdate2.CommandText += "      where vcCodeId='C010' and convert(date,vcValue3)<=GETDATE() and convert(date,vcValue4)>=GETDATE() and vcIsColum='0') d ";
+                    cmdUpdate2.CommandText += "where TOutsidePurchaseManage.vcSupplier_id=d.vcValue1 and TOutsidePurchaseManage.vcWorkArea=d.vcValue2 ";
                     cmdUpdate2.Transaction = trans;
                     cmdUpdate2.ExecuteNonQuery();
 

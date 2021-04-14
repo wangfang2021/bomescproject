@@ -1326,7 +1326,7 @@ namespace SPPSApi.Controllers.G06
                     //hshdworkbook.SetPrintArea(sheetnum, int first row, int last row, int first col, int last col);
 
                     int firstRowhd = 0;
-                    int lastRowhd = dtSelect2.Rows.Count * 18;
+                    int lastRowhd = dtSelect2.Rows.Count * 17;
                     hshdworkbook.SetPrintArea(0, 0, 8, firstRowhd, lastRowhd);
                     string strHDFunctionName = "FS0625_号试货垛标签_" + vcSupplier_id;
 

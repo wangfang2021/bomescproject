@@ -3,21 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Text.Json;
-using System.Threading;
+using System.Drawing;
+using System.Drawing.Imaging;
 using Common;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.ServiceModel;
-using System.Threading.Tasks;
+
 using System.IO;
 using System.Text;
-using System.Runtime.Serialization.Formatters.Binary;
+using QRCoder;
 using System.Linq;
 using Logic;
 
@@ -306,21 +303,19 @@ namespace SPPSApi.Controllers.G12
         {
             string msg = "";
             DataTable dtPorType = new DataTable();
+            DataTable dtPrint;
             try
-            {         
+            {
                 string printIme = System.DateTime.Now.ToString("yyyy-MM-dd");
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
                 string picnull = root + "\\images\\picnull.JPG";
                 string tmplatePath = "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
                 string gud = "";
                 PrinterCR print = new PrinterCR();
-                DataTable dtPrint = new DataTable();
                 dt = deletenull(dt);
                 if (dt.Rows.Count != 0)
                 {
-                    DataTable dtPrintCR = new DataTable();//声明
-                    DataTable dtPrintCRLone = print.searchTBCreate();//获得数据库表testprinterCR结构
-                    dtPrint = dtPrintCRLone.Clone();//克隆表结构
+                    dtPrint = print.searchTBCreate();//获得数据库表testprinterCR结构
                     DataTable exdt = CreatDataTable();//创建ExcelDataTable，为打印看板确认单提供DataTable
                     DataTable dtHis = CreatDataTableHis();//创建连番DataTable
                     for (int i = 0; i < dt.Rows.Count; i++)
@@ -1400,12 +1395,11 @@ namespace SPPSApi.Controllers.G12
         }
         public string resQuantityPerContainer(string vcpartno, string vcdock, string vcPlanMonth)
         {
-            DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("SELECT [iQuantityPerContainer]  FROM [tPartInfoMaster] WHERE [vcPartsNo]='" + vcpartno + "' AND [vcDock]='" + vcdock + "'  ");
+            strSQL.AppendLine("SELECT iQuantityPerContainer FROM tPartInfoMaster WHERE vcPartsNo='" + vcpartno + "' AND vcDock='" + vcdock + "'  ");
             strSQL.AppendLine("  and (Convert(varchar(6),(CONVERT(datetime,dTimeFrom,101)),112)<='" + vcPlanMonth.Replace("-", "") + "' and Convert(varchar(6),(CONVERT(datetime,dTimeTo,101)),112)>='" + vcPlanMonth.Replace("-", "") + "')");
             strSQL.AppendLine("");
-            dt = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
+            DataTable dt = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
             if (dt.Rows.Count != 0)
             {
                 return dt.Rows[0]["iQuantityPerContainer"].ToString();
@@ -1843,7 +1837,7 @@ namespace SPPSApi.Controllers.G12
         /// <returns>二进制流</returns>
         public byte[] PhotoToArray(string path, string path2)
         {
-            try
+            if (File.Exists(path))
             {
                 FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
                 byte[] bufferPhoto = new byte[stream.Length];
@@ -1852,7 +1846,7 @@ namespace SPPSApi.Controllers.G12
                 stream.Close();
                 return bufferPhoto;
             }
-            catch
+            else
             {
                 FileStream stream = new FileStream(path2, FileMode.Open, FileAccess.Read);
                 byte[] bufferPhoto = new byte[stream.Length];
@@ -1867,65 +1861,47 @@ namespace SPPSApi.Controllers.G12
         #region 生成QRCODE二维码
         /// <param name="msg">二维码序列号</param>
         /// <returns>二维码二进制流</returns>
-        public byte[] GenGenerateQRCode(string msg, String ls_savePath)
+        public byte[] GenGenerateQRCode(string msg, string ls_savePath)
         {
-            //QRCodeEncoder qrCodeEncoder = new QRCodeEncoder();
-            //qrCodeEncoder.QRCodeEncodeMode = QRCodeEncoder.ENCODE_MODE.BYTE;
-            //qrCodeEncoder.QRCodeErrorCorrect = QRCodeEncoder.ERROR_CORRECTION.M;
-            //qrCodeEncoder.QRCodeVersion = 11;
-            //qrCodeEncoder.QRCodeScale = 2;
-            //String data = msg;
-
-            //String ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + ".png";
-
-            //qrCodeEncoder.Encode(data).Save(ls_savePath);
-            //FileStream stream = new FileStream(ls_savePath, FileMode.Open, FileAccess.Read);
-            //byte[] bufferPhoto = new byte[stream.Length];
-            //stream.Read(bufferPhoto, 0, Convert.ToInt32(stream.Length));
-            //stream.Flush();
-            //stream.Close();
-            ////删除该照片
-            //if (File.Exists(ls_savePath))
-            //{
-            //    File.Delete(ls_savePath);
-            //}
-            //return bufferPhoto;
-            FS0617_Logic lg = new FS0617_Logic();
-            return lg.GenerateQRCode(ls_savePath);
+            var generator = new QRCodeGenerator();
+            var codeData = generator.CreateQrCode(ls_savePath, QRCodeGenerator.ECCLevel.M, true);
+            QRCoder.QRCode qrcode = new QRCoder.QRCode(codeData);
+            var bitmapImg = qrcode.GetGraphic(10, Color.Black, Color.White, false);
+            using MemoryStream stream = new MemoryStream();
+            bitmapImg.Save(stream, ImageFormat.Jpeg);
+            return stream.GetBuffer();
         }
         #endregion
 
         #region 二维码数据整理
         public string reCode(string vcSupplierCode, string vcSupplierPlant, string vcDock, string vcPartsNo, string iQuantityPerContainer, string vcKBSerial, string vcEDflag, string vcKBorderno)
         {
-            string strcode = "";
-            strcode += " ";
-            strcode += vcSupplierCode != "" ? vcSupplierCode : "    ";
-            strcode += vcSupplierPlant != "" ? vcSupplierPlant : " ";
-            strcode += "        ";
-            strcode += vcDock != "" ? vcDock : "  ";
-            strcode += vcPartsNo != "" ? vcPartsNo : "            ";
-            strcode += iQuantityPerContainer != "" ? iQuantityPerContainer.PadLeft(5, '0').ToString() : "     ";
-            strcode += "                        ";
-            strcode += vcKBSerial != "" ? vcKBSerial : "    ";
-            strcode += "                                                           ";
-            strcode += "NZ";
-            strcode += "                                                        ";
-            strcode += vcEDflag != "" ? vcEDflag : " ";
-            strcode += "                                        ";
+            StringBuilder strcode = new StringBuilder();
+            strcode.Append(" ");
+            strcode.Append(vcSupplierCode != "" ? vcSupplierCode : "    ");
+            strcode.Append(vcSupplierPlant != "" ? vcSupplierPlant : " ");
+            strcode.Append("        ");
+            strcode.Append(vcDock != "" ? vcDock : "  ");
+            strcode.Append(vcPartsNo != "" ? vcPartsNo : "            ");
+            strcode.Append(iQuantityPerContainer != "" ? iQuantityPerContainer.PadLeft(5, '0').ToString() : "     ");
+            strcode.Append("                        ");
+            strcode.Append(vcKBSerial != "" ? vcKBSerial : "    ");
+            strcode.Append("                                                           ");
+            strcode.Append("NZ");
+            strcode.Append("                                                        ");
+            strcode.Append(vcEDflag != "" ? vcEDflag : " ");
+            strcode.Append("                                        ");
             if (vcKBorderno.Length < 12)
             {
                 int kblen = vcKBorderno.Length;
                 for (int i = 0; i < 12 - kblen; i++)
                 {
-                    vcKBorderno = vcKBorderno + " ";
+                    strcode.Append(vcKBorderno);
+                    strcode.Append(" ");
                 }
             }
-            strcode += vcKBorderno;
-
-            strcode += "  ";
-            int qq = strcode.Length;
-            return strcode;
+            strcode.Append("  ");
+            return strcode.ToString();
         }
         #endregion
 
@@ -2066,30 +2042,6 @@ namespace SPPSApi.Controllers.G12
         {
             StringBuilder strSQL = new StringBuilder();
             DataTable dtreturn = new DataTable();
-            if (vctype != "3")
-            {
-                string vcPartsNo = dt.Rows[i]["vcPartsNo"].ToString().Replace("-", "").Trim();
-                string vcDock = dt.Rows[i]["vcDock"].ToString().Trim();
-                string vcplantMonth = dt.Rows[i]["vcPlanMonth"].ToString().Trim();
-                string iNo = dt.Rows[i]["iNo"].ToString().Trim();
-                strSQL.AppendLine("SELECT (case when A.vcPrintflagED is not null then A.vcPrintflagED else A.vcPartsNo END) AS vcPartsNo, ");
-                strSQL.AppendLine("        B.vcSupplierCode,b.vcSupplierPlant, B.vcCpdCompany,A.vcCarType AS vcCarFamilyCode,A.vcKBorderno,(case when A.vcDockED is not null then A.vcDockED else A.vcDock END) AS vcDock,");
-                strSQL.AppendLine("        A.vcEDflag,B.vcPartsNameEN,B.vcPartsNameCHN,B.vcLogisticRoute, ");
-                strSQL.AppendLine("        A.vcQuantityPerContainer as iQuantityPerContainer,");
-                strSQL.AppendLine("isnull(A.vcProject01,'') as vcProject01,isnull(A.vcComDate01,'') as vcComDate01,(case when A.vcBanZhi01='1' then '夜' when A.vcBanZhi01='0' then '白' else '' end) as vcBanZhi01,isnull(A.vcAB01,'') as vcAB01,");//20180921添加AB值信息 - 李兴旺
-                strSQL.AppendLine("isnull(A.vcProject02,'') as vcProject02,isnull(A.vcComDate02,'') as vcComDate02,(case when A.vcBanZhi02='1' then '夜' when A.vcBanZhi02='0' then '白' else '' end) as vcBanZhi02,isnull(A.vcAB02,'') as vcAB02,");//20180921添加AB值信息 - 李兴旺
-                strSQL.AppendLine("isnull(A.vcProject03,'') as vcProject03,isnull(A.vcComDate03,'') as vcComDate03,(case when A.vcBanZhi03='1' then '夜' when A.vcBanZhi03='0' then '白' else '' end) as vcBanZhi03,isnull(A.vcAB03,'') as vcAB03,");//20180921添加AB值信息 - 李兴旺
-                strSQL.AppendLine("isnull(A.vcProject04,'') as vcProject04,isnull(A.vcComDate04,'') as vcComDate04,(case when A.vcBanZhi04='1' then '夜' when A.vcBanZhi04='0' then '白' else '' end) as vcBanZhi04,isnull(A.vcAB04,'') as vcAB04,");//20180921添加AB值信息 - 李兴旺
-                strSQL.AppendLine("isnull(B.vcRemark1,'') as vcRemark1,isnull(B.vcRemark2,'') as vcRemark2,A.vcKBSerial,B.vcPhotoPath,B.vcPorType from ");
-                strSQL.AppendLine("tKanbanPrintTbl A ");
-                strSQL.AppendLine("left join ");
-                strSQL.AppendLine("tPartInfoMaster B ");
-                strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo and A.vcDock=B.vcDock ");
-                strSQL.AppendLine("where A.iNo='" + iNo + "' ");
-                //strSQL.AppendLine(" where (A.[vcKBorderno]+A.[vcKBSerial]+A.vcPartsNo+A.vcDock)=('"+dt.Rows[i]["vcKBorderno"].ToString().Trim() + dt.Rows[i]["vcKBSerial"].ToString().Trim() + vcPartsNo.Trim() + vcDock.Trim()+"')");
-                strSQL.AppendLine(" and (Convert(varchar(6),(CONVERT(datetime,B.dTimeFrom,101)),112)<='" + vcplantMonth.Replace("-", "") + "' and Convert(varchar(6),(CONVERT(datetime,B.dTimeTo,101)),112)>='" + vcplantMonth.Replace("-", "") + "')");
-                dtreturn = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
-            }
             if (vctype == "3")
             {
                 string vcPartsNo = dt.Rows[i]["vcPartsNo"].ToString().Replace("-", "").Trim();
@@ -2124,6 +2076,29 @@ namespace SPPSApi.Controllers.G12
                         dtreturn.Rows[0]["vcSupplierPlant"] = SupplPlant;
                     }
                 }
+            }
+            else
+            {
+                string vcPartsNo = dt.Rows[i]["vcPartsNo"].ToString().Replace("-", "").Trim();
+                string vcDock = dt.Rows[i]["vcDock"].ToString().Trim();
+                string vcplantMonth = dt.Rows[i]["vcPlanMonth"].ToString().Trim();
+                string iNo = dt.Rows[i]["iNo"].ToString().Trim();
+                strSQL.AppendLine("SELECT (case when A.vcPrintflagED is not null then A.vcPrintflagED else A.vcPartsNo END) AS vcPartsNo, ");
+                strSQL.AppendLine("        B.vcSupplierCode,b.vcSupplierPlant, B.vcCpdCompany,A.vcCarType AS vcCarFamilyCode,A.vcKBorderno,(case when A.vcDockED is not null then A.vcDockED else A.vcDock END) AS vcDock,");
+                strSQL.AppendLine("        A.vcEDflag,B.vcPartsNameEN,B.vcPartsNameCHN,B.vcLogisticRoute, ");
+                strSQL.AppendLine("        A.vcQuantityPerContainer as iQuantityPerContainer,");
+                strSQL.AppendLine("isnull(A.vcProject01,'') as vcProject01,isnull(A.vcComDate01,'') as vcComDate01,(case when A.vcBanZhi01='1' then '夜' when A.vcBanZhi01='0' then '白' else '' end) as vcBanZhi01,isnull(A.vcAB01,'') as vcAB01,");//20180921添加AB值信息 - 李兴旺
+                strSQL.AppendLine("isnull(A.vcProject02,'') as vcProject02,isnull(A.vcComDate02,'') as vcComDate02,(case when A.vcBanZhi02='1' then '夜' when A.vcBanZhi02='0' then '白' else '' end) as vcBanZhi02,isnull(A.vcAB02,'') as vcAB02,");//20180921添加AB值信息 - 李兴旺
+                strSQL.AppendLine("isnull(A.vcProject03,'') as vcProject03,isnull(A.vcComDate03,'') as vcComDate03,(case when A.vcBanZhi03='1' then '夜' when A.vcBanZhi03='0' then '白' else '' end) as vcBanZhi03,isnull(A.vcAB03,'') as vcAB03,");//20180921添加AB值信息 - 李兴旺
+                strSQL.AppendLine("isnull(A.vcProject04,'') as vcProject04,isnull(A.vcComDate04,'') as vcComDate04,(case when A.vcBanZhi04='1' then '夜' when A.vcBanZhi04='0' then '白' else '' end) as vcBanZhi04,isnull(A.vcAB04,'') as vcAB04,");//20180921添加AB值信息 - 李兴旺
+                strSQL.AppendLine("isnull(B.vcRemark1,'') as vcRemark1,isnull(B.vcRemark2,'') as vcRemark2,A.vcKBSerial,B.vcPhotoPath,B.vcPorType from ");
+                strSQL.AppendLine("tKanbanPrintTbl A ");
+                strSQL.AppendLine("left join ");
+                strSQL.AppendLine("tPartInfoMaster B ");
+                strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo and A.vcDock=B.vcDock ");
+                strSQL.AppendLine("where A.iNo='" + iNo + "' ");
+                strSQL.AppendLine(" and (Convert(varchar(6),(CONVERT(datetime,B.dTimeFrom,101)),112)<='" + vcplantMonth.Replace("-", "") + "' and Convert(varchar(6),(CONVERT(datetime,B.dTimeTo,101)),112)>='" + vcplantMonth.Replace("-", "") + "')");
+                dtreturn = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
             }
             return dtreturn;
         }
@@ -2945,9 +2920,50 @@ namespace SPPSApi.Controllers.G12
         public DataTable searchTBCreate()//不必修改
         {
             DataTable dt = new DataTable();
-            StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("select top(1) * from testprinterCR");
-            return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
+            dt.Columns.Add("vcSupplierCode", typeof(string));
+            dt.Columns.Add("vcCpdCompany", typeof(string));
+            dt.Columns.Add("vcCarFamilyCode", typeof(string));
+            dt.Columns.Add("vcPartsNo", typeof(string));
+            dt.Columns.Add("vcPartsNameEN", typeof(string));
+            dt.Columns.Add("vcPartsNameCHN", typeof(string));
+            dt.Columns.Add("vcLogisticRoute", typeof(string));
+            dt.Columns.Add("iQuantityPerContainer", typeof(string));
+            dt.Columns.Add("vcProject01", typeof(string));
+            dt.Columns.Add("vcComDate01", typeof(string));
+            dt.Columns.Add("vcBanZhi01", typeof(string));
+            dt.Columns.Add("vcProject02", typeof(string));
+            dt.Columns.Add("vcComDate02", typeof(string));
+            dt.Columns.Add("vcBanZhi02", typeof(string));
+            dt.Columns.Add("vcProject03", typeof(string));
+            dt.Columns.Add("vcComDate03", typeof(string));
+            dt.Columns.Add("vcBanZhi03", typeof(string));
+            dt.Columns.Add("vcProject04", typeof(string));
+            dt.Columns.Add("vcComDate04", typeof(string));
+            dt.Columns.Add("vcBanZhi04", typeof(string));
+            dt.Columns.Add("vcRemark1", typeof(string));
+            dt.Columns.Add("vcRemark2", typeof(string));
+            dt.Columns.Add("vcKBSerial", typeof(string));
+            dt.Columns.Add("vcPhotoPath", typeof(string));
+            dt.Columns.Add("vcQRCodeImge", typeof(string));
+            dt.Columns.Add("vcDock", typeof(string));
+            dt.Columns.Add("vcKBorderno", typeof(string));
+            dt.Columns.Add("vcNo", typeof(string));
+            dt.Columns.Add("vcorderno", typeof(string));
+            dt.Columns.Add("vcPorType", typeof(string));
+            dt.Columns.Add("vcEDflag", typeof(string));
+            dt.Columns.Add("vcComDate00", typeof(string));
+            dt.Columns.Add("vcBanZhi00", typeof(string));
+            dt.Columns.Add("vcFlagZ", typeof(string));
+            dt.Columns.Add("vcplanMoth", typeof(string));
+            dt.Columns.Add("vcAB01", typeof(string));
+            dt.Columns.Add("vcAB02", typeof(string));
+            dt.Columns.Add("vcAB03", typeof(string));
+            dt.Columns.Add("vcAB04", typeof(string));
+            return dt;
+
+            //StringBuilder strSQL = new StringBuilder();
+            //strSQL.AppendLine("select top(1) * from testprinterCR");
+            //return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
         #endregion
         /// <summary>

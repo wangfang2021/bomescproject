@@ -307,7 +307,7 @@ namespace SPPSApi.Controllers.G12
             string msg = "";
             DataTable dtPorType = new DataTable();
             try
-            {         
+            {
                 string printIme = System.DateTime.Now.ToString("yyyy-MM-dd");
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
                 string picnull = root + "\\images\\picnull.JPG";
@@ -1402,9 +1402,8 @@ namespace SPPSApi.Controllers.G12
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("SELECT [iQuantityPerContainer]  FROM [tPartInfoMaster] WHERE [vcPartsNo]='" + vcpartno + "' AND [vcDock]='" + vcdock + "'  ");
+            strSQL.AppendLine("SELECT [iQuantityPerContainer] FROM [tPartInfoMaster] WHERE [vcPartsNo]='" + vcpartno + "' AND [vcDock]='" + vcdock + "' ");
             strSQL.AppendLine("  and (Convert(varchar(6),(CONVERT(datetime,dTimeFrom,101)),112)<='" + vcPlanMonth.Replace("-", "") + "' and Convert(varchar(6),(CONVERT(datetime,dTimeTo,101)),112)>='" + vcPlanMonth.Replace("-", "") + "')");
-            strSQL.AppendLine("");
             dt = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
             if (dt.Rows.Count != 0)
             {
@@ -1843,7 +1842,7 @@ namespace SPPSApi.Controllers.G12
         /// <returns>二进制流</returns>
         public byte[] PhotoToArray(string path, string path2)
         {
-            try
+            if (File.Exists(path))
             {
                 FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
                 byte[] bufferPhoto = new byte[stream.Length];
@@ -1852,7 +1851,7 @@ namespace SPPSApi.Controllers.G12
                 stream.Close();
                 return bufferPhoto;
             }
-            catch
+            else
             {
                 FileStream stream = new FileStream(path2, FileMode.Open, FileAccess.Read);
                 byte[] bufferPhoto = new byte[stream.Length];
@@ -1898,34 +1897,32 @@ namespace SPPSApi.Controllers.G12
         #region 二维码数据整理
         public string reCode(string vcSupplierCode, string vcSupplierPlant, string vcDock, string vcPartsNo, string iQuantityPerContainer, string vcKBSerial, string vcEDflag, string vcKBorderno)
         {
-            string strcode = "";
-            strcode += " ";
-            strcode += vcSupplierCode != "" ? vcSupplierCode : "    ";
-            strcode += vcSupplierPlant != "" ? vcSupplierPlant : " ";
-            strcode += "        ";
-            strcode += vcDock != "" ? vcDock : "  ";
-            strcode += vcPartsNo != "" ? vcPartsNo : "            ";
-            strcode += iQuantityPerContainer != "" ? iQuantityPerContainer.PadLeft(5, '0').ToString() : "     ";
-            strcode += "                        ";
-            strcode += vcKBSerial != "" ? vcKBSerial : "    ";
-            strcode += "                                                           ";
-            strcode += "NZ";
-            strcode += "                                                        ";
-            strcode += vcEDflag != "" ? vcEDflag : " ";
-            strcode += "                                        ";
+            StringBuilder strcode = new StringBuilder();
+            strcode.Append(" ");
+            strcode.Append(vcSupplierCode != "" ? vcSupplierCode : "    ");
+            strcode.Append(vcSupplierPlant != "" ? vcSupplierPlant : " ");
+            strcode.Append("        ");
+            strcode.Append(vcDock != "" ? vcDock : "  ");
+            strcode.Append(vcPartsNo != "" ? vcPartsNo : "            ");
+            strcode.Append(iQuantityPerContainer != "" ? iQuantityPerContainer.PadLeft(5, '0').ToString() : "     ");
+            strcode.Append("                        ");
+            strcode.Append(vcKBSerial != "" ? vcKBSerial : "    ");
+            strcode.Append("                                                           ");
+            strcode.Append("NZ");
+            strcode.Append("                                                        ");
+            strcode.Append(vcEDflag != "" ? vcEDflag : " ");
+            strcode.Append("                                        ");
             if (vcKBorderno.Length < 12)
             {
                 int kblen = vcKBorderno.Length;
                 for (int i = 0; i < 12 - kblen; i++)
                 {
-                    vcKBorderno = vcKBorderno + " ";
+                    strcode.Append(vcKBorderno); 
+                    strcode.Append(" ");
                 }
             }
-            strcode += vcKBorderno;
-
-            strcode += "  ";
-            int qq = strcode.Length;
-            return strcode;
+            strcode.Append("  ");
+            return strcode.ToString();
         }
         #endregion
 
@@ -1992,19 +1989,19 @@ namespace SPPSApi.Controllers.G12
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("SELECT vcNo1,vcNo2,vcNo3 FROM [testprinterCRMAIN] where vcPorType='" + vcProType + "' ");
+            strSQL.AppendLine("SELECT isnull(vcNo1,'') as vcNo1,isnull(vcNo2,'') as vcNo2,isnull(vcNo3,'') as vcNo3 FROM testprinterCRMAIN where vcPorType='" + vcProType + "' ");
 
             if (vcorderno != "")
             {
-                strSQL.AppendLine("  and vcorderno='" + vcorderno + "'");
+                strSQL.AppendLine(" and vcorderno='" + vcorderno + "'");
             }
             if (vcComDate01 != "")
             {
-                strSQL.AppendLine("  and vcComDate01='" + vcComDate01 + "'");
+                strSQL.AppendLine(" and vcComDate01='" + vcComDate01 + "'");
             }
             if (vcBanZhi01 != "")
             {
-                strSQL.AppendLine("  and vcBanZhi01='" + vcBanZhi01 + "'");
+                strSQL.AppendLine(" and vcBanZhi01='" + vcBanZhi01 + "'");
             }
             if (vcComDate00 != "")
             {
@@ -2012,7 +2009,7 @@ namespace SPPSApi.Controllers.G12
             }
             if (vcBanZhi00 != "")
             {
-                strSQL.AppendLine("  and vcBanZhi00='" + vcBanZhi00 + "'");
+                strSQL.AppendLine(" and vcBanZhi00='" + vcBanZhi00 + "'");
             }
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }

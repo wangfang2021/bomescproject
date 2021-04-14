@@ -716,7 +716,7 @@ namespace BatchProcess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" select a.vcOrderNo,b.vcOrderNo as vcIsorNoOrder,b.vcPackNo,b.vcPackGPSNo,  ");
                 strSql.AppendLine(" b.vcPackSpot,vcSupplieCode,iDGNum,vcDGTime,iSJNum,vcSJTime,vcUnit,vcCostID,vcCodeID,  ");
-                strSql.AppendLine(" dYanshouTime,dEmailTime,vcYanShouID,dUpdateTime,a.dNaRuYuDing,c.vcIsorNoFaZhu,b.vcIsorNoRuKu  ");
+                strSql.AppendLine(" dYanshouTime,dEmailTime,vcYanShouID,dUpdateTime,a.dNaRuYuDing,c.vcIsorNoFaZhu,b.vcIsorNoRuKu,c.vcIsStop  ");
                 strSql.AppendLine(" from(  ");
                 strSql.AppendLine(" select * from TPack_FaZhu_ShiJi  ");
                 strSql.AppendLine(" )a left join  ");

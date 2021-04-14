@@ -34,6 +34,10 @@ namespace SPPSApi.Controllers
             try
             {
                 string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                ComFunction.ConsoleWriteLine("downloadApi:fileSavePath=" + fileSavePath);
+                ComFunction.ConsoleWriteLine("downloadApi:path=" + path);
+
+
                 var provider = new FileExtensionContentTypeProvider();
                 FileInfo fileInfo = new FileInfo(fileSavePath + path);
                 var ext = fileInfo.Extension;

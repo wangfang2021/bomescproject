@@ -295,6 +295,8 @@ namespace Logic
                 result = inight;
                 checkedvalue = inight;
             }
+            checkedvalue = Math.Round(checkedvalue / Convert.ToDecimal(60.0), 2);
+            result = Math.Round(result / Convert.ToDecimal(60.0), 2);
             return result - iminute;
         }
 
@@ -375,6 +377,18 @@ namespace Logic
         }
         #endregion
 
+        #region 全白
+        public void AllDay(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            fs1502_DataAccess.AllDay(checkedInfoData, strUserId);
+        }
+        #endregion
 
+        #region 全夜
+        public void AllNight(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            fs1502_DataAccess.AllNight(checkedInfoData, strUserId);
+        }
+        #endregion
     }
 }

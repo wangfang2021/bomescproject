@@ -512,6 +512,9 @@ namespace SPPSApi.Controllers.G06
                     style91.BorderLeft = BorderStyle.Thin;
                     style91.BorderTop = BorderStyle.Dotted;
 
+                    style19.BorderTop = BorderStyle.Dotted;
+                    style19.BorderBottom = BorderStyle.None;
+
                     style10.SetFont(font);
                     style10.Alignment = HorizontalAlignment.Center;
                     style10.VerticalAlignment = VerticalAlignment.Center;
@@ -578,7 +581,8 @@ namespace SPPSApi.Controllers.G06
 
                     style17.BorderTop = BorderStyle.Medium;
                     style18.BorderTop = BorderStyle.Thin;
-                    style19.BorderTop = BorderStyle.Dotted;
+
+                    
 
                     style22.BorderTop = BorderStyle.Dotted;
                     style22.BorderBottom = BorderStyle.Medium;

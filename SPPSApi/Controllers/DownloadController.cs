@@ -80,6 +80,32 @@ namespace SPPSApi.Controllers
         }
         #endregion
 
+        #region 下载日志文件
+        [HttpGet]
+        [EnableCors("any")]
+        public IActionResult downloadLogApi(string path)
+        {
+            try
+            {
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Log" + Path.DirectorySeparatorChar;
+                var provider = new FileExtensionContentTypeProvider();
+                FileInfo fileInfo = new FileInfo(fileSavePath + path);
+                var ext = fileInfo.Extension;
+                new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                return File(bt, contenttype ?? "application/octet-stream", fileInfo.Name);
+            }
+            catch (Exception ex)
+            {
+                ContentResult result = new ContentResult();
+                result.Content = "<script>alert('下载失败')</script>";
+                result.ContentType = "text/html;charset=utf-8";
+                ComMessage.GetInstance().ProcessMessage("download", "M00UE0007", ex, "system");
+                return result;
+            }
+        }
+        #endregion
+
         #region 下载ZIP文件
         [HttpGet]
         [EnableCors("any")]

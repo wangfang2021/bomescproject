@@ -158,9 +158,8 @@ namespace SPPSApi.Controllers.G12
                 string picnull = _webHostEnvironment.ContentRootPath + "\\images\\picnull.JPG";
                 string tmplatePath = "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
-                string strPrinterName = "";//获取打印机
+                string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
                 string RolePorType = "";//获取生产部署信息
-
 
                 string vcFlagZ = "";
                 byte[] vcPhotoPath = print.PhotoToArray("", picnull);//照片初始化
@@ -430,17 +429,18 @@ namespace SPPSApi.Controllers.G12
                                                 FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
                                                 msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                             }
-                                            catch
+                                            catch (Exception ex)
+                                            {
+                                                msg = "打印看板确认单失败！";
+                                                throw ex;
+                                            }
+                                            finally
                                             {
                                                 lg.DropTempTable(inTable_tmp);//删除打印临时表
                                                 lg.DropTempTable(exdthj_tmp);//删除打印临时表
-                                                apiResult.code = ComConstant.ERROR_CODE;
-                                                apiResult.data = "看板确认单失败！";
-                                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                                             }
                                         }
-                                        lg.DropTempTable(inTable_tmp);//删除打印临时表
-                                        lg.DropTempTable(exdthj_tmp);//删除打印临时表
+
                                         #endregion
                                         inTable = exdt.Clone();
                                     }
@@ -472,13 +472,15 @@ namespace SPPSApi.Controllers.G12
                                         FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
                                         exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                     }
-                                    catch
+                                    catch (Exception ex)
+                                    {
+                                        msg = "打印看板确认单失败！";
+                                        throw ex;
+                                    }
+                                    finally
                                     {
                                         lg.DropTempTable(exdttt_tmp);//删除打印临时表
                                         lg.DropTempTable(exdthj_tmp);//删除打印临时表
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "看板确认单失败！";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                                     }
                                 }
                                 lg.DropTempTable(exdttt_tmp);//删除打印临时表
@@ -520,181 +522,13 @@ namespace SPPSApi.Controllers.G12
                 }
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "打印失败";
+                apiResult.data = msg;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion
 
-
-
-
-        #region 提交数据库
-        /// <summary>
-        /// 特殊打印录入-更新列表数据
-        /// </summary>
-        /// <param name="dt">列表数据集合</param>
-        [HttpPost]
-        [EnableCors("any")]
-        public string InUpdeOldData([FromBody] dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            DataTable dt = JsonConvert.DeserializeObject<DataTable>(Convert.ToString(dataForm));
-            try
-            {
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = logic.InUpdeOldData(dt);
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "更新失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
-        #region 特殊打印录入
-        /// <summary>
-        /// 特殊打印录入
-        /// </summary>
-        [HttpPost]
-        [EnableCors("any")]
-        public string SearchPrintTDB([FromBody] dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcPrint = dataForm.vcPrint;
-            try
-            {
-                FS1209_Logic logic_1 = new FS1209_Logic();
-                string RolePorType = logic_1.getRoleTip(loginInfo.UserId);
-                DataTable dt1 = logic_1.dllPorType(RolePorType.Split('*'));
-                DataTable tb = logic.SearchPrintTDB(vcPrint, RolePorType.Split('*'));
-                List<object> dataList = ComFunction.convertAllToResult(tb);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
-        #region 特殊打印
-        /// <summary>
-        /// 特殊打印 检索条件获取列表数据 无传入参数
-        /// </summary>
-        [HttpPost]
-        [EnableCors("any")]
-        public string SearchPrintT()
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                FS1209_Logic logic_1 = new FS1209_Logic();
-                DataTable tb = logic.searchPrintT();
-                List<object> dataList = ComFunction.convertAllToResult(tb);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
-        #region 确认单再发行
-        /// <summary>
-        /// 确认单再发行
-        /// </summary>
-        [HttpPost]
-        [EnableCors("any")]
-        public string SearchRePrintKBQR([FromBody] dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcKbOrderId = dataForm.vcKbOrderId;
-            string vcPlanPrintDate = dataForm.vcPlanPrintDate;
-            string vcPlanProcDate = dataForm.vcPlanProcDate;
-            string vcPrintDate = dataForm.vcPrintDate;
-            string vcGC = dataForm.vcGC;
-            string vcPlanPrintBZ = dataForm.vcPlanPrintBZ;
-            string vcPlanProcBZ = dataForm.vcPlanProcBZ;
-            vcKbOrderId = vcKbOrderId == null ? "" : vcKbOrderId;
-            vcPlanPrintDate = vcPlanPrintDate == null ? "" : vcPlanPrintDate;
-            vcPlanProcDate = vcPlanProcDate == null ? "" : vcPlanProcDate;
-            vcPrintDate = vcPrintDate == null ? "" : vcPrintDate;
-            vcGC = vcGC == null ? "" : vcGC;
-            vcPlanPrintBZ = vcPlanPrintBZ == null ? "" : vcPlanPrintBZ;
-            vcPlanProcBZ = vcPlanProcBZ == null ? "" : vcPlanProcBZ;
-            try
-            {
-                DataTable tb = logic.SearchRePrintKBQR(vcKbOrderId, vcGC, vcPlanPrintDate, vcPlanPrintBZ, vcPlanProcDate, vcPlanProcBZ, vcPrintDate);
-                List<object> dataList = ComFunction.convertAllToResult(tb);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
-
-
-
-        #region 全部打印
+        #region 全部打印Api
         [HttpPost]
         [EnableCors("any")]
         public string printAllApi([FromBody] dynamic data)
@@ -721,7 +555,7 @@ namespace SPPSApi.Controllers.G12
                 string picnull = _webHostEnvironment.ContentRootPath + "\\images\\picnull.JPG";
                 string tmplatePath = _webHostEnvironment.ContentRootPath + "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
-                string strPrinterName = "";//获取打印机
+                string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
                 string vcFlagZ = "";
 
                 #region 检索
@@ -742,8 +576,6 @@ namespace SPPSApi.Controllers.G12
 
                 if ((dt17.Rows.Count == 0) || (dt17.Rows[0][0].ToString() == "_1"))
                 {
-                    //SearchBound();
-                    //ShowMessage("无可打印数据,请确认", QMWebCommon.MessageType.Information);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "无可打印数据,请确认！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -773,18 +605,18 @@ namespace SPPSApi.Controllers.G12
                     string vcDock = dt17.Rows[i]["vcDock"].ToString();//受入
                     string vcCarFamilyCode = dt17.Rows[i]["vcCarType"].ToString();//车型
                     string vcEDflag = dt17.Rows[i]["jinjiqufen"].ToString();//紧急区分
-                    //if (vcEDflag == "通常")
-                    //{
-                    //    vcEDflag = "S";
-                    //}
-                    //else if (vcEDflag == "紧急")
-                    //{
-                    //    vcEDflag = "E";
-                    //}
-                    //else
-                    //{
-                    //    vcEDflag = " ";
-                    //}
+                    if (vcEDflag == "通常")
+                    {
+                        vcEDflag = "S";
+                    }
+                    else if (vcEDflag == "紧急")
+                    {
+                        vcEDflag = "E";
+                    }
+                    else
+                    {
+                        vcEDflag = " ";
+                    }
                     string vcKBorderno = dt17.Rows[i]["vcKBorderno"].ToString(); //看板订单号
                     string vcKBSerial = dt17.Rows[i]["vcKBSerial"].ToString();//连番
                     string vcPlanMonth = "";
@@ -1016,14 +848,25 @@ namespace SPPSApi.Controllers.G12
                                     string inTable_msg = lg.CreateTempTable(exdttt, "FS1209_Excel_", out inTable_tmp);//创建打印临时表                 
                                     if (inTable_msg.Length == 0)
                                     {
-                                        BasicHttpBinding binding = new BasicHttpBinding();
-                                        binding.CloseTimeout = TimeSpan.MaxValue;
-                                        binding.OpenTimeout = TimeSpan.MaxValue;
-                                        binding.ReceiveTimeout = TimeSpan.MaxValue;
-                                        binding.SendTimeout = TimeSpan.MaxValue;
-                                        EndpointAddress address = new EndpointAddress("http://localhost:8089/FS1209.asmx");
-                                        FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
-                                        msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                        try
+                                        {
+                                            BasicHttpBinding binding = new BasicHttpBinding();
+                                            binding.CloseTimeout = TimeSpan.MaxValue;
+                                            binding.OpenTimeout = TimeSpan.MaxValue;
+                                            binding.ReceiveTimeout = TimeSpan.MaxValue;
+                                            binding.SendTimeout = TimeSpan.MaxValue;
+                                            EndpointAddress address = new EndpointAddress("http://localhost:8089/FS1209.asmx");
+                                            FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
+                                            msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            lg.DropTempTable(inTable_tmp);//删除打印临时表
+                                            lg.DropTempTable(exdthj_tmp);//删除打印临时表
+                                            apiResult.code = ComConstant.ERROR_CODE;
+                                            apiResult.data = "打印看板确认单失败！";
+                                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                                        }
                                     }
                                     lg.DropTempTable(inTable_tmp);//删除打印临时表
                                     lg.DropTempTable(exdthj_tmp);//删除打印临时表
@@ -1132,7 +975,7 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
-        #region 非ED追加打印
+        #region 非ED追加打印Api
         [HttpPost]
         [EnableCors("any")]
         public string printEDApi([FromBody] dynamic data)
@@ -1162,7 +1005,7 @@ namespace SPPSApi.Controllers.G12
                 string picnull = _webHostEnvironment.ContentRootPath + "\\images\\picnull.JPG";
                 string tmplatePath = _webHostEnvironment.ContentRootPath + "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
-                string strPrinterName = "";//获取打印机
+                string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
                 #region 检索
                 string vcKbOrderId = dataForm.vcKbOrderId == null ? "" : dataForm.vcKbOrderId;
                 string vcTF = dataForm.vcTF == null ? "" : dataForm.vcTF;
@@ -1338,6 +1181,170 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
+
+        #region 提交数据库
+        /// <summary>
+        /// 特殊打印录入-更新列表数据
+        /// </summary>
+        /// <param name="dt">列表数据集合</param>
+        [HttpPost]
+        [EnableCors("any")]
+        public string InUpdeOldData([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            DataTable dt = JsonConvert.DeserializeObject<DataTable>(Convert.ToString(dataForm));
+            try
+            {
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = logic.InUpdeOldData(dt);
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "更新失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 特殊打印录入
+        /// <summary>
+        /// 特殊打印录入
+        /// </summary>
+        [HttpPost]
+        [EnableCors("any")]
+        public string SearchPrintTDB([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcPrint = dataForm.vcPrint;
+            try
+            {
+                FS1209_Logic logic_1 = new FS1209_Logic();
+                string RolePorType = logic_1.getRoleTip(loginInfo.UserId);
+                DataTable dt1 = logic_1.dllPorType(RolePorType.Split('*'));
+                DataTable tb = logic.SearchPrintTDB(vcPrint, RolePorType.Split('*'));
+                List<object> dataList = ComFunction.convertAllToResult(tb);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 特殊打印
+        /// <summary>
+        /// 特殊打印 检索条件获取列表数据 无传入参数
+        /// </summary>
+        [HttpPost]
+        [EnableCors("any")]
+        public string SearchPrintT()
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                FS1209_Logic logic_1 = new FS1209_Logic();
+                DataTable tb = logic.searchPrintT();
+                List<object> dataList = ComFunction.convertAllToResult(tb);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 确认单再发行
+        /// <summary>
+        /// 确认单再发行
+        /// </summary>
+        [HttpPost]
+        [EnableCors("any")]
+        public string SearchRePrintKBQR([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcKbOrderId = dataForm.vcKbOrderId;
+            string vcPlanPrintDate = dataForm.vcPlanPrintDate;
+            string vcPlanProcDate = dataForm.vcPlanProcDate;
+            string vcPrintDate = dataForm.vcPrintDate;
+            string vcGC = dataForm.vcGC;
+            string vcPlanPrintBZ = dataForm.vcPlanPrintBZ;
+            string vcPlanProcBZ = dataForm.vcPlanProcBZ;
+            vcKbOrderId = vcKbOrderId == null ? "" : vcKbOrderId;
+            vcPlanPrintDate = vcPlanPrintDate == null ? "" : vcPlanPrintDate;
+            vcPlanProcDate = vcPlanProcDate == null ? "" : vcPlanProcDate;
+            vcPrintDate = vcPrintDate == null ? "" : vcPrintDate;
+            vcGC = vcGC == null ? "" : vcGC;
+            vcPlanPrintBZ = vcPlanPrintBZ == null ? "" : vcPlanPrintBZ;
+            vcPlanProcBZ = vcPlanProcBZ == null ? "" : vcPlanProcBZ;
+            try
+            {
+                DataTable tb = logic.SearchRePrintKBQR(vcKbOrderId, vcGC, vcPlanPrintDate, vcPlanPrintBZ, vcPlanProcDate, vcPlanProcBZ, vcPrintDate);
+                List<object> dataList = ComFunction.convertAllToResult(tb);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+
         #region 填充数据
         private DataTable dtPrintRE(string vcSupplierCode, string vcCpdCompany, string vcCarFamilyCode, string vcPartsNo, string vcPartsNameEN, string vcPartsNameCHN, string vcLogisticRoute,
            string iQuantityPerContainer, string vcProject01, string vcComDate01, string vcBanZhi01, string vcProject02, string vcComDate02, string vcBanZhi02, string vcProject03,
@@ -1434,5 +1441,7 @@ namespace SPPSApi.Controllers.G12
             return tb;
         }
         #endregion
+
+
     }
 }

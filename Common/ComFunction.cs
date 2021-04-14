@@ -1938,7 +1938,57 @@ namespace Common
             }
         }
 
+        #region 记录操作日志
+        /// <summary>
+        /// 记录操作日志
+        /// </summary>
+        /// <param name="content">需要记录的内容</param>
+        public static void ConsoleWriteLine(string content)
+        {
+            //获取程序目录
+            string path_Root = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
+            //Log文件夹路径
+            string path_Log = path_Root + "Doc" + Path.DirectorySeparatorChar + "Log" + Path.DirectorySeparatorChar;
+            //当前年份
+            string strYear = DateTime.Now.ToString("yyyy");
+            //当前年的文件夹
+            string path_Year = path_Log + strYear + Path.DirectorySeparatorChar;
 
+            //当前天
+            string strDay = DateTime.Now.ToString("yyyyMMdd");
+            //当前天的文件名
+            string file_Day = strDay + ".txt";
+            //当前天的文件路径
+            string path_Day = path_Year + file_Day;
+
+            //判断当前年的路径是否存在，如果不存在则创建
+            if (!Directory.Exists(path_Year))
+            {
+                Directory.CreateDirectory(path_Year);
+            }
+
+            //判断当前天的文件是否存在，如果不存在则创建
+            if (!File.Exists(path_Day))
+            {
+                FileStream fs = File.Create(path_Day);
+                fs.Close();
+                fs.Dispose();
+            }
+
+            //给传入的内容添加日期前缀
+            content = DateTime.Now.ToString("yyyy-MM-dd") + ":" + DateTime.Now.ToString("hhmmss") + ":" + content;
+
+            //打开当前天文件，追加内容
+            using (StreamWriter sw = new StreamWriter(path_Day, true))
+            {
+                sw.WriteLine(content);
+                sw.Flush();
+                sw.Close();
+                sw.Dispose();
+            }
+            Console.WriteLine(content);
+        }
+        #endregion
 
     }
 

@@ -531,7 +531,7 @@ namespace Logic
             {
                 FileStream fs = File.OpenRead(filePath);
 
-                string fileName = fs.Name.Substring(fs.Name.LastIndexOf("\\") + 1);
+                string fileName = fs.Name.Substring(fs.Name.LastIndexOf(Path.DirectorySeparatorChar) + 1);
 
                 if (extension.Equals(".xls"))
                 {

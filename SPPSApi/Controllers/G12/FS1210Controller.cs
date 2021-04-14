@@ -431,7 +431,7 @@ namespace SPPSApi.Controllers.G12
                                             }
                                             catch (Exception ex)
                                             {
-                                                msg = "看板确认单失败！";
+                                                msg = "打印看板确认单失败！";
                                                 throw ex;
                                             }
                                             finally
@@ -474,7 +474,7 @@ namespace SPPSApi.Controllers.G12
                                     }
                                     catch (Exception ex)
                                     {
-                                        msg = "看板确认单失败！";
+                                        msg = "打印看板确认单失败！";
                                         throw ex;
                                     }
                                     finally
@@ -864,7 +864,7 @@ namespace SPPSApi.Controllers.G12
                                             lg.DropTempTable(inTable_tmp);//删除打印临时表
                                             lg.DropTempTable(exdthj_tmp);//删除打印临时表
                                             apiResult.code = ComConstant.ERROR_CODE;
-                                            apiResult.data = "看板确认单失败！";
+                                            apiResult.data = "打印看板确认单失败！";
                                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                                         }
                                     }

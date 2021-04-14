@@ -147,6 +147,7 @@ namespace SPPSApi.Controllers.G12
             string vcKbOrderId = dataForm.vcKbOrderId == null ? "" : dataForm.vcKbOrderId;
             string vcPorType = dataForm.vcPorType == null ? "" : dataForm.vcPorType;
             string printerName = logic.PrintMess(loginInfo.UserId);
+            string msg = string.Empty;
             try
             {
                 //先检索
@@ -163,8 +164,7 @@ namespace SPPSApi.Controllers.G12
                     apiResult.data = "无检索数据,无法打印";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-                string msg = logic.BtnPrintAll(printTable, vcType, _webHostEnvironment.ContentRootPath, printerName, loginInfo.UserId);
+                msg = logic.BtnPrintAll(printTable, vcType, _webHostEnvironment.ContentRootPath, printerName, loginInfo.UserId);
                 if (msg == "打印成功")
                 {
                     apiResult.code = ComConstant.SUCCESS_CODE;
@@ -179,7 +179,7 @@ namespace SPPSApi.Controllers.G12
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = msg;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             #endregion
@@ -304,9 +304,10 @@ namespace SPPSApi.Controllers.G12
         #region 打印
         public string BtnPrintAll(DataTable dt, string vctype, string root, string strPrinterName, string userId)
         {
+            string msg = "";
+            DataTable dtPorType = new DataTable();
             try
-            {
-                string msg = "";
+            {         
                 string printIme = System.DateTime.Now.ToString("yyyy-MM-dd");
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
                 string picnull = root + "\\images\\picnull.JPG";
@@ -552,7 +553,7 @@ namespace SPPSApi.Controllers.G12
                     print.insertTableCR(dtPrint);//插入打印临时子表
                     print.insertTableExcel(exdt);//插入看板确认单Excel
                     print.insertTableKBSerial(dtHis);//插入连番记录表
-                    DataTable dtPorType = QueryGroup(dtPrint);//用订单号 生产部署 生产日期 生产班值分组,修改不在数据库中取值vcorderno,vcPorType,vcComDate01,vcBanZhi01
+                    dtPorType = QueryGroup(dtPrint);//用订单号 生产部署 生产日期 生产班值分组,修改不在数据库中取值vcorderno,vcPorType,vcComDate01,vcBanZhi01
                     //Session["dtPorType000"] = dtPorType;
                     //DataTable dtPorType = print.searchPorType();//用订单号 生产部署 生产日期 生产班值分组
                     print.insertTableCRMain(dtPrint, dtPorType);//插入打印临时主表
@@ -645,7 +646,7 @@ namespace SPPSApi.Controllers.G12
                                                 }
                                                 catch (Exception ex)
                                                 {
-                                                    msg = "看板确认单失败！";
+                                                    msg = "打印看板确认单失败！";
                                                     throw ex;
 
                                                 }
@@ -701,7 +702,7 @@ namespace SPPSApi.Controllers.G12
                                         }
                                         catch (Exception ex)
                                         {
-                                            msg = "看板确认单失败！";
+                                            msg = "打印看板确认单失败！";
                                             throw ex;
                                         }
                                         finally
@@ -750,7 +751,14 @@ namespace SPPSApi.Controllers.G12
             }
             catch (Exception ex)
             {
-                throw ex;
+                if (dtPorType != null)
+                {
+                    for (int i = 0; i < dtPorType.Rows.Count; i++)
+                    {
+                        DeleteprinterCREX(dtPorType.Rows[i]["vcPorType"].ToString(), dtPorType.Rows[i]["vcorderno"].ToString(), dtPorType.Rows[i]["vcComDate01"].ToString(), dtPorType.Rows[i]["vcBanZhi01"].ToString());
+                    }
+                }
+                return msg;
             }
         }
         #endregion

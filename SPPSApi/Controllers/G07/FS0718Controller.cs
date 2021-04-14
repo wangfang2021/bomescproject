@@ -251,8 +251,6 @@ namespace SPPSApi.Controllers.G07
                                             "iDay31","dZYTime"};
                         string strfileName = "月度内示书_"+strYearMonth+"_"+i+"_";
                         string filepath = ComFunction.DataTableToExcel(head, fields, dt_Month, _webHostEnvironment.ContentRootPath, loginInfo.UserId, strfileName, ref resMsg);
-                        Console.WriteLine(_webHostEnvironment.ContentRootPath);
-                        Console.WriteLine(strfileName);
                         if (filepath == "")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -531,11 +529,48 @@ namespace SPPSApi.Controllers.G07
 
         public void addFiles(string strFileName, string strFilePath)
         {
-            Console.WriteLine("文件名"+strFileName);
-            Console.WriteLine("文件路径"+strFilePath);
-            string strFilePath_All = strFilePath + Path.DirectorySeparatorChar + strFileName;
-            Console.WriteLine("完整路径" + strFilePath_All);
-            files.Add(strFileName, File.ReadAllBytes(strFilePath_All));
+            Console.WriteLine("文件名："+strFileName);
+            string strFilePath_All = strFilePath + strFileName;
+            Console.WriteLine("文件完整路径：" + strFilePath_All);
+
+            string strMessage = "开始添加:";
+            if (strFileName.Contains("月度内示书"))
+            {
+                strMessage += "月度内示书Excel";
+            }
+            else
+            {
+                if (strFileName.Contains("周度内示书"))
+                {
+                    strMessage += "周度内示书Excel";
+                }
+                else
+                {
+                    strMessage += "未知Excel";
+                }
+            }
+
+            strMessage += " 文件是否存在：";
+
+            if (File.Exists(strFilePath_All))
+            {
+                strMessage += "true";
+            }
+            else
+            {
+                strMessage += "False";
+            }
+
+            try
+            {
+                files.Add(strFileName, File.ReadAllBytes(strFilePath_All));
+            }
+            catch (Exception ex)
+            {
+                strMessage +="添加文件到压缩包出现异常，异常消息："+ ex.Message;
+                ComFunction.ConsoleWriteLine(strMessage);
+            }
+            ComFunction.ConsoleWriteLine(strMessage);
             if (File.Exists(strFilePath_All))
             {
                 File.Delete(strFilePath_All);

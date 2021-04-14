@@ -120,7 +120,7 @@ namespace DataAccess
                 }
                 if (vcOrderNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  a.vcOrderNo like '" + vcOrderNo + "%' ");
+                    strSql.AppendLine("  and  a.vcOrderNo like '%" + vcOrderNo + "%' ");
                 }
                 if (vcDock.Length > 0)
                 {

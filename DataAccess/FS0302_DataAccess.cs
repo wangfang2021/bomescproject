@@ -67,7 +67,7 @@ namespace DataAccess
 
                 dt.Columns.Add("vcDiff");
                 DataTable Diff = getDiff();
-                DataTable origin = getOriginCompany();
+                //DataTable origin = getOriginCompany();
 
                 //for (int i = 0; i < dt.Rows.Count; i++)
                 //{
@@ -106,42 +106,61 @@ namespace DataAccess
                 {
                     string vcPart_Id_old = ObjToString(dt.Rows[i]["vcPart_Id_old"]);
                     string vcPart_Id_new = ObjToString(dt.Rows[i]["vcPart_Id_new"]);
+                    string vcUnit = ObjToString(dt.Rows[i]["vcUnit"]);
                     if (!string.IsNullOrWhiteSpace(vcPart_Id_old))
                     {
-                        DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_old + "'");
-                        DataRow[] tmpOrigin = origin.Select("vcPart_id = '" + vcPart_Id_old + "'");
-                        if (tmp.Length > 0)
+                        if (!string.IsNullOrWhiteSpace(vcUnit))
                         {
-                            dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
+                            DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_old + "' and vcOriginCompany = '" + vcUnit + "'");
+                            if (tmp.Length > 0)
+                            {
+                                dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
+                            }
+                            else
+                            {
+                                dt.Rows[i]["vcDiff"] = "";
+                            }
                         }
                         else
                         {
-                            dt.Rows[i]["vcDiff"] = "";
-                        }
-
-                        if (tmpOrigin.Length > 0)
-                        {
-                            dt.Rows[i]["vcUnit"] = tmpOrigin[0]["vcName"];
+                            DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_old + "'");
+                            if (tmp.Length > 0)
+                            {
+                                dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
+                                dt.Rows[i]["vcUnit"] = tmp[0]["vcOriginCompany"];
+                            }
+                            else
+                            {
+                                dt.Rows[i]["vcDiff"] = "";
+                            }
                         }
                     }
                     else if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
                     {
-                        DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_new + "'");
-                        DataRow[] tmpOrigin = origin.Select("vcPart_id = '" + vcPart_Id_new + "'");
-
-                        if (tmp.Length > 0)
+                        if (!string.IsNullOrWhiteSpace(vcUnit))
                         {
-                            dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
+                            DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_new + "' and vcOriginCompany = '" + vcUnit + "'");
+                            if (tmp.Length > 0)
+                            {
+                                dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
+                            }
+                            else
+                            {
+                                dt.Rows[i]["vcDiff"] = "";
+                            }
                         }
                         else
                         {
-                            dt.Rows[i]["vcDiff"] = "";
-                        }
-
-
-                        if (tmpOrigin.Length > 0)
-                        {
-                            dt.Rows[i]["vcUnit"] = tmpOrigin[0]["vcName"];
+                            DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_new + "'");
+                            if (tmp.Length > 0)
+                            {
+                                dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
+                                dt.Rows[i]["vcUnit"] = tmp[0]["vcOriginCompany"];
+                            }
+                            else
+                            {
+                                dt.Rows[i]["vcDiff"] = "";
+                            }
                         }
                     }
                     else
@@ -162,7 +181,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbrDiff = new StringBuilder();
-                sbrDiff.AppendLine("SELECT vcPart_id,vcDiff FROM TUnit ");
+                sbrDiff.AppendLine("SELECT vcOriginCompany,vcPart_id,vcDiff FROM TUnit ");
                 sbrDiff.AppendLine("ORDER BY vcPart_id,");
                 sbrDiff.AppendLine("CASE vcDiff ");
                 sbrDiff.AppendLine("	WHEN '1' then 1");

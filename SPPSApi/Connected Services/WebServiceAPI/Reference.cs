@@ -30,12 +30,12 @@ namespace WebServiceAPI
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/setCRVToPDF", ReplyAction="*")]
         System.Threading.Tasks.Task<WebServiceAPI.setCRVToPDFResponse> setCRVToPDFAsync(WebServiceAPI.setCRVToPDFRequest request);
         
-        // CODEGEN: 正在生成消息协定，因为命名空间 http://tempuri.org/ 的元素名称 strDiskFileName 未标记为 nillable
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/setExcelPrint", ReplyAction="*")]
-        WebServiceAPI.setExcelPrintResponse setExcelPrint(WebServiceAPI.setExcelPrintRequest request);
+        // CODEGEN: 正在生成消息协定，因为命名空间 http://tempuri.org/ 的元素名称 strCRVName 未标记为 nillable
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/setCRVToIMG", ReplyAction="*")]
+        WebServiceAPI.setCRVToIMGResponse setCRVToIMG(WebServiceAPI.setCRVToIMGRequest request);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/setExcelPrint", ReplyAction="*")]
-        System.Threading.Tasks.Task<WebServiceAPI.setExcelPrintResponse> setExcelPrintAsync(WebServiceAPI.setExcelPrintRequest request);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/setCRVToIMG", ReplyAction="*")]
+        System.Threading.Tasks.Task<WebServiceAPI.setCRVToIMGResponse> setCRVToIMGAsync(WebServiceAPI.setCRVToIMGRequest request);
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -250,17 +250,17 @@ namespace WebServiceAPI
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
-    public partial class setExcelPrintRequest
+    public partial class setCRVToIMGRequest
     {
         
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="setExcelPrint", Namespace="http://tempuri.org/", Order=0)]
-        public WebServiceAPI.setExcelPrintRequestBody Body;
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="setCRVToIMG", Namespace="http://tempuri.org/", Order=0)]
+        public WebServiceAPI.setCRVToIMGRequestBody Body;
         
-        public setExcelPrintRequest()
+        public setCRVToIMGRequest()
         {
         }
         
-        public setExcelPrintRequest(WebServiceAPI.setExcelPrintRequestBody Body)
+        public setCRVToIMGRequest(WebServiceAPI.setCRVToIMGRequestBody Body)
         {
             this.Body = Body;
         }
@@ -270,27 +270,47 @@ namespace WebServiceAPI
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
-    public partial class setExcelPrintRequestBody
+    public partial class setCRVToIMGRequestBody
     {
         
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
-        public string strDiskFileName;
+        public string strCRVName;
         
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=1)]
-        public string strOperID;
+        public string strScrpit;
         
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=2)]
-        public string strPrinterName;
+        public string strPdfFileName;
         
-        public setExcelPrintRequestBody()
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=3)]
+        public string strImgFileName;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=4)]
+        public string sqlUserID;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=5)]
+        public string sqlPassword;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=6)]
+        public string sqlCatalog;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=7)]
+        public string sqlSource;
+        
+        public setCRVToIMGRequestBody()
         {
         }
         
-        public setExcelPrintRequestBody(string strDiskFileName, string strOperID, string strPrinterName)
+        public setCRVToIMGRequestBody(string strCRVName, string strScrpit, string strPdfFileName, string strImgFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
         {
-            this.strDiskFileName = strDiskFileName;
-            this.strOperID = strOperID;
-            this.strPrinterName = strPrinterName;
+            this.strCRVName = strCRVName;
+            this.strScrpit = strScrpit;
+            this.strPdfFileName = strPdfFileName;
+            this.strImgFileName = strImgFileName;
+            this.sqlUserID = sqlUserID;
+            this.sqlPassword = sqlPassword;
+            this.sqlCatalog = sqlCatalog;
+            this.sqlSource = sqlSource;
         }
     }
     
@@ -298,17 +318,17 @@ namespace WebServiceAPI
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
-    public partial class setExcelPrintResponse
+    public partial class setCRVToIMGResponse
     {
         
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="setExcelPrintResponse", Namespace="http://tempuri.org/", Order=0)]
-        public WebServiceAPI.setExcelPrintResponseBody Body;
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="setCRVToIMGResponse", Namespace="http://tempuri.org/", Order=0)]
+        public WebServiceAPI.setCRVToIMGResponseBody Body;
         
-        public setExcelPrintResponse()
+        public setCRVToIMGResponse()
         {
         }
         
-        public setExcelPrintResponse(WebServiceAPI.setExcelPrintResponseBody Body)
+        public setCRVToIMGResponse(WebServiceAPI.setCRVToIMGResponseBody Body)
         {
             this.Body = Body;
         }
@@ -318,19 +338,19 @@ namespace WebServiceAPI
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
-    public partial class setExcelPrintResponseBody
+    public partial class setCRVToIMGResponseBody
     {
         
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
-        public string setExcelPrintResult;
+        public string setCRVToIMGResult;
         
-        public setExcelPrintResponseBody()
+        public setCRVToIMGResponseBody()
         {
         }
         
-        public setExcelPrintResponseBody(string setExcelPrintResult)
+        public setCRVToIMGResponseBody(string setCRVToIMGResult)
         {
-            this.setExcelPrintResult = setExcelPrintResult;
+            this.setCRVToIMGResult = setCRVToIMGResult;
         }
     }
     
@@ -460,36 +480,46 @@ namespace WebServiceAPI
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        WebServiceAPI.setExcelPrintResponse WebServiceAPI.WebServiceAPISoap.setExcelPrint(WebServiceAPI.setExcelPrintRequest request)
+        WebServiceAPI.setCRVToIMGResponse WebServiceAPI.WebServiceAPISoap.setCRVToIMG(WebServiceAPI.setCRVToIMGRequest request)
         {
-            return base.Channel.setExcelPrint(request);
+            return base.Channel.setCRVToIMG(request);
         }
         
-        public string setExcelPrint(string strDiskFileName, string strOperID, string strPrinterName)
+        public string setCRVToIMG(string strCRVName, string strScrpit, string strPdfFileName, string strImgFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
         {
-            WebServiceAPI.setExcelPrintRequest inValue = new WebServiceAPI.setExcelPrintRequest();
-            inValue.Body = new WebServiceAPI.setExcelPrintRequestBody();
-            inValue.Body.strDiskFileName = strDiskFileName;
-            inValue.Body.strOperID = strOperID;
-            inValue.Body.strPrinterName = strPrinterName;
-            WebServiceAPI.setExcelPrintResponse retVal = ((WebServiceAPI.WebServiceAPISoap)(this)).setExcelPrint(inValue);
-            return retVal.Body.setExcelPrintResult;
+            WebServiceAPI.setCRVToIMGRequest inValue = new WebServiceAPI.setCRVToIMGRequest();
+            inValue.Body = new WebServiceAPI.setCRVToIMGRequestBody();
+            inValue.Body.strCRVName = strCRVName;
+            inValue.Body.strScrpit = strScrpit;
+            inValue.Body.strPdfFileName = strPdfFileName;
+            inValue.Body.strImgFileName = strImgFileName;
+            inValue.Body.sqlUserID = sqlUserID;
+            inValue.Body.sqlPassword = sqlPassword;
+            inValue.Body.sqlCatalog = sqlCatalog;
+            inValue.Body.sqlSource = sqlSource;
+            WebServiceAPI.setCRVToIMGResponse retVal = ((WebServiceAPI.WebServiceAPISoap)(this)).setCRVToIMG(inValue);
+            return retVal.Body.setCRVToIMGResult;
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<WebServiceAPI.setExcelPrintResponse> WebServiceAPI.WebServiceAPISoap.setExcelPrintAsync(WebServiceAPI.setExcelPrintRequest request)
+        System.Threading.Tasks.Task<WebServiceAPI.setCRVToIMGResponse> WebServiceAPI.WebServiceAPISoap.setCRVToIMGAsync(WebServiceAPI.setCRVToIMGRequest request)
         {
-            return base.Channel.setExcelPrintAsync(request);
+            return base.Channel.setCRVToIMGAsync(request);
         }
         
-        public System.Threading.Tasks.Task<WebServiceAPI.setExcelPrintResponse> setExcelPrintAsync(string strDiskFileName, string strOperID, string strPrinterName)
+        public System.Threading.Tasks.Task<WebServiceAPI.setCRVToIMGResponse> setCRVToIMGAsync(string strCRVName, string strScrpit, string strPdfFileName, string strImgFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
         {
-            WebServiceAPI.setExcelPrintRequest inValue = new WebServiceAPI.setExcelPrintRequest();
-            inValue.Body = new WebServiceAPI.setExcelPrintRequestBody();
-            inValue.Body.strDiskFileName = strDiskFileName;
-            inValue.Body.strOperID = strOperID;
-            inValue.Body.strPrinterName = strPrinterName;
-            return ((WebServiceAPI.WebServiceAPISoap)(this)).setExcelPrintAsync(inValue);
+            WebServiceAPI.setCRVToIMGRequest inValue = new WebServiceAPI.setCRVToIMGRequest();
+            inValue.Body = new WebServiceAPI.setCRVToIMGRequestBody();
+            inValue.Body.strCRVName = strCRVName;
+            inValue.Body.strScrpit = strScrpit;
+            inValue.Body.strPdfFileName = strPdfFileName;
+            inValue.Body.strImgFileName = strImgFileName;
+            inValue.Body.sqlUserID = sqlUserID;
+            inValue.Body.sqlPassword = sqlPassword;
+            inValue.Body.sqlCatalog = sqlCatalog;
+            inValue.Body.sqlSource = sqlSource;
+            return ((WebServiceAPI.WebServiceAPISoap)(this)).setCRVToIMGAsync(inValue);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()

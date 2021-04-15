@@ -43,10 +43,10 @@ namespace BatchProcess
                     FS0612_Logic fs0612_Logic = new FS0612_Logic();
                     FS0630_Logic fs0630_Logic = new FS0630_Logic();
 
-                    string vcCLYM = DateTime.Now.ToString("yyyyMM");
-                    string vcDXYM = DateTime.Now.AddMonths(1).ToString("yyyyMM");
-                    string vcNSYM = DateTime.Now.AddMonths(2).ToString("yyyyMM");
-                    string vcNNSYM = DateTime.Now.AddMonths(3).ToString("yyyyMM");
+                    string vcCLYM = DateTime.Now.AddMonths(-1).ToString("yyyyMM");
+                    string vcDXYM = DateTime.Now.ToString("yyyyMM");
+                    string vcNSYM = DateTime.Now.AddMonths(1).ToString("yyyyMM");
+                    string vcNNSYM = DateTime.Now.AddMonths(2).ToString("yyyyMM");
 
                     DataTable dtNQCResult = fs0612_Logic.dtNQCReceive(vcCLYM);
 
@@ -100,7 +100,7 @@ namespace BatchProcess
                         return true;
                     }
 
-                    List<string> plantList = null;
+                    List<string> plantList = new List<string>();
 
                     plantList.Add(plant);
 

@@ -1483,8 +1483,8 @@ namespace SPPSApi.Controllers.G06
                             string strWorkArea = dtNewCarType.Rows[p]["vcWorkArea"].ToString();
                             string strDock = dtNewCarType.Rows[p]["vcDock"].ToString();
                             string strNum = dtNewCarType.Rows[p]["vcNumber"].ToString();
-                            string strNaruRi = dtNewCarType.Rows[p]["dOrderPurposesDate"].ToString();
-                            string strChuHeRi = dtNewCarType.Rows[p]["dOrderReceiveDate"].ToString();
+                            string strNaruRi = dtNewCarType.Rows[p]["dOrderReceiveDate"].ToString();
+                            //string strChuHeRi = dtNewCarType.Rows[p]["dOrderReceiveDate"].ToString();
                             IRow row = sheetOrder.GetRow(p + startRowIndex);
                             row.Height = 660;
                             row.GetCell(0).SetCellValue(p + 1);
@@ -1495,7 +1495,7 @@ namespace SPPSApi.Controllers.G06
                             row.GetCell(5).SetCellValue(strDock);
                             row.GetCell(6).SetCellValue(strNum);
                             row.GetCell(7).SetCellValue(strNaruRi);
-                            row.GetCell(8).SetCellValue(strChuHeRi);
+                            row.GetCell(8).SetCellValue("");
                         }
                         IDrawing drawingOrder = (XSSFDrawing)sheetOrder.CreateDrawingPatriarch();
                         string pubiPathOrder = "." + Path.DirectorySeparatorChar + "Images" + Path.DirectorySeparatorChar + "FS0625bujipin.png";

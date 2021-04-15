@@ -39,6 +39,7 @@ namespace DataAccess
                     sbr.AppendLine("AND a.vcOrderNo LIKE '" + orderNo + "%'");
                 }
 
+                sbr.AppendLine(" ORDER BY dFileUpload desc");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

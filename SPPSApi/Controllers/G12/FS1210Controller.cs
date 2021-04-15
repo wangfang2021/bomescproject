@@ -181,10 +181,10 @@ namespace SPPSApi.Controllers.G12
                     string vcComDate00 = ""; string vcBanZhi00 = "";
                     DataTable dtKANB = new DataTable();
                     #region 整理数据
-                    string vcPartsNo = listInfoData[i]["vcPartsNo"].ToString(); //((TextBox)gvPrint.Rows[i].FindControl("vcPartsNo")).Text.ToString().Replace("-", "").ToString();//品番
-                    string vcDock = listInfoData[i]["vcDock"].ToString(); //((TextBox)gvPrint.Rows[i].FindControl("vcDock")).Text.ToString();//受入
-                    string vcCarFamilyCode = listInfoData[i]["vcCarType"].ToString(); //((TextBox)gvPrint.Rows[i].FindControl("vcCarType")).Text.ToString();//车型
-                    string vcEDflag = listInfoData[i]["jinjiqufen"].ToString(); //((TextBox)gvPrint.Rows[i].FindControl("jinjiqufen")).Text.ToString();//紧急区分
+                    string vcPartsNo = listInfoData[i]["vcPartsNo"].ToString(); //品番
+                    string vcDock = listInfoData[i]["vcDock"].ToString(); //受入
+                    string vcCarFamilyCode = listInfoData[i]["vcCarType"].ToString(); //车型
+                    string vcEDflag = listInfoData[i]["jinjiqufen"].ToString(); //紧急区分
                     if (vcEDflag == "通常")
                     {
                         vcEDflag = "S";
@@ -193,8 +193,8 @@ namespace SPPSApi.Controllers.G12
                     {
                         vcEDflag = "E";
                     }
-                    string vcKBorderno = listInfoData[i]["vcKBorderno"].ToString(); //((TextBox)gvPrint.Rows[i].FindControl("vcKBorderno")).Text.ToString();//看板订单号
-                    string vcKBSerial = listInfoData[i]["vcKBSerial"].ToString(); //((TextBox)gvPrint.Rows[i].FindControl("vcKBSerial")).Text.ToString();//连番
+                    string vcKBorderno = listInfoData[i]["vcKBorderno"].ToString(); //看板订单号
+                    string vcKBSerial = listInfoData[i]["vcKBSerial"].ToString(); //连番
                     string vcPlanMonth = listInfoData[i]["vcPlanMonth"].ToString();
                     string vcNo = listInfoData[i]["iNo"].ToString();
                     string vcPorType = listInfoData[i]["vcPorType"].ToString();
@@ -344,7 +344,7 @@ namespace SPPSApi.Controllers.G12
                                                //六项数据
                 dtPorType = logic.QueryGroup(dtPrint);//用订单号 生产部署 生产日期 生产班值分组,修改不在数据库中取值
                 print.insertTableCRMain00(dtPrint, dtPorType);//插入打印临时主表
-                string printDay = "";
+                //string printDay = "";
                 //logic_09.KanBIfPrintDay();//获取班值信息
                 string reportPath = "CrReport.rpt";
                 string strLoginId = loginInfo.UserId;
@@ -979,7 +979,6 @@ namespace SPPSApi.Controllers.G12
                 return error_login();
             }
             LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             JArray checkedInfo = dataForm._multipleSelection;
@@ -995,30 +994,17 @@ namespace SPPSApi.Controllers.G12
             string msg = string.Empty;
             try
             {
-                string picnull = _webHostEnvironment.ContentRootPath + "\\images\\picnull.JPG";
-                string tmplatePath = _webHostEnvironment.ContentRootPath + "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
+
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
                 string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
-                #region 检索
-                string vcKbOrderId = dataForm.vcKbOrderId == null ? "" : dataForm.vcKbOrderId;
-                string vcTF = dataForm.vcTF == null ? "" : dataForm.vcTF;
-                string vcFBZ = dataForm.vcFBZ == null ? "" : dataForm.vcFBZ;
-                string vcTT = dataForm.vcTT == null ? "" : dataForm.vcTT;
-                string vcTBZ = dataForm.vcTBZ == null ? "" : dataForm.vcTBZ;
-                string vcPartsNo_ = dataForm.vcPartsNo == null ? "" : dataForm.vcPartsNo;
-                vcPartsNo_ = vcPartsNo_.Replace("-", "");
-                string vcCarType = dataForm.vcCarTyp == null ? "" : dataForm.vcCarTypee;
-                string vcGC = dataForm.vcGC == null ? "" : dataForm.vcGC;
-                string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
-                string vcPlant = dataForm.vcPlant == null ? "" : dataForm.vcPlant;
-                DataTable dt17 = getData(vcKbOrderId, vcTF, vcFBZ, vcTT, vcTBZ, vcPartsNo_, vcCarType, vcGC, vcType, vcPlant, DataPorType);
-                #endregion
+
+                string picnull = _webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\picnull.JPG";
                 byte[] vcPhotoPath = print.PhotoToArray("", picnull);
                 DataTable dtPrintCR = new DataTable();
                 DataTable dtPrintCRLone = print.searchTBCreate();//获得数据库表结构
                 DataTable dtPrint = dtPrintCRLone.Clone();
                 bool check = true;
-                string QFlag = "2";
+                //string QFlag = "2";
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     string vcSupplierCode = ""; string vcSupplierPlant = ""; string vcCpdCompany = ""; string vcPartsNameEN = ""; string vcPartsNameCHN = "";
@@ -1040,6 +1026,18 @@ namespace SPPSApi.Controllers.G12
                     string vcDock = listInfoData[i]["vcDock"].ToString();//受入
                     string vcCarFamilyCode = listInfoData[i]["vcCarType"].ToString();//车型
                     string vcEDflag = listInfoData[i]["jinjiqufen"].ToString();//紧急区分
+                    if (vcEDflag == "通常")
+                    {
+                        vcEDflag = "S";
+                    }
+                    else if (vcEDflag == "紧急")
+                    {
+                        vcEDflag = "E";
+                    }
+                    else
+                    {
+                        vcEDflag = " ";
+                    }
                     string vcKBorderno = listInfoData[i]["vcKBorderno"].ToString();//看板订单号
                     string vcKBSerial = listInfoData[i]["vcKBSerial"].ToString();//连番
                     string vcPlanMonth = listInfoData[i]["vcPlanMonth"].ToString();
@@ -1086,7 +1084,7 @@ namespace SPPSApi.Controllers.G12
                         #endregion
                     }
                     gud = Guid.NewGuid().ToString("N");
-                    String ls_savePath = "\\QRCodeImages\\" + ls_fileName;
+                    string ls_savePath = _webHostEnvironment.ContentRootPath + "Doc\\Image\\QRCodeImages\\" + ls_fileName;
                     string reCode = print.reCode(vcSupplierCode, vcSupplierPlant, vcDock, vcPartsNo, iQuantityPerContainer, vcKBSerial, vcEDflag, vcKBorderno);
                     byte[] vcQRCodeImge = print.GenGenerateQRCode(reCode, ls_savePath);
                     #region
@@ -1133,7 +1131,7 @@ namespace SPPSApi.Controllers.G12
                 tbThrow = dtPorType;
                 print.insertTableCRMain(dtPrint, dtPorType);//插入打印临时主表
                 string printDay = logic_09.KanBIfPrintDay();//获取班值信息
-                string reportPath = "\\CrReport.rpt";
+                string reportPath = "CrReport.rpt";
                 string strLoginId = loginInfo.UserId;
                 for (int z = 0; z < dtPorType.Rows.Count; z++)
                 {
@@ -1345,9 +1343,9 @@ namespace SPPSApi.Controllers.G12
            string vcDock, string vcKBorser, string i, string vcKBorderno, string PorType, string vcEDflag, string vcSupplierPlant, DataTable dtPrint, string vcComDate00, string vcBanZhi00, string vcPlanMonth,
            string vcAB01, string vcAB02, string vcAB03, string vcAB04)//20181010添加AB值信息 - 李兴旺
         {
-            string ls_savePath = "\\QRCodeImages\\" + ls_fileName;
+            //string ls_savePath = "\\QRCodeImages\\" + ls_fileName;
             string reCode = print.reCode(vcSupplierCode, vcSupplierPlant, vcDock, vcPartsNo, iQuantityPerContainer, vcKBSerial, vcEDflag, vcKBorderno);
-            byte[] vcQRCodeImge = print.GenGenerateQRCode(reCode, ls_savePath);
+            byte[] vcQRCodeImge = print.GenGenerateQRCode("", reCode);
             DataRow row = dtPrint.NewRow();
             row[0] = vcSupplierCode.ToUpper();
             row[1] = vcCpdCompany.ToUpper();

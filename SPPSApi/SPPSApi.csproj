@@ -50,6 +50,7 @@
     <None Remove="Doc\Import\No.1_685WF0373.xlsx" />
     <None Remove="Doc\Import\No.1_HBV791.xlsx" />
     <None Remove="Doc\orders\预留.txt" />
+    <None Remove="Doc\Template\FS0101.xlsx" />
     <None Remove="Doc\Template\FS0201.xlsm" />
     <None Remove="Doc\Template\FS0203.xlsx" />
     <None Remove="Doc\Template\FS0300.xlsx" />
@@ -165,6 +166,9 @@
   <ItemGroup>
     <Content Include="Connected Services\FS1209_PrExcel\ConnectedService.json" />
     <Content Include="Connected Services\PrintCR\ConnectedService.json" />
+    <Content Include="Doc\Template\FS0101.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Doc\Template\FS0705_Export.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

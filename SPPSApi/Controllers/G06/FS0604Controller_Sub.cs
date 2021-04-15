@@ -301,7 +301,7 @@ namespace SPPSApi.Controllers.G06
                             string result = "Success";
                             //邮件主题
                             string strSubject = "荷姿展开邮件";
-                            result = ComFunction.SendEmailInfo(loginInfo.Email, loginInfo.UnitName, EmailBody, receiverDt, null, strSubject, "", false);
+                            result = ComFunction.SendEmailInfo(loginInfo.Email, loginInfo.UserName, EmailBody, receiverDt, null, strSubject, "", false);
                             if (result == "Success")
                             {
                                 fs0604_Logic.hZZK(dtNewSupplierand, dExpectDeliveryDate, loginInfo.UserId);

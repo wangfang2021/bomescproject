@@ -155,7 +155,7 @@ namespace SPPSApi.Controllers.G12
             string msg = string.Empty;
             try
             {
-                string picnull = _webHostEnvironment.ContentRootPath + "\\images\\picnull.JPG";
+                string picnull = _webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\picnull.JPG";
                 string tmplatePath = "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
                 string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机

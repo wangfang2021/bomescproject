@@ -27,7 +27,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
-                    "SELECT a.iAutoId,a.vcTargetYear+a.vcTargetMonth+a.vcTargetDay AS vcTargetYM,c.vcOrderDifferentiation as vcOrderType,b.vcName as vcOrderState,a.vcMemo,REPLACE(CONVERT(VARCHAR(16),a.dUploadDate,21),'-','/') AS dUploadDate,REPLACE(CONVERT(VARCHAR(16),a.dCreateDate,21),'-','/') AS dCreateDate,a.vcFilePath,a.vcTargetWeek,a.vcFileOrderNo as vcOrderNo FROM ");
+                    "SELECT a.iAutoId,a.vcTargetYear+a.vcTargetMonth+a.vcTargetDay AS vcTargetYM,c.vcOrderDifferentiation as vcOrderType,b.vcName as vcOrderState,a.vcMemo,REPLACE(CONVERT(VARCHAR(19),a.dUploadDate,21),'-','/') AS dUploadDate,REPLACE(CONVERT(VARCHAR(19),a.dCreateDate,21),'-','/') AS dCreateDate,a.vcFilePath,a.vcTargetWeek,a.vcFileOrderNo as vcOrderNo FROM ");
                 sbr.AppendLine("(");
                 sbr.AppendLine(
                     "SELECT iAutoId,vcOrderNo,vcTargetYear,vcTargetMonth,vcTargetDay,vcOrderType,vcOrderState,vcMemo,dUploadDate,dCreateDate,vcFilePath,vcTargetWeek,vcFileOrderNo");

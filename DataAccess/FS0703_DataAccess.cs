@@ -148,29 +148,25 @@ namespace DataAccess
                 strSql.AppendLine("  GETDATE() as dZCTime --作成时间         ");
                 strSql.AppendLine(" from          ");
                 strSql.AppendLine("  (        ");
-                strSql.AppendLine("  select a.vcYearMonth,a.vcPart_id,       ");
-                strSql.AppendLine("    case when b.vcDXYM is null then '0'else  a.iHySOQN end as iHySOQN,         ");
-                strSql.AppendLine("    case when c.vcDXYM is null then '0'else  a.iHySOQN1 end as iHySOQN1,         ");
-                strSql.AppendLine("    case when d.vcDXYM is null then '0'else  a.iHySOQN2 end as iHySOQN2         ");
+                strSql.AppendLine("  select b.vcDXYM as vcYearMonth,b.vcPart_id,       ");
+                strSql.AppendLine("    case when b.vcDXYM is null then '0'else  b.iPartNums end as iHySOQN,         ");
+                strSql.AppendLine("    case when c.vcDXYM is null then '0'else  c.iPartNums  end as iHySOQN1,         ");
+                strSql.AppendLine("    case when d.vcDXYM is null then '0'else  d.iPartNums end as iHySOQN2         ");
                 strSql.AppendLine("  ,b.vcDXYM as vcDXYM,c.vcDXYM as vcDXYM1,d.vcDXYM as vcDXYM2,b.iQuantityPercontainer,      ");
                 strSql.AppendLine("  b.iD1 ,b.iD2,b.iD3,b.iD4,b.iD5,b.iD6,b.iD7,b.iD8,b.iD9,b.iD10,b.iD11,b.iD12,b.iD13,b.iD14,b.iD15,b.iD16,      ");
                 strSql.AppendLine("  b.iD17,b.iD18,b.iD19,b.iD20,b.iD21,b.iD22,b.iD23,b.iD24,b.iD25,b.iD26,b.iD27,b.iD28,b.iD29,b.iD30,b.iD31      ");
-                strSql.AppendLine("  from        ");
-                strSql.AppendLine("  (          ");
-                strSql.AppendLine("   select *from TSoq where vcYearMonth='" + strN + "'       ");
-                strSql.AppendLine("  )a         ");
-                strSql.AppendLine("  left join       ");
-                strSql.AppendLine("  (         ");
+                strSql.AppendLine("  from    (  ");
+               
                 strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN + "' and vcCLYM='"+ strN_CL + "'      ");
-                strSql.AppendLine("  )b on a.vcPart_id=b.vcPart_id       ");
+                strSql.AppendLine("  )b      ");
                 strSql.AppendLine("  left join       ");
                 strSql.AppendLine("  (         ");
                 strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN_1 + "'  and vcCLYM='" + strN_CL + "'      ");
-                strSql.AppendLine("  )c on a.vcPart_id=c.vcPart_id        ");
+                strSql.AppendLine("  )c on b.vcPart_id=c.vcPart_id        ");
                 strSql.AppendLine("  left join       ");
                 strSql.AppendLine("   (          ");
                 strSql.AppendLine("   select * from TSoqReply where vcDXYM='" + strN_2 + "' and vcCLYM='" + strN_CL + "'        ");
-                strSql.AppendLine("   )d on a.vcPart_id=d.vcPart_id      ");
+                strSql.AppendLine("   )d on b.vcPart_id=d.vcPart_id      ");
                 strSql.AppendLine("   left join      ");
                 strSql.AppendLine("   (      ");
                 strSql.AppendLine("     select * from TPackageMaster where  1=1   ");
@@ -189,7 +185,7 @@ namespace DataAccess
                     strSql.Append("   )       \n");
                 }
                 strSql.AppendLine("   and GETDATE() between dTimeFrom and dTimeTo      ");
-                strSql.AppendLine("   )e on a.vcPart_id=e.vcPart_id      ");
+                strSql.AppendLine("   )e on b.vcPart_id=e.vcPart_id      ");
                 strSql.AppendLine("   )T_1       ");
                 strSql.AppendLine("   left join      ");
                 strSql.AppendLine("   (          ");
@@ -207,7 +203,13 @@ namespace DataAccess
                 strSql.AppendLine("  	  )s LEFT join      ");
                 strSql.AppendLine("  	  (      ");
                 strSql.AppendLine("  	    select * from TPackBase      ");
-                strSql.AppendLine("  where vcSupplierCode in (      ");
+                strSql.AppendLine("         where GETDATE() between  dPackFrom and dPackTo   ");
+                strSql.AppendLine("  	  )ss on s.vcPackNo=ss.vcPackNo      ");
+                strSql.AppendLine("        ");
+                strSql.AppendLine("   )T_2 on T_1.vcPart_id=T_2.vcPartsNo          ");
+
+                strSql.AppendLine("  where T_2.vcSupplierCode in (      ");
+
                 for (int i = 0; i < strSupplierCode.Count; i++)
                 {
                     if (strSupplierCode.Count - i == 1)
@@ -217,12 +219,7 @@ namespace DataAccess
                     else
                         strSql.AppendLine("  '" + strSupplierCode[i] + "' ,    ");
                 }
-                strSql.AppendLine("  )   and GETDATE() between  dPackFrom and dPackTo   ");
-                strSql.AppendLine("  	  )ss on s.vcPackNo=ss.vcPackNo      ");
-                strSql.AppendLine("        ");
-                strSql.AppendLine("   )T_2 on T_1.vcPart_id=T_2.vcPartsNo          ");
-
-
+                strSql.AppendLine(" )     ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

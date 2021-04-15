@@ -532,10 +532,8 @@ namespace SPPSApi.Controllers.G07
             ComFunction.ConsoleWriteLine("**文件名：" + strFileName);
             string strFilePath_All = strFilePath + strFileName;
             ComFunction.ConsoleWriteLine("**文件完整路径"+strFilePath_All);
-
-            ComFunction.ConsoleWriteLine("**开始添加文件到ZIP：");
             
-            string strMessage = "**1、校验文件是否存在：";
+            string strMessage = "**校验文件是否存在：";
 
             if (File.Exists(strFilePath_All))
             {
@@ -548,12 +546,13 @@ namespace SPPSApi.Controllers.G07
             ComFunction.ConsoleWriteLine(strMessage);
             try
             {
+                ComFunction.ConsoleWriteLine("**开始添加文件到ZIP：");
                 files.Add(strFileName, File.ReadAllBytes(strFilePath_All));
-                ComFunction.ConsoleWriteLine("**2、添加成功！添加文件完整路径："+strFilePath_All);
+                ComFunction.ConsoleWriteLine("**添加成功！添加文件完整路径："+strFilePath_All);
             }
             catch (Exception ex)
             {
-                ComFunction.ConsoleWriteLine("**添加文件到压缩包出现异常，异常消息："+ex.Message);
+                ComFunction.ConsoleWriteLine("**添加失败，异常消息："+ex.Message);
             }
 
             if (File.Exists(strFilePath_All))

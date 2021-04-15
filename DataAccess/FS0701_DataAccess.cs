@@ -128,8 +128,6 @@ namespace DataAccess
                 throw ex;
             }
         }
-
-
         #endregion
 
         #region 按检索条件检索,返回dt
@@ -578,6 +576,55 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+
+        #region 资材系统取数据连接
+        public DataTable searchmaps()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                DataTable dt = new DataTable();
+                sql.Append("  select a.SUPPLIER_CODE,a.PART_NAME,a.SPECIFICATION,a.ORDER_LOT,b.SUPPLIER_NAME,a.PART_NO from (  \n");
+                sql.Append("  select SUPPLIER_CODE,PART_NAME,SPECIFICATION,ORDER_LOT,PART_NO   \n");
+                sql.Append("  from TB_M0050 where   DEL_FLAG='0'  \n");
+                sql.Append("  )a left join  \n");
+                sql.Append("  (  \n");
+                sql.Append("  SELECT * from TB_M0100  \n");
+                sql.Append("  )b on a.SUPPLIER_CODE=b.SUPPLIER_CODE  \n");
+
+                dt = this.MAPSSearch(sql.ToString());
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable MAPSSearch(string sql)
+        {
+            SqlConnection conn = Common.ComConnectionHelper.CreateConnection_MAPS();
+            try
+            {
+                SqlDataAdapter da = new SqlDataAdapter();
+                DataTable dt = new DataTable();
+                da.SelectCommand = new SqlCommand();
+                da.SelectCommand.CommandType = System.Data.CommandType.Text;
+                da.SelectCommand.Connection = conn;
+                da.SelectCommand.CommandText = sql;
+                Common.ComConnectionHelper.OpenConection_SQL(ref conn);
+                da.Fill(dt);
+                Common.ComConnectionHelper.CloseConnection_SQL(ref conn);
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                Common.ComConnectionHelper.CloseConnection_SQL(ref conn);
                 throw ex;
             }
         }

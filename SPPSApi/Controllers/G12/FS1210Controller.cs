@@ -155,13 +155,14 @@ namespace SPPSApi.Controllers.G12
             string msg = string.Empty;
             try
             {
-                string picnull = _webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\picnull.JPG";
+                
                 string tmplatePath = "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
                 string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
                 string RolePorType = "";//获取生产部署信息
 
                 string vcFlagZ = "";
+                string picnull = _webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\picnull.JPG";
                 byte[] vcPhotoPath = print.PhotoToArray("", picnull);//照片初始化
                 DataTable dtPrintCR = new DataTable();
                 DataTable dtPrintCRLone = print.searchTBCreate();//获取表testprinterCR结构，为打印数据填充提供DataTable

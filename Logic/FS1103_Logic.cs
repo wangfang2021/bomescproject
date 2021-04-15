@@ -187,13 +187,19 @@ namespace Logic
                         drInvInfo["vcPartslocation"] = dtInvInfo_temp.Rows[0]["vcPartslocation"].ToString();
                         drInvInfo["vcInputnum"] = strInPutNum;
                         drInvInfo["vcPackingquantity"] = dtInvInfo_temp.Rows[0]["vcPackingquantity"].ToString();
+                        if(Convert.ToInt32(strInPutNum)%Convert.ToInt32(dtInvInfo_temp.Rows[0]["vcPackingquantity"].ToString())!=0)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "所选择的入库指令书" + strInvo + "入库指令书数量不为包装单位整数倍";
+                            dtMessage.Rows.Add(dataRow);
+                        }
                         drInvInfo["vcItemname1"] = dtInvInfo_temp.Rows[0]["vcItemname1"].ToString();
                         drInvInfo["vcPackingpartslocation1"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation1"].ToString();
                         drInvInfo["vcSuppliernamechn1"] = dtInvInfo_temp.Rows[0]["vcSuppliernamechn1"].ToString();
                         drInvInfo["vcOutnum1"] = dtInvInfo_temp.Rows[0]["vcOutnum1"].ToString();
                         if (dtInvInfo_temp.Rows[0]["vcOutnum1"].ToString() != "")
                         {
-                            drInvInfo["vcOutnum1"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum1"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                            drInvInfo["vcOutnum1"] = (Convert.ToDecimal(dtInvInfo_temp.Rows[0]["vcOutnum1"].ToString()) * (Convert.ToDecimal(strInPutNum) / Convert.ToDecimal(strInPutNum_temp))).ToString();
                         }
                         drInvInfo["vcTemname2"] = dtInvInfo_temp.Rows[0]["vcTemname2"].ToString();
                         drInvInfo["vcPackingpartslocation2"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation2"].ToString();
@@ -201,7 +207,7 @@ namespace Logic
                         drInvInfo["vcOutnum2"] = dtInvInfo_temp.Rows[0]["vcOutnum2"].ToString();
                         if (dtInvInfo_temp.Rows[0]["vcOutnum2"].ToString() != "")
                         {
-                            drInvInfo["vcOutnum2"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum2"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                            drInvInfo["vcOutnum2"] = (Convert.ToDecimal(dtInvInfo_temp.Rows[0]["vcOutnum2"].ToString()) * (Convert.ToDecimal(strInPutNum) / Convert.ToDecimal(strInPutNum_temp))).ToString();
                         }
                         drInvInfo["vcItemname3"] = dtInvInfo_temp.Rows[0]["vcItemname3"].ToString();
                         drInvInfo["vcPackingpartslocation3"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation3"].ToString();
@@ -209,7 +215,7 @@ namespace Logic
                         drInvInfo["vcOutnum3"] = dtInvInfo_temp.Rows[0]["vcOutnum3"].ToString();
                         if (dtInvInfo_temp.Rows[0]["vcOutnum3"].ToString() != "")
                         {
-                            drInvInfo["vcOutnum3"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum3"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                            drInvInfo["vcOutnum3"] = (Convert.ToDecimal(dtInvInfo_temp.Rows[0]["vcOutnum3"].ToString()) * (Convert.ToDecimal(strInPutNum) / Convert.ToDecimal(strInPutNum_temp))).ToString();
                         }
                         drInvInfo["vcItemname4"] = dtInvInfo_temp.Rows[0]["vcItemname4"].ToString();
                         drInvInfo["vcPackingpartslocation4"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation4"].ToString();
@@ -217,7 +223,7 @@ namespace Logic
                         drInvInfo["vcOutnum4"] = dtInvInfo_temp.Rows[0]["vcOutnum4"].ToString();
                         if (dtInvInfo_temp.Rows[0]["vcOutnum4"].ToString() != "")
                         {
-                            drInvInfo["vcOutnum4"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum4"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                            drInvInfo["vcOutnum4"] = (Convert.ToDecimal(dtInvInfo_temp.Rows[0]["vcOutnum4"].ToString()) * (Convert.ToDecimal(strInPutNum) / Convert.ToDecimal(strInPutNum_temp))).ToString();
                         }
                         drInvInfo["vcItemname5"] = dtInvInfo_temp.Rows[0]["vcItemname5"].ToString();
                         drInvInfo["vcPackingpartslocation5"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation5"].ToString();
@@ -225,7 +231,7 @@ namespace Logic
                         drInvInfo["vcOutnum5"] = dtInvInfo_temp.Rows[0]["vcOutnum5"].ToString();
                         if (dtInvInfo_temp.Rows[0]["vcOutnum5"].ToString() != "")
                         {
-                            drInvInfo["vcOutnum5"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum5"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                            drInvInfo["vcOutnum5"] = (Convert.ToDecimal(dtInvInfo_temp.Rows[0]["vcOutnum5"].ToString()) * (Convert.ToDecimal(strInPutNum) / Convert.ToDecimal(strInPutNum_temp))).ToString();
                         }
                         drInvInfo["vcItemname6"] = dtInvInfo_temp.Rows[0]["vcItemname6"].ToString();
                         drInvInfo["vcPackingpartslocation6"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation6"].ToString();
@@ -233,7 +239,7 @@ namespace Logic
                         drInvInfo["vcOutnum6"] = dtInvInfo_temp.Rows[0]["vcOutnum6"].ToString();
                         if (dtInvInfo_temp.Rows[0]["vcOutnum6"].ToString() != "")
                         {
-                            drInvInfo["vcOutnum6"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum6"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                            drInvInfo["vcOutnum6"] = (Convert.ToDecimal(dtInvInfo_temp.Rows[0]["vcOutnum6"].ToString()) * (Convert.ToDecimal(strInPutNum) / Convert.ToDecimal(strInPutNum_temp))).ToString();
                         }
                         drInvInfo["vcItemname7"] = dtInvInfo_temp.Rows[0]["vcItemname7"].ToString();
                         drInvInfo["vcPackingpartslocation7"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation7"].ToString();
@@ -241,7 +247,7 @@ namespace Logic
                         drInvInfo["vcOutnum7"] = dtInvInfo_temp.Rows[0]["vcOutnum7"].ToString();
                         if (dtInvInfo_temp.Rows[0]["vcOutnum7"].ToString() != "")
                         {
-                            drInvInfo["vcOutnum7"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum7"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                            drInvInfo["vcOutnum7"] = (Convert.ToDecimal(dtInvInfo_temp.Rows[0]["vcOutnum7"].ToString()) * (Convert.ToDecimal(strInPutNum) / Convert.ToDecimal(strInPutNum_temp))).ToString();
                         }
                         drInvInfo["vcItemname8"] = dtInvInfo_temp.Rows[0]["vcItemname8"].ToString();
                         drInvInfo["vcPackingpartslocation8"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation8"].ToString();
@@ -249,7 +255,7 @@ namespace Logic
                         drInvInfo["vcOutnum8"] = dtInvInfo_temp.Rows[0]["vcOutnum8"].ToString();
                         if (dtInvInfo_temp.Rows[0]["vcOutnum8"].ToString() != "")
                         {
-                            drInvInfo["vcOutnum8"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum8"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                            drInvInfo["vcOutnum8"] = (Convert.ToDecimal(dtInvInfo_temp.Rows[0]["vcOutnum8"].ToString()) * (Convert.ToDecimal(strInPutNum) / Convert.ToDecimal(strInPutNum_temp))).ToString();
                         }
                         drInvInfo["vcItemname9"] = dtInvInfo_temp.Rows[0]["vcItemname9"].ToString();
                         drInvInfo["vcPackingpartslocation9"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation9"].ToString();
@@ -257,7 +263,7 @@ namespace Logic
                         drInvInfo["vcOutnum9"] = dtInvInfo_temp.Rows[0]["vcOutnum9"].ToString();
                         if (dtInvInfo_temp.Rows[0]["vcOutnum9"].ToString() != "")
                         {
-                            drInvInfo["vcOutnum9"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum9"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                            drInvInfo["vcOutnum9"] = (Convert.ToDecimal(dtInvInfo_temp.Rows[0]["vcOutnum9"].ToString()) * (Convert.ToDecimal(strInPutNum) / Convert.ToDecimal(strInPutNum_temp))).ToString();
                         }
                         drInvInfo["vcItemname10"] = dtInvInfo_temp.Rows[0]["vcItemname10"].ToString();
                         drInvInfo["vcPackingpartslocation10"] = dtInvInfo_temp.Rows[0]["vcPackingpartslocation10"].ToString();
@@ -265,7 +271,7 @@ namespace Logic
                         drInvInfo["vcOutnum10"] = dtInvInfo_temp.Rows[0]["vcOutnum10"].ToString();
                         if (dtInvInfo_temp.Rows[0]["vcOutnum10"].ToString() != "")
                         {
-                            drInvInfo["vcOutnum10"] = (Convert.ToDouble(dtInvInfo_temp.Rows[0]["vcOutnum10"].ToString()) * (Convert.ToInt32(strInPutNum) / Convert.ToInt32(strInPutNum_temp))).ToString();
+                            drInvInfo["vcOutnum10"] = (Convert.ToDecimal(dtInvInfo_temp.Rows[0]["vcOutnum10"].ToString()) * (Convert.ToDecimal(strInPutNum) / Convert.ToDecimal(strInPutNum_temp))).ToString();
                         }
                         string strCode = dtInvInfo_temp.Rows[0]["vcPart_Id"].ToString() +
                             strInPutNum.PadLeft(5, '0') +

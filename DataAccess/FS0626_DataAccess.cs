@@ -368,6 +368,7 @@ namespace DataAccess
                     cmdUpdate1.Transaction = trans;
                     cmdUpdate1.ExecuteNonQuery();
 
+
                     SqlCommand cmdUpdate2 = new SqlCommand();
                     cmdUpdate2.Connection = conn;
                     cmdUpdate2.CommandText += "update TOutsidePurchaseManage ";
@@ -413,7 +414,8 @@ namespace DataAccess
                     cmdUpdate.CommandText += "update TOutsidePurchaseManage ";
                     cmdUpdate.CommandText += "set TOutsidePurchaseManage.vcNoReceiveNumber=TOutsidePurchaseManage.vcOrderNumber-b.iQuantity ";
                     cmdUpdate.CommandText += "from (select sum(iQuantity) as iQuantity,vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant ";
-                    cmdUpdate.CommandText += "      from TOperateSJ where vcZYType='S0' ";
+                    cmdUpdate.CommandText += "      from TOperateSJ ";
+                    cmdUpdate.CommandText += "      where vcZYType='S0' and substring(convert(varchar,dStart,112),1,6)>='" + vcTargetMonthFrom + "' and substring(convert(varchar,dStart,112),1,6)<='" + vcTargetMonthTo + "' ";
                     cmdUpdate.CommandText += "      group by vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant) b ";
                     cmdUpdate.CommandText += "where TOutsidePurchaseManage.vcOrderNo=b.vcKBOrderNo and TOutsidePurchaseManage.vcPartNo=b.vcPart_id ";
                     cmdUpdate.CommandText += "and TOutsidePurchaseManage.vcDock=b.vcSR and TOutsidePurchaseManage.vcSupplier_id=b.vcSupplier_id ";
@@ -427,7 +429,7 @@ namespace DataAccess
                     cmdUpdate1.CommandText += "set TOutsidePurchaseManage.vcPackPlant=c.vcPackingPlant, TOutsidePurchaseManage.vcNewOldFlag=c.vcHaoJiu ";
                     cmdUpdate1.CommandText += "from (select vcPackingPlant,vcHaoJiu,vcPartId,vcSupplierId from TSPMaster ";
                     cmdUpdate1.CommandText += "      where vcInOut='1' and dFromTime<=GETDATE() and dToTime>=GETDATE()) c ";
-                    cmdUpdate1.CommandText += "where TOutsidePurchaseManage.vcPartNo=c.vcPartId and TOutsidePurchaseManage.vcSupplier_id=c.vcSupplierId ";
+                    cmdUpdate1.CommandText += "where TOutsidePurchaseManage.vcPartNo=c.vcPartId ";
                     cmdUpdate1.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcTargetMonthFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcTargetMonthTo + "'; ";
                     cmdUpdate1.Transaction = trans;
                     cmdUpdate1.ExecuteNonQuery();

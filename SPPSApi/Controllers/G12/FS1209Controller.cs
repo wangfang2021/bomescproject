@@ -640,7 +640,6 @@ namespace SPPSApi.Controllers.G12
                                                 {
                                                     msg = "打印看板确认单失败！";
                                                     throw ex;
-
                                                 }
                                                 finally
                                                 {

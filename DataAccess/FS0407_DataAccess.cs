@@ -55,7 +55,7 @@ namespace DataAccess
                 sbr.AppendLine("LEFT JOIN");
                 sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C056')T7--状态");
                 sbr.AppendLine("ON T1.vcState=T7.vcValue");
-                sbr.AppendLine("ORDER BY T1.vcOrderNo,t1.vcPart_id,t1.vcState");
+                sbr.AppendLine("ORDER BY T1.vcOrderNo desc,t2.dOutPutDate desc");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
@@ -69,7 +69,8 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT DISTINCT vcOrderNo FROM TUrgentOrder WHERE vcStatus = '3'");
+                //sbr.AppendLine("SELECT DISTINCT vcOrderNo FROM TUrgentOrder WHERE vcStatus = '3'");
+                sbr.AppendLine("SELECT vcOrderNo FROM (SELECT vcOrderNo,MAX(iAutoId) AS id FROM dbo.TUrgentOrder WHERE vcStatus = '3' and isnull([vcDelete],'0')='0' GROUP BY vcOrderNo ) a ORDER BY id desc");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
@@ -82,7 +83,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT DISTINCT vcPart_id FROM TUrgentOrder WHERE vcStatus = '3'");
+                sbr.AppendLine("SELECT DISTINCT vcPart_id FROM TUrgentOrder WHERE vcStatus = '3' and isnull([vcDelete],'0')='0' ");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

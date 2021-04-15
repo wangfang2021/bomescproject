@@ -298,8 +298,11 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 DataTable dt = FS0701_Logic.Search(PackSpot, PackNo, PackGPSNo, strSupplierCode, dFromB, dFromE, dToB, dToE);
-
-
+                if (dt.Rows.Count==0) {
+                    DataRow dr1 = dt.NewRow();
+                    dt.Rows.Add(dr1);
+                }
+                
 
                 string resMsg = "";
                 string[] head = { "是否修改", "指定标识", "包装场", "包装材品番", "GPS品番", "开始时间", "结束时间", "品名", "供应商", "供应商代码", "发注收容数", "资材订购批量", "循环", "段取区分", "场所", "规格", "发注逻辑" };

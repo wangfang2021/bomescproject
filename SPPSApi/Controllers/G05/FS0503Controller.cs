@@ -318,8 +318,10 @@ namespace SPPSApi.Controllers.G05
                 string vcImageRoutes = dataForm.vcImageRoutes;
                 if (vcImageRoutes.Length>0)
                 {
-                    string filePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
-                    SaveFile(filePath);
+                    string hashCode = dataForm.hashCode;
+                    string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
+                    //string filePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
+                    SaveFile(fileSavePath);
                 }
                 if (fs0503_Logic.editOk(dataForm, loginInfo.UserId))
                 {

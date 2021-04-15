@@ -155,11 +155,10 @@ namespace SPPSApi.Controllers.G12
             string msg = string.Empty;
             try
             {
-                
+
                 string tmplatePath = "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
                 string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
-                string RolePorType = "";//获取生产部署信息
 
                 string vcFlagZ = "";
                 string picnull = _webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\picnull.JPG";
@@ -441,7 +440,6 @@ namespace SPPSApi.Controllers.G12
                                                 lg.DropTempTable(exdthj_tmp);//删除打印临时表
                                             }
                                         }
-
                                         #endregion
                                         inTable = exdt.Clone();
                                     }
@@ -542,23 +540,10 @@ namespace SPPSApi.Controllers.G12
             LoginInfo loginInfo = getLoginByToken(strToken);
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            JArray checkedInfo = dataForm._multipleSelection;
-            List<Dictionary<string, object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, object>>>();
-            if (listInfoData.Count == 0)
-            {
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "最少选择一条数据！";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
+
             DataTable dtPorType = new DataTable();
             try
             {
-                string picnull = _webHostEnvironment.ContentRootPath + "\\images\\picnull.JPG";
-                string tmplatePath = _webHostEnvironment.ContentRootPath + "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
-                string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
-                string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
-                string vcFlagZ = "";
-
                 #region 检索
                 string vcKbOrderId = dataForm.vcKbOrderId == null ? "" : dataForm.vcKbOrderId;
                 string vcTF = dataForm.vcTF == null ? "" : dataForm.vcTF;
@@ -581,13 +566,20 @@ namespace SPPSApi.Controllers.G12
                     apiResult.data = "无可打印数据,请确认！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+
+                string tmplatePath = "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
+                string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
+                string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
+                string vcFlagZ = "";
+
+                string picnull = _webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\picnull.JPG";
                 byte[] vcPhotoPath = print.PhotoToArray("", picnull);
                 DataTable dtPrintCR = new DataTable();
                 DataTable dtPrintCRLone = print.searchTBCreate();//获得数据库表结构
                 DataTable dtPrint = dtPrintCRLone.Clone();
                 DataTable exdt = logic.CreatDataTable();
                 bool check = true;
-                string QFlag = "2";
+                //string QFlag = "2";
                 print.TurnCate();
                 for (int i = 0; i < dt17.Rows.Count; i++)
                 {
@@ -777,7 +769,7 @@ namespace SPPSApi.Controllers.G12
                 //DataTable dtPorType = print.searchPorType00();//取生产部署
                 dtPorType = logic.QueryGroup(dtPrint);//用订单号 生产部署 生产日期 生产班值分组,修改不在数据库中取值
                 print.insertTableCRMain00(dtPrint, dtPorType);//插入打印临时主表
-                string printDay = "";
+                //string printDay = "";
                 //logic_09.KanBIfPrintDay();//获取班值信息
                 string reportPath = "CrReport.rpt";
                 string strLoginId = loginInfo.UserId;
@@ -862,15 +854,15 @@ namespace SPPSApi.Controllers.G12
                                         }
                                         catch (Exception ex)
                                         {
+                                            msg = "打印看板确认单失败！";
+                                            throw ex;
+                                        }
+                                        finally
+                                        {
                                             lg.DropTempTable(inTable_tmp);//删除打印临时表
                                             lg.DropTempTable(exdthj_tmp);//删除打印临时表
-                                            apiResult.code = ComConstant.ERROR_CODE;
-                                            apiResult.data = "打印看板确认单失败！";
-                                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                                         }
                                     }
-                                    lg.DropTempTable(inTable_tmp);//删除打印临时表
-                                    lg.DropTempTable(exdthj_tmp);//删除打印临时表
                                     #endregion
 
                                     if (vcType != "再发行")
@@ -917,17 +909,17 @@ namespace SPPSApi.Controllers.G12
                                     FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
                                     exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                 }
-                                catch
+                                catch (Exception ex)
+                                {
+                                    msg = "打印看板确认单失败！";
+                                    throw ex;
+                                }
+                                finally
                                 {
                                     lg.DropTempTable(exdttt_tmp);//删除打印临时表
                                     lg.DropTempTable(exdthj_tmp);//删除打印临时表
-                                    apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "打印失败";
-                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                                 }
                             }
-                            lg.DropTempTable(exdttt_tmp);//删除打印临时表
-                            lg.DropTempTable(exdthj_tmp);//删除打印临时表
                             #endregion
 
                             if (vcType != "再发行")
@@ -956,7 +948,7 @@ namespace SPPSApi.Controllers.G12
                     logic.UpdatePrintKANB(dtPrint);//更新看板打印表
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "打印成功！";
+                apiResult.data = "打印成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

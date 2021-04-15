@@ -700,6 +700,21 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                for (int i=0;i<listInfoData.Count;i++)
+                { 
+                    if(Convert.ToDecimal(listInfoData[i]["vcInputQtyDailySum"])>0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "月总到货数大于0,不能删除！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (Convert.ToDecimal(listInfoData[i]["vcResultQtyDailySum"]) > 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "月总发货数大于0,不能删除！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 fs0618_Logic.Del(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

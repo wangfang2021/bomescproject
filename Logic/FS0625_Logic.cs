@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string dExportDate, string vcCarType, string vcPartNo, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcIsNewRulesFlag, string vcPurposes, string vcOESP)
+        public DataTable Search(string dExportDate, string vcCarType, string vcPartNo, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcIsNewRulesFlag, string vcPurposes, string vcOESP,string dOrderPurposesDate)
         {
-            return fs0625_DataAccess.Search(dExportDate, vcCarType, vcPartNo, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcIsNewRulesFlag, vcPurposes, vcOESP);
+            return fs0625_DataAccess.Search(dExportDate, vcCarType, vcPartNo, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcIsNewRulesFlag, vcPurposes, vcOESP, dOrderPurposesDate);
         }
 
         public DataTable GetPurposes()
@@ -96,6 +96,11 @@ namespace Logic
             return sbr.ToString();
         }
 
+        public DataTable GetOrderPurposesDate()
+        {
+            return fs0625_DataAccess.GetOrderPurposesDate();
+        }
+
         #endregion
 
         public DataTable getEmail(string vcSupplier_id)
@@ -140,6 +145,11 @@ namespace Logic
                 dataTable.Columns.Add("vcMessage");
             }
             return dataTable;
+        }
+
+        public void updateOrderPurposesDate(DataTable dtNewSupplierandWorkArea,string userId)
+        {
+            fs0625_DataAccess.updateOrderPurposesDate(dtNewSupplierandWorkArea, userId);
         }
     }
 }

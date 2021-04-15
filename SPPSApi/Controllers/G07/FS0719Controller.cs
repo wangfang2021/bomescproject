@@ -300,7 +300,7 @@ namespace SPPSApi.Controllers.G07
                         hasFind = true;
                     }
                 }
-                if (!hasFind)
+                if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少有一个恢复行！";

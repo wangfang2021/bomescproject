@@ -68,11 +68,11 @@ namespace SPPSApi.Controllers.G07
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"包装场","包装材品番","GPS品番","供应商","平均消耗","峰值消耗","建议安全在库","安全在库","看板循环"},
-                                                {"vcPackSpot","vcPackNo","vcPackGPSNo","vcSupplierCode","dAvgUse","dMax","vcadviceZK","vcSaveZK","vcKBcycle"},
-                                                {FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.Decimal,FieldCheck.Decimal,"","","",""},
-                                                {"50","50","50","0","0","0","0","0","0" },
-                                                {"1","1","1","0","0","0","0","0","0" }
+                string[,] headers = new string[,] {{"包装场","GPS品番","安全在库"},
+                                                {"vcPackSpot","vcPackGPSNo","vcSaveZK"},
+                                                {"","",""},
+                                                {"50","0","0" },
+                                                {"1","0","0" }
                                                };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -103,7 +103,12 @@ namespace SPPSApi.Controllers.G07
 
                 #region 导入限制
                 //查找包装厂
-                DataTable dtPS = new DataTable();
+                FS0701_Logic fs0701_Logic = new FS0701_Logic();
+                FS0713_Logic FS0713_Logic = new FS0713_Logic();
+                DataTable dtPS = fs0701_Logic.SearchPackSpot(loginInfo.UserId); ;
+
+                DataTable dt2 = FS0713_Logic.SearchBase();
+                DataTable dt1 = FS0713_Logic.SearchSZK();
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
                     if (dtPS.Select("vcValue='" + importDt.Rows[i]["vcPackSpot"].ToString() + "'").Length == 0)
@@ -112,19 +117,25 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "导入失败:第" + i + "行,包装场维护错误！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    //Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
-                    //bool b = regex.IsMatch(importDt.Rows[i]["vcKBcycle"].ToString());
-                    //if (!b)
-                    //{
-                    //    apiResult.code = ComConstant.ERROR_CODE;
-                    //    apiResult.data = "导入失败:第" + i + "行,发注收容数维护错误！"; 
-                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    //}
+                    if (dt2.Select("vcPackSpot='" + importDt.Rows[i]["vcPackSpot"].ToString() + "' and vcPackGPSNo='" + importDt.Rows[i]["vcPackGPSNo"].ToString() + "'").Length <= 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导入失败:查无此品番维护信息!";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                    }
+                    if (dt1.Select("vcPackSpot='" + importDt.Rows[i]["vcPackSpot"].ToString() + "' and vcPackGPSNo='" + importDt.Rows[i]["vcPackGPSNo"].ToString() + "'").Length > 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导入失败:此品番有重复!";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                    }
                 }
                 #endregion
 
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPackSpot"), r3 = r.Field<string>("vcPackNo"), r4 = r.Field<string>("vcPackGPSNo") } into g
+                             group r by new { r2 = r.Field<string>("vcPackSpot"), r4 = r.Field<string>("vcPackGPSNo") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -133,7 +144,7 @@ namespace SPPSApi.Controllers.G07
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("品番:" + item.Key.r2 + " 使用开始:" + item.Key.r3 + " 使用结束:" + item.Key.r4 + "<br/>");
+                        sbr.Append("品番:" + item.Key.r2 + "有重复！<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();

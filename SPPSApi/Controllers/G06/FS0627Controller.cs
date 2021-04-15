@@ -168,6 +168,12 @@ namespace SPPSApi.Controllers.G06
             {
                 DataSet ds = fs0627_Logic.Search(vcInjectionFactory, vcProject, vcTargetYear);
                 DataTable dtNum = ds.Tables[0];
+                if (dtNum.Rows.Count==1)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "对象年的月度销售数据为空！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 DataTable dtMonty = ds.Tables[1];
                 for (int i=0;i<dtMonty.Rows.Count;i++)
                 {
@@ -235,10 +241,10 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtMonty = ds.Tables[1];
 
 
-                if (dtNum.Rows.Count == 0)
+                if (dtNum.Rows.Count == 1)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "生成报表的数据为空，无法导出的报表！";
+                    apiResult.data = "对象年的月度销售数据为空，无法导出的报表！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string[] columnArrayP = { "vcInjectionFactory" };

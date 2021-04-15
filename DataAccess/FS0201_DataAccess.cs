@@ -152,7 +152,8 @@ namespace DataAccess
                     string vcNewProj = dt.Rows[i]["vcNewProj"].ToString();
                     string dNewProjTime = dt.Rows[i]["vcNewProjTime"].ToString() == "" ? "null" : "'" + dt.Rows[i]["vcNewProjTime"].ToString() + "/01'";
                     string vcCZYD = dt.Rows[i]["vcCZYD"].ToString();
-                    string dHandleTime = dt.Rows[i]["dHandleTime"].ToString();
+                    //string dHandleTime = dt.Rows[i]["dHandleTime"].ToString();
+                    string dHandleTime = dt.Rows[i]["dHandleTime1"].ToString();
                     string vcSheetName = dt.Rows[i]["vcSheetName"].ToString();
                     string vcFileName = dt.Rows[i]["vcFileName"].ToString();
                     string vcFileNameTJ = dt.Rows[i]["vcFileNameTJ"].ToString();

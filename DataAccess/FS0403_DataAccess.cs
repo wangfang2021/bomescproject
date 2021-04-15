@@ -471,7 +471,14 @@ namespace DataAccess
                     int tmp = IQuantityNow % iSRS;
                     if (tmp > 0)
                     {
-                        IQuantityNow = ((IQuantityNow / iSRS) + 1) * iSRS;
+                        if (iQuantityBefore >= IQuantityNow)
+                        {
+                            IQuantityNow = ((IQuantityNow / iSRS) + 1) * iSRS;
+                        }
+                        else
+                        {
+                            IQuantityNow = ((IQuantityNow / iSRS) - 1) * iSRS;
+                        }
                     }
                 }
                 catch (Exception ex)

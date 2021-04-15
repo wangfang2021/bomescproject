@@ -54,6 +54,41 @@ namespace Logic
                 throw ex;
             }
         }
+        public DataTable getSelectOptions(DataTable dataTable, string strName, string strValue,string strAsc)
+        {
+            try
+            {
+                DataTable dtOptions = createTable("Options");
+                if (dataTable.Rows.Count == 0)
+                    return dtOptions;
+                if (!dataTable.Columns.Contains(strName))
+                    return dtOptions;
+                if (!dataTable.Columns.Contains(strValue))
+                    return dtOptions;
+                for (int i = 0; i < dataTable.Rows.Count; i++)
+                {
+                    string vcValue = dataTable.Rows[i][strValue].ToString();
+                    string vcName = dataTable.Rows[i][strName].ToString();
+                    if (dtOptions.Select("vcValue='" + vcValue + "' and vcName='" + vcName + "'").Length == 0)
+                    {
+                        DataRow drOptions = dtOptions.NewRow();
+                        drOptions["vcName"] = vcName;
+                        drOptions["vcValue"] = vcValue;
+                        dtOptions.Rows.Add(drOptions);
+                    }
+                }
+                if (strAsc != "")
+                {
+                    dtOptions.DefaultView.Sort = "vcValue "+ strAsc;
+                }
+                dtOptions = dtOptions.DefaultView.ToTable();
+                return dtOptions;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public DataTable getSearchInfo(string strSyncTime_from, string strSyncTime_to, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
                     string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby, 
                     string strOrderingMethod, string strMandOrder, string strSPChild,bool bNow)

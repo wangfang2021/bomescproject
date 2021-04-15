@@ -60,7 +60,16 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select vcTrolleyNo,vcLotid,vcPackingpartsno,vcPackinggroup,cast(dQty as varchar(50)) as dQty,vcPackingpartslocation,convert(varchar(10),getdate(),23) as dPrintDate from tpacklist where vcLotid='"+ strPackMaterNo + "' order by [iAutoId]");
+                strSql.AppendLine("select a.vcTrolleyNo,a.vcLotid,a.vcPackingpartsno,a.vcPackinggroup");
+                strSql.AppendLine("		,cast(a.dQty as varchar(50)) as dQty,a.vcPackingpartslocation");
+                strSql.AppendLine("		,convert(varchar(10),getdate(),23) as dPrintDate");
+                strSql.AppendLine("		,b.vcLabelStart,b.vcLabelEnd");
+                strSql.AppendLine("from");
+                strSql.AppendLine("(select * from tpacklist where vcLotid='"+ strPackMaterNo + "')a");
+                strSql.AppendLine("left join  ");
+                strSql.AppendLine("(select * from TOperateSJ where vcZYType='S0')b  ");
+                strSql.AppendLine("on a.vcInno=b.vcInputNo  ");
+                strSql.AppendLine("order by a.[iAutoId]");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -121,6 +130,8 @@ namespace DataAccess
                 strSql_sub.AppendLine("           ,[dQty]");
                 strSql_sub.AppendLine("           ,[vcPackingpartslocation]");
                 strSql_sub.AppendLine("           ,[dPrintDate]");
+                strSql_sub.AppendLine("           ,[vcLabelStart]");
+                strSql_sub.AppendLine("           ,[vcLabelEnd]");
                 strSql_sub.AppendLine("           ,[vcCodemage])");
                 strSql_sub.AppendLine("     VALUES");
                 strSql_sub.AppendLine("           (@UUID");
@@ -134,6 +145,8 @@ namespace DataAccess
                 strSql_sub.AppendLine("           ,@dQty");
                 strSql_sub.AppendLine("           ,@vcPackingpartslocation");
                 strSql_sub.AppendLine("           ,@dPrintDate");
+                strSql_sub.AppendLine("           ,@vcLabelStart");
+                strSql_sub.AppendLine("           ,@vcLabelEnd");
                 strSql_sub.AppendLine("           ,@vcCodemage)");
                 sqlCommand_sub.CommandText = strSql_sub.ToString();
                 sqlCommand_sub.Parameters.AddWithValue("@UUID", "");
@@ -145,6 +158,8 @@ namespace DataAccess
                 sqlCommand_sub.Parameters.AddWithValue("@dQty", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcPackingpartslocation", "");
                 sqlCommand_sub.Parameters.AddWithValue("@dPrintDate", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcLabelStart", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcLabelEnd", "");
                 sqlCommand_sub.Parameters.Add("@vcCodemage", SqlDbType.Image);
                 #endregion
                 foreach (DataRow item in dtSub.Rows)
@@ -159,6 +174,8 @@ namespace DataAccess
                     sqlCommand_sub.Parameters["@dQty"].Value = item["dQty"].ToString();
                     sqlCommand_sub.Parameters["@vcPackingpartslocation"].Value = item["vcPackingpartslocation"].ToString();
                     sqlCommand_sub.Parameters["@dPrintDate"].Value = item["dPrintDate"].ToString();
+                    sqlCommand_sub.Parameters["@vcLabelStart"].Value = item["vcLabelStart"].ToString();
+                    sqlCommand_sub.Parameters["@vcLabelEnd"].Value = item["vcLabelEnd"].ToString();
                     sqlCommand_sub.Parameters["@vcCodemage"].Value = item["vcCodemage"];
                     #endregion
                     sqlCommand_sub.ExecuteNonQuery();

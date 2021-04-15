@@ -55,6 +55,8 @@ namespace Logic
                         dataRow["dQty"] = dtSPInfo.Rows[j]["dQty"].ToString();
                         dataRow["vcPackingpartslocation"] = dtSPInfo.Rows[j]["vcPackingpartslocation"].ToString();
                         dataRow["dPrintDate"] = dtSPInfo.Rows[j]["dPrintDate"].ToString();
+                        dataRow["vcLabelStart"] = dtSPInfo.Rows[j]["vcLabelStart"].ToString();
+                        dataRow["vcLabelEnd"] = dtSPInfo.Rows[j]["vcLabelEnd"].ToString();
                         dataRow["vcCodemage"] = null;
                         dtSub.Rows.Add(dataRow);
                     }

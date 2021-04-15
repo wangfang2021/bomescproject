@@ -282,7 +282,7 @@ namespace SPPSApi.Controllers.G17
         }
         #endregion
 
-        #region 出荷看板打印 
+        #region 出荷看板打印 not use 
         //[HttpPost]
         //[EnableCors("any")]
         //public string kbPrintApi([FromBody]dynamic data)

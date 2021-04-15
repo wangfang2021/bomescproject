@@ -243,10 +243,10 @@ namespace DataAccess
                                     dtMessage.Rows.Add(dataRow);
                                     bReault = false;
                                 }
-                                if (!dicPartNo.ContainsKey(vcPart_id))
-                                {
-                                    dicPartNo.Add(vcPart_id, vcPart_id);
-                                }
+                                //if (!dicPartNo.ContainsKey(vcPart_id))
+                                //{
+                                //    dicPartNo.Add(vcPart_id, vcPart_id);
+                                //}
 
                                 ////检测数量
                                 if (SoqDt.Rows.Count > 0)
@@ -282,15 +282,15 @@ namespace DataAccess
                                 bReault = false;
                             }
                         }
-                        if (dicPartNo.Count != drArrayTmp.Length)
-                        {
-                            DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcOrder"] = vcOrderNo;
-                            dataRow["vcPartNo"] = "";
-                            dataRow["vcMessage"] = vcOrderNo + "文件的品番个数与月度replay的品番个数不一样";
-                            dtMessage.Rows.Add(dataRow);
-                            bReault = false;
-                        }
+                        //if (dicPartNo.Count != drArrayTmp.Length)
+                        //{
+                        //    DataRow dataRow = dtMessage.NewRow();
+                        //    dataRow["vcOrder"] = vcOrderNo;
+                        //    dataRow["vcPartNo"] = "";
+                        //    dataRow["vcMessage"] = vcOrderNo + "文件的品番个数与月度replay的品番个数不一样";
+                        //    dtMessage.Rows.Add(dataRow);
+                        //    bReault = false;
+                        //}
 
                         #endregion
 

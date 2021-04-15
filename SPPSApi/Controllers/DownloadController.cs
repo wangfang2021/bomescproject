@@ -560,9 +560,9 @@ namespace SPPSApi.Controllers
                 {
                     realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar+ "Doc" + Path.DirectorySeparatorChar+ "Image" + Path.DirectorySeparatorChar + "HeZiImages";
                 }
-                String dir = getDir(newFileName); // /f/e/d/c/4/9/8/4
-                String path = realPath + dir; //D:\\products\3/f/e/d/c/4/9/8/4
-                string fileSavePath = path;
+                //String dir = getDir(newFileName); // /f/e/d/c/4/9/8/4
+                //String path = realPath + dir; //D:\\products\3/f/e/d/c/4/9/8/4
+                string fileSavePath = realPath;
                 //string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
                 if (!Directory.Exists(fileSavePath))
                 {
@@ -578,7 +578,8 @@ namespace SPPSApi.Controllers
                     fs.Flush();// 清空缓冲区数据
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dir + newFileName;
+                //apiResult.data = dir + newFileName;
+                apiResult.data =  newFileName;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

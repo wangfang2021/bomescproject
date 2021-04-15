@@ -315,6 +315,12 @@ namespace SPPSApi.Controllers.G05
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
+                string vcImageRoutes = dataForm.vcImageRoutes;
+                if (vcImageRoutes.Length>0)
+                {
+                    string filePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
+                    SaveFile(filePath);
+                }
                 if (fs0503_Logic.editOk(dataForm, loginInfo.UserId))
                 {
                     //有误需要删除的冗余图片
@@ -357,7 +363,40 @@ namespace SPPSApi.Controllers.G05
             }
         }
         #endregion
+        #region 保存文件
 
+        public void SaveFile(string filePath)
+        {
+            try
+            {
+
+                DirectoryInfo theFolder = new DirectoryInfo(filePath);
+                string environment = Environment.OSVersion.ToString().ToLower();
+                if (!environment.Contains("windows"))
+                {
+                    foreach (FileInfo info in theFolder.GetFiles())
+                    {
+                        ComFunction.HttpUploadFile(info.FullName, info.Name, @"Doc\Image\HeZiImages\");
+                    }
+                }
+                else
+                {
+                    //转存下载
+                    foreach (FileInfo info in theFolder.GetFiles())
+                    {
+                        string realPath = _webHostEnvironment.ContentRootPath + @"\Doc\Image\HeZiImages\"  + info.Name;
+                        System.IO.File.Copy(info.FullName, realPath, true);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
         [HttpPost]
         [EnableCors("any")]
         public IActionResult getBaseApi1(string path)

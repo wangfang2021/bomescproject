@@ -167,7 +167,32 @@ namespace DataAccess
         }
         #endregion
 
+        #region 获取所有班值
+        public DataTable getBanZhi()
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendLine("      select vcValue as 'key',vcName as 'label' from TCode where vcCodeId = 'C010'       ");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+        }
+        #endregion
 
+        #region 获取所有包装场
+        public DataTable getBaoZhuangPlace()
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendLine("      select vcValue as 'key',vcName as 'label' from TCode where vcCodeId = 'C023'       ");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+        }
+        #endregion
+
+        #region 获取所有用户编号
+        public DataTable getUserID()
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendLine("      select vcUserID from SUser       ");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+        }
+        #endregion
 
         #region 获取该用户拥有的角色
         public DataTable getRoleByUserId(string strUserId)
@@ -333,6 +358,63 @@ namespace DataAccess
                 StringBuilder strSql_temp = new StringBuilder();
                 strSql_temp.Append("  update SUser set vcIp=null where vcUserID='" + strUserId + "'     \n");
                 excute.ExcuteSqlWithStringOper(strSql_temp.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 导入新增用户
+        public void ImportAddUsers(string strUnit, DataTable dt, string vcPlatForm, string strUserID)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    //发注工厂  
+                    strSql.Append("  insert into SUser     \n");
+                    strSql.Append("  (vcUnitCode,vcPlantCode,vcUserID,vcUserName,vcPassWord,vcOperatorID,dOperatorTime,vcStop,vcEmail,vcSpecial,vcBanZhi, vcBaoZhuangPlace,vcPlatForm)      \n");
+                    strSql.Append("  values      \n");
+                    strSql.Append("  (      \n");
+                    strSql.Append("   '" + strUnit + "',     \n");
+                    strSql.Append("   " + ComFunction.getSqlValue(dt.Rows[i]["vcPlantCode"], false) + ",     \n");
+                    strSql.Append("   " + ComFunction.getSqlValue(dt.Rows[i]["vcUserID"], false) + ",     \n");
+                    strSql.Append("   " + ComFunction.getSqlValue(dt.Rows[i]["vcUserName"], false) + ",     \n");
+                    strSql.Append("   " + ComFunction.getSqlValue(ComFunction.encodePwd(dt.Rows[i]["vcPassWord"].ToString()), false) + ",     \n");
+                    strSql.Append("   '" + strUserID + "',     \n");
+                    strSql.Append("  getDate(),     \n");
+                    string strStop = dt.Rows[i]["vcStop"] == null || dt.Rows[i]["vcStop"].ToString() == "" ? "0" : "1";
+                    strSql.Append("   '" + strStop + "',     \n");
+                    strSql.Append("   " + ComFunction.getSqlValue(dt.Rows[i]["vcEmail"], false) + ",     \n");
+                    strSql.Append("   " + ComFunction.getSqlValue(dt.Rows[i]["vcSpecial"], false) + ",     \n");
+                    strSql.Append("   " + ComFunction.getSqlValue(dt.Rows[i]["vcBanZhi"], false) + ",     \n");
+                    strSql.Append("   " + ComFunction.getSqlValue(dt.Rows[i]["vcBaoZhuangPlace"], false) + ",     \n");
+                    strSql.Append("   '" + vcPlatForm + "'     \n");
+                    strSql.Append("  );      \n");
+
+                    string strRole = dt.Rows[i]["vcUserRole"].ToString();
+                    List<string> roleList = strRole.Split(';').ToList();
+
+                    for (int rolesIndex = 0; rolesIndex < roleList.Count; rolesIndex++)
+                    {
+                        strSql.Append("   insert into SUserRole     \n");
+                        strSql.Append("   select '" + strUserID + "',vcRoleID from SRole where vcRoleID='" + roleList[rolesIndex] + "';     \n");
+                    }
+
+                    strSql.Append("  insert into tPointPower     \n");
+                    strSql.Append("  (vcUserId,vcPlant)      \n");
+                    strSql.Append("  values      \n");
+                    strSql.Append("  (      \n");
+                    strSql.Append("   '" + strUserID + "',     \n");
+                    strSql.Append("   " + ComFunction.getSqlValue(dt.Rows[i]["vcPlantCode"],false) + "     \n");
+                    strSql.Append("  );      \n");
+
+                }
+                excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)
             {

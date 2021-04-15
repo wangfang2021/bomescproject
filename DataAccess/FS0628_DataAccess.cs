@@ -537,7 +537,7 @@ namespace DataAccess
                     sql.Append(getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcWorkArea"], false) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcDock"], false) + ",  \r\n");
-                    sql.Append(getSqlValue(listInfoData[i]["vcOrderNo"], false) + ",  \r\n");
+                    sql.Append(getSqlValue(listInfoData[i]["vcInjectionOrderNo"], false) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcPartNo"], false) + ",  \r\n");
                     sql.Append(getSqlValue(vcNewOldFlag, true) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcOrderNum"], false) + ",  \r\n");

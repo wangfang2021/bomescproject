@@ -79,7 +79,7 @@ namespace Common
         #region 获取DMZ从现地服务器同步文件的地址，文件统一由该地址下的Doc进行存储
         public static string GetFileUploadHost()
         {
-            return "http://172.23.180.116:5000";
+            return "http://172.23.180.116:XXXX";
         }
         #endregion
 

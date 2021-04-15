@@ -1048,7 +1048,7 @@ namespace Common
             string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
 
             string path = fileSavePath + strFileName;
-
+            ComFunction.ConsoleWriteLine("DataTableToExcel:" + path);
 
             if (System.IO.File.Exists(path))
             {
@@ -1172,7 +1172,7 @@ namespace Common
                 {
                     fs.Close();
                 }
-                Console.WriteLine(ex.Message);
+                ComFunction.ConsoleWriteLine(ex.Message);
                 RetMsg = "导出文件失败";
                 return "";
             }
@@ -1321,6 +1321,7 @@ namespace Common
                 XSSFWorkbook hssfworkbook = new XSSFWorkbook();
 
                 string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                ComFunction.ConsoleWriteLine("generateExcelWithXlt:" + XltPath);
                 using (FileStream fs = File.OpenRead(XltPath))
                 {
                     hssfworkbook = new XSSFWorkbook(fs);
@@ -1379,7 +1380,7 @@ namespace Common
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                ComFunction.ConsoleWriteLine(ex.Message);
                 return "";
             }
         }
@@ -1390,6 +1391,7 @@ namespace Common
                 XSSFWorkbook hssfworkbook = new XSSFWorkbook();
 
                 string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                ComFunction.ConsoleWriteLine("generateExcelWithXlt2:" + XltPath);
                 using (FileStream fs = File.OpenRead(XltPath))
                 {
                     hssfworkbook = new XSSFWorkbook(fs);
@@ -1444,7 +1446,7 @@ namespace Common
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                ComFunction.ConsoleWriteLine(ex.Message);
                 return "";
             }
         }

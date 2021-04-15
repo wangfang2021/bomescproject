@@ -199,7 +199,7 @@ namespace SPPSApi.Controllers.G06
                     }
                     else
                     {
-                        decimal inputLastNR = ((Convert.ToDecimal(strYuDuDDNRSJ) + Convert.ToDecimal(strJinJiDDNRSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
+                        decimal inputLastNR = ((Convert.ToDecimal(strLastYuDuDDNRSJ) + Convert.ToDecimal(strLastJinJiDDNRSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
                         dtNew.Rows[m]["前月纳入率"] = inputLastNR == 0 ? "0.00%" : inputLastNR.RoundFirstSignificantDigit().ToString() + "%";
                         decimal inputLastCH = ((Convert.ToDecimal(strLastYuDuDDCHSJ) + Convert.ToDecimal(strLastJinJiDDCHSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
                         dtNew.Rows[m]["前月出荷率"] = inputLastCH == 0 ? "0.00%" : inputLastCH.RoundFirstSignificantDigit().ToString() + "%";
@@ -351,7 +351,7 @@ namespace SPPSApi.Controllers.G06
                     }
                     else
                     {
-                        decimal inputLastNR = ((Convert.ToDecimal(strYuDuDDNRSJ) + Convert.ToDecimal(strJinJiDDNRSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
+                        decimal inputLastNR = ((Convert.ToDecimal(strLastYuDuDDNRSJ) + Convert.ToDecimal(strLastJinJiDDNRSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100; 
                         dtNew.Rows[m]["前月纳入率"] = inputLastNR == 0 ? "0.00%" : inputLastNR.RoundFirstSignificantDigit().ToString() + "%";
                         decimal inputLastCH = ((Convert.ToDecimal(strLastYuDuDDCHSJ) + Convert.ToDecimal(strLastJinJiDDCHSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
                         dtNew.Rows[m]["前月出荷率"] = inputLastCH == 0 ? "0.00%" : inputLastCH.RoundFirstSignificantDigit().ToString() + "%";
@@ -393,7 +393,7 @@ namespace SPPSApi.Controllers.G06
                     }
                     else
                     {
-                        decimal inputLastNR = ((Convert.ToDecimal(strYuDuDDNRSJ) + Convert.ToDecimal(strJinJiDDNRSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
+                        decimal inputLastNR = ((Convert.ToDecimal(strLastYuDuDDNRSJ) + Convert.ToDecimal(strLastJinJiDDNRSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
                         dtSumReport.Rows[m]["前月纳入率"] = inputLastNR == 0 ? "0.00%" : inputLastNR.RoundFirstSignificantDigit().ToString() + "%";
                         decimal inputLastCH = ((Convert.ToDecimal(strLastYuDuDDCHSJ) + Convert.ToDecimal(strLastJinJiDDCHSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
                         dtSumReport.Rows[m]["前月出荷率"] = inputLastCH == 0 ? "0.00%" : inputLastCH.RoundFirstSignificantDigit().ToString() + "%";

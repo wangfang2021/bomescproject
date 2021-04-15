@@ -719,7 +719,33 @@ namespace SPPSApi.Controllers
         {
             try
             {
-                string fileSavePath =  _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar +"Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string environment = Environment.OSVersion.ToString().ToLower();
+                if (!environment.Contains("windows"))
+                {
+                    string realPath = ComFunction.HttpDownload(@"Doc\Image\HeZiImages\", path, _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar+ "Image" + Path.DirectorySeparatorChar + "HeZiImages");
+                    string filepath = System.IO.Path.GetFileName(realPath);
+
+                    var provider = new FileExtensionContentTypeProvider();
+                    FileInfo fileInfo = new FileInfo(filepath);
+                    var ext = fileInfo.Extension;
+                    new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                    byte[] bt = System.IO.File.ReadAllBytes(filepath);
+                    return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+                }
+                else
+                {
+                    string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                    var provider = new FileExtensionContentTypeProvider();
+                    FileInfo fileInfo = new FileInfo(fileSavePath + path);
+                    var ext = fileInfo.Extension;
+                    new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                    byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                    //if (fileInfo.Exists)
+                    //    fileInfo.Delete();
+                    return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+
+                }
+                /*string fileSavePath =  _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar +"Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
                 var provider = new FileExtensionContentTypeProvider();
                 FileInfo fileInfo = new FileInfo(fileSavePath + path);
                 var ext = fileInfo.Extension;
@@ -727,7 +753,7 @@ namespace SPPSApi.Controllers
                 byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
                 //if (fileInfo.Exists)
                 //    fileInfo.Delete();
-                return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+                return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);*/
             }
             catch (Exception ex)
             {

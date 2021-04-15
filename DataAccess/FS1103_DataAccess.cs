@@ -40,8 +40,8 @@ namespace DataAccess
                 }
                 strSql.AppendLine(")A");
                 strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(select vcInno,vcPart_id,vcGetnum,MIN((substring(vcPrintcount,13,11))) AS vcTagLianFFrom ,MAX((substring(vcPrintcount,13,11))) AS vcTagLianFTo from TLabelList");
-                //strSql.AppendLine("(select vcInno,vcPart_id,vcGetnum,MIN((vcPrintcount)) AS vcTagLianFFrom ,MAX((vcPrintcount)) AS vcTagLianFTo from TLabelList");
+                //strSql.AppendLine("(select vcInno,vcPart_id,vcGetnum,MIN((substring(vcPrintcount,13,11))) AS vcTagLianFFrom ,MAX((substring(vcPrintcount,13,11))) AS vcTagLianFTo from TLabelList");
+                strSql.AppendLine("(select vcInno,vcPart_id,vcGetnum,MIN((vcPrintcount)) AS vcTagLianFFrom ,MAX((vcPrintcount)) AS vcTagLianFTo from TLabelList");
                 strSql.AppendLine("GROUP BY vcInno,vcPart_id,vcGetnum)B");
                 strSql.AppendLine("ON A.vcInno=B.vcInno AND A.vcPart_Id=B.vcPart_id");
                 strSql.AppendLine("WHERE 1=1");

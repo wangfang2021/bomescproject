@@ -175,5 +175,33 @@ namespace Logic
             return sbr.ToString();
         }
         #endregion
+
+        #region 获取所有班值
+        public DataTable getBanZhi()
+        {
+            return fs0101_DataAccess.getBanZhi();
+        }
+        #endregion
+
+        #region 获取所有包装场
+        public DataTable getBaoZhuangPlace()
+        {
+            return fs0101_DataAccess.getBaoZhuangPlace();
+        }
+        #endregion
+
+        #region 获取所有用户编号
+        public DataTable getUserID()
+        {
+            return fs0101_DataAccess.getUserID();
+        }
+        #endregion
+
+        #region 导入用户数据
+        public void ImportAddUsers(string strUnit, DataTable dt, string vcPlatForm, string strUserID)
+        {
+            fs0101_DataAccess.ImportAddUsers(strUnit, dt, vcPlatForm, strUserID);
+        }
+        #endregion
     }
 }

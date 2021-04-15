@@ -19,16 +19,17 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 if (strType == "orderno")
                 {
-                    strSql.AppendLine("SELECT vcOrderNo_Value,vcOrderNo_Name FROM (");
+                    strSql.AppendLine("SELECT  vcOrderNo_Value,vcOrderNo_Name FROM (");
                     strSql.AppendLine("select ROW_NUMBER() OVER(PARTITION BY t1.vcOrderNo ORDER BY t1.iAutoId DESC) AS TAKN");
                     strSql.AppendLine("		,isnull(t1.vcOrderNo,'--') as vcOrderNo_Value");
                     strSql.AppendLine("		,isnull(t1.vcOrderNo,'--') as vcOrderNo_Name");
+                    strSql.AppendLine("		,t1.iAutoId");
                     strSql.AppendLine("		from ");
                     strSql.AppendLine("(select * from TUrgentOrder where vcShowFlag='1')t1");
                     strSql.AppendLine("left join");
                     strSql.AppendLine("(select * from VI_UrgentOrder_OperHistory where cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0)t2");
                     strSql.AppendLine("ON T1.vcOrderNo=T2.vcOrderNo AND T1.vcPart_id=T2.vcPart_id AND T1.vcSupplier_id=T2.vcSupplier_id)T1");
-                    strSql.AppendLine("WHERE TAKN=1");
+                    strSql.AppendLine("WHERE TAKN=1 order by iAutoId desc");
                 }
                 if (strType == "info")
                 {

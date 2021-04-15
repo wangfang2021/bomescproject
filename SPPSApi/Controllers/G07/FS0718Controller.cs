@@ -529,28 +529,11 @@ namespace SPPSApi.Controllers.G07
 
         public void addFiles(string strFileName, string strFilePath)
         {
-            Console.WriteLine("文件名："+strFileName);
+            ComFunction.ConsoleWriteLine("**文件名：" + strFileName);
             string strFilePath_All = strFilePath + strFileName;
-            Console.WriteLine("文件完整路径：" + strFilePath_All);
-
-            string strMessage = "开始添加:";
-            if (strFileName.Contains("月度内示书"))
-            {
-                strMessage += "月度内示书Excel";
-            }
-            else
-            {
-                if (strFileName.Contains("周度内示书"))
-                {
-                    strMessage += "周度内示书Excel";
-                }
-                else
-                {
-                    strMessage += "未知Excel";
-                }
-            }
-
-            strMessage += " 文件是否存在：";
+            ComFunction.ConsoleWriteLine("**文件完整路径"+strFilePath_All);
+            
+            string strMessage = "**校验文件是否存在：";
 
             if (File.Exists(strFilePath_All))
             {
@@ -560,17 +543,18 @@ namespace SPPSApi.Controllers.G07
             {
                 strMessage += "False";
             }
-
+            ComFunction.ConsoleWriteLine(strMessage);
             try
             {
+                ComFunction.ConsoleWriteLine("**开始添加文件到ZIP：");
                 files.Add(strFileName, File.ReadAllBytes(strFilePath_All));
+                ComFunction.ConsoleWriteLine("**添加成功！添加文件完整路径："+strFilePath_All);
             }
             catch (Exception ex)
             {
-                strMessage +="添加文件到压缩包出现异常，异常消息："+ ex.Message;
-                ComFunction.ConsoleWriteLine(strMessage);
+                ComFunction.ConsoleWriteLine("**添加失败，异常消息："+ex.Message);
             }
-            ComFunction.ConsoleWriteLine(strMessage);
+
             if (File.Exists(strFilePath_All))
             {
                 File.Delete(strFilePath_All);

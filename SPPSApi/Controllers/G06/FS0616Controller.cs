@@ -51,7 +51,7 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtOptionsList_order = fS0616_logic.getFormOptions("orderno");
                 DataTable dtOptionsList_info = fS0616_logic.getFormOptions("info");
                 DataTable dtOptionsList_overdate = fS0616_logic.getFormOptions("overdate");
-                List<Object> OrderNoListForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_order, "vcOrderNo_Name", "vcOrderNo_Value"));//订单
+                List<Object> OrderNoListForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_order, "vcOrderNo_Name", "vcOrderNo_Value",""));//订单
                 List<Object> InOutForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_info, "vcInOut_Name", "vcInOut_Value"));//内外区分选项
                 List<Object> HaoJiuForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_info, "vcHaoJiu_Name", "vcHaoJiu_Value"));//号旧
                 List<Object> OrderPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_info, "vcOrderPlant_Name", "vcOrderPlant_Value"));//发注工场

@@ -318,12 +318,12 @@ namespace SPPSApi.Controllers.G12
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         DataTable redt = print.searchPrintKANBALL(dt, vctype, i);
-                        string ls_savePath = root + "Doc\\Image\\QRCodeImages\\" + ls_fileName;
+                        //string ls_savePath = root + "Doc\\Image\\QRCodeImages\\" + ls_fileName;
                         string vcPartImage = root + "Doc\\Image\\SPPartImage\\" + redt.Rows[0]["vcPhotoPath"].ToString();
 
                         byte[] vcPhotoPath = print.PhotoToArray(vcPartImage, picnull);//图片二进制流
                         string reCode = print.reCode(redt.Rows[0]["vcSupplierCode"].ToString(), redt.Rows[0]["vcSupplierPlant"].ToString(), redt.Rows[0]["vcDock"].ToString(), redt.Rows[0]["vcPartsNo"].ToString(), redt.Rows[0]["iQuantityPerContainer"].ToString(), redt.Rows[0]["vcKBSerial"].ToString(), redt.Rows[0]["vcEDflag"].ToString(), redt.Rows[0]["vcKBorderno"].ToString());
-                        byte[] vcQRCodeImge = print.GenGenerateQRCode(reCode, ls_savePath);
+                        byte[] vcQRCodeImge = print.GenGenerateQRCode(msg, reCode);
                         if (vctype == "3")
                         {
                             string QuantityPerContainerFED = resQuantityPerContainer(redt.Rows[0]["vcPartsNo"].ToString(), redt.Rows[0]["vcDock"].ToString(), dt.Rows[i]["vcPlanMonth"].ToString());//检查是收容数
@@ -1858,27 +1858,6 @@ namespace SPPSApi.Controllers.G12
         /// <returns>二维码二进制流</returns>
         public byte[] GenGenerateQRCode(string msg, String ls_savePath)
         {
-            //QRCodeEncoder qrCodeEncoder = new QRCodeEncoder();
-            //qrCodeEncoder.QRCodeEncodeMode = QRCodeEncoder.ENCODE_MODE.BYTE;
-            //qrCodeEncoder.QRCodeErrorCorrect = QRCodeEncoder.ERROR_CORRECTION.M;
-            //qrCodeEncoder.QRCodeVersion = 11;
-            //qrCodeEncoder.QRCodeScale = 2;
-            //String data = msg;
-
-            //String ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + ".png";
-
-            //qrCodeEncoder.Encode(data).Save(ls_savePath);
-            //FileStream stream = new FileStream(ls_savePath, FileMode.Open, FileAccess.Read);
-            //byte[] bufferPhoto = new byte[stream.Length];
-            //stream.Read(bufferPhoto, 0, Convert.ToInt32(stream.Length));
-            //stream.Flush();
-            //stream.Close();
-            ////删除该照片
-            //if (File.Exists(ls_savePath))
-            //{
-            //    File.Delete(ls_savePath);
-            //}
-            //return bufferPhoto;
             FS0617_Logic lg = new FS0617_Logic();
             return lg.GenerateQRCode(ls_savePath);
         }

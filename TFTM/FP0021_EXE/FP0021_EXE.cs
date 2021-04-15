@@ -17,6 +17,10 @@ namespace FP0021_EXE
                 FP0021 pb = new FP0021();
                 if (!pb.main("000000", "1"))
                     iRet = Common.ComConstant.NG_CODE;
+                if (!pb.main("000000", "2"))
+                    iRet = Common.ComConstant.NG_CODE;
+                if (!pb.main("000000", "3"))
+                    iRet = Common.ComConstant.NG_CODE;
                 return;
             }
             catch (Exception ex)

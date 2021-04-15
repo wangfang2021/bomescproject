@@ -134,6 +134,7 @@ namespace SPPSApi.Controllers.G06
                
                 DataTable dt = new DataTable();
                 //"dExportDate", "", "", "", ""
+                dt.Columns.Add("iAutoId");
                 dt.Columns.Add("dExportDate");
                 dt.Columns.Add("vcCarType");
                 dt.Columns.Add("vcPartNo");
@@ -158,6 +159,7 @@ namespace SPPSApi.Controllers.G06
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     DataRow dr = dt.NewRow();
+                    dr["iAutoId"] = listInfoData[i]["iAutoId"] == null ? "" : listInfoData[i]["iAutoId"].ToString();
                     dr["dExportDate"] = listInfoData[i]["dExportDate"] == null ? "" : listInfoData[i]["dExportDate"].ToString();
                     dr["vcCarType"] = listInfoData[i]["vcCarType"] == null ? "" : listInfoData[i]["vcCarType"].ToString();
                     dr["vcPartNo"] = listInfoData[i]["vcPartNo"] == null ? "" : listInfoData[i]["vcPartNo"].ToString();
@@ -231,7 +233,7 @@ namespace SPPSApi.Controllers.G06
                 //const tHeader = [];
                 //const filterVal = [,   ];
 
-                head = new string[] { "导入时间", "车型", "品番", "品名", "内外", "供应商代码", "工区", "是否新规", "OE=SP", "受入", "号试数量", "号试目的", "订单预计发行日", "订单预计纳入日", "纳入便次", "实际纳入日", "结算订单号", "结算订单验收日期", "备注" };
+                head = new string[] { "导入时间", "车型", "品番", "品名", "内外", "供应商代码", "工区", "是否新规", "OE=SP", "受入", "号试数量", "号试目的", "订单发行日", "订单预计纳入日", "纳入便次", "实际纳入日", "结算订单号", "结算订单验收日期", "备注" };
                 field = new string[] { "dExportDate", "vcCarType", "vcPartNo", "vcPartName", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcIsNewRulesFlag", "vcOEOrSP", "vcDock", "vcNumber", "vcPurposes", "dOrderPurposesDate", "dOrderReceiveDate", "vcReceiveTimes", "dActualReceiveDate", "vcAccountOrderNo", "dAccountOrderReceiveDate", "vcMemo" };
                 string path = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;
                 StringBuilder strErr = new StringBuilder();
@@ -1159,7 +1161,7 @@ namespace SPPSApi.Controllers.G06
                         IRow nextRowHSSFCol2_5 = mysheetHSHD.CreateRow(nextRow2); //设置第0行
                         mysheetHSHD.AddMergedRegion(new CellRangeAddress(nextRow2, nextRow2, 0, 8));
                         nextRowHSSFCol2_5.Height = 20 * 20;
-                        nextRowHSSFCol2_5.CreateCell(0).SetCellValue(vcShowStr1);
+                        nextRowHSSFCol2_5.CreateCell(0).SetCellValue(vcColor+"色纸打印");
 
                         nextRowHSSFCol2_5.GetCell(0).CellStyle = hdstyle9;
                         nextRowHSSFCol2_5.CreateCell(1).SetCellValue("");
@@ -1478,6 +1480,7 @@ namespace SPPSApi.Controllers.G06
                         {
                             string strPartNo = dtNewCarType.Rows[p]["vcPartNo"].ToString();
                             string strPartNanem = dtNewCarType.Rows[p]["vcPartName"].ToString();
+                            string strWorkArea = dtNewCarType.Rows[p]["vcWorkArea"].ToString();
                             string strDock = dtNewCarType.Rows[p]["vcDock"].ToString();
                             string strNum = dtNewCarType.Rows[p]["vcNumber"].ToString();
                             string strNaruRi = dtNewCarType.Rows[p]["dOrderPurposesDate"].ToString();
@@ -1487,8 +1490,8 @@ namespace SPPSApi.Controllers.G06
                             row.GetCell(0).SetCellValue(p + 1);
                             row.GetCell(1).SetCellValue(strPartNo);
                             row.GetCell(2).SetCellValue(strPartNanem);
-                            row.GetCell(3).SetCellValue(vcSupplier_name);
-                            row.GetCell(4).SetCellValue(vcSupplier_id);
+                            row.GetCell(3).SetCellValue(vcSupplier_id);
+                            row.GetCell(4).SetCellValue(strWorkArea);
                             row.GetCell(5).SetCellValue(strDock);
                             row.GetCell(6).SetCellValue(strNum);
                             row.GetCell(7).SetCellValue(strNaruRi);
@@ -1547,9 +1550,11 @@ namespace SPPSApi.Controllers.G06
                     //strEmailBody += "  请在1个工作日内将是否可以供货的确认结果邮件回复，以下是各个仓库对应的邮箱：<br />";
                     string result = "Success";
                     //Console.WriteLine(vcSupplier_id + "邮件发送开始");
-                    result = ComFunction.SendEmailInfo(loginInfo.Email, loginInfo.UnitName, EmailBody, receiverDt, cCDt, strSubject, strFilePathArray, false);
+                    result = ComFunction.SendEmailInfo(loginInfo.Email, loginInfo.UserName, EmailBody, receiverDt, cCDt, strSubject, strFilePathArray, false);
                     if (result == "Success")
                     {
+                        //更新订单发行日期
+                        fs0625_Logic.updateOrderPurposesDate(dtNewSupplierandWorkArea, loginInfo.UserId);
                     }
                     else
                     {

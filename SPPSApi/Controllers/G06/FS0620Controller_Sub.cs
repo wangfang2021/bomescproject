@@ -321,7 +321,7 @@ namespace SPPSApi.Controllers.G06
                     //邮件主题 【展开】2021年TFTM补给年计（2730-0）
                     string strSubject = "【展开】"  + vcTargetYear + "年"+loginInfo.UnitCode + "补给年计(" + vcSupplier_id +"-" +vcWorkArea + ")";
 
-                    string result = ComFunction.SendEmailInfo(loginInfo.Email, loginInfo.UnitName, EmailBody, receiverDt, cCDt, strSubject, fileSavePath, false);
+                    string result = ComFunction.SendEmailInfo(loginInfo.Email, loginInfo.UserName, EmailBody, receiverDt, cCDt, strSubject, fileSavePath, false);
                     if (result == "Success")
                     {
                         fs0620_Logic.updateEmailState(dtNewSupplierandWorkArea);

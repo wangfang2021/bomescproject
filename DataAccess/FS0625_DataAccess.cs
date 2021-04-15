@@ -38,7 +38,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string dExportDate, string vcCarType, string vcPartNo, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcIsNewRulesFlag, string vcPurposes,string vcOESP)
+        public DataTable Search(string dExportDate, string vcCarType, string vcPartNo, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcIsNewRulesFlag, string vcPurposes,string vcOESP,string dOrderPurposesDate)
         {
             try
             {
@@ -90,7 +90,17 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and   a.vcOEOrSP = '" + vcOESP + "' ");
                 }
-
+                if (dOrderPurposesDate.Length > 0)
+                {
+                    if (dOrderPurposesDate == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(a.dOrderPurposesDate,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  CONVERT(varchar(10),  a.dOrderPurposesDate,112) = '" + dOrderPurposesDate.Replace("-", "").Replace("/", "") + "' ");
+                    }
+                }
                 strSql.AppendLine("  order by  iAutoId desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -111,6 +121,49 @@ namespace DataAccess
                 strSql.AppendLine("  ) a  order by a.vcWorkArea asc   ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetOrderPurposesDate()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("    select isnull(dOrderPurposesDate,'无') as vcValue,isnull(dOrderPurposesDate,'无') as vcName from(       ");
+                strSql.AppendLine("   select  distinct convert(varchar(10), dOrderPurposesDate,111) as dOrderPurposesDate from [TOralTestManage]    ");
+                strSql.AppendLine("   ) t order by vcValue desc     ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void updateOrderPurposesDate(DataTable dtNewSupplierandWorkArea,string userId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+
+                sql.Append("update [TOralTestManage] set  \n");
+                sql.Append(" dOrderPurposesDate=GETDATE(), \n");
+                sql.Append(" vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId in( \n");
+                for (int i = 0; i < dtNewSupplierandWorkArea.Rows.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(dtNewSupplierandWorkArea.Rows[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {

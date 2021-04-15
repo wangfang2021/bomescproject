@@ -107,7 +107,9 @@ namespace Logic
         #region 导入后保存
         public void importSave(DataTable dt, string strUserId)
         {
-            FS0713_DataAccess.importSave(dt, strUserId);
+            FS0719_DataAccess FS0719_DataAccess = new FS0719_DataAccess();
+            DataTable dtbase = FS0719_DataAccess.SearchBase();
+            FS0713_DataAccess.importSave(dt, strUserId, dtbase);
         }
         #endregion
 
@@ -149,6 +151,12 @@ namespace Logic
 
         #endregion
 
+        public DataTable SearchSZK()
+        {
+            return FS0713_DataAccess.SearchSZK();
+        }
+
+
         #region 取定义时段
         public DataTable SearchSaveDate()
         {
@@ -165,6 +173,8 @@ namespace Logic
                     dFrom4, vcIsOrNoKTFrom4, dTo4, vcIsOrNoKT4, dFrom5, vcIsOrNoKTFrom5, dTo5, vcIsOrNoKT5, dFrom6, vcIsOrNoKTFrom6, dTo6, vcIsOrNoKT6,
                     dFrom7, vcIsOrNoKTFrom7, dTo7, vcIsOrNoKT7, dFrom8, vcIsOrNoKTFrom8, dTo8, vcIsOrNoKT8, strUserId, ref strErrorName);
         }
+
+      
         #endregion
     }
 }

@@ -243,24 +243,16 @@ namespace SPPSApi.Controllers.G12
             Create_tmpTable(dt, tmpName);
             using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
             {
-                conn.Open();
-                //批量数据处理SQL表
+                if (conn.State != ConnectionState.Open)
+                    conn.Open();
                 SqlBulkCopy bulkCopy = new SqlBulkCopy(conn);
-                try
+                bulkCopy.DestinationTableName = tmpName;//要插入的SQL表的表名
+                bulkCopy.BatchSize = dt.Rows.Count;
+                for (int i = 0; i < dt.Columns.Count; i++)
                 {
-                    bulkCopy.DestinationTableName = tmpName;//要插入的SQL表的表名
-                    bulkCopy.BatchSize = dt.Rows.Count;
-                    for (int i = 0; i < dt.Columns.Count; i++)
-                    {
-                        bulkCopy.ColumnMappings.Add(i, i);//映射字段名 DataTable列 ,数据库 对应的列  
-                    }
-                    bulkCopy.WriteToServer(dt);     //复制到SQL指定表
+                    bulkCopy.ColumnMappings.Add(i, i);//映射字段名 DataTable列 ,数据库 对应的列  
                 }
-                catch (Exception ex)
-                {
-                    return "临时打印表创建失败";
-                    throw ex;
-                }
+                bulkCopy.WriteToServer(dt);     //复制到SQL指定表
             }
             return string.Empty;
         }
@@ -749,7 +741,7 @@ namespace SPPSApi.Controllers.G12
                 }
                 return msg;
             }
-            catch (Exception ex)
+            catch
             {
                 if (dtPorType != null)
                 {
@@ -1439,7 +1431,7 @@ namespace SPPSApi.Controllers.G12
             SqlCommand cd = new SqlCommand();
             cd.Connection = new SqlConnection();
             cd.Connection = new SqlConnection(ComConnectionHelper.GetConnectionString());
-            if (cd.Connection.State == ConnectionState.Closed)
+            if (cd.Connection.State != ConnectionState.Open)
             {
                 cd.Connection.Open();
             }
@@ -1458,8 +1450,7 @@ namespace SPPSApi.Controllers.G12
                 if (connln.State != ConnectionState.Open)
                     connln.Open();
                 SqlTransaction trans = connln.BeginTransaction();
-                string strSqlIn = "";
-                strSqlIn = "INSERT INTO [testprinterExcel1] select vcpartsNo,vcCarFamlyCode,vcPartsNameCHN,vcPCB01,vcPCB02,vcPCB03,iQuantityPerContainer,vcPorType,vcKBorderno,vcKBSerial,vcComDate00,vcBanZhi00 from testprinterExcel where vcKBorderno='" + vcorderno + "' and vcPorType ='" + vcPorType + "'";
+                string strSqlIn = "INSERT INTO [testprinterExcel1] select vcpartsNo,vcCarFamlyCode,vcPartsNameCHN,vcPCB01,vcPCB02,vcPCB03,iQuantityPerContainer,vcPorType,vcKBorderno,vcKBSerial,vcComDate00,vcBanZhi00 from testprinterExcel where vcKBorderno='" + vcorderno + "' and vcPorType ='" + vcPorType + "'";
                 SqlCommand _Command = new SqlCommand()
                 {
                     Connection = connln,
@@ -1917,7 +1908,7 @@ namespace SPPSApi.Controllers.G12
                 int kblen = vcKBorderno.Length;
                 for (int i = 0; i < 12 - kblen; i++)
                 {
-                    strcode.Append(vcKBorderno); 
+                    strcode.Append(vcKBorderno);
                     strcode.Append(" ");
                 }
             }
@@ -1939,6 +1930,7 @@ namespace SPPSApi.Controllers.G12
         /// <returns></returns>
         public string printCr(string reportName, string vcProType, string vcorderno, string vcComDate01, string vcBanZhi01, string vcComDate00, string vcBanZhi00, string vcUser, string strPrinterName)
         {
+            string msg;
             FS1209_Logic lg = new FS1209_Logic();
             string tempTb = string.Empty;
             try
@@ -1946,7 +1938,7 @@ namespace SPPSApi.Controllers.G12
                 DataTable dt = searchPrintCRMain(vcProType, vcorderno, vcComDate01, vcBanZhi01, vcComDate00, vcBanZhi00);//检索打印数据主表
                 if (dt.Rows.Count > 0)
                 {
-                    string msg = lg.CreateTempTable(dt, "FS1209_CR_", out tempTb);//创建打印临时表
+                    msg = lg.CreateTempTable(dt, "FS1209_CR_", out tempTb);//创建打印临时表
                     if (msg.Length == 0)
                     {
                         BasicHttpBinding binding = new BasicHttpBinding();
@@ -1956,27 +1948,24 @@ namespace SPPSApi.Controllers.G12
                         binding.SendTimeout = TimeSpan.MaxValue;
                         EndpointAddress address = new EndpointAddress("http://localhost:8089/PrintTable.asmx");
                         PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
-                        try
-                        {
-                            msg = client.PrintCR(tempTb, "vcNo1,vcNo2,vcNo3", strPrinterName, reportName, "172.23.180.116", "SPPSdb", "sa", "SPPS_Server2019");
-                        }
-                        catch
-                        {
-                            msg = "调用打印机失败！";
-                            lg.DropTempTable(tempTb);//删除打印临时表
-                        }
-                        //Task<SPPSPrint.PrinterResponse> responseTask = client.PrinterAsync(uuidTb, "\\\\172.23.129.181\\刷卡打印机黑白", "C:\\inetpub\\SPPSPrint\\Test.rpt", "172.23.140.169", "SPPSdb", "sa", "Sa123");
+                        msg = client.PrintCR(tempTb, "vcNo1,vcNo2,vcNo3", strPrinterName, reportName, "172.23.180.116", "SPPSdb", "sa", "SPPS_Server2019");
                     }
-                    lg.DropTempTable(tempTb);//删除打印临时表
-                    return msg;
                 }
-                return "检索不到数据，打印失败";
+                else
+                {
+                    msg = "检索不到数据，打印失败！";
+                }
             }
             catch (Exception ex)
             {
-                lg.DropTempTable(tempTb);//删除打印临时表
-                throw ex;
+                ComMessage.GetInstance().ProcessMessage("FS1209", "M00UE0006", ex, "");
+                msg = "打印看板失败！";
             }
+            finally
+            {
+                lg.DropTempTable(tempTb);//删除打印临时表
+            }
+            return msg;
         }
         #endregion
 
@@ -1987,7 +1976,6 @@ namespace SPPSApi.Controllers.G12
         /// <returns></returns>
         private DataTable searchPrintCRMain(string vcProType, string vcorderno, string vcComDate01, string vcBanZhi01, string vcComDate00, string vcBanZhi00)
         {
-            DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
             strSQL.AppendLine("SELECT isnull(vcNo1,'') as vcNo1,isnull(vcNo2,'') as vcNo2,isnull(vcNo3,'') as vcNo3 FROM testprinterCRMAIN where vcPorType='" + vcProType + "' ");
 

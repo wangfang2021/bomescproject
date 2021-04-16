@@ -210,7 +210,10 @@ namespace SPPSApi.Controllers.G17
                         apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    bool bResult = fs1702_Logic.getPrintInfo(listInfoData, loginInfo.UserId, ref dtMessage);
+                    DataTable dtBJW = new DataTable();
+                    DataTable dtBJWHistory = new DataTable();
+                    DataTable dtSub = new DataTable();
+                    bool bResult = fs1702_Logic.getPrintInfo(listInfoData, loginInfo.UserId, ref dtMessage,ref dtBJW, ref dtBJWHistory,ref dtSub);
                     if (!bResult)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -259,7 +262,7 @@ namespace SPPSApi.Controllers.G17
                     #endregion
                     
                     //更新打印时间
-                    fs1702_Logic.qrdPrint(listInfoData, loginInfo.UserId);
+                    fs1702_Logic.qrdPrint(listInfoData, loginInfo.UserId,dtBJW,dtBJWHistory,dtSub);
 
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = "打印成功";

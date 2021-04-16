@@ -141,7 +141,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dt = fs0624_Logic.Search(strChangeDateFrom, strChangeDateTo, strChangeNo, strState, strOrderNo);
-                string[] fields = { "vcChangeNo" ,"vcChangeDate", "vcChangeType","vcGroupName","iQuantityBefore","iQuantityNow","decChangePercent"
+                string[] fields = { "vcChangeNo" ,"vcChangeDateStr","vcGroupName","iQuantityBefore","iQuantityNow","decChangePercent"
                         ,"iQuantityBeforeTotal","iQuantityNowTotal","dFileUpload","dFileUpload","vcState","vcOrderNo"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0624_Export.xlsx", 1, loginInfo.UserId, FunctionID,true);

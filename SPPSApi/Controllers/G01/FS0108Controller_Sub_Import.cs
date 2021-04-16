@@ -226,53 +226,69 @@ namespace SPPSApi.Controllers.G01
                 {
                     if ( importDt.Rows[i]["vcType"].ToString() == "修改")
                     {
-                        int iAutoId = Convert.ToInt32(importDt.Rows[i]["iAutoId"]);
-                        strInAutoIds += iAutoId + ",";
+                        if (importDt.Rows[i]["iAutoId"].ToString().Length == 0)
+                        {
+                            string vcSupplier = importDt.Rows[i]["vcValue1"].ToString();
+                            string vcWorkArea = importDt.Rows[i]["vcValue2"].ToString();
+                            DataRow dataRow = dataTable.NewRow();
+                            dataRow["vcSupplier"] = vcSupplier;
+                            dataRow["vcWorkArea"] = vcWorkArea;
+                            dataRow["vcFzgc"] = "";
+                            dataRow["vcMessage"] = "修改状态的数据iAutoId不能为空";
+                            dataTable.Rows.Add(dataRow);
+                            bReault = false;
+                        }
+                        else
+                        {
+                            int iAutoId = Convert.ToInt32(importDt.Rows[i]["iAutoId"]);
+                            strInAutoIds += iAutoId + ",";
+                        }
+                        
                     }
                 }
                 if (strInAutoIds.Length>0)
                 {
                     strInAutoIds = strInAutoIds.Substring(0, strInAutoIds.Length - 1);
-                    for (int i = 0; i < dtadd.Rows.Count; i++)
+                    
+                }
+                for (int i = 0; i < dtadd.Rows.Count; i++)
+                {
+                    string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
+                    string vcWorkArea = dtadd.Rows[i]["vcValue2"].ToString();
+                    string vcStart = Convert.ToDateTime(dtadd.Rows[i]["vcValue3"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
+                    string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
+                    string vcEnd = Convert.ToDateTime(dtadd.Rows[i]["vcValue4"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
+                    DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
+                    if (dtCheck.Rows.Count > 0)
                     {
-                        string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
-                        string vcWorkArea = dtadd.Rows[i]["vcValue2"].ToString();
-                        string vcStart = Convert.ToDateTime(dtadd.Rows[i]["vcValue3"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
-                        string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
-                        string vcEnd = Convert.ToDateTime(dtadd.Rows[i]["vcValue4"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
-                        DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
-                        if (dtCheck.Rows.Count > 0)
-                        {
-                            DataRow dataRow = dataTable.NewRow();
-                            dataRow["vcSupplier"] = vcSupplier;
-                            dataRow["vcWorkArea"] = vcWorkArea;
-                            dataRow["vcFzgc"] = vcFzgc;
-                            dataRow["vcMessage"] = "新增的数据时间区间出现重叠";
-                            dataTable.Rows.Add(dataRow);
-                            bReault = false;
-                        }
-                    }
-                    for (int i = 0; i < dtamody.Rows.Count; i++)
-                    {
-                        string vcSupplier = dtamody.Rows[i]["vcValue1"].ToString();
-                        string vcWorkArea = dtamody.Rows[i]["vcValue2"].ToString();
-                        string vcStart = Convert.ToDateTime(dtamody.Rows[i]["vcValue3"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
-                        string vcFzgc = dtamody.Rows[i]["vcValue5"].ToString();
-                        string vcEnd = Convert.ToDateTime(dtamody.Rows[i]["vcValue4"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
-                        DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
-                        if (dtCheck.Rows.Count > 0)
-                        {
-                            DataRow dataRow = dataTable.NewRow();
-                            dataRow["vcSupplier"] = vcSupplier;
-                            dataRow["vcWorkArea"] = vcWorkArea;
-                            dataRow["vcFzgc"] = vcFzgc;
-                            dataRow["vcMessage"] = "修改的数据时间区间出现重叠";
-                            dataTable.Rows.Add(dataRow);
-                            bReault = false;
-                        }
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcSupplier"] = vcSupplier;
+                        dataRow["vcWorkArea"] = vcWorkArea;
+                        dataRow["vcFzgc"] = vcFzgc;
+                        dataRow["vcMessage"] = "新增的数据时间区间出现重叠";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
                     }
                 }
-                
+                for (int i = 0; i < dtamody.Rows.Count; i++)
+                {
+                    string vcSupplier = dtamody.Rows[i]["vcValue1"].ToString();
+                    string vcWorkArea = dtamody.Rows[i]["vcValue2"].ToString();
+                    string vcStart = Convert.ToDateTime(dtamody.Rows[i]["vcValue3"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
+                    string vcFzgc = dtamody.Rows[i]["vcValue5"].ToString();
+                    string vcEnd = Convert.ToDateTime(dtamody.Rows[i]["vcValue4"].ToString()).ToString("yyyy/MM/dd").Replace("/", "-").ToString();
+                    DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
+                    if (dtCheck.Rows.Count > 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcSupplier"] = vcSupplier;
+                        dataRow["vcWorkArea"] = vcWorkArea;
+                        dataRow["vcFzgc"] = vcFzgc;
+                        dataRow["vcMessage"] = "修改的数据时间区间出现重叠";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                }
                 if (!bReault)
                 {
                     //弹出错误dtMessage

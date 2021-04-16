@@ -523,6 +523,12 @@
     <None Update="Doc\Template\FS0314.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Doc\Template\FS0624_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Doc\Template\FS0624_Export_Sub.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SPPS.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

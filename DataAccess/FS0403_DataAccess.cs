@@ -23,7 +23,7 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("SELECT * FROM");
                 sbr.AppendLine("(");
-                sbr.AppendLine("SELECT CAST(vcDXDate AS DATETIME) AS vcDXDate,vcOrderNo,vcChangeNo,MAX(dFileUpload) AS dFileUpload,CASE ISNULL(vcOrderNo,'') WHEN '' THEN '订单待上传' ELSE '订单已上传' END AS state  FROM TSoqDayChange GROUP BY vcDXDate,vcOrderNo,vcChangeNo");
+                sbr.AppendLine("SELECT CAST(vcDXDate AS DATETIME) AS vcDXDate,vcOrderNo,vcChangeNo,REPLACE(CONVERT(VARCHAR(19),MAX(dFileUpload),21),'-','/') AS dFileUpload,CASE ISNULL(vcOrderNo,'') WHEN '' THEN '订单待上传' ELSE '订单已上传' END AS state  FROM TSoqDayChange GROUP BY vcDXDate,vcOrderNo,vcChangeNo");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("WHERE 1=1 ");
                 if (!string.IsNullOrWhiteSpace(state))

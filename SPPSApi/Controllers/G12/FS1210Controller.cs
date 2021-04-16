@@ -786,7 +786,7 @@ namespace SPPSApi.Controllers.G12
                     string vcComDate00 = dtPorType.Rows[z]["vcComDate00"].ToString();
                     string vcBanZhi00 = dtPorType.Rows[z]["vcBanZhi00"].ToString();
                     string msg = print.printCr(reportPath, vcPorType, vcorderno, vcComDate01, vcBanZhi01, vcComDate00, vcBanZhi00, strLoginId, strPrinterName);//打印水晶报表
-                    //bool retb = print.printCr(reportPath, vcPorType, vcorderno, vcComDate01, vcBanZhi01, vcComDate00, vcBanZhi00, strLoginId, strPrinterName);//打印水晶报表
+
                     //数据库取出Excel的数据进行打印
                     //dtPorType.Rows[z]["vcPorType"].ToString(), dtPorType.Rows[z]["vcorderno"].ToString(), dtPorType.Rows[z]["vcComDate01"].ToString(), dtPorType.Rows[z]["vcBanZhi01"].ToString()
                     DataSet ds = logic.PrintExcel(vcPorType, vcorderno, vcComDate01, vcBanZhi01, vcComDate00, vcBanZhi00);

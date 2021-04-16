@@ -217,9 +217,10 @@ namespace SPPSApi.Controllers.G12
                                         binding.OpenTimeout = TimeSpan.MaxValue;
                                         binding.ReceiveTimeout = TimeSpan.MaxValue;
                                         binding.SendTimeout = TimeSpan.MaxValue;
-                                        EndpointAddress address = new EndpointAddress("http://localhost:44375/PrintTable.asmx");
-                                        PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
-                                        //msg = client.Print_Confirmation_Date(inTable_tmp, exdthj_tmp, tmplatePath, vcKbOrderId, vcGC, strLoginId, vcPlanPrintDate, vcPlanPrintBZ == "0" ? "白值" : "夜值", vcPlanProcDate, vcPlanProcBZ == "0" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB, vcPrintDate);
+                                        EndpointAddress address = new EndpointAddress("http://localhost:8089/FS1209.asmx");
+                                        FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
+                                        msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcKbOrderId, vcGC, strLoginId, vcPlanPrintDate, vcPlanPrintBZ == "0" ? "白值" : "夜值", vcPlanProcDate, vcPlanProcBZ == "0" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+
                                     }
                                     catch (Exception ex)
                                     {
@@ -262,9 +263,10 @@ namespace SPPSApi.Controllers.G12
                                 binding.OpenTimeout = TimeSpan.MaxValue;
                                 binding.ReceiveTimeout = TimeSpan.MaxValue;
                                 binding.SendTimeout = TimeSpan.MaxValue;
-                                EndpointAddress address = new EndpointAddress("http://localhost:44375/PrintTable.asmx");
-                                PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
-                                //exdthj_msg = client.Print_Confirmation_Date(exdttt_tmp, exdthj_tmp, tmplatePath, vcKbOrderId, vcGC, strLoginId, vcPlanPrintDate, vcPlanPrintBZ == "0" ? "白值" : "夜值", vcPlanProcDate, vcPlanProcBZ == "0" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB, vcPrintDate);
+
+                                EndpointAddress address = new EndpointAddress("http://localhost:8089/FS1209.asmx");
+                                FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
+                                exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcKbOrderId, vcGC, strLoginId, vcPlanPrintDate, vcPlanPrintBZ == "0" ? "白值" : "夜值", vcPlanProcDate, vcPlanProcBZ == "0" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                             }
                             catch (Exception ex)
                             {
@@ -282,10 +284,10 @@ namespace SPPSApi.Controllers.G12
                         #endregion
                     }
                 }
-                if (msg == "打印成功")
+                if (msg == "")
                 {
                     apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = msg;
+                    apiResult.data = "打印成功";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 else

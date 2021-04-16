@@ -52,7 +52,7 @@ namespace SPPSApi.Controllers.G04
                 DataTable dt = fs0403_Logic.searchApi(changeNo, state, orderNo);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcDXDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dFileUpload", ConvertFieldType.DateType, "yyyy/MM/dd hh:mm:ss");
+                //dtConverter.addField("dFileUpload", ConvertFieldType.DateType, "yyyy/MM/dd hh:mm:ss");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;

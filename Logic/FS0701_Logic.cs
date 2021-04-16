@@ -101,7 +101,14 @@ namespace Logic
         {
             return FS0701_DataAccess.SearchPackSpot(userid);
         }
-        #endregion
 
+
+        #endregion
+        #region 查资材进行校验
+        public DataTable searchmaps()
+        {
+            return FS0701_DataAccess.searchmaps();
+        }
+        #endregion
     }
 }

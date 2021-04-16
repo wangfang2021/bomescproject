@@ -23,7 +23,7 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("SELECT * FROM");
                 sbr.AppendLine("(");
-                sbr.AppendLine("SELECT CAST(vcDXDate AS DATETIME) AS vcDXDate,vcOrderNo,vcChangeNo,MAX(dFileUpload) AS dFileUpload,CASE ISNULL(vcOrderNo,'') WHEN '' THEN '订单待上传' ELSE '订单已上传' END AS state  FROM TSoqDayChange GROUP BY vcDXDate,vcOrderNo,vcChangeNo");
+                sbr.AppendLine("SELECT CAST(vcDXDate AS DATETIME) AS vcDXDate,vcOrderNo,vcChangeNo,REPLACE(CONVERT(VARCHAR(19),MAX(dFileUpload),21),'-','/') AS dFileUpload,CASE ISNULL(vcOrderNo,'') WHEN '' THEN '订单待上传' ELSE '订单已上传' END AS state  FROM TSoqDayChange GROUP BY vcDXDate,vcOrderNo,vcChangeNo");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("WHERE 1=1 ");
                 if (!string.IsNullOrWhiteSpace(state))
@@ -39,6 +39,7 @@ namespace DataAccess
                     sbr.AppendLine("AND a.vcOrderNo LIKE '" + orderNo + "%'");
                 }
 
+                sbr.AppendLine(" ORDER BY dFileUpload desc");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
@@ -470,7 +471,14 @@ namespace DataAccess
                     int tmp = IQuantityNow % iSRS;
                     if (tmp > 0)
                     {
-                        IQuantityNow = ((IQuantityNow / iSRS) + 1) * iSRS;
+                        if (iQuantityBefore >= IQuantityNow)
+                        {
+                            IQuantityNow = ((IQuantityNow / iSRS) + 1) * iSRS;
+                        }
+                        else
+                        {
+                            IQuantityNow = ((IQuantityNow / iSRS) - 1) * iSRS;
+                        }
                     }
                 }
                 catch (Exception ex)

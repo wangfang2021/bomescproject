@@ -226,12 +226,31 @@ namespace SPPSApi.Controllers.G01
                 {
                     if ( importDt.Rows[i]["vcType"].ToString() == "修改")
                     {
-                        int iAutoId = Convert.ToInt32(importDt.Rows[i]["iAutoId"]);
-                        strInAutoIds += iAutoId + ",";
+                        if (importDt.Rows[i]["iAutoId"].ToString().Length == 0)
+                        {
+                            string vcSupplier = importDt.Rows[i]["vcValue1"].ToString();
+                            string vcWorkArea = importDt.Rows[i]["vcValue2"].ToString();
+                            DataRow dataRow = dataTable.NewRow();
+                            dataRow["vcSupplier"] = vcSupplier;
+                            dataRow["vcWorkArea"] = vcWorkArea;
+                            dataRow["vcFzgc"] = "";
+                            dataRow["vcMessage"] = "修改状态的数据iAutoId不能为空";
+                            dataTable.Rows.Add(dataRow);
+                            bReault = false;
+                        }
+                        else
+                        {
+                            int iAutoId = Convert.ToInt32(importDt.Rows[i]["iAutoId"]);
+                            strInAutoIds += iAutoId + ",";
+                        }
+                        
                     }
                 }
-                strInAutoIds = strInAutoIds.Substring(0,strInAutoIds.Length - 1);
-
+                if (strInAutoIds.Length>0)
+                {
+                    strInAutoIds = strInAutoIds.Substring(0, strInAutoIds.Length - 1);
+                    
+                }
                 for (int i = 0; i < dtadd.Rows.Count; i++)
                 {
                     string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
@@ -270,7 +289,6 @@ namespace SPPSApi.Controllers.G01
                         bReault = false;
                     }
                 }
-                
                 if (!bReault)
                 {
                     //弹出错误dtMessage

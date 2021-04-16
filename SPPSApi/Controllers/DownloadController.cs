@@ -520,6 +520,63 @@ namespace SPPSApi.Controllers
         #endregion
 
         #region
+        #region 导入
+        [HttpPost]
+        public string importApiPic(IFormFile file)
+        {
+            try
+            {
+                deleteOldDir();//删除过期文件夹
+                string token = Request.Form["token"].ToString();
+                string hashCode = Request.Form["hashCode"].ToString();
+                if (!isLogin(token))
+                {
+                    return "error";
+                }
+                LoginInfo loginInfo = getLoginByToken(token);
+                //以下开始业务处理
+                ApiResult apiResult = new ApiResult();
+                var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Replace("\"", ""); // 原文件名（包括路径）
+                var extName = filename.Substring(filename.LastIndexOf('.')+1).Replace("\"", "");// 扩展名
+                string ImageType = ".jpg,.png,.gif,.bmp,.jpeg";
+                //判断上传格式是否合法
+                if (ImageType.IndexOf(extName.ToLower()) <= 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "图片格式必须是jpg|png|gif|bmp|jpeg,请确认上传图片格式!";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //string shortfilename = $"{Guid.NewGuid()}{extName}";// 新文件名
+                string shortfilename = Guid.NewGuid().ToString().Replace("-", "").ToUpper()+"_"+filename;
+
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
+                if (!Directory.Exists(fileSavePath))
+                {
+                    Directory.CreateDirectory(fileSavePath);
+                }
+
+
+
+                DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
+
+
+                filename = fileSavePath + shortfilename; // 新文件名（包括路径）
+                using (FileStream fs = System.IO.File.Create(filename)) // 创建新文件
+                {
+                    file.CopyTo(fs);// 复制文件
+                    fs.Flush();// 清空缓冲区数据
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                //apiResult.data = dir + newFileName;
+                apiResult.data = shortfilename;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                return "error";
+            }
+        }
+        #endregion
         [HttpPost]
         public string uploadImageApi(IFormFile file)
         {
@@ -560,9 +617,9 @@ namespace SPPSApi.Controllers
                 {
                     realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar+ "Doc" + Path.DirectorySeparatorChar+ "Image" + Path.DirectorySeparatorChar + "HeZiImages";
                 }
-                String dir = getDir(newFileName); // /f/e/d/c/4/9/8/4
-                String path = realPath + dir; //D:\\products\3/f/e/d/c/4/9/8/4
-                string fileSavePath = path;
+                //String dir = getDir(newFileName); // /f/e/d/c/4/9/8/4
+                //String path = realPath + dir; //D:\\products\3/f/e/d/c/4/9/8/4
+                string fileSavePath = realPath;
                 //string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
                 if (!Directory.Exists(fileSavePath))
                 {
@@ -578,7 +635,8 @@ namespace SPPSApi.Controllers
                     fs.Flush();// 清空缓冲区数据
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dir + newFileName;
+                //apiResult.data = dir + newFileName;
+                apiResult.data =  newFileName;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -661,7 +719,33 @@ namespace SPPSApi.Controllers
         {
             try
             {
-                string fileSavePath =  _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar +"Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";//文件临时目录，导入完成后 删除
+                string environment = Environment.OSVersion.ToString().ToLower();
+                if (!environment.Contains("windows"))
+                {
+                    string realPath = ComFunction.HttpDownload(@"Doc\Image\HeZiImages\", path, _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar+ "Image" + Path.DirectorySeparatorChar + "HeZiImages");
+                    string filepath = System.IO.Path.GetFileName(realPath);
+
+                    var provider = new FileExtensionContentTypeProvider();
+                    FileInfo fileInfo = new FileInfo(filepath);
+                    var ext = fileInfo.Extension;
+                    new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                    byte[] bt = System.IO.File.ReadAllBytes(filepath);
+                    return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+                }
+                else
+                {
+                    string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                    var provider = new FileExtensionContentTypeProvider();
+                    FileInfo fileInfo = new FileInfo(fileSavePath + path);
+                    var ext = fileInfo.Extension;
+                    new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                    byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                    //if (fileInfo.Exists)
+                    //    fileInfo.Delete();
+                    return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+
+                }
+                /*string fileSavePath =  _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar +"Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
                 var provider = new FileExtensionContentTypeProvider();
                 FileInfo fileInfo = new FileInfo(fileSavePath + path);
                 var ext = fileInfo.Extension;
@@ -669,7 +753,7 @@ namespace SPPSApi.Controllers
                 byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
                 //if (fileInfo.Exists)
                 //    fileInfo.Delete();
-                return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+                return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);*/
             }
             catch (Exception ex)
             {

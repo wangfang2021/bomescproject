@@ -428,8 +428,7 @@ namespace SPPSApi.Controllers.G00
                 {
                     strInAutoIds = strInAutoIds.Substring(0, strInAutoIds.Length - 1);
                 }
-                
-                for (int i=0;i<dtadd.Rows.Count;i++)
+                for (int i = 0; i < dtadd.Rows.Count; i++)
                 {
                     string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
                     string vcWorkArea = dtadd.Rows[i]["vcValue2"].ToString();
@@ -437,7 +436,7 @@ namespace SPPSApi.Controllers.G00
                     string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
                     string vcEnd = dtadd.Rows[i]["vcValue4"].ToString();
                     DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
-                    if (dtCheck.Rows.Count>0)
+                    if (dtCheck.Rows.Count > 0)
                     {
                         DataRow dataRow = dataTable.NewRow();
                         dataRow["vcSupplier"] = vcSupplier;
@@ -467,6 +466,7 @@ namespace SPPSApi.Controllers.G00
                         bReault = false;
                     }
                 }
+
 
                 #endregion
                 if (!bReault)

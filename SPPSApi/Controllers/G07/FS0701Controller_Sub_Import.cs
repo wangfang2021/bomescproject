@@ -97,7 +97,7 @@ namespace SPPSApi.Controllers.G07
                     }
                     foreach (DataRow row in dt.Rows)
                     {
-                        if (row[0] != "")
+                        if (row[0].ToString() != "")
                         {
                             importDt.ImportRow(row);
 
@@ -113,12 +113,16 @@ namespace SPPSApi.Controllers.G07
                 #region 导入限制
                 //查找包装厂
                 DataTable dtPS = fs0701_Logic.SearchPackSpot(loginInfo.UserId);
+                //资材校验
+                DataTable dtMaps = fs0701_Logic.searchmaps();
+
+
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
                     if (dtPS.Select("vcValue='" + importDt.Rows[i]["vcPackSpot"].ToString() + "'").Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入失败:第" + (i+2) + "行,包装场维护错误！";
+                        apiResult.data = "导入失败:第" + (i + 2) + "行,包装场维护错误！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     DateTime dt1;
@@ -151,43 +155,75 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "导入失败:第" + (i + 2) + "请填写正常的发住收容数格式！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (importDt.Rows[i]["iRelease"].ToString()=="0") {
+                    if (importDt.Rows[i]["iRelease"].ToString() == "0")
+                    {
 
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "导入失败:第" + (i + 2) + "收容数不能是'0'！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (!string.IsNullOrEmpty(importDt.Rows[i]["iRelease"].ToString())&& !string.IsNullOrEmpty(importDt.Rows[i]["iZCRelease"].ToString())) {
-
-                        if (Convert.ToInt32(importDt.Rows[i]["iRelease"])% Convert.ToInt32(importDt.Rows[i]["iZCRelease"])  != 0)
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "导入失败:第" + (i + 2) + "行收容数不是订购批量的整数倍！";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                    }
-                    
-                   
-                    if (importDt.Rows[i]["vcIsorNo"].ToString() == "修改")
+                    if (!string.IsNullOrEmpty(importDt.Rows[i]["iRelease"].ToString()) && !string.IsNullOrEmpty(importDt.Rows[i]["iZCRelease"].ToString()))
                     {
-                        int iAutoId = importDt.Rows[i]["iAutoId"] == "" ? 0 : Convert.ToInt32(importDt.Rows[i]["iAutoId"]);
-                        DataTable dtcheckTime = fs0701_Logic.searchcheckTime(importDt.Rows[i]["vcPackSpot"].ToString(), importDt.Rows[i]["vcPackNo"].ToString(), importDt.Rows[i]["dPackFrom"].ToString().Split(' ')[0], importDt.Rows[i]["dPackTo"].ToString().Split(' ')[0], iAutoId);
-                        if (dtcheckTime.Rows.Count > 0)
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "导入失败:第" + (i + 2) + "品番有维护重复有效时间！";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        DataRow[] dr = importDt.Select("vcPackNo='" + importDt.Rows[i]["vcPackNo"].ToString() + "'and iAutoId<>'" + iAutoId.ToString() + "' and  dPackFrom<='"+ importDt.Rows[i]["dPackTo"].ToString().Split(' ')[0] + "' and  dPackTo>='"+ importDt.Rows[i]["dPackFrom"].ToString().Split(' ')[0] + "'");
-                        
-                        if (dr.Length >= 1)
-                        {
 
+                        if (Convert.ToInt32(importDt.Rows[i]["iRelease"]) % Convert.ToInt32(importDt.Rows[i]["iZCRelease"]) != 0)
+                        {
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "导入失败:第" + (i + 2) + "导入文件品番有维护重复有效时间！";
+                            apiResult.data = "导入失败:第" + (i + 2) + "行收容数不是导入数据中订购批量的整数倍！";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                     }
+                    DataRow[] dr1 = dtMaps.Select("PART_NO='" + importDt.Rows[i]["vcPackGPSNo"] + "'");
+                    if (dr1.Length > 0)
+                    {
+
+                        if (!string.IsNullOrEmpty(importDt.Rows[i]["iRelease"].ToString()))
+                        {
+                            if (Convert.ToInt32(importDt.Rows[i]["iRelease"]) % Convert.ToInt32(dr1[0]["ORDER_LOT"].ToString()) != 0)
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "导入失败:第" + (i + 2) + "行收容数不是资材数据中订购批量的整数倍！";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(importDt.Rows[i]["vcSupplierName"].ToString()))
+                        {
+                            if (importDt.Rows[i]["vcSupplierCode"].ToString() == dr1[0]["SUPPLIER_CODE"].ToString())
+                            {
+                                if (importDt.Rows[i]["vcSupplierName"].ToString() != dr1[0]["SUPPLIER_NAME"].ToString())
+                                {
+                                    apiResult.code = ComConstant.ERROR_CODE;
+                                    apiResult.data = "导入失败:第" + (i + 2) + "行维护的供应商名称与资材数据不匹配！";
+                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                                }
+                            }
+
+                        }
+                    }
+
+
+
+
+                    //if (importDt.Rows[i]["vcIsorNo"].ToString() == "修改")
+                    //{
+                    string strAutoId = importDt.Rows[i]["iAutoId"].ToString() == "" ? "0" : importDt.Rows[i]["iAutoId"].ToString();
+                    int iAutoId = Convert.ToInt32(strAutoId);
+                    DataTable dtcheckTime = fs0701_Logic.searchcheckTime(importDt.Rows[i]["vcPackSpot"].ToString(), importDt.Rows[i]["vcPackNo"].ToString(), importDt.Rows[i]["dPackFrom"].ToString().Split(' ')[0], importDt.Rows[i]["dPackTo"].ToString().Split(' ')[0], iAutoId);
+                    if (dtcheckTime.Rows.Count > 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导入失败:第" + (i + 2) + "品番有维护重复有效时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    DataRow[] dr = importDt.Select("vcPackNo='" + importDt.Rows[i]["vcPackNo"].ToString() + "'and iAutoId<>'" + iAutoId.ToString() + "' and  dPackFrom<='" + importDt.Rows[i]["dPackTo"].ToString().Split(' ')[0] + "' and  dPackTo>='" + importDt.Rows[i]["dPackFrom"].ToString().Split(' ')[0] + "'");
+
+                    if (dr.Length >= 1)
+                    {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导入失败:第" + (i + 2) + "导入文件品番有维护重复有效时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    //}
 
                 }
                 #endregion

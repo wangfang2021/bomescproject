@@ -720,16 +720,20 @@ namespace SPPSApi.Controllers
             try
             {
                 string environment = Environment.OSVersion.ToString().ToLower();
+                //Console.WriteLine(environment);
                 if (!environment.Contains("windows"))
                 {
+                    //Console.WriteLine("读取linux");
                     string realPath = ComFunction.HttpDownload(@"Doc\Image\HeZiImages\", path, _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar+ "Image" + Path.DirectorySeparatorChar + "HeZiImages");
+                    //Console.WriteLine("读取成功后的地址");
                     string filepath = System.IO.Path.GetFileName(realPath);
-
+                    //Console.WriteLine(realPath);
                     var provider = new FileExtensionContentTypeProvider();
-                    FileInfo fileInfo = new FileInfo(filepath);
+                    FileInfo fileInfo = new FileInfo(realPath);
+                    //Console.WriteLine(filepath);
                     var ext = fileInfo.Extension;
                     new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
-                    byte[] bt = System.IO.File.ReadAllBytes(filepath);
+                    byte[] bt = System.IO.File.ReadAllBytes(realPath);
                     return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
                 }
                 else
@@ -757,6 +761,7 @@ namespace SPPSApi.Controllers
             }
             catch (Exception ex)
             {
+                //Console.WriteLine(ex);
                 ContentResult result = new ContentResult();
                 result.Content = "<script>alert('导出失败,没有找到要导出的图片！')</script>";
                 result.ContentType = "text/html;charset=utf-8";

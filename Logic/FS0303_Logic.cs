@@ -472,8 +472,8 @@ namespace Logic
             try
             {
                 string strConn = ComConnectionHelper.GetConnectionString_MainToUnit(strSYTCode);
-                int ipIndex = strConn.IndexOf("Source=");
-                string ip = strConn.Substring(ipIndex+7);
+                int ipIndex = strConn.LastIndexOf("=");
+                string ip = strConn.Substring(ipIndex,strConn.Length).Trim();
                 return ip;
             }
             catch (Exception ex)

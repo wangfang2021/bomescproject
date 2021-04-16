@@ -555,10 +555,10 @@ namespace SPPSApi.Controllers.G07
                 ComFunction.ConsoleWriteLine("**添加失败，异常消息："+ex.Message);
             }
 
-            if (File.Exists(strFilePath_All))
-            {
-                File.Delete(strFilePath_All);
-            }
+            //if (File.Exists(strFilePath_All))
+            //{
+            //    File.Delete(strFilePath_All);
+            //}
         }
 
         /// <summary>

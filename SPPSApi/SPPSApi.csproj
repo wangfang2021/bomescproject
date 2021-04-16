@@ -25,6 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Doc\CryReports\crv_FS1702_kanban.rpt" />
+    <None Remove="Doc\CryReports\crv_FS1702_kb_main.rpt" />
+    <None Remove="Doc\CryReports\crv_FS1702_qrd.rpt" />
     <None Remove="Doc\Export\预留.txt" />
     <None Remove="Doc\Image\HeZiImages\预留.txt" />
     <None Remove="Doc\Image\PackingOper\预留.txt" />
@@ -166,6 +169,15 @@
   <ItemGroup>
     <Content Include="Connected Services\FS1209_PrExcel\ConnectedService.json" />
     <Content Include="Connected Services\PrintCR\ConnectedService.json" />
+    <Content Include="Doc\CryReports\crv_FS1702_kanban.rpt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\CryReports\crv_FS1702_kb_main.rpt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\CryReports\crv_FS1702_qrd.rpt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Doc\Template\FS0101.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

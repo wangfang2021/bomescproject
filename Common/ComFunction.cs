@@ -1980,7 +1980,7 @@ namespace Common
                 }
 
                 //给传入的内容添加日期前缀
-                content = DateTime.Now.ToString("yyyy-MM-dd") + " " + DateTime.Now.ToString("hh:mm:ss") + ":" + content;
+                content = DateTime.Now.ToString("yyyy-MM-dd") + " " + DateTime.Now.ToString("HH:mm:ss") + ":" + content;
 
                 //打开当前天文件，追加内容
                 using (StreamWriter sw = new StreamWriter(path_Day, true))

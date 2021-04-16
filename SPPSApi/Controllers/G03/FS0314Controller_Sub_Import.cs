@@ -71,7 +71,7 @@ namespace SPPSApi.Controllers.G03
                                                 {"vcSupplier_id","vcSupplier_name","vcProduct_name","vcAddress","vcTD","vcXY","vcSC","vcCC","vcLXR1","vcPhone1","vcEmail1","vcLXR2","vcPhone2","vcEmail2","vcLXR3","vcPhone3","vcEmail3"},
                                                 {FieldCheck.NumChar,"","","","","","","","",FieldCheck.NumChar,"","",FieldCheck.NumChar,"","",FieldCheck.NumChar,""},
                                                 {"4","0","0","0","0","0","0","0","0","0", "0", "0", "0", "0", "0", "0", "0"},//最大长度设定,不校验最大长度用0
-                                                {"4","1","1","1","0","0","0","0","1","0", "1", "0", "0", "0", "0", "0", "0"}};//最小长度设定,可以为空用0
+                                                {"4","0","0","0","0","0","0","0","0","0", "0", "0", "0", "0", "0", "0", "0"}};//最小长度设定,可以为空用0
 
 
 

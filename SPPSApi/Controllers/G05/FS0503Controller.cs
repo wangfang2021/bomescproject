@@ -318,9 +318,13 @@ namespace SPPSApi.Controllers.G05
                 string vcImageRoutes = dataForm.vcImageRoutes;
                 if (vcImageRoutes.Length>0)
                 {
+                    //Console.WriteLine("开始保存照片");
+                    //Console.WriteLine(vcImageRoutes);
                     string hashCode = dataForm.hashCode;
+                    //Console.WriteLine(hashCode);
                     string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
                     //string filePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
+                    //Console.WriteLine(fileSavePath);
                     SaveFile(fileSavePath);
                 }
                 if (fs0503_Logic.editOk(dataForm, loginInfo.UserId))
@@ -374,26 +378,34 @@ namespace SPPSApi.Controllers.G05
 
                 DirectoryInfo theFolder = new DirectoryInfo(filePath);
                 string environment = Environment.OSVersion.ToString().ToLower();
+                //Console.WriteLine("进入保存方法");
                 if (!environment.Contains("windows"))
                 {
+                    //Console.WriteLine("linux");
                     foreach (FileInfo info in theFolder.GetFiles())
                     {
+                        //Console.WriteLine("linux正式保存");
                         ComFunction.HttpUploadFile(info.FullName, info.Name, @"Doc\Image\HeZiImages\");
+                        //Console.WriteLine("linux结束保存");
                     }
                 }
                 else
                 {
+                    //Console.WriteLine("windows");
                     //转存下载
                     foreach (FileInfo info in theFolder.GetFiles())
                     {
+                        //Console.WriteLine("windows正式保存");
                         string realPath = _webHostEnvironment.ContentRootPath + @"\Doc\Image\HeZiImages\"  + info.Name;
                         System.IO.File.Copy(info.FullName, realPath, true);
+                        //Console.WriteLine("windows正式保存");
                     }
 
                 }
             }
             catch (Exception ex)
             {
+                //Console.WriteLine(ex);
                 throw ex;
             }
         }

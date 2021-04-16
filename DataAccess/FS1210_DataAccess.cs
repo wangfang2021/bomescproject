@@ -989,7 +989,7 @@ namespace DataAccess
             strSQL.Append(",Convert(varchar(20),[vcPlanProcDate], 120) as vcPlanProcDate");
             strSQL.Append(",(Case when [vcPlanProcBZ] = '0' then '白值' when [vcPlanProcBZ] = '1' then '夜值' else '' end) as vcPlanProcBZ");
             strSQL.Append(",Convert(varchar(20),[vcPrintDate], 120) as vcPrintDate");
-            strSQL.Append("  FROM  [tKanBanQrTbl]");
+            strSQL.Append("  FROM tKanBanQrTbl");
             strSQL.Append("  where 1=1 ");
             if (OrderNo.Trim() != "")
             {

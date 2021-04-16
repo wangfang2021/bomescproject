@@ -86,6 +86,8 @@ namespace Logic
                 for (int i = 0; i < excelTable.Rows.Count; i++)
                 {
                     string partId = excelTable.Rows[i]["vcPart_Id"].ToString();
+                    if (partId.Length == 10)
+                        partId = partId + "00";
                     if (listPart.Contains(partId))
                     {
                         refMsg.Add(new MessageNode(partId, "变更中品番重复"));
@@ -99,6 +101,8 @@ namespace Logic
                 for (int i = 0; i < excelTable.Rows.Count; i++)
                 {
                     string partId = excelTable.Rows[i]["vcPart_Id"].ToString();
+                    if (partId.Length == 10)
+                        partId = partId + "00";
                     if (!quantity.Contains(partId))
                     {
                         refMsg.Add(new MessageNode(partId, "非日次订货品番"));
@@ -116,6 +120,8 @@ namespace Logic
 
                     //string changeNo = excelTable.Rows[i]["vcchangeNo"].ToString();
                     string partId = excelTable.Rows[i]["vcPart_Id"].ToString();
+                    if (partId.Length == 10)
+                        partId = partId + "00";
                     partList.Add(partId);
                     int excelquantity = Convert.ToInt32(excelTable.Rows[i]["iQuantity"]);
                     int soqQuantity = -1;

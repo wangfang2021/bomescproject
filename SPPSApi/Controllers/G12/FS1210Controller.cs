@@ -1084,9 +1084,8 @@ namespace SPPSApi.Controllers.G12
                         #endregion
                     }
                     gud = Guid.NewGuid().ToString("N");
-                    string ls_savePath = _webHostEnvironment.ContentRootPath + "Doc\\Image\\QRCodeImages\\" + ls_fileName;
                     string reCode = print.reCode(vcSupplierCode, vcSupplierPlant, vcDock, vcPartsNo, iQuantityPerContainer, vcKBSerial, vcEDflag, vcKBorderno);
-                    byte[] vcQRCodeImge = print.GenGenerateQRCode(reCode, ls_savePath);
+                    byte[] vcQRCodeImge = print.GenGenerateQRCode(msg, reCode);
                     #region
                     DataRow row = dtPrint.NewRow();
                     row[0] = vcSupplierCode.ToUpper();

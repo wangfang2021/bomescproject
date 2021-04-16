@@ -341,6 +341,7 @@ namespace Logic
                         if (!Socket(strIP))
                         {
                             strMessage += "<font color=red>连接服务器失败！</font>";
+                            continue;
                         }
                         #endregion
 
@@ -348,6 +349,7 @@ namespace Logic
                         if (!GetSYT2Receiver(dt.Rows[i]["vcName"].ToString()))
                         {
                             strMessage += "<font color=red>未维护下游收货方！</font>";
+                            continue;
                         }
                         #endregion
 
@@ -472,8 +474,8 @@ namespace Logic
             try
             {
                 string strConn = ComConnectionHelper.GetConnectionString_MainToUnit(strSYTCode);
-                int ipIndex = strConn.IndexOf("Source=");
-                string ip = strConn.Substring(ipIndex+7);
+                int ipIndex = strConn.LastIndexOf("=");
+                string ip = strConn.Substring(ipIndex+1).Trim();
                 return ip;
             }
             catch (Exception ex)

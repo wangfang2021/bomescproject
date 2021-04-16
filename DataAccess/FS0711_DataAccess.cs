@@ -90,11 +90,15 @@ namespace DataAccess
                 }
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("   select a.vcPackSpot,a.vcPackNo,    ");
-                strSql.AppendLine("   a.iLiLun+c.iCNum-b.iRNum as ibeginNum,    ");
-                strSql.AppendLine("   b.iRNum as iRKNum,    ");
-                strSql.AppendLine("   c.iCNum as iConsume,    ");
-                strSql.AppendLine("   a.iLiLun from        ");
+                strSql.AppendLine("  select  ");
+                strSql.AppendLine("  t1.vcPackNo,t1.vcPackSpot,   ");
+                strSql.AppendLine("  t1.iLiLun+t1.iConsume-t1.iRKNum as ibeginNum,   ");
+                strSql.AppendLine("  t1.iConsume,t1.iRKNum,t1.iLiLun   ");
+                strSql.AppendLine("  from(   ");
+                strSql.AppendLine("  select a.vcPackSpot,a.vcPackNo,      ");
+                strSql.AppendLine("        case when isnull(b.iRNum,0)<>0 then b.iRNum else 0 end  as iRKNum,      ");
+                strSql.AppendLine(" 	   case when isnull(c.iCNum,0)<>0 then c.iCNum else 0 end  as iConsume,    ");
+                strSql.AppendLine("        a.iLiLun from           ");
                 strSql.AppendLine("   (    ");
                 strSql.AppendLine("   select * from TPackZaiKu     ");
                 strSql.AppendLine("   where 1=1    ");
@@ -116,7 +120,7 @@ namespace DataAccess
                 strSql.AppendLine("  and dBuJiTime between '"+ BeginTime + "' and '"+ EndTime + "'     ");
                 strSql.AppendLine("  group by vcPackNo   ");
                 strSql.AppendLine("  )c on a.vcPackNo=c.vcPackNo     ");
-                strSql.AppendLine("       ");
+                strSql.AppendLine("   )t1     ");
 
 
 

@@ -68,7 +68,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"导入状态","对应标识", "变更事项", "包装场", "收货方", "品番,", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数"},
+                string[,] headers = new string[,] {{"导入状态","对应标识", "变更事项", "包装场", "收货方", "品番", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数"},
                                                 {"vcIsorNo","iAutoId", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo","vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"},
                                                 {"",FieldCheck.Num,"","","","","",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Date,FieldCheck.Date,"",FieldCheck.Decimal},
                                                 {"50","0","50","50","50","50","0","0","0","0","0","0","0","0","0"},
@@ -97,7 +97,7 @@ namespace SPPSApi.Controllers.G07
                     foreach (DataRow row in dt.Rows)
                     {
 
-                        if (row[0] != "")
+                        if (row[0].ToString() != "")
                         {
                             importDt.ImportRow(row);
 
@@ -110,6 +110,7 @@ namespace SPPSApi.Controllers.G07
                 string strPartNoAll = "";
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
+
                     DataRow[] dr1 = dtisok.Select("vcPartsNo='" + importDt.Rows[i]["vcPartsNo"].ToString() + "'");
                     if (dr1.Length == 0)
                     {
@@ -117,6 +118,15 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "第" + (i + 2) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "不存在！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+
+                    if (string.IsNullOrEmpty(importDt.Rows[i]["vcShouhuofangID"].ToString()))
+                    {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导入失败:第" + (i + 2) + "行没有维护收货方！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
 
                     string strAutoId = importDt.Rows[i]["iAutoId"].ToString() == "" ? "0" : importDt.Rows[i]["iAutoId"].ToString();
                     int iAutoId = Convert.ToInt32(strAutoId);
@@ -126,7 +136,7 @@ namespace SPPSApi.Controllers.G07
                     if (dtcheckTime.Rows.Count > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第" + (i + 2) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "品番有维护重复有效时间！";
+                        apiResult.data = "第" + (i + 2) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "包材品番有维护重复有效时间！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
 
@@ -160,7 +170,7 @@ namespace SPPSApi.Controllers.G07
                     {
                         if (i != 0)
                         {
-                            strPartNoAll = strPartNoAll + "'," + importDt.Rows[i]["vcPartsNo"].ToString();
+                            strPartNoAll = strPartNoAll + "','" + importDt.Rows[i]["vcPartsNo"].ToString();
                         }
                         else
                         {
@@ -168,6 +178,8 @@ namespace SPPSApi.Controllers.G07
                             strPartNoAll = importDt.Rows[i]["vcPartsNo"].ToString();
                         }
                     }
+
+
                 }
                 List<Object> strSupplierCode = new List<object>();
                 FS0701_Logic FS0701_Logic = new FS0701_Logic();
@@ -183,9 +195,9 @@ namespace SPPSApi.Controllers.G07
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M07UE0210", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败" + ex.Message;
+                apiResult.data = "导入保存失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

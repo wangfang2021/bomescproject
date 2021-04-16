@@ -191,17 +191,60 @@ namespace DataAccess
         #endregion
 
         #region 确认单打印
-        public void qrdPrint(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        public void qrdPrint(List<Dictionary<string, Object>> checkedInfoData, string strUserId, DataTable dtBJW, DataTable dtBJWHistory, DataTable dtSub)
         {
             try
             {
+                DateTime now = DateTime.Now;
                 StringBuilder sql = new StringBuilder();
-                DateTime time = DateTime.Now;
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-
-                    sql.Append("update TChuHe set dQueRenPrintTime='" + time + "' where iAutoId=" + iAutoId + "   \n");
+                    sql.AppendLine("update TChuHe set dQueRenPrintTime='" + now + "' where iAutoId=" + iAutoId + "   ");
+                }
+                for (int i = 0; i < dtBJW.Rows.Count; i++)
+                {
+                    sql.AppendLine("update TChuHe_BJW set iRemain='" + dtBJW.Rows[i]["iRemain"].ToString() + "',vcOperatorID='" + strUserId + "',dOperatorTime='" + now + "'  ");
+                    sql.AppendLine("where vcPart_id='" + dtBJW.Rows[i]["vcPart_id"].ToString() + "' ");
+                }
+                for (int i = 0; i < dtBJWHistory.Rows.Count; i++)
+                {
+                    sql.AppendLine("INSERT INTO [TChuHe_BJW_History] ");
+                    sql.AppendLine("           ([vcPart_id] ");
+                    sql.AppendLine("           ,[iA] ");
+                    sql.AppendLine("           ,[iB] ");
+                    sql.AppendLine("           ,[iC] ");
+                    sql.AppendLine("           ,[vcOperatorID] ");
+                    sql.AppendLine("           ,[dOperatorTime]) ");
+                    sql.AppendLine("     VALUES ");
+                    sql.AppendLine("           ('" + dtBJWHistory.Rows[i]["vcPart_id"].ToString() + "' ");
+                    sql.AppendLine("           ,'" + dtBJWHistory.Rows[i]["iA"].ToString() + "' ");
+                    sql.AppendLine("           ,'" + dtBJWHistory.Rows[i]["iB"].ToString() + "' ");
+                    sql.AppendLine("           ,'" + dtBJWHistory.Rows[i]["iC"].ToString() + "' ");
+                    sql.AppendLine("           ,'" + strUserId + "' ");
+                    sql.AppendLine("           ,'" + now + "') ");
+                }
+                DataTable dtQueRenNo = dtSub.DefaultView.ToTable(true, "vcQueRenNo");
+                for (int i = 0; i < dtQueRenNo.Rows.Count; i++)
+                {
+                    string vcQueRenNo = dtQueRenNo.Rows[i]["vcQueRenNo"].ToString();
+                    sql.AppendLine("delete from TChuHe_PrintTemp_FS1702 where vcQueRenNo='" + vcQueRenNo + "'");
+                    DataRow[] drs = dtSub.Select("vcQueRenNo='" + vcQueRenNo + "'");
+                    for (int j = 0; j < drs.Length; j++)
+                    {
+                        sql.AppendLine("INSERT INTO [TChuHe_PrintTemp_FS1702]    ");
+                        sql.AppendLine("           ([vcQueRenNo]    ");
+                        sql.AppendLine("           ,[id]    ");
+                        sql.AppendLine("           ,[vcPart_id]    ");
+                        sql.AppendLine("           ,[vcBackPart_id]    ");
+                        sql.AppendLine("           ,[iQuantity])    ");
+                        sql.AppendLine("     VALUES    ");
+                        sql.AppendLine("           ('" + vcQueRenNo + "'    ");
+                        sql.AppendLine("           ,'" + drs[j]["id"].ToString() + "'    ");
+                        sql.AppendLine("           ,'" + drs[j]["vcPart_id"].ToString() + "'    ");
+                        sql.AppendLine("           ,'" + drs[j]["vcBackPart_id"].ToString() + "'    ");
+                        sql.AppendLine("           ,'" + drs[j]["iQuantity"].ToString() + "')    ");
+                    }
                 }
                 if (sql.Length > 0)
                 {
@@ -287,11 +330,26 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select ROW_NUMBER() over(order by t1.vcPart_id) as id,t1.vcPart_id,t1.iQuantity,t2.vcBackPart_id,'' as vcRemark from (    \n");
+                sql.Append("select ROW_NUMBER() over(order by t1.vcPart_id) as id,t1.vcPart_id,t1.iQuantity,t2.vcBackPart_id,    \n");
+                sql.Append("'' as vcRemark,t2.iCapacity,t3.iRemain from (  \n");
                 sql.Append("	select * from TChuHe_Detail where vcProject='" + vcProject + "' and dChuHeDate='" + dChuHeDate + "' and iQuantity>0    \n");
                 sql.Append(")t1    \n");
                 sql.Append("left join TSSPManagement t2 on t1.vcPart_id=t2.vcChuHePart_id    \n");
+                sql.Append("left join TChuHe_BJW t3 on t1.vcPart_id=t3.vcPart_id  \n");
                 sql.Append("order by id ");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable GetqrdPrintInfo(string vcQueRenNo)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.AppendLine("select * from TChuHe_PrintTemp_FS1702 where vcQueRenNo='" + vcQueRenNo + "'");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -312,7 +370,7 @@ namespace DataAccess
                 sql.Append("from TSSPManagement t1    \n");
                 sql.Append("inner join     \n");
                 sql.Append("(    \n");
-                sql.Append("	select * from TChuHe_Detail where vcProject='"+vcProject+"' and dChuHeDate='"+dChuHeDate+"' and iQuantity>0    \n");
+                sql.Append("	select * from TChuHe_Detail where vcProject='" + vcProject + "' and dChuHeDate='" + dChuHeDate + "' and iQuantity>0    \n");
                 sql.Append(")t2 on t1.vcChuHePart_id=t2.vcPart_id    \n");
 
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
@@ -756,10 +814,10 @@ namespace DataAccess
                 sqlCommand_sub.Parameters.AddWithValue("@vcProjectPlace", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcSR", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcBackPart_id", "");
-                sqlCommand_sub.Parameters.AddWithValue("@vcChuHePart_id","");
-                sqlCommand_sub.Parameters.AddWithValue("@vcPart_Name","");
-                sqlCommand_sub.Parameters.AddWithValue("@iCapacity","");
-                sqlCommand_sub.Parameters.AddWithValue("@vcBoxType","");
+                sqlCommand_sub.Parameters.AddWithValue("@vcChuHePart_id", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcPart_Name", "");
+                sqlCommand_sub.Parameters.AddWithValue("@iCapacity", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcBoxType", "");
 
                 #endregion
                 foreach (DataRow item in dtSub.Rows)

@@ -168,9 +168,14 @@ namespace Logic
             StringBuilder sbr = new StringBuilder();
             for (int i = 0; i < list.Count; i++)
             {
-                if (i != 0)
-                    sbr.Append(",");
-                sbr.Append(list[i]);
+                if (!string.IsNullOrEmpty(list[i]))
+                {
+                    if (sbr.Length>0)
+                    {
+                        sbr.Append(",");
+                    }
+                    sbr.Append(list[i]);
+                }
             }
             return sbr.ToString();
         }

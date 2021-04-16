@@ -165,8 +165,8 @@ namespace BatchProcess
                 sql.Append("       Temp2.vcCarModel as [vcCar],                   \n");
                 sql.Append("       Temp3.dFromTime as [dUsedFrom],                \n");
                 sql.Append("       Temp4.dToTime as [dUsedTo],                    \n");
-                sql.Append("       '1990-01-01 0:00:00' as [dFrom],               \n");
-                sql.Append("       '3000-01-01 0:00:00' as [dTo],                 \n");
+                sql.Append("       NULL as [dFrom],               \n");
+                sql.Append("       NULL as [dTo],                 \n");
                 sql.Append("        '' as [vcDistinguish],                      \n");
                 sql.Append("        NULL as [iBiYao],                      \n");
                 sql.Append("     '000000' as  [vcOperatorID],                    \n");
@@ -269,9 +269,6 @@ namespace BatchProcess
                 sql.Append("  truncate  table TPackItem   \n");
                 for (int i = 0; i < dtNewItem.Rows.Count; i++)
                 {
-
-                    string dTo = dtNewItem.Rows[i]["dTo"].ToString() == "" ? "9999-12-31 23:59:59" : dtNewItem.Rows[i]["dTo"].ToString();
-
                     sql.Append("  insert into TPackItem  \n");
                     sql.Append("  ([vcPartsNo],  \n");
                     sql.Append("   [vcPackNo],  \n");
@@ -296,8 +293,21 @@ namespace BatchProcess
                     sql.Append("  '" + dtNewItem.Rows[i]["vcCar"].ToString() + "',  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["dUsedFrom"].ToString() + "',  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["dUsedTo"].ToString() + "',  \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["dFrom"].ToString() + "',  \n");
-                    sql.Append("  '" + dTo + "',  \n");
+                    if (string.IsNullOrEmpty(dtNewItem.Rows[i]["dFrom"].ToString()))
+                    {
+                        sql.Append("  '1900-01-01 00:00:00',  \n");
+                    }
+                    else {
+                        sql.Append("  '" + dtNewItem.Rows[i]["dFrom"].ToString() + "',  \n");
+                    }
+                    if (string.IsNullOrEmpty(dtNewItem.Rows[i]["dTo"].ToString()))
+                    {
+                        sql.Append("  '9999-12-31 11:59:59',  \n");
+                    }
+                    else
+                    {
+                        sql.Append("  '" + dtNewItem.Rows[i]["dTo"].ToString() + "',  \n");
+                    }
                     sql.Append("  '" + dtNewItem.Rows[i]["vcDistinguish"].ToString() + "',   \n");
                     if (string.IsNullOrEmpty(dtNewItem.Rows[i]["iBiYao"].ToString()))
                     {

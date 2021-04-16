@@ -256,7 +256,12 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    strSql.Append("  delete from  TPackFaZhuTime  where vcFaZhuID='"+ dt.Rows[i]["vcFaZhuID"].ToString() + "'and  vcBianCi='"+ dt.Rows[i]["vcBianCi"].ToString() + "' \n");
+                }
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     strSql.Append("  insert into TPackFaZhuTime    \n");

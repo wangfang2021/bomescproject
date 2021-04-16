@@ -17,7 +17,7 @@ namespace DataAccess
             StringBuilder sbr = new StringBuilder();
             sbr.Append(" SELECT iAutoId,vcSupplier_id,vcSupplier_name,vcProduct_name, \r\n");
             sbr.Append(" vcAddress,vcLXR1,vcPhone1,vcEmail1,vcLXR2,vcPhone2,vcEmail2, \r\n");
-            sbr.Append(" vcLXR3,vcPhone3,vcEmail3,dOperatorTime,vcOperatorID,'0' as vcModFlag,'0' as vcAddFlag FROM dbo.TSupplier \r\n");
+            sbr.Append(" vcLXR3,vcPhone3,vcEmail3,dOperatorTime,vcOperatorID,'0' as vcModFlag,'0' as vcAddFlag,vcTD,vcXY,vcSC,vcCC FROM dbo.TSupplier \r\n");
             sbr.Append(" WHERE 1=1 ");
             if (!string.IsNullOrWhiteSpace(vcSupplier_id))
             {
@@ -75,7 +75,7 @@ namespace DataAccess
                     {//新增
                         if (!flag)
                         {
-                            sbr.Append(" INSERT INTO TSupplier (vcSupplier_id,vcSupplier_name,vcProduct_name,vcAddress,vcLXR1,vcPhone1,vcEmail1,vcLXR2,vcPhone2,vcEmail2,vcLXR3,vcPhone3,vcEmail3,dOperatorTime,vcOperatorID)  \r\n ");
+                            sbr.Append(" INSERT INTO TSupplier (vcSupplier_id,vcSupplier_name,vcProduct_name,vcAddress,vcLXR1,vcPhone1,vcEmail1,vcLXR2,vcPhone2,vcEmail2,vcLXR3,vcPhone3,vcEmail3,dOperatorTime,vcOperatorID,vcTD,vcXY,vcSC,vcCC)  \r\n ");
                             sbr.Append(" values ( \r\n");
                             sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",");
                             sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcSupplier_name"], false) + ",");
@@ -91,7 +91,11 @@ namespace DataAccess
                             sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcPhone3"], false) + ",");
                             sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcEmail3"], false) + ",");
                             sbr.Append(" GETDATE(), ");
-                            sbr.Append(" '" + strUserId + "'");
+                            sbr.Append(" '" + strUserId + "',");
+                            sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcTD"], false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcXY"], false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcSC"], false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcCC"], false));
                             sbr.Append(" ) \r\n");
                         }
                         else
@@ -123,6 +127,10 @@ namespace DataAccess
                         sbr.Append(" vcLXR3 = " + ComFunction.getSqlValue(listInfoData[i]["vcLXR3"], false) + ", ");
                         sbr.Append(" vcPhone3 = " + ComFunction.getSqlValue(listInfoData[i]["vcPhone3"], false) + ", ");
                         sbr.Append(" vcEmail3 = " + ComFunction.getSqlValue(listInfoData[i]["vcEmail3"], false) + ", ");
+                        sbr.Append(" vcTD = " + ComFunction.getSqlValue(listInfoData[i]["vcTD"], false) + ", ");
+                        sbr.Append(" vcXY = " + ComFunction.getSqlValue(listInfoData[i]["vcXY"], false) + ", ");
+                        sbr.Append(" vcSC = " + ComFunction.getSqlValue(listInfoData[i]["vcSC"], false) + ", ");
+                        sbr.Append(" vcCC = " + ComFunction.getSqlValue(listInfoData[i]["vcCC"], false) + ", ");
                         sbr.Append(" vcOperatorId  = '" + strUserId + "', ");
                         sbr.Append(" dOperatorTime  = GETDATE() ");
                         sbr.Append(" where iAutoId = '" + iAutoId + "' \r\n");
@@ -182,7 +190,7 @@ namespace DataAccess
                 {
                     sbr.AppendLine("DELETE TSupplier WHERE vcSupplier_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcSupplier_id"], false));
 
-                    sbr.Append(" INSERT INTO dbo.TSupplier(vcSupplier_id, vcSupplier_name, vcProduct_name, vcAddress, vcLXR1, vcPhone1, vcEmail1, vcLXR2, vcPhone2, vcEmail2, vcLXR3, vcPhone3, vcEmail3, dOperatorTime, vcOperatorID) ");
+                    sbr.Append(" INSERT INTO dbo.TSupplier(vcSupplier_id, vcSupplier_name, vcProduct_name, vcAddress, vcLXR1, vcPhone1, vcEmail1, vcLXR2, vcPhone2, vcEmail2, vcLXR3, vcPhone3, vcEmail3, dOperatorTime, vcOperatorID,vcTD,vcXY,vcSC,vcCC) ");
                     sbr.Append(" values ( ");
                     sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSupplier_id"], false) + ", ");
                     sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSupplier_name"], false) + ", ");
@@ -198,7 +206,11 @@ namespace DataAccess
                     sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPhone3"], false) + ", ");
                     sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcEmail3"], false) + ", ");
                     sbr.Append(" GETDATE(),");
-                    sbr.Append(" '" + userId + "'");
+                    sbr.Append(" '" + userId + "',");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcTD"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcXY"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSC"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcCC"], false));
                     sbr.Append(" )");
 
 

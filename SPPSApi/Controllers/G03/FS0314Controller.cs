@@ -27,7 +27,7 @@ namespace SPPSApi.Controllers.G03
 
         [HttpPost]
         [EnableCors("any")]
-        public string searchApi([FromBody]dynamic data)
+        public string searchApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -86,8 +86,8 @@ namespace SPPSApi.Controllers.G03
                 DataTable dt = fs0314_logic.searchApi(supplierCode, supplierName);
 
                 string resMsg = "";
-                string[] head = { "供应商代码", "供应商名称", "生产商名称", "生产商地址", "联系人1", "联系人1电话", "联系人1邮箱", "联系人2", "联系人2电话", "联系人2邮箱", "联系人3", "联系人3电话", "联系人3邮箱", };
-                string[] fields = { "vcSupplier_id", "vcSupplier_name", "vcProduct_name", "vcAddress", "vcLXR1", "vcPhone1", "vcEmail1", "vcLXR2", "vcPhone2", "vcEmail2", "vcLXR3", "vcPhone3", "vcEmail3" };
+                string[] head = { "供应商代码", "供应商名称", "生产商名称", "生产商地址", "泰达", "新一", "四川", "长春", "联系人1", "联系人1电话", "联系人1邮箱", "联系人2", "联系人2电话", "联系人2邮箱", "联系人3", "联系人3电话", "联系人3邮箱", };
+                string[] fields = { "vcSupplier_id", "vcSupplier_name", "vcProduct_name", "vcAddress", "vcTD", "vcXY", "vcSC", "vcCC", "vcLXR1", "vcPhone1", "vcEmail1", "vcLXR2", "vcPhone2", "vcEmail2", "vcLXR3", "vcPhone3", "vcEmail3" };
 
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")
@@ -113,7 +113,7 @@ namespace SPPSApi.Controllers.G03
         #region 保存
         [HttpPost]
         [EnableCors("any")]
-        public string saveApi([FromBody]dynamic data)
+        public string saveApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -152,12 +152,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"供应商代码","供应商名称","生产商名称","生产商地址","联系人1","联系人电话","联系人邮箱","联系人2","联系人电话","联系人邮箱","联系人3","联系人电话","联系人邮箱"},
-                                                {"vcSupplier_id","vcSupplier_name","vcProduct_name","vcAddress","vcLXR1","vcPhone1","vcEmail1","vcLXR2","vcPhone2","vcEmail2","vcLXR3","vcPhone3","vcEmail3"},
-                                                {"","","","","","","","","","","","",""},
-                                                {"4","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"4","1","1","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
-                                                {"1","2","3","4","5","6","7","8","9","10","11","12","13"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"供应商代码","供应商名称","生产商名称","生产商地址","泰达","新一","四川","长春","联系人1","联系人电话","联系人邮箱","联系人2","联系人电话","联系人邮箱","联系人3","联系人电话","联系人邮箱"},
+                                                {"vcSupplier_id","vcSupplier_name","vcProduct_name","vcAddress","vcTD","vcXY","vcSC","vcCC","vcLXR1","vcPhone1","vcEmail1","vcLXR2","vcPhone2","vcEmail2","vcLXR3","vcPhone3","vcEmail3"},
+                                                {"","","","","","","","","","","","","","","","",""},
+                                                {"4","0","0","0","1","1","1","1","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"4","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { };
@@ -202,7 +202,7 @@ namespace SPPSApi.Controllers.G03
         #region 删除
         [HttpPost]
         [EnableCors("any")]
-        public string delApi([FromBody]dynamic data)
+        public string delApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];

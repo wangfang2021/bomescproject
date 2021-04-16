@@ -158,7 +158,7 @@ namespace SPPSApi.Controllers.G07
 
                 if (strErr1 != "")
                 {
-                    res.Add("errPart", "发注数量计算失败,以下品番无维护包材构成！"+ "<br/>" + strErr1);
+                    res.Add("errPart", "发注数量计算失败,以下品番无包材构成！"+ "<br/>" + strErr1);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.flag = 1;
                     apiResult.data = res;

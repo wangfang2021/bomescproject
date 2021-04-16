@@ -197,17 +197,17 @@ namespace Logic
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId,ref string strErrorName)
+        public void importSave(DataTable dt, string strUserId, ref string strErrorName)
         {
-            fs1702_DataAccess.importSave(dt, strUserId,ref strErrorName);
+            fs1702_DataAccess.importSave(dt, strUserId, ref strErrorName);
         }
         #endregion
 
         #region 确认单打印
-        public void qrdPrint(List<Dictionary<string, Object>> checkedInfoData,string strUserId)
+        public void qrdPrint(List<Dictionary<string, Object>> checkedInfoData, string strUserId, DataTable dtBJW, DataTable dtBJWHistory,DataTable dtSub)
         {
             //更新确认单打印时间
-            fs1702_DataAccess.qrdPrint(checkedInfoData, strUserId);
+            fs1702_DataAccess.qrdPrint(checkedInfoData, strUserId, dtBJW, dtBJWHistory,dtSub);
         }
         #endregion
 
@@ -263,7 +263,7 @@ namespace Logic
                 mystyle_querenno.Alignment = HorizontalAlignment.Left;
                 mystyle_querenno.VerticalAlignment = VerticalAlignment.Center;
                 sheet.GetRow(1).GetCell(0).CellStyle = mystyle_querenno;
-                sheet.GetRow(1).GetCell(0).SetCellValue("确认单号："+vcQueRenNo);
+                sheet.GetRow(1).GetCell(0).SetCellValue("确认单号：" + vcQueRenNo);
 
                 ICellStyle mystyle = hssfworkbook.CreateCellStyle();
                 mystyle.BorderBottom = BorderStyle.Thin;
@@ -367,29 +367,115 @@ namespace Logic
             return dataTable;
         }
 
-        public bool getPrintInfo(List<Dictionary<string, Object>> listInfoData, string strOperId, ref DataTable dtMessage)
+        public bool getPrintInfo(List<Dictionary<string, Object>> listInfoData, string strOperId, ref DataTable dtMessage,
+            ref DataTable dtBJW, ref DataTable dtBJWHistory,ref DataTable dtSub)
         {
             try
             {
+                dtBJW.Columns.Add("vcPart_id");
+                dtBJW.Columns.Add("iRemain");
+                dtBJWHistory.Columns.Add("vcPart_id");
+                dtBJWHistory.Columns.Add("iA");
+                dtBJWHistory.Columns.Add("iB");
+                dtBJWHistory.Columns.Add("iC");
                 DataTable dataTable = fs1702_DataAccess.getPrintTemp("FS1702");
-                DataTable dtSub = dataTable.Clone();
+                dtSub = dataTable.Clone();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    string vcQueRenNo = listInfoData[i]["vcQueRenNo"] == null ? "" : listInfoData[i]["vcQueRenNo"].ToString(); 
+                    string vcQueRenNo = listInfoData[i]["vcQueRenNo"] == null ? "" : listInfoData[i]["vcQueRenNo"].ToString();
                     string vcProject = listInfoData[i]["vcProject"] == null ? "" : listInfoData[i]["vcProject"].ToString();
                     string dChuHeDate = listInfoData[i]["dChuHeDate"] == null ? "" : listInfoData[i]["dChuHeDate"].ToString();
-                    DataTable dtSPInfo = fs1702_DataAccess.GetqrdInfo(vcProject, dChuHeDate);
-                    string uuid = Guid.NewGuid().ToString("N");
-                    for (int j = 0; j < dtSPInfo.Rows.Count; j++)
+                    string QueRenPrintFlag = listInfoData[i]["QueRenPrintFlag"].ToString();
+                    if (QueRenPrintFlag == "√")
+                    {//确认单已经打印过，直接取之前生成好的结果 
+                        DataTable dtPrintInfo = fs1702_DataAccess.GetqrdPrintInfo(vcQueRenNo);
+                        string uuid = Guid.NewGuid().ToString("N");
+                        for (int j = 0; j < dtPrintInfo.Rows.Count; j++)
+                        {
+                            DataRow dataRow = dtSub.NewRow();
+                            dataRow["UUID"] = uuid;
+                            dataRow["id"] = dtPrintInfo.Rows[j]["id"].ToString();
+                            dataRow["vcPart_id"] = dtPrintInfo.Rows[j]["vcPart_id"].ToString();
+                            dataRow["vcBackPart_id"] = dtPrintInfo.Rows[j]["vcBackPart_id"].ToString();
+                            dataRow["iQuantity"] = dtPrintInfo.Rows[j]["iQuantity"].ToString();
+                            dataRow["vcQueRenNo"] = vcQueRenNo;
+                            dtSub.Rows.Add(dataRow);
+                        }
+                    }
+                    else
                     {
-                        DataRow dataRow = dtSub.NewRow();
-                        dataRow["UUID"] = uuid;
-                        dataRow["id"] = dtSPInfo.Rows[j]["id"].ToString();
-                        dataRow["vcPart_id"] = dtSPInfo.Rows[j]["vcPart_id"].ToString();
-                        dataRow["vcBackPart_id"] = dtSPInfo.Rows[j]["vcBackPart_id"].ToString();
-                        dataRow["iQuantity"] = dtSPInfo.Rows[j]["iQuantity"].ToString();
-                        dataRow["vcQueRenNo"] = vcQueRenNo;
-                        dtSub.Rows.Add(dataRow);
+                        DataTable dtInfo = fs1702_DataAccess.GetqrdInfo(vcProject, dChuHeDate);
+                        string uuid = Guid.NewGuid().ToString("N");
+                        for (int j = 0; j < dtInfo.Rows.Count; j++)
+                        {
+                            DataRow dataRow = dtSub.NewRow();
+                            dataRow["UUID"] = uuid;
+                            dataRow["id"] = dtInfo.Rows[j]["id"].ToString();
+                            dataRow["vcPart_id"] = dtInfo.Rows[j]["vcPart_id"].ToString();
+                            dataRow["vcBackPart_id"] = dtInfo.Rows[j]["vcBackPart_id"].ToString();
+                            if (vcProject == "BJW")
+                            {
+                                //dataRow["iQuantity"] = ReturnQuantity();
+                                string strbiyaoshu = dtInfo.Rows[j]["iQuantity"].ToString();
+                                string strCapacity = dtInfo.Rows[j]["iCapacity"].ToString();
+                                string strRemain = dtInfo.Rows[j]["iRemain"].ToString();
+                                if (strbiyaoshu == "" || strCapacity == "" || strRemain == "")
+                                {
+                                    DataRow row = dtMessage.NewRow();
+                                    row["vcMessage"] = dtInfo.Rows[j]["vcPart_id"].ToString() + "  没有必要数/余量/收容数，请先维护。";
+                                    dtMessage.Rows.Add(row);
+                                }
+                                else
+                                {
+                                    int ibiyaoshu = Convert.ToInt32(strbiyaoshu);
+                                    int iCapacity = Convert.ToInt32(strCapacity);
+                                    int iRemain = Convert.ToInt32(strRemain);
+                                    if (iRemain - ibiyaoshu >= 0)
+                                    {
+                                        //插入BJW余量历史表 iRemain ibiyaoshu
+                                        DataRow drBJW_History = dtBJWHistory.NewRow();
+                                        drBJW_History["vcPart_id"] = dtInfo.Rows[j]["vcPart_id"].ToString();
+                                        drBJW_History["iA"] = iRemain;
+                                        drBJW_History["iB"] = ibiyaoshu;
+                                        drBJW_History["iC"] = iRemain - ibiyaoshu;
+                                        dtBJWHistory.Rows.Add(drBJW_History);
+                                        //更新余量表 iRemain-ibiyaoshu
+                                        DataRow drBJW = dtBJW.NewRow();
+                                        drBJW["vcPart_id"] = dtInfo.Rows[j]["vcPart_id"].ToString();
+                                        drBJW["iRemain"] = iRemain - ibiyaoshu;
+                                        dtBJW.Rows.Add(drBJW);
+                                        //更新确认单数量
+                                        dataRow["iQuantity"] = 0;
+                                    }
+                                    else
+                                    {
+                                        int iCapacityAndiRemain = iCapacity + iRemain;
+                                        while (iCapacityAndiRemain - ibiyaoshu < 0)
+                                        {
+                                            iCapacityAndiRemain += iCapacity;
+                                        }
+                                        //插入BJW余量历史表 iCapacityAndiRemain ibiyaoshu
+                                        DataRow drBJW_History = dtBJWHistory.NewRow();
+                                        drBJW_History["vcPart_id"] = dtInfo.Rows[j]["vcPart_id"].ToString();
+                                        drBJW_History["iA"] = iCapacityAndiRemain;
+                                        drBJW_History["iB"] = ibiyaoshu;
+                                        drBJW_History["iC"] = iCapacityAndiRemain - ibiyaoshu;
+                                        dtBJWHistory.Rows.Add(drBJW_History);
+                                        //更新余量表 iCapacityAndiRemain-ibiyaoshu
+                                        DataRow drBJW = dtBJW.NewRow();
+                                        drBJW["vcPart_id"] = dtInfo.Rows[j]["vcPart_id"].ToString();
+                                        drBJW["iRemain"] = iCapacityAndiRemain - ibiyaoshu;
+                                        dtBJW.Rows.Add(drBJW);
+                                        //更新确认单数量
+                                        dataRow["iQuantity"] = iCapacityAndiRemain - iRemain;
+                                    }
+                                }
+                            }
+                            else
+                                dataRow["iQuantity"] = dtInfo.Rows[j]["iQuantity"].ToString();
+                            dataRow["vcQueRenNo"] = vcQueRenNo;
+                            dtSub.Rows.Add(dataRow);
+                        }
                     }
                 }
                 if (dtSub.Rows.Count == 0)
@@ -417,7 +503,7 @@ namespace Logic
             try
             {
                 DataTable dt_detail = fs1702_DataAccess.getPrintTemp("FS1702_kb_detail");
-                DataTable dt_main= fs1702_DataAccess.getPrintTemp("FS1702_kb_main");
+                DataTable dt_main = fs1702_DataAccess.getPrintTemp("FS1702_kb_main");
                 DataTable dtSub_detail = dt_detail.Clone();
                 DataTable dtSub_main = dt_main.Clone();
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -494,7 +580,7 @@ namespace Logic
                 }
                 if (dtMessage.Rows.Count != 0)
                     return false;
-                fs1702_DataAccess.setPrintTemp_kb_detail(dtSub_main,dtSub_detail, strOperId, ref dtMessage);
+                fs1702_DataAccess.setPrintTemp_kb_detail(dtSub_main, dtSub_detail, strOperId, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
                     return false;
                 else

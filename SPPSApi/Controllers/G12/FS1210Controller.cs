@@ -786,7 +786,7 @@ namespace SPPSApi.Controllers.G12
                     string vcComDate00 = dtPorType.Rows[z]["vcComDate00"].ToString();
                     string vcBanZhi00 = dtPorType.Rows[z]["vcBanZhi00"].ToString();
                     string msg = print.printCr(reportPath, vcPorType, vcorderno, vcComDate01, vcBanZhi01, vcComDate00, vcBanZhi00, strLoginId, strPrinterName);//打印水晶报表
-                    //bool retb = print.printCr(reportPath, vcPorType, vcorderno, vcComDate01, vcBanZhi01, vcComDate00, vcBanZhi00, strLoginId, strPrinterName);//打印水晶报表
+
                     //数据库取出Excel的数据进行打印
                     //dtPorType.Rows[z]["vcPorType"].ToString(), dtPorType.Rows[z]["vcorderno"].ToString(), dtPorType.Rows[z]["vcComDate01"].ToString(), dtPorType.Rows[z]["vcBanZhi01"].ToString()
                     DataSet ds = logic.PrintExcel(vcPorType, vcorderno, vcComDate01, vcBanZhi01, vcComDate00, vcBanZhi00);
@@ -1084,9 +1084,8 @@ namespace SPPSApi.Controllers.G12
                         #endregion
                     }
                     gud = Guid.NewGuid().ToString("N");
-                    string ls_savePath = _webHostEnvironment.ContentRootPath + "Doc\\Image\\QRCodeImages\\" + ls_fileName;
                     string reCode = print.reCode(vcSupplierCode, vcSupplierPlant, vcDock, vcPartsNo, iQuantityPerContainer, vcKBSerial, vcEDflag, vcKBorderno);
-                    byte[] vcQRCodeImge = print.GenGenerateQRCode(reCode, ls_savePath);
+                    byte[] vcQRCodeImge = print.GenGenerateQRCode(msg, reCode);
                     #region
                     DataRow row = dtPrint.NewRow();
                     row[0] = vcSupplierCode.ToUpper();

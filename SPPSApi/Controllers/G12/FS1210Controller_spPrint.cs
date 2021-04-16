@@ -264,17 +264,16 @@ namespace SPPSApi.Controllers.G12
             }
             try
             {
+                string msg = string.Empty;
+                string strPrinterName = logic.PrintMess(loginInfo.UserId);//获取打印机
                 string RolePorType = logic09.getRoleTip(loginInfo.UserId);
                 string[] str2;
                 str2 = RolePorType.Split('*');
+
                 DataTable dt = logic.SearchPrintTDB(vcPrint, str2);
                 DataTable dtPrintCR = new DataTable();
                 DataTable dtPrintCRLone = print.searchTBCreateCRExcep();//获得数据库表结构
                 DataTable dtPrint = dtPrintCRLone.Clone();
-                string picnull = _webHostEnvironment.ContentRootPath + "\\images\\picnull.JPG";
-                string msg = string.Empty;
-                byte[] vcPhotoPath;
-                string strPrinterName = "";
                 //print.TurnCate();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -309,9 +308,11 @@ namespace SPPSApi.Controllers.G12
                     string vcRemark1 = String.Empty;
                     string vcRemark2 = String.Empty;
 
+
                     DataTable dtKANB = print.searchProRuleMst(vcPartsNo, vcDock);
                     string vcmage = "";//图片
-                    vcPhotoPath = print.PhotoToArray(vcmage, picnull);//图片二进制流
+                    string picnull = _webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\picnull.JPG";
+                    byte[] vcPhotoPath = print.PhotoToArray(vcmage, picnull);//图片二进制流
                     if (dtKANB.Rows.Count != 0)
                     {
                         //检索打印看板的其他字段 
@@ -374,7 +375,7 @@ namespace SPPSApi.Controllers.G12
                                                   //DataTable dtPorType = print.searchPorTypeExcep();//取生产部署
                 dtPorType = QueryGroup(dtPrint);//用订单号 生产部署 生产日期 生产班值分组,修改不在数据库中取值
                 print.insertTableCRMainEND(dtPrint, dtPorType);//插入打印临时主表
-                string reportPath = "\\CryReportEX.rpt";
+                string reportPath = "CryReportEX.rpt";
                 string strLoginId = loginInfo.UserId;
                 for (int z = 0; z < dtPorType.Rows.Count; z++)
                 {

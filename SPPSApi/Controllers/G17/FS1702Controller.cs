@@ -210,7 +210,10 @@ namespace SPPSApi.Controllers.G17
                         apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    bool bResult = fs1702_Logic.getPrintInfo(listInfoData, loginInfo.UserId, ref dtMessage);
+                    DataTable dtBJW = new DataTable();
+                    DataTable dtBJWHistory = new DataTable();
+                    DataTable dtSub = new DataTable();
+                    bool bResult = fs1702_Logic.getPrintInfo(listInfoData, loginInfo.UserId, ref dtMessage,ref dtBJW, ref dtBJWHistory,ref dtSub);
                     if (!bResult)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -218,7 +221,7 @@ namespace SPPSApi.Controllers.G17
                         apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    #region 调用webApi打印
+                    #region 调用webApi打印 not use
                     //FS0603_Logic fS0603_Logic = new FS0603_Logic();
                     //string strPrinterName = fS0603_Logic.getPrinterName("FS1702", loginInfo.UserId);
                     ////创建 HTTP 绑定对象
@@ -257,9 +260,58 @@ namespace SPPSApi.Controllers.G17
                     //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     //}
                     #endregion
-                    
+
+                    #region 调用webApi打印
+                    FS0603_Logic fS0603_Logic = new FS0603_Logic();
+                    DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("确认单", loginInfo.UserId);
+                    if (dtPrinterInfo.Rows.Count != 0)
+                    {
+                        //创建 HTTP 绑定对象
+                        string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                        var binding = new BasicHttpBinding();
+                        //根据 WebService 的 URL 构建终端点对象
+                        var endpoint = new EndpointAddress(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
+                        //创建调用接口的工厂，注意这里泛型只能传入接口
+                        var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                        //从工厂获取具体的调用实例
+                        var callClient = factory.CreateChannel();
+                        setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
+                        Body.strScrpit = "select * from tPrintTemp_FS1702 where vcOperator='" + loginInfo.UserId + "' ORDER BY CAST(id AS INT)";
+                        Body.strCRVName = file_crv + dtPrinterInfo.Rows[0]["vcReports"].ToString();
+                        Body.strPrinterName = dtPrinterInfo.Rows[0]["vcPrinter"].ToString();
+                        Body.sqlUserID = dtPrinterInfo.Rows[0]["vcSqlUserID"].ToString();
+                        Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();
+                        Body.sqlCatalog = dtPrinterInfo.Rows[0]["vcSqlCatalog"].ToString();
+                        Body.sqlSource = dtPrinterInfo.Rows[0]["vcSqlSource"].ToString();
+                        //调用具体的方法，这里是 HelloWorldAsync 方法
+                        Task<setCRVPrintResponse> responseTask = callClient.setCRVPrintAsync(new setCRVPrintRequest(Body));
+                        //获取结果
+                        setCRVPrintResponse response = responseTask.Result;
+                        if (response.Body.setCRVPrintResult != "打印成功")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                    }
+                    else
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "没有打印机信息，请联系管理员维护。";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
+
                     //更新打印时间
-                    fs1702_Logic.qrdPrint(listInfoData, loginInfo.UserId);
+                    fs1702_Logic.qrdPrint(listInfoData, loginInfo.UserId,dtBJW,dtBJWHistory,dtSub);
 
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = "打印成功";

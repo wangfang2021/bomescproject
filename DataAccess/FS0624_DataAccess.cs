@@ -32,11 +32,11 @@ namespace DataAccess
                 strSql.Append("       	,sum(a.iQuantityNow) as iQuantityNow         \n");
                 strSql.Append("       	from        \n");
                 strSql.Append("       	(        \n");
-                strSql.Append("       		select left(a.vcChangeNo,4)+'/'+substring(a.vcChangeNo,5,2)+'/'+right(a.vcChangeNo,2) as vcChangeDate,a.vcChangeNo          \n");
+                strSql.Append("       		select CAST(vcDXDate AS DATETIME)  as vcChangeDate,a.vcChangeNo          \n");
                 strSql.Append("       		,a.vcChangeType,c.vcGroupName,a.iQuantityBefore,a.iQuantityNow,a.dFileUpload,a.vcOrderNo        \n");
                 strSql.Append("       		from        \n");
                 strSql.Append("       		(        \n");
-                strSql.Append("       			select vcChangeNo         \n");
+                strSql.Append("       			select vcChangeNo,vcDXDate         \n");
                 strSql.Append("       			,case when iQuantityBefore<>iQuantityNow then '有变更' else '无变更' end as vcChangeType        \n");
                 strSql.Append("       			,vcOrderNo,iQuantityBefore,iQuantityNow        \n");
                 strSql.Append("       			,vcPart_Id,dFileUpload  from TSoqDayChange        \n");

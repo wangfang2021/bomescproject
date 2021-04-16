@@ -943,7 +943,7 @@ namespace DataAccess
             strSQL.AppendLine("              MAX(vcKBSerial) as maxal, ");
             strSQL.AppendLine("              MIN(vcKBSerial) as minal   ");
             strSQL.AppendLine("         from [testprinterExcel]   where vcKBorderno='" + vcorderno + "' and vcPorType='" + vcPorType + "' and vcPCB02='" + vcComDate01 + "' and vcPCB03='" + vcBanZhi01 + "' and vcComDate00='" + vcComDate00 + "' and vcBanZhi00='" + vcBanZhi00 + "' ");
-            strSQL.AppendLine("              )B  )");
+            strSQL.AppendLine("              ) B  )");
             return excute.ExcuteSqlWithSelectToDS(strSQL.ToString());
         }
 

@@ -74,8 +74,8 @@ namespace DataAccess
 
                 strSql.AppendLine("   select * from TOutCode where    ");
                 strSql.AppendLine("   vcCodeId='C010' and  vcIsColum='0'    ");
-                strSql.AppendLine("   and (( replace(vcValue3,'-','')<'"+ vcStart.Replace("/","").Replace("-","")+ "' and replace(vcValue4,'-','')>'" + vcStart.Replace("/", "").Replace("-", "") + "')    ");
-                strSql.AppendLine("   or ( replace(vcValue3,'-','')<'" + vcEnd.Replace("/", "").Replace("-", "") + "' and replace(vcValue4,'-','')>'" + vcEnd.Replace("/", "").Replace("-", "") + "'))   ");
+                strSql.AppendLine("   and (( replace(vcValue3,'-','')<='"+ vcStart.Replace("/","").Replace("-","")+ "' and replace(vcValue4,'-','')>='" + vcStart.Replace("/", "").Replace("-", "") + "')    ");
+                strSql.AppendLine("   or ( replace(vcValue3,'-','')<='" + vcEnd.Replace("/", "").Replace("-", "") + "' and replace(vcValue4,'-','')>='" + vcEnd.Replace("/", "").Replace("-", "") + "'))   ");
                 strSql.AppendLine("   and vcValue1='"+ vcSupplier + "' and vcValue2='" + vcWorkArea + "'   ");
                 if (strInAutoIds.Length>0)
                 {

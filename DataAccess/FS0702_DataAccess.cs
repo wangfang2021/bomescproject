@@ -82,8 +82,10 @@ namespace DataAccess
 
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,a.varChangedItem,d.vcBZPlant as vcPackSpot,a.vcPartsNo,   ");
-                strSql.AppendLine("    c.vcName as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,a.dFrom,a.dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
-                strSql.AppendLine("  ,b.vcValue as vcShouhuofangID from (       ");
+                strSql.AppendLine("    c.vcName as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo, ");
+                strSql.AppendLine("     dFrom,  	");
+                strSql.AppendLine("    dTo,  	");
+                strSql.AppendLine("    b.vcValue as vcShouhuofangID from (       ");
                 strSql.AppendLine("     select *,'0' as vcModFlag,'0' as vcAddFlag from TPackItem    ");
                 strSql.AppendLine("      WHERE");
                 strSql.AppendLine("      	1 = 1");
@@ -267,24 +269,24 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dtFromBegin))
                 {
-                    dtFromBegin = "1900-01-01 0:00:00";
+                    dtFromBegin = "1900-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dtFromEnd))
                 {
-                    dtFromEnd = "9999-12-31 0:00:00";
+                    dtFromEnd = "9999-12-31 11:59:59";
 
                 }
                 if (string.IsNullOrEmpty(dtToBegin))
                 {
-                    dtToBegin = "1900-01-01 0:00:00";
+                    dtToBegin = "1900-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dtToEnd))
                 {
-                    dtToEnd = "9999-12-31 0:00:00";
+                    dtToEnd = "9999-12-31 11:59:59";
 
                 }
 
@@ -431,7 +433,7 @@ namespace DataAccess
                         vcCar = dr2[0]["vcCar"].ToString();
                         if (dr2[0]["vcShouhuofangID"].ToString() != "")
                         {
-                            strSHFID = dr2[0]["vcShouhuofangID"].ToString().Split(":")[0];
+                            strSHFID = dr2[0]["vcShouhuofangID"].ToString();
                         }
                         else
                         {
@@ -473,8 +475,27 @@ namespace DataAccess
                         sql.AppendLine(" '" + dUserTo + "',   \r\n");
                         sql.AppendLine(ComFunction.getSqlValue(dfrom, false) + ",\r\n");
                         sql.AppendLine(ComFunction.getSqlValue(dto, false) + ",\r\n");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false) + ",\r\n");
-                        if (ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false) == "null")
+                        switch (listInfoData[i]["vcDistinguish"].ToString()) {
+                            case "1":
+                                sql.AppendLine(" '1:个装',\r\n");
+                                break;
+                            case "2":
+                                sql.AppendLine(" '2:内装',\r\n");
+                                break;
+                            case "3":
+                                sql.AppendLine(" '3:外装',\r\n");
+                                break;
+                            case "4":
+                                sql.AppendLine(" '4:防锈',\r\n");
+                                break;
+                            case "5":
+                                sql.AppendLine(" '5:取说',\r\n");
+                                break;
+                            default:
+                                sql.AppendLine(" '',\r\n");
+                                break;
+                        }
+                        if (ComFunction.getSqlValue(listInfoData[i]["iBiYao"], false) == "null")
                         {
                             sql.AppendLine("NULL,\r\n");
                         }
@@ -507,8 +528,30 @@ namespace DataAccess
                         sql.AppendLine($"   dUsedTo ='" + dUserTo + "',\r\n");
                         sql.AppendLine($"   dFrom ={ComFunction.getSqlValue(dfrom, false)},\r\n");
                         sql.AppendLine($"   dTo = {ComFunction.getSqlValue(dto, false)},\r\n");
-                        sql.AppendLine($"   vcDistinguish = {ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false)},\r\n");
-                        if (ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false) == "null")
+                        switch (listInfoData[i]["vcDistinguish"].ToString())
+                        {
+                            case "1":
+                                sql.AppendLine(" vcDistinguish ='1:个装',\r\n");
+                                break;
+                            case "2":
+                                sql.AppendLine(" vcDistinguish ='2:内装',\r\n");
+                                break;
+                            case "3":
+                                sql.AppendLine(" vcDistinguish ='3:外装',\r\n");
+                                break;
+                            case "4":
+                                sql.AppendLine(" vcDistinguish ='4:防锈',\r\n");
+                                break;
+                            case "5":
+                                sql.AppendLine(" vcDistinguish ='5:取说',\r\n");
+                                break;
+                            default:
+                                sql.AppendLine(" vcDistinguish ='',\r\n");
+                                break;
+                        }
+
+                        //sql.AppendLine($"   vcDistinguish = {ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false)},\r\n");
+                        if (ComFunction.getSqlValue(listInfoData[i]["iBiYao"], false) == "null")
                         {
                             sql.AppendLine("   iBiYao = NULL,\r\n");
                         }
@@ -693,7 +736,11 @@ namespace DataAccess
                         }
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dFrom"], false) + ",\r\n");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dTo"], false) + ",\r\n");
+
+
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcDistinguish"], false) + ",\r\n");
+
+
                         if (dt.Rows[i]["iBiYao"].ToString() == "")
                         {
                             sql.AppendLine("NULL,\r\n");

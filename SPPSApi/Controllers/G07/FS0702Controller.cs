@@ -755,6 +755,14 @@ namespace SPPSApi.Controllers.G07
                     }
                     //判断品番是否存在
 
+                    if (string.IsNullOrEmpty(listInfoData[i]["vcShouhuofangID"].ToString())) {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "请填写收货方！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
+
                     bool isok = FS0702_Logic.CheckPartsNo("", listInfoData[i]["vcPartsNo"].ToString());
                     if (!isok)
                     {

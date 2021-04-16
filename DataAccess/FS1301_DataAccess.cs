@@ -89,6 +89,179 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        public void importSave(DataTable dt, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("DELETE FROM [dbo].[TPointPowerTmp] where  vcOperatorID='" + strUserId + "' \n");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string vcUserId = dt.Rows[i]["vcUserId"] == System.DBNull.Value ? "" : dt.Rows[i]["vcUserId"].ToString().Trim();
+                    string vcPlant = dt.Rows[i]["vcPackingPlant"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPackingPlant"].ToString().Trim();
+                    #region
+                    string vcInPut = dt.Rows[i]["bInPut"] == System.DBNull.Value ? "" : dt.Rows[i]["bInPut"].ToString().Trim();
+                    if (vcInPut == "√")
+                    {
+                        vcInPut = "1";
+                    } else
+                    {
+                        vcInPut = "0";
+                    }
+                    string vcInPutUnLock = dt.Rows[i]["bInPutUnLock"] == System.DBNull.Value ? "" : dt.Rows[i]["bInPutUnLock"].ToString().Trim();
+                    if (vcInPutUnLock == "√")
+                    {
+                        vcInPutUnLock = "1";
+                    }
+                    else
+                    {
+                        vcInPutUnLock = "0";
+                    }
+                    #endregion
+                    #region
+                    string vcCheck = dt.Rows[i]["bCheck"] == System.DBNull.Value ? "" : dt.Rows[i]["bCheck"].ToString().Trim();
+                    if (vcCheck == "√")
+                    {
+                        vcCheck = "1";
+                    }
+                    else
+                    {
+                        vcInPut = "0";
+                    }
+                    string vcCheckUnLock = dt.Rows[i]["bCheckUnLock"] == System.DBNull.Value ? "" : dt.Rows[i]["bCheckUnLock"].ToString().Trim();
+                    if (vcCheckUnLock == "√")
+                    {
+                        vcCheckUnLock = "1";
+                    }
+                    else
+                    {
+                        vcCheckUnLock = "0";
+                    }
+                    #endregion
+                    #region
+                    string vcPack = dt.Rows[i]["bPack"] == System.DBNull.Value ? "" : dt.Rows[i]["bPack"].ToString().Trim();
+                    if (vcPack == "√")
+                    {
+                        vcPack = "1";
+                    }
+                    else
+                    {
+                        vcPack = "0";
+                    }
+                    string vcPackUnLock = dt.Rows[i]["bPackUnLock"] == System.DBNull.Value ? "" : dt.Rows[i]["bPackUnLock"].ToString().Trim();
+                    if (vcPackUnLock == "√")
+                    {
+                        vcPackUnLock = "1";
+                    }
+                    else
+                    {
+                        vcPackUnLock = "0";
+                    }
+                    #endregion
+                    #region
+                    string vcOutPut = dt.Rows[i]["bOutPut"] == System.DBNull.Value ? "" : dt.Rows[i]["bOutPut"].ToString().Trim();
+                    if (vcOutPut == "√")
+                    {
+                        vcOutPut = "1";
+                    }
+                    else
+                    {
+                        vcOutPut = "0";
+                    }
+                    string vcOutPutUnLock = dt.Rows[i]["bOutPutUnLock"] == System.DBNull.Value ? "" : dt.Rows[i]["bOutPutUnLock"].ToString().Trim();
+                    if (vcOutPutUnLock == "√")
+                    {
+                        vcOutPutUnLock = "1";
+                    }
+                    else
+                    {
+                        vcOutPutUnLock = "0";
+                    }
+                    #endregion
+
+                    sql.Append("   INSERT INTO [dbo].[TPointPowerTmp]   \n");
+                    sql.Append("              (vcUserId, vcPlant, vcInPut, vcInPutUnLock, vcCheck, vcCheckUnLock,   \n");
+                    sql.Append("              vcPack, vcPackUnLock, vcOutPut, vcOutPutUnLock, vcOperatorID, dOperatorTime    \n");
+                    sql.Append("             ) values    \n");
+                    sql.Append("   		  ( " + getSqlValue(vcUserId, true) + "," + getSqlValue(vcPlant, true) + "," + getSqlValue(vcInPut, true) + "," + getSqlValue(vcInPutUnLock, true) + ",  \n");
+                    sql.Append("    " + getSqlValue(vcCheck, true) + "," + getSqlValue(vcCheckUnLock, true) + "," + getSqlValue(vcPack, true) + ",   \n");
+                    sql.Append("     " + getSqlValue(vcPackUnLock, true) + "," + getSqlValue(vcOutPut, true) + "," + getSqlValue(vcOutPutUnLock, true) + ",   \n");
+                    sql.Append("   '" + strUserId + "' \n");
+                    sql.Append("     ,getdate())  \n");
+                }
+               
+                //更新
+                sql.Append("   update b set b.vcInPut=a.vcInPut,b.vcInPutUnLock=a.vcInPutUnLock,   \n");
+                sql.Append("   b.vcCheck=a.vcCheck,b.vcCheckUnLock=a.vcCheckUnLock,   \n");
+                sql.Append("   b.vcPack =a.vcPack,b.vcPackUnLock=a.vcPackUnLock,   \n");
+                sql.Append("   b.vcOutPut=a.vcOutPut,b.vcOutPutUnLock=a.vcOutPutUnLock,   \n");
+                sql.Append("   b.dOperatorTime=GETDATE()   \n");
+                sql.Append("   from   \n");
+                sql.Append("   (   \n");
+                sql.Append("   select * from [TPointPowerTmp] where [vcOperatorID]='"+ strUserId + "'   \n");
+                sql.Append("   ) a   \n");
+                sql.Append("   left join (select * from TPointPower)b    \n");
+                sql.Append("   on a.vcUserId=b.vcUserId and a.vcPlant=b.vcPlant   \n");
+                sql.Append("   where b.vcUserId is not null   \n");
+                sql.Append("   ;   \n");
+                
+                sql.Append("   INSERT INTO [dbo].[TPointPower]   \n");
+                sql.Append("              (vcUserId, vcPlant, vcInPut, vcInPutUnLock, vcCheck, vcCheckUnLock, vcPack, \n");
+                sql.Append("               vcPackUnLock, vcOutPut, vcOutPutUnLock, vcOperatorID, dOperatorTime    \n");
+                sql.Append("             )    \n");
+                sql.Append("    select a.vcUserId, a.vcPlant, a.vcInPut, a.vcInPutUnLock, a.vcCheck, a.vcCheckUnLock,       \n");
+                sql.Append("    a.vcPack, a.vcPackUnLock, a.vcOutPut, a.vcOutPutUnLock, a.vcOperatorID, a.dOperatorTime       \n");
+                sql.Append("    from      \n");
+                sql.Append("    (      \n");
+                sql.Append("    select * from [TPointPowerTmp] where [vcOperatorID]='"+ strUserId + "'      \n");
+                sql.Append("    ) a      \n");
+                sql.Append("    left join (select * from TPointPower)b       \n");
+                sql.Append("    on a.vcUserId=b.vcUserId and a.vcPlant=b.vcPlant      \n");
+                sql.Append("    where b.vcUserId is null      \n");
+                sql.Append("      \n");
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #region 返回insert语句值
+        /// <summary>
+        /// 返回insert语句值
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="isObject">如果insert时间、金额或者其他对象类型数据，为true</param>
+        /// <returns></returns>
+        private string getSqlValue(Object obj, bool isObject)
+        {
+            if (obj == null)
+                return "null";
+            else if (obj.ToString().Trim() == "" && isObject)
+                return "null";
+            else
+                return "'" + obj.ToString() + "'";
+        }
+        #endregion
+        public DataTable isCheckUserId(string userId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                
+                strSql.AppendLine(" select * from SUser where vcUserID='"+ userId + "'");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void saveDataInfo(DataTable dataTable, string strOperId)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();

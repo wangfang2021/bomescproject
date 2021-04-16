@@ -637,8 +637,8 @@ namespace DataAccess
                     DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "'");
                     if (dr2.Length == 0)
                     {
-                        dUserFrom = "1990-01-01";
-                        dUserTo = "9999-12-31";
+                        dUserFrom = "";
+                        dUserTo = "";
                         vcChange = "";
                         vcCar = "";
                     }
@@ -676,8 +676,21 @@ namespace DataAccess
                         sql.AppendLine("'" + PackGPSNo + "',\r\n");
                         sql.AppendLine("     '" + dt.Rows[i]["vcShouhuofangID"].ToString() + "',  \r\n");
                         sql.AppendLine("'" + vcCar + "',\r\n");
-                        sql.AppendLine("'" + dUserFrom + "',\r\n");
-                        sql.AppendLine("'" + dUserTo + "',\r\n");
+                        if (string.IsNullOrEmpty(dUserFrom))
+                        {
+                            sql.AppendLine(" NULL,\r\n");
+                        }
+                        else {
+                            sql.AppendLine("'" + dUserFrom + "',\r\n");
+                        }
+                        if (string.IsNullOrEmpty(dUserTo))
+                        {
+                            sql.AppendLine(" NULL,\r\n");
+                        }
+                        else
+                        {
+                            sql.AppendLine("'" + dUserTo + "',\r\n");
+                        }
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dFrom"], false) + ",\r\n");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dTo"], false) + ",\r\n");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcDistinguish"], false) + ",\r\n");

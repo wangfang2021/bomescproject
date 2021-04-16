@@ -73,7 +73,7 @@ namespace DataAccess
                     }
                     strSql.Append("   )       \n");
                 }
-                if (!string.IsNullOrEmpty(PackNo))
+                if (!string.IsNullOrEmpty(PackGPSNo))
                     strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

@@ -251,13 +251,36 @@ namespace SPPSApi.Controllers.G07
                                             "iDay31","dZYTime"};
                         string strfileName = "月度内示书_"+strYearMonth+"_"+i+"_";
                         string filepath = ComFunction.DataTableToExcel(head, fields, dt_Month, _webHostEnvironment.ContentRootPath, loginInfo.UserId, strfileName, ref resMsg);
+
+                        string strFilePath_All = _webHostEnvironment.ContentRootPath + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar + filepath;
+
+                        if (string.IsNullOrEmpty(filepath))
+                        {
+                            ComFunction.ConsoleWriteLine("error文件生成失败！");
+                        }
+                        else
+                        {
+                            ComFunction.ConsoleWriteLine("##文件生成成功！文件名："+filepath);
+                            ComFunction.ConsoleWriteLine("##文件所在完整路径：" + strFilePath_All);
+                        }
+                        
                         if (filepath == "")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "导出生成文件失败";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        zIPHelper.addFiles(filepath, _webHostEnvironment.ContentRootPath+ Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar);
+                        string strMessage = "##校验文件是否存在：";
+                        if (System.IO.File.Exists(strFilePath_All))
+                        {
+                            strMessage += "true";
+                        }
+                        else
+                        {
+                            strMessage += "False";
+                        }
+                        ComFunction.ConsoleWriteLine(strMessage);
+                        zIPHelper.addFiles(filepath, _webHostEnvironment.ContentRootPath + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar);
                     }
                 }
                 #endregion
@@ -448,7 +471,7 @@ namespace SPPSApi.Controllers.G07
                             apiResult.data = "导出生成文件失败";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        zIPHelper.addFiles(filepath, _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar);
+                        zIPHelper.addFiles(filepath, _webHostEnvironment.ContentRootPath + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar);
                     }
                 }
                 #endregion
@@ -529,12 +552,11 @@ namespace SPPSApi.Controllers.G07
 
         public void addFiles(string strFileName, string strFilePath)
         {
-            ComFunction.ConsoleWriteLine("**文件名：" + strFileName);
+            ComFunction.ConsoleWriteLine("##进入添加到压缩包方法");
             string strFilePath_All = strFilePath + strFileName;
-            ComFunction.ConsoleWriteLine("**文件完整路径"+strFilePath_All);
-            
+            ComFunction.ConsoleWriteLine("##传入的strFileName：" + strFileName);
+            ComFunction.ConsoleWriteLine("##传入的strFilePath：" + strFilePath);
             string strMessage = "**校验文件是否存在：";
-
             if (File.Exists(strFilePath_All))
             {
                 strMessage += "true";
@@ -555,10 +577,10 @@ namespace SPPSApi.Controllers.G07
                 ComFunction.ConsoleWriteLine("**添加失败，异常消息："+ex.Message);
             }
 
-            if (File.Exists(strFilePath_All))
-            {
-                File.Delete(strFilePath_All);
-            }
+            //if (File.Exists(strFilePath_All))
+            //{
+            //    File.Delete(strFilePath_All);
+            //}
         }
 
         /// <summary>

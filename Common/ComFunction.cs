@@ -1048,7 +1048,6 @@ namespace Common
             string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
 
             string path = fileSavePath + strFileName;
-            ComFunction.ConsoleWriteLine("DataTableToExcel:" + path);
 
             if (System.IO.File.Exists(path))
             {

@@ -66,7 +66,7 @@ namespace Logic
                 DataRow[] drs = packCheckDT.Select("vcPart_id='" + partLists[i]+ "' and vcPartsNo is null");
                 if (drs.Length>0)
                 {
-                    strErr1 += partLists[i]+" ";
+                    strErr1 += partLists[i]+",";
                 }
                 else
                 {

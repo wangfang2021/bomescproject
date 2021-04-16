@@ -219,7 +219,7 @@ namespace SPPSApi.Controllers.G12
                                         binding.SendTimeout = TimeSpan.MaxValue;
                                         EndpointAddress address = new EndpointAddress("http://localhost:44375/PrintTable.asmx");
                                         PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
-                                        msg = client.Print_Confirmation_Date(inTable_tmp, exdthj_tmp, tmplatePath, vcKbOrderId, vcGC, strLoginId, vcPlanPrintDate, vcPlanPrintBZ == "0" ? "白值" : "夜值", vcPlanProcDate, vcPlanProcBZ == "0" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB, vcPrintDate);
+                                        //msg = client.Print_Confirmation_Date(inTable_tmp, exdthj_tmp, tmplatePath, vcKbOrderId, vcGC, strLoginId, vcPlanPrintDate, vcPlanPrintBZ == "0" ? "白值" : "夜值", vcPlanProcDate, vcPlanProcBZ == "0" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB, vcPrintDate);
                                     }
                                     catch (Exception ex)
                                     {
@@ -264,7 +264,7 @@ namespace SPPSApi.Controllers.G12
                                 binding.SendTimeout = TimeSpan.MaxValue;
                                 EndpointAddress address = new EndpointAddress("http://localhost:44375/PrintTable.asmx");
                                 PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
-                                exdthj_msg = client.Print_Confirmation_Date(exdttt_tmp, exdthj_tmp, tmplatePath, vcKbOrderId, vcGC, strLoginId, vcPlanPrintDate, vcPlanPrintBZ == "0" ? "白值" : "夜值", vcPlanProcDate, vcPlanProcBZ == "0" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB, vcPrintDate);
+                                //exdthj_msg = client.Print_Confirmation_Date(exdttt_tmp, exdthj_tmp, tmplatePath, vcKbOrderId, vcGC, strLoginId, vcPlanPrintDate, vcPlanPrintBZ == "0" ? "白值" : "夜值", vcPlanProcDate, vcPlanProcBZ == "0" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB, vcPrintDate);
                             }
                             catch (Exception ex)
                             {

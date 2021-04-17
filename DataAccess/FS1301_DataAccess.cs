@@ -127,7 +127,7 @@ namespace DataAccess
                     }
                     else
                     {
-                        vcInPut = "0";
+                        vcCheck = "0";
                     }
                     string vcCheckUnLock = dt.Rows[i]["bCheckUnLock"] == System.DBNull.Value ? "" : dt.Rows[i]["bCheckUnLock"].ToString().Trim();
                     if (vcCheckUnLock == "√")

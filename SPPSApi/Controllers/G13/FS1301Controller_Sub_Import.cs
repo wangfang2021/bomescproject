@@ -71,7 +71,7 @@ namespace SPPSApi.Controllers.G06
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"包装工厂","员工编号", "员工姓名", "用户角色", "入荷作业", "入荷解锁", "检查作业", "检查解锁", "包装作业", "包装解锁", "出荷作业", "出荷解锁" },
+                string[,] headers = new string[,] {{"包装工厂","员工编号", "员工姓名", "用户角色", "现场入荷作业", "现场入荷解锁", "现场检查作业", "现场检查解锁", "现场包装作业", "现场包装解锁", "现场出荷作业", "现场出荷解锁" },
                                                 { "vcPackingPlant", "vcUserId", "vcUserName", "vcRoleName", "bInPut", "bInPutUnLock", "bCheck", "bCheckUnLock", "bPack", "bPackUnLock", "bOutPut", "bOutPutUnLock"},
                                                 {FieldCheck.NumChar,FieldCheck.NumChar,"","","","","","","","","","",},
                                                 {"10","10","20","20","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
@@ -188,11 +188,78 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dt = fs1301_Logic.getSearchInfo(strPackingPlant, strUser, strRoler);
+                for (int i=0;i<dt.Rows.Count;i++)
+                {
+                    if (dt.Rows[i]["bInPut"].ToString()=="1")
+                    {
+                        dt.Rows[i]["bInPut"] = "√";
+                    }
+                    else
+                    {
+                        dt.Rows[i]["bInPut"] = "×";
+                    }
+                    if (dt.Rows[i]["bInPutUnLock"].ToString() == "1")
+                    {
+                        dt.Rows[i]["bInPutUnLock"] = "√";
+                    }
+                    else
+                    {
+                        dt.Rows[i]["bInPutUnLock"] = "×";
+                    }
+                    if (dt.Rows[i]["bCheck"].ToString() == "1")
+                    {
+                        dt.Rows[i]["bCheck"] = "√";
+                    }
+                    else
+                    {
+                        dt.Rows[i]["bCheck"] = "×";
+                    }
+                    if (dt.Rows[i]["bCheckUnLock"].ToString() == "1")
+                    {
+                        dt.Rows[i]["bCheckUnLock"] = "√";
+                    }
+                    else
+                    {
+                        dt.Rows[i]["bCheckUnLock"] = "×";
+                    }
+                    if (dt.Rows[i]["bPack"].ToString() == "1")
+                    {
+                        dt.Rows[i]["bPack"] = "√";
+                    }
+                    else
+                    {
+                        dt.Rows[i]["bPack"] = "×";
+                    }
+                    if (dt.Rows[i]["bPackUnLock"].ToString() == "1")
+                    {
+                        dt.Rows[i]["bPackUnLock"] = "√";
+                    }
+                    else
+                    {
+                        dt.Rows[i]["bPackUnLock"] = "×";
+                    }
+                    if (dt.Rows[i]["bOutPut"].ToString() == "1")
+                    {
+                        dt.Rows[i]["bOutPut"] = "√";
+                    }
+                    else
+                    {
+                        dt.Rows[i]["bOutPut"] = "×";
+                    }
+                    if (dt.Rows[i]["bOutPutUnLock"].ToString() == "1")
+                    {
+                        dt.Rows[i]["bOutPutUnLock"] = "√";
+                    }
+                    else
+                    {
+                        dt.Rows[i]["bOutPutUnLock"] = "×";
+                    }
+                }
                 string[] fields = {
                     "vcPackingPlant", "vcUserId", "vcUserName", "vcRoleName", "bInPut", "bInPutUnLock", "bCheck", "bCheckUnLock", "bPack", "bPackUnLock", "bOutPut", "bOutPutUnLock"
                 };
 
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1301_Template.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1301_Template.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

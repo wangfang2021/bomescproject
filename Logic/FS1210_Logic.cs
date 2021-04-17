@@ -215,12 +215,12 @@ namespace Logic
         {
             int a = dt.Rows.Count;
             DataTable dtPorType = new DataTable("dtPorType");
-            DataColumn dc1 = new DataColumn("vcorderno", Type.GetType("System.string"));
-            DataColumn dc2 = new DataColumn("vcPorType", Type.GetType("System.string"));
-            DataColumn dc3 = new DataColumn("vcComDate01", Type.GetType("System.string"));
-            DataColumn dc4 = new DataColumn("vcBanZhi01", Type.GetType("System.string"));
-            DataColumn dc5 = new DataColumn("vcComDate00", Type.GetType("System.string"));
-            DataColumn dc6 = new DataColumn("vcBanZhi00", Type.GetType("System.string"));
+            DataColumn dc1 = new DataColumn("vcorderno", Type.GetType("System.String"));
+            DataColumn dc2 = new DataColumn("vcPorType", Type.GetType("System.String"));
+            DataColumn dc3 = new DataColumn("vcComDate01", Type.GetType("System.String"));
+            DataColumn dc4 = new DataColumn("vcBanZhi01", Type.GetType("System.String"));
+            DataColumn dc5 = new DataColumn("vcComDate00", Type.GetType("System.String"));
+            DataColumn dc6 = new DataColumn("vcBanZhi00", Type.GetType("System.String"));
             dtPorType.Columns.Add(dc1);
             dtPorType.Columns.Add(dc2);
             dtPorType.Columns.Add(dc3);

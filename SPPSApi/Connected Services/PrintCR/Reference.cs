@@ -22,6 +22,20 @@ namespace PrintCR
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/PrintCR", ReplyAction="*")]
         System.Threading.Tasks.Task<PrintCR.PrintCRResponse> PrintCRAsync(PrintCR.PrintCRRequest request);
+        
+        // CODEGEN: 正在生成消息协定，因为命名空间 http://tempuri.org/ 的元素名称 dtContent 未标记为 nillable
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/PrintExcel_Confirmation", ReplyAction="*")]
+        PrintCR.PrintExcel_ConfirmationResponse PrintExcel_Confirmation(PrintCR.PrintExcel_ConfirmationRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/PrintExcel_Confirmation", ReplyAction="*")]
+        System.Threading.Tasks.Task<PrintCR.PrintExcel_ConfirmationResponse> PrintExcel_ConfirmationAsync(PrintCR.PrintExcel_ConfirmationRequest request);
+        
+        // CODEGEN: 正在生成消息协定，因为命名空间 http://tempuri.org/ 的元素名称 dtContent 未标记为 nillable
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/PrintExcel_Confirmation_PrintDate", ReplyAction="*")]
+        PrintCR.PrintExcel_Confirmation_PrintDateResponse PrintExcel_Confirmation_PrintDate(PrintCR.PrintExcel_Confirmation_PrintDateRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/PrintExcel_Confirmation_PrintDate", ReplyAction="*")]
+        System.Threading.Tasks.Task<PrintCR.PrintExcel_Confirmation_PrintDateResponse> PrintExcel_Confirmation_PrintDateAsync(PrintCR.PrintExcel_Confirmation_PrintDateRequest request);
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -132,6 +146,274 @@ namespace PrintCR
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class PrintExcel_ConfirmationRequest
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="PrintExcel_Confirmation", Namespace="http://tempuri.org/", Order=0)]
+        public PrintCR.PrintExcel_ConfirmationRequestBody Body;
+        
+        public PrintExcel_ConfirmationRequest()
+        {
+        }
+        
+        public PrintExcel_ConfirmationRequest(PrintCR.PrintExcel_ConfirmationRequestBody Body)
+        {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class PrintExcel_ConfirmationRequestBody
+    {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+        public string dtContent;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=1)]
+        public string dtExcel;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=2)]
+        public string strTemplateFileFullName;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=3)]
+        public string vcorderno;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=4)]
+        public string vcPorType;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=5)]
+        public string User;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=6)]
+        public string printIme;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=7)]
+        public string printDay;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=8)]
+        public string vcComDate01;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=9)]
+        public string vcBanZhi01;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=10)]
+        public string strPrinterName;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=11)]
+        public string pagetotal;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=12)]
+        public string pageno;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=13)]
+        public string hejrange;
+        
+        public PrintExcel_ConfirmationRequestBody()
+        {
+        }
+        
+        public PrintExcel_ConfirmationRequestBody(string dtContent, string dtExcel, string strTemplateFileFullName, string vcorderno, string vcPorType, string User, string printIme, string printDay, string vcComDate01, string vcBanZhi01, string strPrinterName, string pagetotal, string pageno, string hejrange)
+        {
+            this.dtContent = dtContent;
+            this.dtExcel = dtExcel;
+            this.strTemplateFileFullName = strTemplateFileFullName;
+            this.vcorderno = vcorderno;
+            this.vcPorType = vcPorType;
+            this.User = User;
+            this.printIme = printIme;
+            this.printDay = printDay;
+            this.vcComDate01 = vcComDate01;
+            this.vcBanZhi01 = vcBanZhi01;
+            this.strPrinterName = strPrinterName;
+            this.pagetotal = pagetotal;
+            this.pageno = pageno;
+            this.hejrange = hejrange;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class PrintExcel_ConfirmationResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="PrintExcel_ConfirmationResponse", Namespace="http://tempuri.org/", Order=0)]
+        public PrintCR.PrintExcel_ConfirmationResponseBody Body;
+        
+        public PrintExcel_ConfirmationResponse()
+        {
+        }
+        
+        public PrintExcel_ConfirmationResponse(PrintCR.PrintExcel_ConfirmationResponseBody Body)
+        {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class PrintExcel_ConfirmationResponseBody
+    {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+        public string PrintExcel_ConfirmationResult;
+        
+        public PrintExcel_ConfirmationResponseBody()
+        {
+        }
+        
+        public PrintExcel_ConfirmationResponseBody(string PrintExcel_ConfirmationResult)
+        {
+            this.PrintExcel_ConfirmationResult = PrintExcel_ConfirmationResult;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class PrintExcel_Confirmation_PrintDateRequest
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="PrintExcel_Confirmation_PrintDate", Namespace="http://tempuri.org/", Order=0)]
+        public PrintCR.PrintExcel_Confirmation_PrintDateRequestBody Body;
+        
+        public PrintExcel_Confirmation_PrintDateRequest()
+        {
+        }
+        
+        public PrintExcel_Confirmation_PrintDateRequest(PrintCR.PrintExcel_Confirmation_PrintDateRequestBody Body)
+        {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class PrintExcel_Confirmation_PrintDateRequestBody
+    {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+        public string dtContent;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=1)]
+        public string dtExcel;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=2)]
+        public string strTemplateFileFullName;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=3)]
+        public string vcorderno;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=4)]
+        public string vcPorType;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=5)]
+        public string User;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=6)]
+        public string printIme;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=7)]
+        public string printDay;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=8)]
+        public string vcComDate01;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=9)]
+        public string vcBanZhi01;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=10)]
+        public string strPrinterName;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=11)]
+        public string pagetotal;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=12)]
+        public string pageno;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=13)]
+        public string hejrange;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=14)]
+        public string vcPrintDate;
+        
+        public PrintExcel_Confirmation_PrintDateRequestBody()
+        {
+        }
+        
+        public PrintExcel_Confirmation_PrintDateRequestBody(string dtContent, string dtExcel, string strTemplateFileFullName, string vcorderno, string vcPorType, string User, string printIme, string printDay, string vcComDate01, string vcBanZhi01, string strPrinterName, string pagetotal, string pageno, string hejrange, string vcPrintDate)
+        {
+            this.dtContent = dtContent;
+            this.dtExcel = dtExcel;
+            this.strTemplateFileFullName = strTemplateFileFullName;
+            this.vcorderno = vcorderno;
+            this.vcPorType = vcPorType;
+            this.User = User;
+            this.printIme = printIme;
+            this.printDay = printDay;
+            this.vcComDate01 = vcComDate01;
+            this.vcBanZhi01 = vcBanZhi01;
+            this.strPrinterName = strPrinterName;
+            this.pagetotal = pagetotal;
+            this.pageno = pageno;
+            this.hejrange = hejrange;
+            this.vcPrintDate = vcPrintDate;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class PrintExcel_Confirmation_PrintDateResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="PrintExcel_Confirmation_PrintDateResponse", Namespace="http://tempuri.org/", Order=0)]
+        public PrintCR.PrintExcel_Confirmation_PrintDateResponseBody Body;
+        
+        public PrintExcel_Confirmation_PrintDateResponse()
+        {
+        }
+        
+        public PrintExcel_Confirmation_PrintDateResponse(PrintCR.PrintExcel_Confirmation_PrintDateResponseBody Body)
+        {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class PrintExcel_Confirmation_PrintDateResponseBody
+    {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+        public string PrintExcel_Confirmation_PrintDateResult;
+        
+        public PrintExcel_Confirmation_PrintDateResponseBody()
+        {
+        }
+        
+        public PrintExcel_Confirmation_PrintDateResponseBody(string PrintExcel_Confirmation_PrintDateResult)
+        {
+            this.PrintExcel_Confirmation_PrintDateResult = PrintExcel_Confirmation_PrintDateResult;
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     public interface PrintTableSoapChannel : PrintCR.PrintTableSoap, System.ServiceModel.IClientChannel
     {
@@ -216,6 +498,118 @@ namespace PrintCR
             inValue.Body.vcDBUserId = vcDBUserId;
             inValue.Body.vcDBPassword = vcDBPassword;
             return ((PrintCR.PrintTableSoap)(this)).PrintCRAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        PrintCR.PrintExcel_ConfirmationResponse PrintCR.PrintTableSoap.PrintExcel_Confirmation(PrintCR.PrintExcel_ConfirmationRequest request)
+        {
+            return base.Channel.PrintExcel_Confirmation(request);
+        }
+        
+        public string PrintExcel_Confirmation(string dtContent, string dtExcel, string strTemplateFileFullName, string vcorderno, string vcPorType, string User, string printIme, string printDay, string vcComDate01, string vcBanZhi01, string strPrinterName, string pagetotal, string pageno, string hejrange)
+        {
+            PrintCR.PrintExcel_ConfirmationRequest inValue = new PrintCR.PrintExcel_ConfirmationRequest();
+            inValue.Body = new PrintCR.PrintExcel_ConfirmationRequestBody();
+            inValue.Body.dtContent = dtContent;
+            inValue.Body.dtExcel = dtExcel;
+            inValue.Body.strTemplateFileFullName = strTemplateFileFullName;
+            inValue.Body.vcorderno = vcorderno;
+            inValue.Body.vcPorType = vcPorType;
+            inValue.Body.User = User;
+            inValue.Body.printIme = printIme;
+            inValue.Body.printDay = printDay;
+            inValue.Body.vcComDate01 = vcComDate01;
+            inValue.Body.vcBanZhi01 = vcBanZhi01;
+            inValue.Body.strPrinterName = strPrinterName;
+            inValue.Body.pagetotal = pagetotal;
+            inValue.Body.pageno = pageno;
+            inValue.Body.hejrange = hejrange;
+            PrintCR.PrintExcel_ConfirmationResponse retVal = ((PrintCR.PrintTableSoap)(this)).PrintExcel_Confirmation(inValue);
+            return retVal.Body.PrintExcel_ConfirmationResult;
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<PrintCR.PrintExcel_ConfirmationResponse> PrintCR.PrintTableSoap.PrintExcel_ConfirmationAsync(PrintCR.PrintExcel_ConfirmationRequest request)
+        {
+            return base.Channel.PrintExcel_ConfirmationAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<PrintCR.PrintExcel_ConfirmationResponse> PrintExcel_ConfirmationAsync(string dtContent, string dtExcel, string strTemplateFileFullName, string vcorderno, string vcPorType, string User, string printIme, string printDay, string vcComDate01, string vcBanZhi01, string strPrinterName, string pagetotal, string pageno, string hejrange)
+        {
+            PrintCR.PrintExcel_ConfirmationRequest inValue = new PrintCR.PrintExcel_ConfirmationRequest();
+            inValue.Body = new PrintCR.PrintExcel_ConfirmationRequestBody();
+            inValue.Body.dtContent = dtContent;
+            inValue.Body.dtExcel = dtExcel;
+            inValue.Body.strTemplateFileFullName = strTemplateFileFullName;
+            inValue.Body.vcorderno = vcorderno;
+            inValue.Body.vcPorType = vcPorType;
+            inValue.Body.User = User;
+            inValue.Body.printIme = printIme;
+            inValue.Body.printDay = printDay;
+            inValue.Body.vcComDate01 = vcComDate01;
+            inValue.Body.vcBanZhi01 = vcBanZhi01;
+            inValue.Body.strPrinterName = strPrinterName;
+            inValue.Body.pagetotal = pagetotal;
+            inValue.Body.pageno = pageno;
+            inValue.Body.hejrange = hejrange;
+            return ((PrintCR.PrintTableSoap)(this)).PrintExcel_ConfirmationAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        PrintCR.PrintExcel_Confirmation_PrintDateResponse PrintCR.PrintTableSoap.PrintExcel_Confirmation_PrintDate(PrintCR.PrintExcel_Confirmation_PrintDateRequest request)
+        {
+            return base.Channel.PrintExcel_Confirmation_PrintDate(request);
+        }
+        
+        public string PrintExcel_Confirmation_PrintDate(string dtContent, string dtExcel, string strTemplateFileFullName, string vcorderno, string vcPorType, string User, string printIme, string printDay, string vcComDate01, string vcBanZhi01, string strPrinterName, string pagetotal, string pageno, string hejrange, string vcPrintDate)
+        {
+            PrintCR.PrintExcel_Confirmation_PrintDateRequest inValue = new PrintCR.PrintExcel_Confirmation_PrintDateRequest();
+            inValue.Body = new PrintCR.PrintExcel_Confirmation_PrintDateRequestBody();
+            inValue.Body.dtContent = dtContent;
+            inValue.Body.dtExcel = dtExcel;
+            inValue.Body.strTemplateFileFullName = strTemplateFileFullName;
+            inValue.Body.vcorderno = vcorderno;
+            inValue.Body.vcPorType = vcPorType;
+            inValue.Body.User = User;
+            inValue.Body.printIme = printIme;
+            inValue.Body.printDay = printDay;
+            inValue.Body.vcComDate01 = vcComDate01;
+            inValue.Body.vcBanZhi01 = vcBanZhi01;
+            inValue.Body.strPrinterName = strPrinterName;
+            inValue.Body.pagetotal = pagetotal;
+            inValue.Body.pageno = pageno;
+            inValue.Body.hejrange = hejrange;
+            inValue.Body.vcPrintDate = vcPrintDate;
+            PrintCR.PrintExcel_Confirmation_PrintDateResponse retVal = ((PrintCR.PrintTableSoap)(this)).PrintExcel_Confirmation_PrintDate(inValue);
+            return retVal.Body.PrintExcel_Confirmation_PrintDateResult;
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<PrintCR.PrintExcel_Confirmation_PrintDateResponse> PrintCR.PrintTableSoap.PrintExcel_Confirmation_PrintDateAsync(PrintCR.PrintExcel_Confirmation_PrintDateRequest request)
+        {
+            return base.Channel.PrintExcel_Confirmation_PrintDateAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<PrintCR.PrintExcel_Confirmation_PrintDateResponse> PrintExcel_Confirmation_PrintDateAsync(string dtContent, string dtExcel, string strTemplateFileFullName, string vcorderno, string vcPorType, string User, string printIme, string printDay, string vcComDate01, string vcBanZhi01, string strPrinterName, string pagetotal, string pageno, string hejrange, string vcPrintDate)
+        {
+            PrintCR.PrintExcel_Confirmation_PrintDateRequest inValue = new PrintCR.PrintExcel_Confirmation_PrintDateRequest();
+            inValue.Body = new PrintCR.PrintExcel_Confirmation_PrintDateRequestBody();
+            inValue.Body.dtContent = dtContent;
+            inValue.Body.dtExcel = dtExcel;
+            inValue.Body.strTemplateFileFullName = strTemplateFileFullName;
+            inValue.Body.vcorderno = vcorderno;
+            inValue.Body.vcPorType = vcPorType;
+            inValue.Body.User = User;
+            inValue.Body.printIme = printIme;
+            inValue.Body.printDay = printDay;
+            inValue.Body.vcComDate01 = vcComDate01;
+            inValue.Body.vcBanZhi01 = vcBanZhi01;
+            inValue.Body.strPrinterName = strPrinterName;
+            inValue.Body.pagetotal = pagetotal;
+            inValue.Body.pageno = pageno;
+            inValue.Body.hejrange = hejrange;
+            inValue.Body.vcPrintDate = vcPrintDate;
+            return ((PrintCR.PrintTableSoap)(this)).PrintExcel_Confirmation_PrintDateAsync(inValue);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()

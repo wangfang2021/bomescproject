@@ -1036,11 +1036,12 @@ namespace SPPSApi.Controllers.G12
                     DataTable dtKANB = new DataTable();
                     #region 整理数据
                     string vcPartsNo = listInfoData[i]["vcPartsNo"].ToString().Replace("-", "");//品番
-                    //if (gvPrint.Rows[i].Cells[9].Text != "insert")
-                    //{
-                    //    ShowMessage("选择的行不属于该打印类别，请选择后点击打印。", QMWebCommon.MessageType.Information);
-                    //    return;
-                    //}
+                    if (listInfoData[i]["iNo"].ToString() != "")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "选择的行不属于该打印类别，请选择后点击打印。";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     string vcDock = listInfoData[i]["vcDock"].ToString();//受入
                     string vcCarFamilyCode = listInfoData[i]["vcCarType"].ToString();//车型
                     string vcEDflag = listInfoData[i]["jinjiqufen"].ToString();//紧急区分
@@ -1451,5 +1452,88 @@ namespace SPPSApi.Controllers.G12
         #endregion
 
 
+        #region 自动获取数据
+        [HttpPost]
+        [EnableCors("any")]
+        public string textChangeApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcPartsNo = dataForm.vcPartsNo == null ? "" : dataForm.vcPartsNo;
+            string vcDock = dataForm.vcDock == null ? "" : dataForm.vcDock;
+            string vcKBorderno = dataForm.vcKBorderno == null ? "" : dataForm.vcKBorderno;
+            string vcKBSerial = dataForm.vcKBSerial == null ? "" : dataForm.vcKBSerial;
+
+            string strReturn;
+            try
+            {
+                if (vcPartsNo != "" && vcDock != "" && vcKBorderno != "" && vcKBSerial != "")
+                {
+                    DataTable dtrusut = logic.seaKBnoser(vcKBorderno, vcKBSerial, vcPartsNo, vcDock);
+                    DataTable dtr = logic.seaKBSerial_history(vcKBorderno, vcKBSerial, vcPartsNo, vcDock);
+                    if (dtrusut.Rows.Count != 0)
+                    {
+                        strReturn = dtrusut.Rows[0]["vcCarType"].ToString();
+                        strReturn = strReturn + "?" + dtrusut.Rows[0]["vcTips"].ToString();
+                        string vcEDflag = "";
+                        if (dtrusut.Rows[0]["vcEDflag"].ToString() == "S")
+                        {
+                            vcEDflag = "通常";
+                        }
+                        else if (dtrusut.Rows[0]["vcEDflag"].ToString() == "E")
+                        {
+                            vcEDflag = "紧急";
+                        }
+                        strReturn = strReturn + "?" + vcEDflag;
+                    }
+                    else if (dtr.Rows.Count != 0)
+                    {
+                        DataTable dtrusutno = logic.seaKBnoser(vcKBorderno, dtr.Rows[0]["vcKBSerialBefore"].ToString(), vcPartsNo, vcDock);
+                        strReturn = dtrusut.Rows[0]["vcCarType"].ToString();
+                        strReturn = strReturn + "?" + dtrusut.Rows[0]["vcTips"].ToString();
+                        string vcEDflag = "";
+                        if (dtrusutno.Rows[0]["vcEDflag"].ToString() == "S")
+                        {
+                            vcEDflag = "通常";
+                        }
+                        else
+                            if (dtrusutno.Rows[0]["vcEDflag"].ToString() == "E")
+                        {
+                            vcEDflag = "紧急";
+                        }
+                        strReturn = strReturn + "?" + vcEDflag;
+                    }
+                    else
+                    {
+                        strReturn = "";
+                        strReturn = strReturn + "?" + "";
+                        strReturn = strReturn + "?" + "";
+                    }
+                }
+                else
+                {
+                    strReturn = "";
+                    strReturn = strReturn + "?" + "";
+                    strReturn = strReturn + "?" + "";
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = strReturn;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

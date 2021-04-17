@@ -1025,6 +1025,14 @@ namespace SPPSApi.Controllers.G12
                 //string QFlag = "2";
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
+                    if (listInfoData[i]["iNo"].ToString() != "")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "选择的行不属于该打印类别，请选择后点击打印。";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    } 
+                    #region 整理数据
+                    string vcPartsNo = listInfoData[i]["vcPartsNo"].ToString().Replace("-", "");//品番
                     string vcSupplierCode = ""; string vcSupplierPlant = ""; string vcCpdCompany = ""; string vcPartsNameEN = ""; string vcPartsNameCHN = "";
                     string vcLogisticRoute = ""; string iQuantityPerContainer = "0";
                     string vcProject01 = ""; string vcComDate01 = ""; string vcBanZhi01 = "";
@@ -1033,35 +1041,37 @@ namespace SPPSApi.Controllers.G12
                     string vcProject04 = ""; string vcComDate04 = ""; string vcBanZhi04 = "";
                     string vcRemark1 = ""; string vcRemark2 = "";
                     string PorType = ""; string vcKBorser = "";
+
                     DataTable dtKANB = new DataTable();
-                    #region 整理数据
-                    string vcPartsNo = listInfoData[i]["vcPartsNo"].ToString().Replace("-", "");//品番
-                    if (listInfoData[i]["iNo"].ToString() != "")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "选择的行不属于该打印类别，请选择后点击打印。";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
                     string vcDock = listInfoData[i]["vcDock"].ToString();//受入
-                    string vcCarFamilyCode = listInfoData[i]["vcCarType"].ToString();//车型
-                    string vcEDflag = listInfoData[i]["jinjiqufen"].ToString();//紧急区分
-                    if (vcEDflag == "通常")
-                    {
-                        vcEDflag = "S";
-                    }
-                    else if (vcEDflag == "紧急")
-                    {
-                        vcEDflag = "E";
-                    }
-                    else
-                    {
-                        vcEDflag = " ";
-                    }
                     string vcKBorderno = listInfoData[i]["vcKBorderno"].ToString();//看板订单号
                     string vcKBSerial = listInfoData[i]["vcKBSerial"].ToString();//连番
-                    string vcPlanMonth = listInfoData[i]["vcPlanMonth"].ToString();
-                    string vcNo = listInfoData[i]["iNo"].ToString();
-                    string vcPorType = listInfoData[i]["vcPorType"].ToString();
+
+                    string vcCarFamilyCode = listInfoData[i]["vcCarType"].ToString();//车型
+                    string vcEDflag = listInfoData[i]["jinjiqufen"].ToString();//紧急区分
+                    if (vcEDflag == "通常") vcEDflag = "S";
+                    else if (vcEDflag == "紧急") vcEDflag = "E";
+                    else vcEDflag = " ";
+
+                    string vcPlanMonth = "";
+                    string vcNo = "";
+                    string vcPorType ="";
+
+                    DataTable dtrusut = logic.seaKBnoser(vcKBorderno, vcKBSerial, vcPartsNo, vcDock);
+                    DataTable dtr = logic.seaKBSerial_history(vcKBorderno, vcKBSerial, vcPartsNo, vcDock);
+                    if (dtrusut.Rows.Count != 0)
+                    {
+                        vcPlanMonth = dtrusut.Rows[0]["vcPlanMonth"].ToString();
+                        vcNo = dtrusut.Rows[0]["iNo"].ToString();
+                        vcPorType = dtrusut.Rows[0]["vcPorType"].ToString();
+                    }
+                    else if(dtr.Rows.Count != 0)
+                    {
+                        DataTable dtrusutno = logic.seaKBnoser(vcKBorderno, dtr.Rows[0]["vcKBSerialBefore"].ToString(), vcPartsNo, vcDock);
+                        vcPlanMonth = dtrusutno.Rows[0]["vcPlanMonth"].ToString();
+                        vcNo = dtrusutno.Rows[0]["iNo"].ToString();
+                        vcPorType = dtrusutno.Rows[0]["vcPorType"].ToString();
+                    }
                     string vcKBSerialup = logic.dtKBSerialUP(vcPartsNo, vcDock, vcKBorderno, vcKBSerial);//获取打印的ED连番
                     string QuantityPerContainerFED = logic.dtMasteriQuantity(vcPartsNo, vcDock, vcPlanMonth);
                     //dtKANB = print.searchPrintKANBALL(vcPartsNo, vcDock, vcKBorderno, vcKBSerialup);

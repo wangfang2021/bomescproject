@@ -191,12 +191,12 @@ namespace DataAccess
         public DataTable SearchPartData(DataRow dr)
         {
             StringBuilder sqlget = new StringBuilder();
-            sqlget.AppendLine("SELECT t1.iNo, t1.vcEDflag, t1.vcPlanMonth, t2.vcProType");
-            sqlget.AppendLine("  FROM tKanbanPrintTbl t1");
-            sqlget.AppendLine("  left join tPlanPartInfo t2 on t1.vcPlanMonth=t2.vcMonth and t1.vcPartsNo=t2.vcPartsNo ");
-            sqlget.AppendLine("  and t1.vcDock=t2.vcDock and t1.vcEDflag=t2.vcEDFlag ");
-            sqlget.AppendLine("  where t1.vcPartsNo='" + dr["vcPartsNo"].ToString() + "' and t1.vcDock='" + dr["vcDock"].ToString() + "' and t1.vcCarType='" + dr["vcCarType"].ToString() + "' ");
-            sqlget.AppendLine("  and t1.vcKBorderno='" + dr["vcKBorderno"].ToString() + "' and t1.vcKBSerial='" + dr["vcKBSerial"].ToString() + "' ");
+            sqlget.AppendLine("select t1.iNo, t1.vcEDflag, t1.vcPlanMonth, t2.vcProType ");
+            sqlget.AppendLine("from tKanbanPrintTbl t1");
+            sqlget.AppendLine("left join tPlanPartInfo t2 ");
+            sqlget.AppendLine("on t1.vcPlanMonth=t2.vcMonth and t1.vcPartsNo=t2.vcPartsNo and t1.vcDock=t2.vcDock and t1.vcEDflag=t2.vcEDFlag ");
+            sqlget.AppendLine("where t1.vcPartsNo='" + dr["vcPartsNo"].ToString() + "' and t1.vcDock='" + dr["vcDock"].ToString() + "' and t1.vcCarType='" + dr["vcCarType"].ToString() + "' ");
+            sqlget.AppendLine("and t1.vcKBorderno='" + dr["vcKBorderno"].ToString() + "' and t1.vcKBSerial='" + dr["vcKBSerial"].ToString() + "' ");
             return getDataTableBySql(sqlget.ToString());
         }
 

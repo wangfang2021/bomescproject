@@ -496,7 +496,12 @@ namespace Logic
         }
         #endregion
 
-
+        #region 计算过程检索
+        public DataTable searchPackCompute(string strPackNo, string strPackGPSNo,string strFaZhuID, string strFrom, string strTo)
+        {
+            return fs0705_DataAccess.searchPackCompute(strPackNo, strPackGPSNo, strFaZhuID, strFrom, strTo);
+        }
+        #endregion
 
     }
     public class BcTask

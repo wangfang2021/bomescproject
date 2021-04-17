@@ -143,14 +143,25 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
             JArray checkedInfo = dataForm._multipleSelection;
             List<Dictionary<string, object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, object>>>();
-            if (listInfoData.Count == 0)
+            if (vcType == "A")
+            {
+                if (listInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请选择要打印的数据行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+            }
+            else
             {
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "最少选择一条数据！";
+                apiResult.data = "请选择全部打印按钮进行打印！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
+
             DataTable dtPorType = new DataTable();
             string msg = string.Empty;
             try

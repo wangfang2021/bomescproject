@@ -28,6 +28,7 @@ namespace DataAccess
                     strSql.Append("and isnull(vcLJNo,'') like '%" + vcLJNo + "%'  \n");
                 if (vcOldOrderNo != "" && vcOldOrderNo != null)
                     strSql.Append("and isnull(vcOldOrderNo,'') like '%" + vcOldOrderNo + "%'  \n");
+                strSql.Append("order by dKBPrintTime,vcTicketNo,vcLJNo  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -274,9 +275,27 @@ namespace DataAccess
                 throw;
             }
         }
+        public DataTable GetPrintData()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.AppendLine("select * from VI_NRKB");
+                //sql.AppendLine("select t1.* from (");
+                //sql.AppendLine("	select * from TNRManagement where dKBPrintTime is null");
+                //sql.AppendLine(")t1");
+                //sql.AppendLine("inner join (select * from TSSPManagement where vcProject='BJW')t2 ");
+                //sql.AppendLine("on t1.vcLJNo=t2.vcNaRuPart_id");
 
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #region 取出看板信息
-        public DataSet getKBData(string iAutoId)
+        public DataSet getKBData(string vcCarType,string vcChuHePart_id)
         {
             try
             {
@@ -294,25 +313,30 @@ namespace DataAccess
                 sql.AppendLine("	vcBoxType varchar(50)");
                 sql.AppendLine(")");
                 sql.AppendLine("declare @zhengshu int=0,@yushu int=0,@remain int=0,@vcLJNo varchar(50)=''");
-                sql.AppendLine("select @vcLJNo=vcLJNo from TNRManagement where iAutoId="+iAutoId+" and iQuantity>0 ");
+                //sql.AppendLine("select @vcLJNo=vcLJNo from TNRManagement where iAutoId="+iAutoId+" and iQuantity>0 ");
+                sql.AppendLine("select @vcLJNo=vcNaRuPart_id from VI_NRKB where vcCarType='" + vcCarType+ "' and vcChuHePart_id='"+vcChuHePart_id+"' and iQuantity>0 ");
                 sql.AppendLine("select top 1 @remain=isnull(iRemainQuantity,0) from TNRManagement_Remain where vcLJNo=@vcLJNo order by dOperatorTime desc");
                 sql.AppendLine("");
-                sql.AppendLine("select @zhengshu=(iQuantity+@remain)/iCapacity,@yushu=(iQuantity+@remain)%iCapacity from (");
-                sql.AppendLine("select iQuantity,vcLJNo from TNRManagement where iAutoId="+iAutoId+" and iQuantity>0  )t1");
-                sql.AppendLine("inner join TSSPManagement t2 on t1.vcLJNo=t2.vcNaRuPart_id");
+                //sql.AppendLine("select @zhengshu=(iQuantity+@remain)/iCapacity,@yushu=(iQuantity+@remain)%iCapacity from (");
+                //sql.AppendLine("select iQuantity,vcLJNo from TNRManagement where iAutoId="+iAutoId+" and iQuantity>0  )t1");
+                //sql.AppendLine("inner join TSSPManagement t2 on t1.vcLJNo=t2.vcNaRuPart_id");
+                sql.AppendLine("select @zhengshu=(iQuantity+@remain)/iCapacity,@yushu=(iQuantity+@remain)%iCapacity from VI_NRKB");
+                sql.AppendLine("where vcCarType='" + vcCarType + "' and vcChuHePart_id='" + vcChuHePart_id + "' and iQuantity>0");
                 sql.AppendLine("");
                 sql.AppendLine("declare @i int");
                 sql.AppendLine("set @i=1");
                 sql.AppendLine("while @i<=@zhengshu");
                 sql.AppendLine("begin");
                 sql.AppendLine("	insert into #t1701 ");
-                sql.AppendLine("	select '补给品中心' as vcSupplierName,t1.vcCarType,t1.vcProject,t1.vcProjectPlace,t1.vcSR,t1.vcBackPart_id,    ");
-                sql.AppendLine("	t1.vcChuHePart_id,t1.vcPart_Name,t1.iCapacity,t1.vcBoxType    ");
-                sql.AppendLine("	from TSSPManagement t1    ");
-                sql.AppendLine("	inner join     ");
-                sql.AppendLine("	(    ");
-                sql.AppendLine("		select * from TNRManagement where iAutoId="+iAutoId+" and iQuantity>0    ");
-                sql.AppendLine("	)t2 on t1.vcNaRuPart_id=t2.vcLJNo  ");
+                sql.AppendLine("    select vcSupplierName,vcCarType,vcProject,vcProjectPlace,vcSR,vcBackPart_id,vcChuHePart_id,vcPart_Name,iCapacity,vcBoxType from VI_NRKB");
+                sql.AppendLine("    where vcCarType='" + vcCarType + "' and vcChuHePart_id='" + vcChuHePart_id + "' and iQuantity>0");
+                //sql.AppendLine("	select t1.vcSupplierName,t1.vcCarType,t1.vcProject,t1.vcProjectPlace,t1.vcSR,t1.vcBackPart_id,    ");
+                //sql.AppendLine("	t1.vcChuHePart_id,t1.vcPart_Name,t1.iCapacity,t1.vcBoxType    ");
+                //sql.AppendLine("	from TSSPManagement t1    ");
+                //sql.AppendLine("	inner join     ");
+                //sql.AppendLine("	(    ");
+                //sql.AppendLine("		select * from TNRManagement where iAutoId="+iAutoId+" and iQuantity>0    ");
+                //sql.AppendLine("	)t2 on t1.vcNaRuPart_id=t2.vcLJNo  ");
                 sql.AppendLine("");
                 sql.AppendLine("	set @i=@i+1");
                 sql.AppendLine("end ");
@@ -340,17 +364,20 @@ namespace DataAccess
         #endregion
 
         #region 纳入看板打印
-        public void kbPrint(List<Dictionary<string, Object>> checkedInfoData, string strUserId,DataSet dsyushu)
+        public void kbPrint(string strUserId,DataSet dsyushu)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
                 DateTime time = DateTime.Now;
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-                    sql.Append("update TNRManagement set dKBPrintTime='" + time + "' where iAutoId=" + iAutoId + "   \n");
-                }
+
+                sql.AppendLine("update TNRManagement set dKBPrintTime='" + time + "' where dKBPrintTime is null");
+                //for (int i = 0; i < dtData.Rows.Count; i++)
+                //{
+                //    string iAutoId = dtData.Rows[i]["iAutoId"].ToString();
+                //    sql.AppendLine("update TNRManagement set dKBPrintTime='" + time + "'  ");
+                //    sql.AppendLine("where iAutoId='" + iAutoId + "' ");
+                //}
                 for(int i=0;i<dsyushu.Tables.Count;i++)
                 {
                     DataTable dt = dsyushu.Tables[i];

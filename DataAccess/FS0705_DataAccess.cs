@@ -1069,7 +1069,43 @@ namespace DataAccess
         }
         #endregion
 
-
+        #region 计算过程检索
+        public DataTable searchPackCompute(string strPackNo, string strPackGPSNo, string strFaZhuID, string strFrom, string strTo)
+        {
+            StringBuilder strSql = new StringBuilder();
+            try
+            {
+                strSql.AppendLine("        select * from  TPackCompute         ");
+                strSql.AppendLine("        where 1=1         ");
+                if (!string.IsNullOrEmpty(strPackNo))
+                {
+                    strSql.AppendLine("        and vcPackNo = '" + strPackNo + "'         ");
+                }
+                if (!string.IsNullOrEmpty(strPackGPSNo))
+                {
+                    strSql.AppendLine("        and vcPackGPSNo = '" + strPackGPSNo + "'         ");
+                }
+                if (!string.IsNullOrEmpty(strFaZhuID))
+                {
+                    strSql.AppendLine("        and vcFaZhuID ='" + strFaZhuID + "'         ");
+                }
+                if (!string.IsNullOrEmpty(strFrom))
+                {
+                    strSql.AppendLine("        and '" + strFrom + "'<=dTimeStr          ");
+                }
+                if (!string.IsNullOrEmpty(strTo))
+                {
+                    strSql.AppendLine("        and dTimeStr<='" + strTo + "'         ");
+                }
+                strSql.AppendLine("       order by vcPackNo      ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
 
 
     }

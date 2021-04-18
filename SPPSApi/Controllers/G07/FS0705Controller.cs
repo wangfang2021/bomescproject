@@ -158,7 +158,7 @@ namespace SPPSApi.Controllers.G07
 
                 if (strErr1 != "")
                 {
-                    res.Add("errPart", "发注数量计算失败,以下品番无维护包材构成！"+ "<br/>" + strErr1);
+                    res.Add("errPart", "发注数量计算失败,以下品番无包材构成！"+ "<br/>" + strErr1);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.flag = 1;
                     apiResult.data = res;
@@ -282,48 +282,5 @@ namespace SPPSApi.Controllers.G07
             }
         }
         #endregion
-
-        #region 计算过程检索
-        [HttpPost]
-        [EnableCors("any")]
-        public string exportJSGCApi([FromBody] dynamic data)
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            try
-            {
-                DataTable dt = fs0705_Logic.searchComputeJGAll();
-                string[] fields = { "vcPackNo", "vcPackGPSNo","dTimeStr", "iA_SRS", "iB_LastShengYu", "iC_LiLun", "iD_TiaoZheng"
-                ,"iE_JinJi","iF_DingGou","iG_ShengYu"
-                };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export2.xlsx", 2, loginInfo.UserId, FunctionID);
-                if (filepath == "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导出生成文件失败";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = filepath;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M07UE0504", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导出失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
     }
 }

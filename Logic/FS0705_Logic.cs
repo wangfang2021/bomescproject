@@ -66,7 +66,7 @@ namespace Logic
                 DataRow[] drs = packCheckDT.Select("vcPart_id='" + partLists[i]+ "' and vcPartsNo is null");
                 if (drs.Length>0)
                 {
-                    strErr1 += partLists[i]+" ";
+                    strErr1 += partLists[i]+",";
                 }
                 else
                 {
@@ -496,7 +496,12 @@ namespace Logic
         }
         #endregion
 
-
+        #region 计算过程检索
+        public DataTable searchPackCompute(string strPackNo, string strPackGPSNo,string strFaZhuID, string strFrom, string strTo)
+        {
+            return fs0705_DataAccess.searchPackCompute(strPackNo, strPackGPSNo, strFaZhuID, strFrom, strTo);
+        }
+        #endregion
 
     }
     public class BcTask

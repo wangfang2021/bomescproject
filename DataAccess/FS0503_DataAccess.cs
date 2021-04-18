@@ -1014,7 +1014,7 @@ namespace DataAccess
                     strSql.AppendLine("   update a set a.vcState='2',a.vcWorkArea = b.vcWorkArea,a.vcIntake = b.vcIntake,     ");
                     strSql.AppendLine("   a.vcBoxMaxIntake = b.vcBoxMaxIntake,a.vcBoxType = b.vcBoxType,     ");
                     strSql.AppendLine("   a.vcLength = b.vcLength,a.vcWide=b.vcWide,a.vcHeight =b.vcHeight,a.vcEmptyWeight=b.vcEmptyWeight,     ");
-                    strSql.AppendLine("   a.vcUnitNetWeight=b.vcUnitNetWeight,a.vcImageRoutes=b.vcImageRoutes, a.vcIsEdit='0',    ");
+                    strSql.AppendLine("   a.vcUnitNetWeight=b.vcUnitNetWeight,a.vcImageRoutes=b.vcImageRoutes, a.vcIsEdit='0',a.dReplyDate=GETDATE(),    ");
                     strSql.AppendLine("   a.vcFactoryOperatorID='" + userId + "', a.dFactoryOperatorTime=GETDATE()     ");
                     strSql.AppendLine("    from (select * from THeZiManageTmp where vcDelFlag='0' and iAutoId = "+ iAutoId + ") b      ");
                     strSql.AppendLine("    left join THeZiManage a  on a.iAutoId = b.iAutoId;     ");

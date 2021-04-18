@@ -104,7 +104,7 @@ namespace SPPSApi.Controllers.G12
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                List<object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -137,7 +137,7 @@ namespace SPPSApi.Controllers.G12
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                List<Dictionary<string, object>> listInfoData = listInfo.ToObject<List<Dictionary<string, object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -168,7 +168,7 @@ namespace SPPSApi.Controllers.G12
                                                 {"0"},//最小长度设定,可以为空用0
                                                 {"10"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1212");
+                    List<object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1212");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -218,7 +218,7 @@ namespace SPPSApi.Controllers.G12
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                List<Dictionary<string, object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, object>>>();
                 if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -351,9 +351,9 @@ namespace SPPSApi.Controllers.G12
             string vcPorType = dataForm.vcPorType == null ? "" : dataForm.vcPorType;
             try
             {
-                Dictionary<string, Object> res = new Dictionary<string, Object>();
+                Dictionary<string, object> res = new Dictionary<string, object>();
                 DataTable dt = logic.dllZB(vcPorType);
-                List<Object> dataList_ZB = ComFunction.convertAllToResult(dt);
+                List<object> dataList_ZB = ComFunction.convertAllToResult(dt);
                 res.Add("ZBSource", dataList_ZB);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;

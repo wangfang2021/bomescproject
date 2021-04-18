@@ -53,5 +53,15 @@ namespace Logic
             }
             fs1301_DataAccess.saveDataInfo(dataTable, strOperId);
         }
+
+        public DataTable isCheckUserId(string userId)
+        {
+            return fs1301_DataAccess.isCheckUserId(userId);
+        }
+
+        public void importSave(DataTable importDt, string userId)
+        {
+             fs1301_DataAccess.importSave(importDt,userId);
+        }
     }
 }

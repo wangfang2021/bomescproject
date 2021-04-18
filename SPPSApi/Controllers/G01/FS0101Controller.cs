@@ -57,7 +57,34 @@ namespace SPPSApi.Controllers.G00
 
             try
             {
+                //DataTable plantCodeDT = fs0101_Logic.getPlantList(loginInfo.UnitCode);
                 DataTable dt = fs0101_Logic.Search(vcUnitID, vcUserID, vcUserName);
+                //for (int i = 0; i < dt.Rows.Count; i++)
+                //{
+                //    #region 将发注工场的Value转换为Name
+                //    string strPlantCode = dt.Rows[i]["vcPlantCode"] == null ? "" : dt.Rows[i]["vcPlantCode"].ToString();
+                //    string strPlantCodeConver = "";
+                //    if (strPlantCode.Trim().Length > 0)      //不为空
+                //    {
+                //        string[] strPlantCodeLists = strPlantCode.Split(',');
+                //        for (int index = 0; index < strPlantCodeLists.Length; index++)
+                //        {
+                //            object obj = plantCodeDT.Select("vcPlantCode = '" + strPlantCodeLists[index] + "'")[0]["vcPlantName"];
+                //            if (obj != null)
+                //            {
+                //                if (strPlantCodeConver.Length > 0)
+                //                {
+                //                    strPlantCodeConver += ",";
+                //                }
+                //                strPlantCodeConver += obj.ToString();
+                //            }
+                //        }
+                //        dt.Rows[i]["vcPlantCode"] = strPlantCodeConver;
+                //    }
+                //    #endregion
+                //}
+
+
                 List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcUserID", "vcUserName", "vcUnitName", "vcPlantCode", "vcRoleName", "vcStop", "vcSpecial","vcBanZhi", "vcBaoZhuangPlace","vcBanZhi_Name", "vcBaoZhuangPlace_Name", "vcEmail" });
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;

@@ -20,19 +20,19 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SPPSApi.Controllers.G06
+namespace SPPSApi.Controllers.G07
 {
-    [Route("api/FS0624/[action]")]
+    [Route("api/FS0705_Sub2/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0624Controller_Sub : BaseController
+    public class FS0705Controller_Sub2 : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        FS0624_Logic fs0624_Logic = new FS0624_Logic();
-        private readonly string FunctionID = "FS0624";
+        FS0705_Logic fs0705_Logic = new FS0705_Logic();
+        private readonly string FunctionID = "FS0705";
 
-        public FS0624Controller_Sub(IWebHostEnvironment webHostEnvironment)
+        public FS0705Controller_Sub2(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -53,11 +53,9 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
- 
-                List<Object> dataList_C073 = ComFunction.convertAllToResult(ComFunction.getTCode("C073"));//日度变更处理状态
+                List<Object> dataList_C001 = ComFunction.convertAllToResult(ComFunction.getTCode("C042"));//发注逻辑
 
-                res.Add("C073", dataList_C073);
-
+                res.Add("C001", dataList_C001);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -86,32 +84,30 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strChangeDateFrom = dataForm.ChangeDateFrom;
-            string strChangeDateTo = dataForm.ChangeDateTo;
-            string strChangeNo = dataForm.ChangeNo;
-            string strState = dataForm.State;
-            string strOrderNo = dataForm.OrderNo;
+            string strPackNo = dataForm.vcPackNo;           //包装材品番
+            string strPackGPSNo = dataForm.vcPackGPSNo;     //GPS品番
+            string strFaZhuID = dataForm.vcFaZhuID;         //发注逻辑
+            string strTimeFrom = dataForm.dTimeFrom;        //T/C(From)
+            string strTimeTo = dataForm.dTimeTo;            //T/C(To)
 
             try
             {
-                DataTable dt = fs0624_Logic.Search(strChangeDateFrom, strChangeDateTo, strChangeNo, strState, strOrderNo);
-                DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcChangeDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dFileUpload", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
+                DataTable dt = fs0705_Logic.searchPackCompute(strPackNo, strPackGPSNo, strFaZhuID,strTimeFrom, strTimeTo);
 
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
-
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                int dtCount = 0;
+                dtCount = dt == null ? 0 : dt.Rows.Count;
+                string strMessage = "共检索到"+dtCount+"条数据";
+                res.Add("strMessage", strMessage);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2401", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M07UE0506", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "计算过程检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -131,24 +127,31 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            string strChangeDateFrom = dataForm.ChangeDateFrom;
-            string strChangeDateTo = dataForm.ChangeDateTo;
-            string strChangeNo = dataForm.ChangeNo;
-            string strState = dataForm.State;
-            string strOrderNo = dataForm.OrderNo;
-
             try
             {
-                DataTable dt = fs0624_Logic.Search(strChangeDateFrom, strChangeDateTo, strChangeNo, strState, strOrderNo);
-                string[] fields = { "vcChangeNo" ,"vcChangeDateStr","vcGroupName","iQuantityBefore","iQuantityNow","decChangePercent"
-                        ,"iQuantityBeforeTotal","iQuantityNowTotal","dFileUpload","dFileUpload","vcState","vcOrderNo"
+                string strPackNo = dataForm.vcPackNo;           //包装材品番
+                string strPackGPSNo = dataForm.vcPackGPSNo;     //GPS品番
+                string strFaZhuID = dataForm.vcFaZhuID;         //发注逻辑
+                string strTimeFrom = dataForm.dTimeFrom;        //T/C(From)
+                string strTimeTo = dataForm.dTimeTo;            //T/C(To)
+
+                DataTable dt = fs0705_Logic.searchPackCompute(strPackNo,strPackGPSNo,strFaZhuID,strTimeFrom,strTimeTo);
+
+                if (dt==null || dt.Rows.Count<=0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出失败,未检索到任何数据";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                string[] fields = { "vcPackNo", "vcPackGPSNo","dTimeStr", "iA_SRS", "iB_LastShengYu", "iC_LiLun", "iD_TiaoZheng"
+                ,"iE_JinJi","iF_DingGou","iG_ShengYu"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0624_Export.xlsx", 1, loginInfo.UserId, FunctionID,true);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export2.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导出生成文件失败";
+                    apiResult.data = "导出失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -157,7 +160,7 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2402", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M07UE0504", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

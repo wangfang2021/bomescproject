@@ -14,7 +14,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 检索
-        public DataTable Search(string smallpm, string sr, string vcPartsNoBefore5,string vcSupplier_id)
+        public DataTable Search(string smallpm, string sr, string vcPartsNoBefore5,string vcSupplier_id,string vcBCPartsNo)
         {
             try
             {
@@ -31,6 +31,8 @@ namespace DataAccess
                     strSql.Append("and ISNULL(t1.vcPartsNoBefore5,'') like '%" + vcPartsNoBefore5 + "%'  \n");
                 if(vcSupplier_id!="" && vcSupplier_id!=null)
                     strSql.Append("and ISNULL(t1.vcSupplier_id,'') like '%" + vcSupplier_id + "%'  \n");
+                if(vcBCPartsNo!="" && vcBCPartsNo!=null)
+                    strSql.Append("and ISNULL(t1.vcBCPartsNo,'') like '%" + vcBCPartsNo + "%'  \n");
                 strSql.Append("order by t1.vcSR,t1.vcSupplier_id,t1.vcPartsNoBefore5,t1.vcBCPartsNo,t2.vcBigPM,t1.vcSmallPM    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

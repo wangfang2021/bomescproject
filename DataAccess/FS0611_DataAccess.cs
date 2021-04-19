@@ -682,5 +682,15 @@ namespace DataAccess
             }
         }
         #endregion
+
+        #region 获取当月SOQ导出理论数量，用来导入验证用
+        public DataTable getNowMonthNum()
+        {
+            StringBuilder sql = new StringBuilder();
+            sql.Append("  select * from TSoqReply where vcCLYM=convert(varchar(6),getdate(),112) and vcInOutFlag='1' and vcDXYM=convert(varchar(6),dateadd(month,1,getdate()),112) \n");
+            return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        }
+        #endregion
+
     }
 }

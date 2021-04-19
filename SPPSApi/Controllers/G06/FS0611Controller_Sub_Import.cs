@@ -123,7 +123,6 @@ namespace SPPSApi.Controllers.G06
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
-
                 var result = from r in importDt.AsEnumerable()
                              group r by new { r2 = r.Field<string>("vcPart_id") } into g
                              where g.Count() > 1
@@ -140,7 +139,18 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                
+
+                DataTable checkDt = fs0611_Logic.getNowMonthNum();
+                if (checkDt.Rows.Count < importDt.Rows.Count)
+                {
+                    StringBuilder sbr = new StringBuilder();
+                    sbr.Append("导入文件行数"+ importDt.Rows.Count + "大于当前系统数"+ checkDt.Rows.Count + "，导入终止！");
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = sbr.ToString();
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+
                 //验证修改后每日平准箱数是否跟总箱数一致
                 StringBuilder errPart = new StringBuilder();
                 StringBuilder errPartPCS = new StringBuilder();

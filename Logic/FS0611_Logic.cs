@@ -93,6 +93,13 @@ namespace Logic
         #endregion
 
 
+        #region 获取当月SOQ导出理论数量，用来导入验证用
+        public DataTable getNowMonthNum()
+        {
+            return fs0611_DataAccess.getNowMonthNum();
+        }
+        #endregion
+
         #region 获取平准化加减天数
         public int getPingZhunAddSubDay()
         {

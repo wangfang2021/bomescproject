@@ -1037,6 +1037,8 @@ namespace DataAccess
             dt_Init.Columns.Add("vcPlanMonth", typeof(string));
             dt_Init.Columns.Add("iNo", typeof(string));
             dt_Init.Columns.Add("vcPorType", typeof(string));
+            dt_Init.Columns.Add("vcModFlag", typeof(string));
+            dt_Init.Columns.Add("vcAddFlag", typeof(string));
 
             for (int i = 0; i < dt.Rows.Count; i++)
             {
@@ -1048,6 +1050,8 @@ namespace DataAccess
                 dr["vcKBorderno"] = dt.Rows[i]["vcKBorderno"].ToString();
                 dr["vcKBSerial"] = dt.Rows[i]["vcKBSerial"].ToString();
                 dr["vcTips"] = dt.Rows[i]["vcTips"].ToString();
+                dr["vcModFlag"] = "0";
+                dr["vcAddFlag"] = "1";
                 //if (dt.Rows[i]["jinjiqufen"].ToString() == "通常")
                 //{
                 //    dr["jinjiqufen"] = "S";

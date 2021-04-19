@@ -1048,14 +1048,14 @@ namespace DataAccess
                 dr["vcKBorderno"] = dt.Rows[i]["vcKBorderno"].ToString();
                 dr["vcKBSerial"] = dt.Rows[i]["vcKBSerial"].ToString();
                 dr["vcTips"] = dt.Rows[i]["vcTips"].ToString();
-                if (dt.Rows[i]["jinjiqufen"].ToString() == "通常")
-                {
-                    dr["jinjiqufen"] = "S";
-                }
-                if (dt.Rows[i]["jinjiqufen"].ToString() == "紧急")
-                {
-                    dr["jinjiqufen"] = "E";
-                }
+                //if (dt.Rows[i]["jinjiqufen"].ToString() == "通常")
+                //{
+                //    dr["jinjiqufen"] = "S";
+                //}
+                //if (dt.Rows[i]["jinjiqufen"].ToString() == "紧急")
+                //{
+                //    dr["jinjiqufen"] = "E";
+                //}
                 StringBuilder sqlget = new StringBuilder();
                 sqlget.AppendLine("SELECT t1.iNo, t1.vcEDflag, t1.vcPlanMonth, t2.vcProType ");
                 sqlget.AppendLine("FROM tKanbanPrintTbl t1 ");
@@ -1069,7 +1069,7 @@ namespace DataAccess
                     dr["vcEDflag"] = dtget.Rows[0]["vcEDflag"].ToString();
                     dr["vcPlanMonth"] = dtget.Rows[0]["vcPlanMonth"].ToString();
                     dr["vcPorType"] = dtget.Rows[0]["vcProType"].ToString();
-                    dr["iNo"] = dtget.Rows[0]["iNo"].ToString();
+                    dr["iNo"] = "";
                 }
                 else
                 {

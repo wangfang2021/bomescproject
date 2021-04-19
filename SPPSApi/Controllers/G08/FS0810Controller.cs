@@ -52,9 +52,11 @@ namespace SPPSApi.Controllers.G08
             string vcSR = dataForm.vcSR;
             string vcPartsNoBefore5 = dataForm.vcPartsNoBefore5;
             string vcSupplier_id= dataForm.vcSupplier_id;
+            string vcBCPartsNo = dataForm.vcBCPartsNo;
+
             try
             {
-                DataTable dt = fs0810_Logic.Search(vcSmallPM, vcSR, vcPartsNoBefore5, vcSupplier_id);
+                DataTable dt = fs0810_Logic.Search(vcSmallPM, vcSR, vcPartsNoBefore5, vcSupplier_id,vcBCPartsNo);
 
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
@@ -94,9 +96,11 @@ namespace SPPSApi.Controllers.G08
             string vcSR = dataForm.vcSR;
             string vcPartsNoBefore5 = dataForm.vcPartsNoBefore5;
             string vcSupplier_id = dataForm.vcSupplier_id;
+            string vcBCPartsNo = dataForm.vcBCPartsNo;
+
             try
             {
-                DataTable dt = fs0810_Logic.Search(vcSmallPM, vcSR, vcPartsNoBefore5, vcSupplier_id);
+                DataTable dt = fs0810_Logic.Search(vcSmallPM, vcSR, vcPartsNoBefore5, vcSupplier_id,vcBCPartsNo);
                 string[] heads = { "受入号","厂家代码", "品番前五位", "包材品番", "大品目","小品目"};
                 string[] fields = { "vcSR", "vcSupplier_id", "vcPartsNoBefore5","vcBCPartsNo","vcBigPM","vcSmallPM"};
                 string strMsg = "";

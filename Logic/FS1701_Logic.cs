@@ -204,8 +204,11 @@ namespace Logic
             else
                 return false;
         }
-
-        public bool getPrintInfo_kb(List<Dictionary<string, Object>> listInfoData, string strOperId, ref DataTable dtMessage,ref DataSet dsyushu)
+        public DataTable GetPrintData()
+        {
+            return fs1701_DataAccess.GetPrintData();
+        }
+        public bool getPrintInfo_kb(DataTable dtData, string strOperId, ref DataTable dtMessage,ref DataSet dsyushu)
         {
             try
             {
@@ -215,11 +218,13 @@ namespace Logic
                 DataTable dt_main = fs1702_DataAccess.getPrintTemp("FS1702_kb_main");
                 DataTable dtSub_detail = dt_detail.Clone();
                 DataTable dtSub_main = dt_main.Clone();
-                for (int i = 0; i < listInfoData.Count; i++)
+                for (int i = 0; i < dtData.Rows.Count; i++)
                 {
-                    string iAutoId = listInfoData[i]["iAutoId"] == null ? "" : listInfoData[i]["iAutoId"].ToString();
-                    DataSet ds = fs1701_DataAccess.getKBData(iAutoId);
+                    string vcCarType = dtData.Rows[i]["vcCarType"] == null ? "" : dtData.Rows[i]["vcCarType"].ToString();
+                    string vcChuHePart_id = dtData.Rows[i]["vcChuHePart_id"] == null ? "" : dtData.Rows[i]["vcChuHePart_id"].ToString();
+                    DataSet ds = fs1701_DataAccess.getKBData(vcCarType,vcChuHePart_id);
                     DataTable dtInfo = ds.Tables[0];
+                    ds.Tables[1].TableName = "yushu"+i.ToString();
                     dsyushu.Tables.Add(ds.Tables[1].Copy());
                     for (int j = 0; j < dtInfo.Rows.Count; j++)
                     {
@@ -235,6 +240,7 @@ namespace Logic
                         dataRow["vcPart_Name"] = dtInfo.Rows[j]["vcPart_Name"].ToString();
                         dataRow["iCapacity"] = dtInfo.Rows[j]["iCapacity"].ToString();
                         dataRow["vcBoxType"] = dtInfo.Rows[j]["vcBoxType"].ToString();
+                        dataRow["vcSupplierName"] = dtInfo.Rows[j]["vcSupplierName"].ToString();
                         dtSub_detail.Rows.Add(dataRow);
 
                     }
@@ -302,10 +308,10 @@ namespace Logic
         }
 
         #region 纳入看板打印
-        public void kbPrint(List<Dictionary<string, Object>> checkedInfoData, string strUserId,DataSet dsyushu)
+        public void kbPrint(string strUserId,DataSet dsyushu)
         {
             //更新纳入看板打印时间
-            fs1701_DataAccess.kbPrint(checkedInfoData, strUserId,dsyushu);
+            fs1701_DataAccess.kbPrint(strUserId,dsyushu);
         }
         #endregion
     }

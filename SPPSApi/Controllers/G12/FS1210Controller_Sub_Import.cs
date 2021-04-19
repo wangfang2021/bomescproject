@@ -67,9 +67,9 @@ namespace SPPSApi.Controllers.G12
                 string strMsg = "";
                 string[,] headers = new string[,] {{"品番","受入","车型","紧急区分","看板订单号","连番","备注"},
                                                 {"vcPartsNo","vcDock","vcCarType","vcEDflag","vcKBorderno","vcKBSerial","vcTips"},
-                                                {"","",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
-                                                {"7","12","10","10","10","10","10"},//最大长度设定,不校验最大长度用0
-                                                {"7","12","1","1","1","1","1"},//最小长度设定,可以为空用0
+                                                {FieldCheck.NumChar,FieldCheck.NumChar,"","",FieldCheck.Num,FieldCheck.Num,""},
+                                                {"12","2","10","2","12","4","100"},//最大长度设定,不校验最大长度用0
+                                                {"12","2","1","2","10","4","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7"}//前台显示列号，从0开始计算,注意有选择框的是0
                 };
                 DataTable importDt = new DataTable();
@@ -98,9 +98,8 @@ namespace SPPSApi.Controllers.G12
                     }
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
-
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPartsNo") } into g
+                             group r by new { r2 = r.Field<string>("vcPartsNo"), r3 = r.Field<string>("vcDock"), r4 = r.Field<string>("vcEDflag"), r5 = r.Field<string>("vcKBorderno"), r6 = r.Field<string>("vcKBSerial") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)

@@ -6,17 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Connected Services\FS1209_PrExcel\**" />
-    <Compile Remove="Connected Services\PrintCR\**" />
     <Compile Remove="Doc\Import\FS0201\**" />
-    <Content Remove="Connected Services\FS1209_PrExcel\**" />
-    <Content Remove="Connected Services\PrintCR\**" />
     <Content Remove="Doc\Import\FS0201\**" />
-    <EmbeddedResource Remove="Connected Services\FS1209_PrExcel\**" />
-    <EmbeddedResource Remove="Connected Services\PrintCR\**" />
     <EmbeddedResource Remove="Doc\Import\FS0201\**" />
-    <None Remove="Connected Services\FS1209_PrExcel\**" />
-    <None Remove="Connected Services\PrintCR\**" />
     <None Remove="Doc\Import\FS0201\**" />
   </ItemGroup>
 
@@ -162,13 +154,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Connected Services\FS1209_PrExcel\Reference.cs" />
-    <Compile Include="Connected Services\PrintCR\Reference.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Connected Services\FS1209_PrExcel\ConnectedService.json" />
-    <Content Include="Connected Services\PrintCR\ConnectedService.json" />
     <Content Include="Doc\CryReports\crv_FS1702_kanban.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

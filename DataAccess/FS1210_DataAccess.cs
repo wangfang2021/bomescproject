@@ -28,18 +28,18 @@ namespace DataAccess
             if (vcType == "A")
             {
                 strSQL.AppendLine("select distinct T1.vcPartsNo,vcDock,vcCarType,jinjiqufen,vcKBorderno,vcKBSerial,vcTips,iFlag,vcPlanMonth,iNo,vcPorType,T2.vcPartFrequence, '0' as vcModFlag,'0' as vcAddFlag from (");
-                strSQL.AppendLine("SELECT vcPartsNo,vcDock,vcCarType,jinjiqufen,vcKBorderno,vcKBSerial,vcTips,iFlag,vcPlanMonth,iNo,vcPorType FROM");
+                strSQL.AppendLine("SELECT vcPartsNo,vcDock,vcCarType,jinjiqufen,vcKBorderno,vcKBSerial,vcTips,iFlag,vcPlanMonth,iNo,vcPorType FROM ");
                 strSQL.AppendLine("(SELECT A.vcPartsNo,A.vcDock,A.vcCarType,jinjiqufen,vcKBorderno,vcKBSerial,vcTips,iFlag,B.vcPlant as vcPartPlant,B.vcProType as vcPorType,vcComDate00,vcBanZhi00,vcPlanMonth,iNo FROM ");
                 strSQL.AppendLine("      (select vcPartsNo,vcDock,vcPrintflagED ,vcDockED,vcCarType,vcEDflag as jinjiqufen,vcKBorderno,vcKBSerial,'' as vcTips,''  as iFlag,vcComDate00,vcBanZhi00,vcPlanMonth,iNo ");
-                strSQL.AppendLine("         from tKanbanPrintTbl where vcPrintflag='1')A");
+                strSQL.AppendLine("         from tKanbanPrintTbl where vcPrintflag='1') A");
                 strSQL.AppendLine("       left join ");
-                strSQL.AppendLine("      (select distinct vcPlant,vcPartsNo,vcDock,vcMonth,vcProType,vcCarType from tPlanPartInfo)B");
+                strSQL.AppendLine("      (select distinct vcPlant,vcPartsNo,vcDock,vcMonth,vcProType,vcCarType from tPlanPartInfo) B");
                 strSQL.AppendLine("      on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock and A.vcPlanMonth = B.vcMonth and A.vcCarType = B.vcCarType");
                 strSQL.AppendLine("");
                 strSQL.AppendLine("union all");
                 strSQL.AppendLine("select AA.vcPrintflagED AS vcPartsNo,AA.vcDockED AS vcDock,vcCarType,jinjiqufen,vcKBorderno,vcKBSerial,vcTips,iFlag,BB.vcPartPlant,BB.vcPorType,vcComDate00,vcBanZhi00,vcPlanMonth,iNo from ");
                 strSQL.AppendLine("      (select vcPartsNo,vcDock,vcPrintflagED,vcDockED,vcCarType,vcEDflag as jinjiqufen,vcKBorderno,vcKBSerial,'' as vcTips,'' as iFlag,vcComDate00,vcBanZhi00,vcPlanMonth,iNo");
-                strSQL.AppendLine("         from tKanbanPrintTbl where iBaiJianFlag='1')AA");
+                strSQL.AppendLine("         from tKanbanPrintTbl where iBaiJianFlag='1') AA");
                 strSQL.AppendLine("       left join ");
                 strSQL.AppendLine("      (select * from tPartInfoMaster) BB");
                 strSQL.AppendLine("       on AA.vcPartsNo=BB.vcPartsNo and AA.vcDock=BB.vcDock");
@@ -103,12 +103,12 @@ namespace DataAccess
                 //strSQL.AppendLine(" (select * from tKanbanPrintTbl )A ");//给看板打印数据left join品番频度 - 20190104李兴旺
                 strSQL.AppendLine(" (SELECT distinct iNo,T1.vcPartsNo,vcDock,vcCarType,vcEDflag,vcKBorderno,vcKBSerial,vcTips,vcPrintflag,vcPrintTime,vcKBType,vcProject00,vcProject01,vcProject02,vcProject03,vcProject04,vcComDate00,vcComDate01,vcComDate02,vcComDate03,vcComDate04,vcBanZhi00,vcBanZhi01,vcBanZhi02,vcBanZhi03,vcBanZhi04,vcAB00,vcAB01,vcAB02,vcAB03,vcAB04,dCreatTime,vcCreater,dUpdateTime,vcUpdater,vcPlanMonth,vcPrintSpec,vcPrintflagED,vcDockED,vcPrintTimeED,vcQuantityPerContainer,iBaiJianFlag,T2.vcPartFrequence FROM tKanbanPrintTbl T1 left join (SELECT vcPartsNo,vcPartFrequence FROM tPartInfoMaster where dTimeFrom<=GETDATE() and dTimeTo>=GETDATE()) T2 on T1.vcPartsNo=T2.vcPartsNo) A");
                 strSQL.AppendLine(" left join ");
-                strSQL.AppendLine(" (select distinct vcProType,vcPartsNo,vcDock,vcMonth,vcCarType,vcPlant  from tPlanPartInfo) B ");
-                strSQL.AppendLine(" on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock  and A.vcPlanMonth = B.vcMonth and A.vcCarType = B.vcCarType)");
+                strSQL.AppendLine(" (select distinct vcProType,vcPartsNo,vcDock,vcMonth,vcCarType,vcPlant from tPlanPartInfo) B ");
+                strSQL.AppendLine(" on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock and A.vcPlanMonth=B.vcMonth and A.vcCarType=B.vcCarType)");
                 if (vcType == "B")
-                    strSQL.AppendLine(" where A.vcComDate00>=CONVERT(varchar(10),GETDATE(),120) and  ((A.vcPrintflag is null) or (A.vcKBType is null and substring(A.vcPartsNo,11,2)='ED'))");
+                    strSQL.AppendLine(" where A.vcComDate00>=CONVERT(varchar(10),GETDATE(),120) and ((A.vcPrintflag is null) or (A.vcKBType is null and substring(A.vcPartsNo,11,2)='ED'))");
                 if (vcType == "C")
-                    strSQL.AppendLine(" where A.vcComDate00<=CONVERT(varchar(10),GETDATE(),120) and  ((A.vcPrintflag is null) or (A.vcKBType is null and substring(A.vcPartsNo,11,2)='ED'))");
+                    strSQL.AppendLine(" where A.vcComDate00<=CONVERT(varchar(10),GETDATE(),120) and ((A.vcPrintflag is null) or (A.vcKBType is null and substring(A.vcPartsNo,11,2)='ED'))");
                 if (vcKbOrderId.Length != 0)
                     strSQL.AppendLine(" and A.vcKBorderno='" + vcKbOrderId + "'");
                 if (vcTF.Length != 0 || vcTT.Length != 0)
@@ -191,12 +191,12 @@ namespace DataAccess
         public DataTable SearchPartData(DataRow dr)
         {
             StringBuilder sqlget = new StringBuilder();
-            sqlget.AppendLine("SELECT  t1.[iNo]      ,t1.[vcEDflag]      ,t1.[vcPlanMonth]      ,t2.vcProType");
-            sqlget.AppendLine("  FROM [tKanbanPrintTbl] t1");
-            sqlget.AppendLine("  left join  tPlanPartInfo t2 on t1.vcPlanMonth = t2.vcMonth  and t1.vcPartsNo =  t2.vcPartsNo ");
-            sqlget.AppendLine("                             and t1.vcDock = t2.vcDock and t1.vcEDflag = t2.vcEDFlag  ");
-            sqlget.AppendLine("  where t1.vcPartsNo = '" + dr["vcPartsNo"].ToString() + "' and t1.vcDock = '" + dr["vcDock"].ToString() + "' and t1.vcCarType = '" + dr["vcCarType"].ToString() + "' ");
-            sqlget.AppendLine("    and t1.vcKBorderno = '" + dr["vcKBorderno"].ToString() + "' and t1.vcKBSerial = '" + dr["vcKBSerial"].ToString() + "' ");
+            sqlget.AppendLine("select t1.iNo, t1.vcEDflag, t1.vcPlanMonth, t2.vcProType ");
+            sqlget.AppendLine("from tKanbanPrintTbl t1");
+            sqlget.AppendLine("left join tPlanPartInfo t2 ");
+            sqlget.AppendLine("on t1.vcPlanMonth=t2.vcMonth and t1.vcPartsNo=t2.vcPartsNo and t1.vcDock=t2.vcDock and t1.vcEDflag=t2.vcEDFlag ");
+            sqlget.AppendLine("where t1.vcPartsNo='" + dr["vcPartsNo"].ToString() + "' and t1.vcDock='" + dr["vcDock"].ToString() + "' and t1.vcCarType='" + dr["vcCarType"].ToString() + "' ");
+            sqlget.AppendLine("and t1.vcKBorderno='" + dr["vcKBorderno"].ToString() + "' and t1.vcKBSerial='" + dr["vcKBSerial"].ToString() + "' ");
             return getDataTableBySql(sqlget.ToString());
         }
 

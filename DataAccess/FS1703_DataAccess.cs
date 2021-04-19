@@ -19,7 +19,9 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select t1.*,t2.vcPlace,'0' as vcModFlag,'0' as vcAddFlag from TPanDian t1    \n");
+                strSql.Append("select t1.*,t2.vcPlace,'0' as vcModFlag,'0' as vcAddFlag,     \n");
+                strSql.Append("case when isnull(t1.iSystemQuantity,0)<>isnull(t1.iRealQuantity,0) then 'red' else '' end as vcColor  \n");
+                strSql.Append("from TPanDian t1  \n");
                 strSql.Append("left join TSSPManagement t2 on t1.vcPart_id=t2.vcNaRuPart_id    \n");
                 strSql.Append("where 1=1    \n");
                 if (vcPart_id != "" && vcPart_id != null)
@@ -141,6 +143,8 @@ namespace DataAccess
 
                 sql.AppendLine("update TPanDian set iSystemQuantity=iRealQuantity,vcOperatorID='"+strUserId+"',dOperatorTime='"+now+"'");
                 sql.AppendLine("where iRealQuantity is not null and iRealQuantity<>iSystemQuantity ");
+
+                sql.AppendLine("update TPanDian set iRealQuantity=null");
 
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }

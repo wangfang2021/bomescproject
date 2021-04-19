@@ -366,7 +366,7 @@ namespace Logic
             }
             return dataTable;
         }
-
+        
         public bool getPrintInfo(List<Dictionary<string, Object>> listInfoData, string strOperId, ref DataTable dtMessage,
             ref DataTable dtBJW, ref DataTable dtBJWHistory,ref DataTable dtSub)
         {
@@ -526,6 +526,7 @@ namespace Logic
                         dataRow["vcPart_Name"] = dtInfo.Rows[j]["vcPart_Name"].ToString();
                         dataRow["iCapacity"] = dtInfo.Rows[j]["iCapacity"].ToString();
                         dataRow["vcBoxType"] = dtInfo.Rows[j]["vcBoxType"].ToString();
+                        dataRow["vcSupplierName"] = dtInfo.Rows[j]["vcSupplierName"].ToString();
                         dtSub_detail.Rows.Add(dataRow);
 
                     }
@@ -618,6 +619,7 @@ namespace Logic
                         dataRow["vcPart_Name"] = dtInfo.Rows[j]["vcPart_Name"].ToString();
                         dataRow["iCapacity"] = dtInfo.Rows[j]["iCapacity"].ToString();
                         dataRow["vcBoxType"] = dtInfo.Rows[j]["vcBoxType"].ToString();
+                        dataRow["vcSupplierName"] = dtInfo.Rows[j]["vcSupplierName"].ToString();
                         dtSub_detail.Rows.Add(dataRow);
 
                     }

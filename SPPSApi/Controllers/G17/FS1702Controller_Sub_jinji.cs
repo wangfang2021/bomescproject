@@ -88,7 +88,7 @@ namespace SPPSApi.Controllers.G17
             {
                 DataTable dt = fs1702_Logic.Search_jinji(vcPart_id);
                 string[] heads = { "品番", "数量", "原因" };
-                string[] fields = { "vcPart_id", "iQuantity", "iQuantity" };
+                string[] fields = { "vcPart_id", "iQuantity", "vcReason" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")

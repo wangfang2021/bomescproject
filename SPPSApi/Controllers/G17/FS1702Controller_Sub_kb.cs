@@ -118,7 +118,7 @@ namespace SPPSApi.Controllers.G17
                                                 {"vcPart_id","vcProject","iQuantity","iKBQuantity"},
                                                 {FieldCheck.NumCharL,"",FieldCheck.Num,FieldCheck.Num},
                                                 {"12","10","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","0","0","0"},//最小长度设定,可以为空用0
+                                                {"1","0","0","1"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1702_Sub_kb");
@@ -288,7 +288,7 @@ namespace SPPSApi.Controllers.G17
                         apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    #region 调用webApi打印
+                    #region 调用webApi打印 not use
                     //FS0603_Logic fS0603_Logic = new FS0603_Logic();
                     //string strPrinterName = fS0603_Logic.getPrinterName("FS1702", loginInfo.UserId);
                     ////创建 HTTP 绑定对象
@@ -327,7 +327,61 @@ namespace SPPSApi.Controllers.G17
                     //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     //}
                     #endregion
-                   
+
+                    #region 调用webApi打印
+                    FS0603_Logic fS0603_Logic = new FS0603_Logic();
+                    DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("出荷看板", loginInfo.UserId);
+                    if (dtPrinterInfo.Rows.Count != 0)
+                    {
+                        //创建 HTTP 绑定对象
+                        string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                        var binding = new BasicHttpBinding();
+                        //根据 WebService 的 URL 构建终端点对象
+                        var endpoint = new EndpointAddress(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
+                        //创建调用接口的工厂，注意这里泛型只能传入接口
+                        var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                        //从工厂获取具体的调用实例
+                        var callClient = factory.CreateChannel();
+                        setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
+                        Body.strScrpit = "select * from tPrintTemp_FS1702_kb_main where vcOperator='" + loginInfo.UserId + "' ORDER BY LinId";
+                        Body.strCRVName = file_crv + dtPrinterInfo.Rows[0]["vcReports"].ToString();
+                        Body.strPrinterName = dtPrinterInfo.Rows[0]["vcPrinter"].ToString();
+                        Body.sqlUserID = dtPrinterInfo.Rows[0]["vcSqlUserID"].ToString();
+                        Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();
+                        Body.sqlCatalog = dtPrinterInfo.Rows[0]["vcSqlCatalog"].ToString();
+                        Body.sqlSource = dtPrinterInfo.Rows[0]["vcSqlSource"].ToString();
+                        //取得勾选数据要打印的看板枚数
+                        int num = Convert.ToInt32(listInfoData[0]["iKBQuantity"].ToString());
+                        for(int i=0;i<num;i++)
+                        {
+                            //调用具体的方法，这里是 HelloWorldAsync 方法
+                            Task<setCRVPrintResponse> responseTask = callClient.setCRVPrintAsync(new setCRVPrintRequest(Body));
+                            //获取结果
+                            setCRVPrintResponse response = responseTask.Result;
+                            if (response.Body.setCRVPrintResult != "打印成功")
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                                dtMessage.Rows.Add(dataRow);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "没有打印机信息，请联系管理员维护。";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
+
                     // 更新打印时间 再发行时还更新打印时间吗？
                     fs1702_Logic.kbPrint(listInfoData, loginInfo.UserId);
 

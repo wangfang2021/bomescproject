@@ -3,7 +3,7 @@
   "Version": "15.0.40203.910",
   "ExtendedData": {
     "inputs": [
-      "http://localhost:63480/PrintTable.asmx"
+      "http://localhost:8089/PrintTable.asmx"
     ],
     "collectionTypes": [
       "System.Array",
@@ -46,6 +46,7 @@
       "NPOI.OpenXmlFormats, {NPOI, 2.5.1}",
       "Office, {MicrosoftOfficeCore, 15.0.0}",
       "QRCoder, {QRCoder, 1.4.1}",
+      "SharpCompress, {SharpCompress, 0.28.1}",
       "Swashbuckle.AspNetCore.Swagger, {Swashbuckle.AspNetCore.Swagger, 5.6.3}",
       "Swashbuckle.AspNetCore.SwaggerGen, {Swashbuckle.AspNetCore.SwaggerGen, 5.6.3}",
       "Swashbuckle.AspNetCore.SwaggerUI, {Swashbuckle.AspNetCore.SwaggerUI, 5.6.3}",

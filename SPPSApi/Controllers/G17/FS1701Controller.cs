@@ -100,6 +100,7 @@ namespace SPPSApi.Controllers.G17
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dKBPrintTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -308,31 +309,33 @@ namespace SPPSApi.Controllers.G17
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             JArray listInfo = dataForm.multipleSelection;
-            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+            //List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             try
             {
                 DataTable dtMessage = fs1702_Logic.createTable("MES");
-                if (listInfoData.Count != 0)
+                //取得要打印的数据：未打印的&&BJW的
+                DataTable dtData = fs1701_Logic.GetPrintData();
+                if (dtData.Rows.Count != 0)
                 {
-                    for (int i = 0; i < listInfoData.Count; i++)
-                    {
-                        string vcLJNo = listInfoData[i]["vcLJNo"] == null ? "" : listInfoData[i]["vcLJNo"].ToString();
-                        if (vcLJNo == "" )
-                        {
-                            DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcMessage"] = string.Format("零件号码{0}为空，无法打印", vcLJNo);
-                            dtMessage.Rows.Add(dataRow);
-                        }
-                    }
-                    if (dtMessage.Rows.Count != 0)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.type = "list";
-                        apiResult.data = dtMessage;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                    //for (int i = 0; i < dtData.Rows.Count; i++)
+                    //{
+                    //    string vcLJNo = dtData.Rows[i]["vcLJNo"] == null ? "" : dtData.Rows[i]["vcLJNo"].ToString();
+                    //    if (vcLJNo == "" )
+                    //    {
+                    //        DataRow dataRow = dtMessage.NewRow();
+                    //        dataRow["vcMessage"] = string.Format("零件号码{0}为空，无法打印", vcLJNo);
+                    //        dtMessage.Rows.Add(dataRow);
+                    //    }
+                    //}
+                    //if (dtMessage.Rows.Count != 0)
+                    //{
+                    //    apiResult.code = ComConstant.ERROR_CODE;
+                    //    apiResult.type = "list";
+                    //    apiResult.data = dtMessage;
+                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    //}
                     DataSet dsyushu = new DataSet();
-                    bool bResult = fs1701_Logic.getPrintInfo_kb(listInfoData, loginInfo.UserId, ref dtMessage,ref dsyushu);
+                    bool bResult = fs1701_Logic.getPrintInfo_kb(dtData, loginInfo.UserId, ref dtMessage,ref dsyushu);
                     if (!bResult)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -340,7 +343,7 @@ namespace SPPSApi.Controllers.G17
                         apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    #region 调用webApi打印
+                    #region 调用webApi打印 not use
                     //FS0603_Logic fS0603_Logic = new FS0603_Logic();
                     //string strPrinterName = fS0603_Logic.getPrinterName("FS1701", loginInfo.UserId);
                     ////创建 HTTP 绑定对象
@@ -380,8 +383,58 @@ namespace SPPSApi.Controllers.G17
                     //}
                     #endregion
 
+                    #region 调用webApi打印
+                    FS0603_Logic fS0603_Logic = new FS0603_Logic();
+                    DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("出荷看板", loginInfo.UserId);
+                    if (dtPrinterInfo.Rows.Count != 0)
+                    {
+                        //创建 HTTP 绑定对象
+                        string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                        var binding = new BasicHttpBinding();
+                        //根据 WebService 的 URL 构建终端点对象
+                        var endpoint = new EndpointAddress(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
+                        //创建调用接口的工厂，注意这里泛型只能传入接口
+                        var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                        //从工厂获取具体的调用实例
+                        var callClient = factory.CreateChannel();
+                        setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
+                        Body.strScrpit = "select * from tPrintTemp_FS1702_kb_main where vcOperator='" + loginInfo.UserId + "' ORDER BY LinId";
+                        Body.strCRVName = file_crv + dtPrinterInfo.Rows[0]["vcReports"].ToString();
+                        Body.strPrinterName = dtPrinterInfo.Rows[0]["vcPrinter"].ToString();
+                        Body.sqlUserID = dtPrinterInfo.Rows[0]["vcSqlUserID"].ToString();
+                        Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();
+                        Body.sqlCatalog = dtPrinterInfo.Rows[0]["vcSqlCatalog"].ToString();
+                        Body.sqlSource = dtPrinterInfo.Rows[0]["vcSqlSource"].ToString();
+                        //调用具体的方法，这里是 HelloWorldAsync 方法
+                        Task<setCRVPrintResponse> responseTask = callClient.setCRVPrintAsync(new setCRVPrintRequest(Body));
+                        //获取结果
+                        setCRVPrintResponse response = responseTask.Result;
+                        if (response.Body.setCRVPrintResult != "打印成功")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+
+                    }
+                    else
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "没有打印机信息，请联系管理员维护。";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
+
                     //更新打印时间
-                    fs1701_Logic.kbPrint(listInfoData, loginInfo.UserId,dsyushu);
+                    fs1701_Logic.kbPrint(loginInfo.UserId,dsyushu);
 
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = "打印成功";
@@ -390,7 +443,7 @@ namespace SPPSApi.Controllers.G17
                 else
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "未选择有效的打印数据";
+                    apiResult.data = "没有要打印的数据";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
             }

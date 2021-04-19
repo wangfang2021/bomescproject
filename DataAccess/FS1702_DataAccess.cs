@@ -365,8 +365,8 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select '补给品中心' as vcSupplierName,t1.vcCarType,t1.vcProject,t1.vcProjectPlace,t1.vcSR,t1.vcBackPart_id,    \n");
-                sql.Append("t1.vcChuHePart_id,t1.vcPart_Name,t2.iQuantity as iCapacity,t1.vcBoxType    \n");
+                sql.Append("select t1.vcSupplierName,t1.vcCarType,t1.vcProject,t1.vcProjectPlace,t1.vcSR,t1.vcBackPart_id,    \n");
+                sql.Append("t1.vcChuHePart_id,t1.vcPart_Name,t2.iQuantity as iCapacity,t1.vcBoxType   \n");
                 sql.Append("from TSSPManagement t1    \n");
                 sql.Append("inner join     \n");
                 sql.Append("(    \n");
@@ -385,12 +385,12 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select '补给品中心' as vcSupplierName,t1.vcCarType,t1.vcProject,t1.vcProjectPlace,t1.vcSR,t1.vcBackPart_id,    \n");
-                sql.Append("t1.vcChuHePart_id,t1.vcPart_Name,t2.iQuantity as iCapacity,t1.vcBoxType    \n");
+                sql.Append("select t1.vcSupplierName,t1.vcCarType,t1.vcProject,t1.vcProjectPlace,t1.vcSR,t1.vcBackPart_id,    \n");
+                sql.Append("t1.vcChuHePart_id,t1.vcPart_Name,case when t2.iQuantity is null then t1.iCapacity else t2.iQuantity end as iCapacity,t1.vcBoxType    \n");
                 sql.Append("from TSSPManagement t1    \n");
                 sql.Append("inner join     \n");
                 sql.Append("(    \n");
-                sql.Append("	select * from TChuHe_KB where iQuantity>0    \n");
+                sql.Append("	select * from TChuHe_KB   \n");
                 sql.Append(")t2 on t1.vcChuHePart_id=t2.vcPart_id    \n");
                 sql.Append("where t1.vcChuHePart_id='" + vcPart_id + "'    \n");
                 //sql.Append("select '补给品中心' as vcSupplierName,vcCarType,vcProject,vcProjectPlace,vcSR,vcBackPart_id,    \n");
@@ -793,7 +793,8 @@ namespace DataAccess
                 strSql_sub.AppendLine("           ,[vcChuHePart_id]");
                 strSql_sub.AppendLine("           ,[vcPart_Name]");
                 strSql_sub.AppendLine("           ,[iCapacity]");
-                strSql_sub.AppendLine("           ,[vcBoxType])");
+                strSql_sub.AppendLine("           ,[vcBoxType]");
+                strSql_sub.AppendLine("           ,[vcSupplierName])");
                 strSql_sub.AppendLine("     VALUES");
                 strSql_sub.AppendLine("           (@UUID");
                 strSql_sub.AppendLine("           ,'" + strOperId + "'");
@@ -806,7 +807,8 @@ namespace DataAccess
                 strSql_sub.AppendLine("           ,@vcChuHePart_id");
                 strSql_sub.AppendLine("           ,@vcPart_Name");
                 strSql_sub.AppendLine("           ,@iCapacity");
-                strSql_sub.AppendLine("           ,@vcBoxType)");
+                strSql_sub.AppendLine("           ,@vcBoxType");
+                strSql_sub.AppendLine("           ,@vcSupplierName)");
                 sqlCommand_sub.CommandText = strSql_sub.ToString();
                 sqlCommand_sub.Parameters.AddWithValue("@UUID", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcCarType", "");
@@ -818,6 +820,7 @@ namespace DataAccess
                 sqlCommand_sub.Parameters.AddWithValue("@vcPart_Name", "");
                 sqlCommand_sub.Parameters.AddWithValue("@iCapacity", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcBoxType", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcSupplierName", "");
 
                 #endregion
                 foreach (DataRow item in dtSub.Rows)
@@ -833,6 +836,7 @@ namespace DataAccess
                     sqlCommand_sub.Parameters["@vcPart_Name"].Value = item["vcPart_Name"];
                     sqlCommand_sub.Parameters["@iCapacity"].Value = item["iCapacity"];
                     sqlCommand_sub.Parameters["@vcBoxType"].Value = item["vcBoxType"];
+                    sqlCommand_sub.Parameters["@vcSupplierName"].Value = item["vcSupplierName"];
                     #endregion
                     sqlCommand_sub.ExecuteNonQuery();
                 }

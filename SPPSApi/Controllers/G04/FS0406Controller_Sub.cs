@@ -82,7 +82,7 @@ namespace SPPSApi.Controllers.G04
 
         [HttpPost]
         [EnableCors("any")]
-        public string createApi([FromBody]dynamic data)
+        public string createApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -121,7 +121,7 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0601", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0606", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "生成失败。";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

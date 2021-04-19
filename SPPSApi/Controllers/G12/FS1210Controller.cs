@@ -1046,7 +1046,6 @@ namespace SPPSApi.Controllers.G12
                     string vcDock = listInfoData[i]["vcDock"].ToString();//受入
                     string vcKBorderno = listInfoData[i]["vcKBorderno"].ToString();//看板订单号
                     string vcKBSerial = listInfoData[i]["vcKBSerial"].ToString();//连番
-
                     string vcCarFamilyCode = listInfoData[i]["vcCarType"].ToString();//车型
                     string vcEDflag = listInfoData[i]["jinjiqufen"].ToString();//紧急区分
                     if (vcEDflag == "通常") vcEDflag = "S";

@@ -165,7 +165,7 @@ namespace SPPSApi.Controllers.G12
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                List<Dictionary<string, object>> listInfoData = listInfo.ToObject<List<Dictionary<string, object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -199,7 +199,7 @@ namespace SPPSApi.Controllers.G12
                                                 {"10","2","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1210_spInsert");
+                    List<object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1210_spInsert");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -210,7 +210,8 @@ namespace SPPSApi.Controllers.G12
                 }
                 string strErrorPartId = "";
                 DataTable dt = ListToDataTable(listInfoData);
-                strErrorPartId = logic.InUpdeOldData(dt);
+
+                //strErrorPartId = logic.InUpdeOldData(dt);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

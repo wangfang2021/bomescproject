@@ -106,7 +106,7 @@ namespace DataAccess
                 {
                     strSql.Append(" delete SUSer where vcUserID='" + delList[i].ToString() + "';    \n");
                     strSql.Append(" delete SUserRole where vcUserID='" + delList[i].ToString() + "';    \n");
-                    strSql.Append(" delete tPointPower where vcUserID='" + delList[i].ToString() + "';    \n");
+                    //strSql.Append(" delete tPointPower where vcUserID='" + delList[i].ToString() + "';    \n");
                 }
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
@@ -296,13 +296,13 @@ namespace DataAccess
                     strSql.Append("   insert into SUserRole     \n");
                     strSql.Append("   select '" + strUserId + "',vcRoleID from SRole where vcRoleID='" + roleList[i] + "';     \n");
                 }
-                strSql.Append("  insert into tPointPower     \n");
-                strSql.Append("  (vcUserId,vcPlant)      \n");
-                strSql.Append("  values      \n");
-                strSql.Append("  (      \n");
-                strSql.Append("   '" + strUserId + "',     \n");
-                strSql.Append("   '" + strPalnt + "'     \n");
-                strSql.Append("  );      \n");
+                //strSql.Append("  insert into tPointPower     \n");
+                //strSql.Append("  (vcUserId,vcPlant)      \n");
+                //strSql.Append("  values      \n");
+                //strSql.Append("  (      \n");
+                //strSql.Append("   '" + strUserId + "',     \n");
+                //strSql.Append("   '" + strPalnt + "'     \n");
+                //strSql.Append("  );      \n");
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)
@@ -404,15 +404,13 @@ namespace DataAccess
                         strSql.Append("   insert into SUserRole     \n");
                         strSql.Append("   select '" + strUserID + "',vcRoleID from SRole where vcRoleID='" + roleList[rolesIndex] + "';     \n");
                     }
-
-                    strSql.Append("  insert into tPointPower     \n");
-                    strSql.Append("  (vcUserId,vcPlant)      \n");
-                    strSql.Append("  values      \n");
-                    strSql.Append("  (      \n");
-                    strSql.Append("   '" + strUserID + "',     \n");
-                    strSql.Append("   " + ComFunction.getSqlValue(dt.Rows[i]["vcPlantCode"],false) + "     \n");
-                    strSql.Append("  );      \n");
-
+                    //strSql.Append("  insert into tPointPower     \n");
+                    //strSql.Append("  (vcUserId,vcPlant)      \n");
+                    //strSql.Append("  values      \n");
+                    //strSql.Append("  (      \n");
+                    //strSql.Append("   "+ComFunction.getSqlValue(dt.Rows[0]["vcUserID"],false)+",     \n");
+                    //strSql.Append("   " + ComFunction.getSqlValue(dt.Rows[i]["vcPlantCode"],false) + "     \n");
+                    //strSql.Append("  );      \n");
                 }
                 excute.ExcuteSqlWithStringOper(strSql.ToString());
             }

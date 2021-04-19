@@ -267,7 +267,7 @@ namespace SPPSApi.Controllers.G01
                         dataRow["vcFzgc"] = vcFzgc;
                         dataRow["vcMessage"] = "新增的数据时间区间出现重叠";
                         dataTable.Rows.Add(dataRow);
-                        bReault = false;
+                        bReault = false; 
                     }
                 }
                 for (int i = 0; i < dtamody.Rows.Count; i++)

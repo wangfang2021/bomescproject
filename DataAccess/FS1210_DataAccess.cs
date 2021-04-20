@@ -495,52 +495,52 @@ namespace DataAccess
                         //string flag = rowdselect["iFlag"].ToString();
                         //if (flag == "insert")
                         //{
-                            strSqlIn += "INSERT INTO [tKanbanPrintTblExcep]";
-                            strSqlIn += "           ([vcPartsNo]";
-                            strSqlIn += "           ,[vcDock]";
-                            strSqlIn += "           ,[vcPorType]";
-                            strSqlIn += "           ,[vcQuantityPerContainer]";
-                            strSqlIn += "           ,[vcCarType]";
-                            strSqlIn += "           ,[vcEDflag]";
-                            strSqlIn += "           ,[vcKBorderno]";
-                            strSqlIn += "           ,[vcKBSerial]";
-                            strSqlIn += "           ,[vcTips]";
-                            strSqlIn += "           ,[vcComDate01]";
-                            strSqlIn += "           ,[vcComDate02]";
-                            strSqlIn += "           ,[vcComDate03]";
-                            strSqlIn += "           ,[vcComDate04]";
-                            strSqlIn += "           ,[vcBanZhi01]";
-                            strSqlIn += "           ,[vcBanZhi02]";
-                            strSqlIn += "           ,[vcBanZhi03]";
-                            strSqlIn += "           ,[vcBanZhi04]";
-                            strSqlIn += "           ,[vcPrintflag]";
-                            strSqlIn += "           ,[dCreatTime]";
-                            strSqlIn += "           ,[vcCreater]";
-                            strSqlIn += "           ,[dUpdateTime]";
-                            strSqlIn += "           ,[vcUpdater])";
-                            strSqlIn += "     VALUES";
-                            strSqlIn += "           ('" + vcPartsNo + "'";
-                            strSqlIn += "            ,'" + vcDock + "'";
-                            strSqlIn += "            ,'" + vcPorType + "'";
-                            strSqlIn += "            ,'" + vcQuantityPerContainer + "'";
-                            strSqlIn += "            ,'" + vcCarType + "'";
-                            strSqlIn += "            ,'" + vcEDflag + "'";
-                            strSqlIn += "            ,'" + vcKBorderno + "'";
-                            strSqlIn += "            ,'" + vcKBSerial + "'";
-                            strSqlIn += "            ,'" + vcTips + "'";
-                            strSqlIn += "            ,'" + vcComDate01 + "'";
-                            strSqlIn += "            ,'" + vcComDate02 + "'";
-                            strSqlIn += "            ,'" + vcComDate03 + "'";
-                            strSqlIn += "            ,'" + vcComDate04 + "'";
-                            strSqlIn += "            ,'" + vcBanZhi01 + "'";
-                            strSqlIn += "            ,'" + vcBanZhi02 + "'";
-                            strSqlIn += "            ,'" + vcBanZhi03 + "'";
-                            strSqlIn += "            ,'" + vcBanZhi04 + "'";
-                            strSqlIn += "            ,'" + vcPrintflag + "'";
-                            strSqlIn += "            ,getdate()";
-                            strSqlIn += "            ,'" + useid + "'";
-                            strSqlIn += "            ,getdate()";
-                            strSqlIn += "            ,'" + useid + "')";
+                        strSqlIn += "INSERT INTO [tKanbanPrintTblExcep]";
+                        strSqlIn += "           ([vcPartsNo]";
+                        strSqlIn += "           ,[vcDock]";
+                        strSqlIn += "           ,[vcPorType]";
+                        strSqlIn += "           ,[vcQuantityPerContainer]";
+                        strSqlIn += "           ,[vcCarType]";
+                        strSqlIn += "           ,[vcEDflag]";
+                        strSqlIn += "           ,[vcKBorderno]";
+                        strSqlIn += "           ,[vcKBSerial]";
+                        strSqlIn += "           ,[vcTips]";
+                        strSqlIn += "           ,[vcComDate01]";
+                        strSqlIn += "           ,[vcComDate02]";
+                        strSqlIn += "           ,[vcComDate03]";
+                        strSqlIn += "           ,[vcComDate04]";
+                        strSqlIn += "           ,[vcBanZhi01]";
+                        strSqlIn += "           ,[vcBanZhi02]";
+                        strSqlIn += "           ,[vcBanZhi03]";
+                        strSqlIn += "           ,[vcBanZhi04]";
+                        strSqlIn += "           ,[vcPrintflag]";
+                        strSqlIn += "           ,[dCreatTime]";
+                        strSqlIn += "           ,[vcCreater]";
+                        strSqlIn += "           ,[dUpdateTime]";
+                        strSqlIn += "           ,[vcUpdater])";
+                        strSqlIn += "     VALUES";
+                        strSqlIn += "           ('" + vcPartsNo + "'";
+                        strSqlIn += "            ,'" + vcDock + "'";
+                        strSqlIn += "            ,'" + vcPorType + "'";
+                        strSqlIn += "            ,'" + vcQuantityPerContainer + "'";
+                        strSqlIn += "            ,'" + vcCarType + "'";
+                        strSqlIn += "            ,'" + vcEDflag + "'";
+                        strSqlIn += "            ,'" + vcKBorderno + "'";
+                        strSqlIn += "            ,'" + vcKBSerial + "'";
+                        strSqlIn += "            ,'" + vcTips + "'";
+                        strSqlIn += "            ,'" + vcComDate01 + "'";
+                        strSqlIn += "            ,'" + vcComDate02 + "'";
+                        strSqlIn += "            ,'" + vcComDate03 + "'";
+                        strSqlIn += "            ,'" + vcComDate04 + "'";
+                        strSqlIn += "            ,'" + vcBanZhi01 + "'";
+                        strSqlIn += "            ,'" + vcBanZhi02 + "'";
+                        strSqlIn += "            ,'" + vcBanZhi03 + "'";
+                        strSqlIn += "            ,'" + vcBanZhi04 + "'";
+                        strSqlIn += "            ,'" + vcPrintflag + "'";
+                        strSqlIn += "            ,getdate()";
+                        strSqlIn += "            ,'" + useid + "'";
+                        strSqlIn += "            ,getdate()";
+                        strSqlIn += "            ,'" + useid + "')";
                         //}
                         //else
                         //    if (flag == "update")
@@ -1021,6 +1021,148 @@ namespace DataAccess
             }
             dtReturn = getDataTableBySql(strSQL.ToString());
             return dtReturn;
+        }
+
+        public DataTable CreatDataTable(DataTable dt)
+        {
+            DataTable dt_Init = new DataTable();
+            dt_Init.Columns.Add("vcPartsNo", typeof(string));
+            dt_Init.Columns.Add("vcDock", typeof(string));
+            dt_Init.Columns.Add("vcCarType", typeof(string));
+            dt_Init.Columns.Add("vcEDflag", typeof(string));
+            dt_Init.Columns.Add("vcKBorderno", typeof(string));
+            dt_Init.Columns.Add("vcKBSerial", typeof(string));
+            dt_Init.Columns.Add("vcTips", typeof(string));
+            dt_Init.Columns.Add("jinjiqufen", typeof(string));
+            dt_Init.Columns.Add("vcPlanMonth", typeof(string));
+            dt_Init.Columns.Add("iNo", typeof(string));
+            dt_Init.Columns.Add("vcPorType", typeof(string));
+            dt_Init.Columns.Add("vcModFlag", typeof(string));
+            dt_Init.Columns.Add("vcAddFlag", typeof(string));
+
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                DataRow dr = dt_Init.NewRow();
+                dr["vcPartsNo"] = dt.Rows[i]["vcPartsNo"].ToString();
+                dr["vcDock"] = dt.Rows[i]["vcDock"].ToString();
+                dr["vcCarType"] = dt.Rows[i]["vcCarType"].ToString();
+                dr["jinjiqufen"] = dt.Rows[i]["jinjiqufen"].ToString();
+                dr["vcKBorderno"] = dt.Rows[i]["vcKBorderno"].ToString();
+                dr["vcKBSerial"] = dt.Rows[i]["vcKBSerial"].ToString();
+                dr["vcTips"] = dt.Rows[i]["vcTips"].ToString();
+                dr["vcModFlag"] = "0";
+                dr["vcAddFlag"] = "1";
+                //if (dt.Rows[i]["jinjiqufen"].ToString() == "通常")
+                //{
+                //    dr["jinjiqufen"] = "S";
+                //}
+                //if (dt.Rows[i]["jinjiqufen"].ToString() == "紧急")
+                //{
+                //    dr["jinjiqufen"] = "E";
+                //}
+                StringBuilder sqlget = new StringBuilder();
+                sqlget.AppendLine("SELECT t1.iNo, t1.vcEDflag, t1.vcPlanMonth, t2.vcProType ");
+                sqlget.AppendLine("FROM tKanbanPrintTbl t1 ");
+                sqlget.AppendLine("left join tPlanPartInfo t2 on t1.vcPlanMonth=t2.vcMonth and t1.vcPartsNo=t2.vcPartsNo ");
+                sqlget.AppendLine("and t1.vcDock=t2.vcDock and t1.vcEDflag=t2.vcEDFlag ");
+                sqlget.AppendLine("where t1.vcPartsNo='" + dr["vcPartsNo"].ToString() + "' and t1.vcDock='" + dr["vcDock"].ToString() + "' and t1.vcCarType='" + dr["vcCarType"].ToString() + "' ");
+                sqlget.AppendLine("and t1.vcKBorderno='" + dr["vcKBorderno"].ToString() + "' and t1.vcKBSerial='" + dr["vcKBSerial"].ToString() + "' ");
+                DataTable dtget = excute.ExcuteSqlWithSelectToDT(sqlget.ToString());
+                if (dtget.Rows.Count > 0)
+                {
+                    dr["vcEDflag"] = dtget.Rows[0]["vcEDflag"].ToString();
+                    dr["vcPlanMonth"] = dtget.Rows[0]["vcPlanMonth"].ToString();
+                    dr["vcPorType"] = dtget.Rows[0]["vcProType"].ToString();
+                    dr["iNo"] = "";
+                }
+                else
+                {
+                    dr["vcEDflag"] = "";
+                    dr["vcPlanMonth"] = "";
+                    dr["vcPorType"] = "";
+                    dr["iNo"] = "";
+                }
+                dt_Init.Rows.Add(dr);
+            }
+            return dt_Init;
+        }
+
+        /// <summary>
+        /// 判断是否存在允许再发行的看板
+        /// </summary>
+        /// <param name="InputFile"></param>
+        /// <returns></returns>
+        public string CheckPrint(DataTable dt1)
+        {
+            try
+            {
+                DataTable dt = CreatDataTable(dt1);
+                StringBuilder strSQL = new StringBuilder();
+                int rowsi = dt.Rows.Count;
+                int j = 0;
+                string vcKBnoser = "";
+                vcKBnoser += "'";
+                if (dt.Rows.Count > 0)
+                {
+                    foreach (DataRow rows in dt.Rows)
+                    {
+                        vcKBnoser += rows["vcKBorderno"].ToString() + rows["vcKBSerial"].ToString();
+                        if (j < rowsi - 1)
+                        {
+                            vcKBnoser += "','";
+                        }
+                        else
+                        {
+                            vcKBnoser += "'";
+                        }
+                        j++;
+                    }
+                    strSQL.AppendLine("select * from tKanbanPrintTbl where vcPrintflag='1' and vcKBorderno+vcKBSerial in (" + vcKBnoser + ")");
+                    DataTable dtt = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
+                    if (dtt.Rows.Count != dt.Rows.Count)
+                    {
+                        string msg = "订单号";
+                        for (int x = 0; x < dt.Rows.Count; x++)
+                        {
+                            int xy = 0;
+                            string vcKBnoalx = dt.Rows[x]["vcKBorderno"].ToString() + dt.Rows[x]["vcKBSerial"].ToString();
+                            for (int y = 0; y < dtt.Rows.Count; y++)
+                            {
+                                string vcKBnoaly = dtt.Rows[y]["vcKBorderno"].ToString() + dtt.Rows[y]["vcKBSerial"].ToString();
+                                if (vcKBnoalx == vcKBnoaly)
+                                {
+                                    break;
+                                }
+                                xy++;
+                            }
+                            if (xy == dtt.Rows.Count)
+                            {
+                                msg += dt.Rows[x]["vcKBorderno"].ToString();
+                            }
+                        }
+                        if (msg != "订单号")
+                        {
+                            return "";
+                        }
+                        else
+                        {
+                            return msg;
+                        }
+                    }
+                    else
+                    {
+                        return "";
+                    }
+                }
+                else
+                {
+                    return "导入文件没有数据。";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         #region 删除（特殊打印录入）

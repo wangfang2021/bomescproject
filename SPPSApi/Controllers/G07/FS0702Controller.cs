@@ -266,7 +266,7 @@ namespace SPPSApi.Controllers.G07
             string strToBegin = dataForm.dToBegin;//To开始
             string strToEnd = dataForm.dToEnd;//To结束
             string strExport = dataForm.vcIsExport;
-            if (strExport == null)
+            if (strExport == null || string.IsNullOrEmpty(strExport))
             {
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "请选择导出有效性筛选！";
@@ -370,11 +370,13 @@ namespace SPPSApi.Controllers.G07
             {
                 DataTable dt = FS0702_Logic.SearchEXZ("", strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd, "0");
                 string resMsg = "";
-                string[] head = { "导入状态", "对应标识", "变更事项", "包装场", "收货方", "品番", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数" };
+                string[] head = { "导入状态(必填)", "对应标识(必填)", "变更事项", "包装场", "收货方(必填)", "品番(必填)", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番(必填)", "GPS品番", "开始时间(必填)", "结束时间(必填)", "包装材区分(必填)", "必要数(必填)" };
 
                 string[] fields = {"vcIsorNo","iAutoId", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
                     "vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"
                 };
+                // string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0702_Export.xlsx", 1, loginInfo.UserId, FunctionID);
+
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "包材构成数据导出", ref resMsg);
                 if (filepath == "")
                 {
@@ -460,7 +462,7 @@ namespace SPPSApi.Controllers.G07
             string strToBegin = dataForm.dToBegin;//To开始
             string strToEnd = dataForm.dToEnd;//To结束
             string strExport = dataForm.vcIsExport;
-            if (strExport == null)
+            if (strExport == null || string.IsNullOrEmpty(strExport))
             {
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "请选择导出有效性筛选！";
@@ -732,6 +734,9 @@ namespace SPPSApi.Controllers.G07
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 string strPartNoAll = "";
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                DataTable dt = FS0702_Logic.Search_1();
+                DataTable dt1 = FS0701_Logic.Search_1();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
@@ -739,29 +744,37 @@ namespace SPPSApi.Controllers.G07
                     if (bAddFlag == true)
                     {//新增
                         hasFind = true;
-                        if (i != 0)
-                        {
-                            strPartNoAll = strPartNoAll + "'," + listInfoData[i]["vcPartsNo"].ToString();
-                        }
-                        else
-                        {
-
-                            strPartNoAll = listInfoData[i]["vcPartsNo"].ToString();
-                        }
+                      
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
                     }
+                    if (i != 0)
+                    {
+                        strPartNoAll = strPartNoAll + "'" + listInfoData[i]["vcPartsNo"].ToString();
+                    }
+                    else
+                    {
+
+                        strPartNoAll = listInfoData[i]["vcPartsNo"].ToString() + "',";
+                    }
                     //判断品番是否存在
 
-                    if (string.IsNullOrEmpty(listInfoData[i]["vcShouhuofangID"].ToString())) {
+                    if (string.IsNullOrEmpty(listInfoData[i]["vcShouhuofangID"].ToString()))
+                    {
 
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "请填写收货方！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    DataRow[] drr = dt1.Select("vcPackNo='"+ listInfoData[i]["vcPackNo"].ToString() + "'");
+                    if (drr.Length==0) {
 
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "此包材品番不在包材基础数据中！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
 
                     bool isok = FS0702_Logic.CheckPartsNo("", listInfoData[i]["vcPartsNo"].ToString());
                     if (!isok)
@@ -777,7 +790,10 @@ namespace SPPSApi.Controllers.G07
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                     }
-                    int iAutoId = listInfoData[i]["iAutoId"] == "" ? 0 : Convert.ToInt32(listInfoData[i]["iAutoId"]);
+
+                    string strAutoId = listInfoData[i]["iAutoId"].ToString() == "" ? "0" : listInfoData[i]["iAutoId"].ToString();
+                    int iAutoId = Convert.ToInt32(strAutoId);
+
                     DataTable dtcheckTime = FS0702_Logic.searchcheckTime(listInfoData[i]["vcPackSpot"].ToString(), listInfoData[i]["vcPartsNo"].ToString(),
                         listInfoData[i]["vcPackNo"].ToString(), listInfoData[i]["dFrom"].ToString(),
                         listInfoData[i]["dTo"].ToString(), iAutoId, listInfoData[i]["vcShouhuofangID"].ToString());
@@ -796,9 +812,7 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 List<Object> strSupplierCode = new List<object>();
-                FS0701_Logic FS0701_Logic = new FS0701_Logic();
-                DataTable dt = FS0702_Logic.Search_1();
-                DataTable dt1 = FS0701_Logic.Search_1();
+                
                 string strErrorPartId = "";
                 //删除导入含有的部品品番的包材为空的数据
                 FS0702_Logic.DeleteALL(strPartNoAll, loginInfo.UserId);

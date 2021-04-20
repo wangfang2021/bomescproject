@@ -5,7 +5,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Web;
+using System.Text;
 using DataAccess;
 using System.Collections;
 using System.Linq;
@@ -355,6 +355,16 @@ namespace Logic
             {
                 throw ex;
             }
+        }
+
+        public string CheckPrint(DataTable dt1)
+        {
+            return dataAccess.CheckPrint(dt1);
+        }
+
+        public DataTable CreatDataTable(DataTable dt)
+        {
+            return dataAccess.CreatDataTable(dt);
         }
 
         #region 删除

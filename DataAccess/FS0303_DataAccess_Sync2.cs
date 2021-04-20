@@ -1063,6 +1063,8 @@ namespace DataAccess
             strSql.Append("      ) a       \r\n");
             strSql.Append("      left join        \r\n");
             strSql.Append("      (       \r\n");
+            strSql.Append("      	select vcPartId,vcPackingPlant,vcReceiver,vcSupplierId from TSPMaster       \r\n");
+            strSql.Append("      	union all       \r\n");
             strSql.Append("      	select vcPartId,vcPackingPlant,vcReceiver,vcSupplierId from TSPMaster_temp       \r\n");
             strSql.Append("      ) b       \r\n");
             strSql.Append("      on a.vcPart_id = b.vcPartId       \r\n");

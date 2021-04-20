@@ -115,7 +115,7 @@ namespace SPPSApi.Controllers.G04
         #region 删除
         [HttpPost]
         [EnableCors("any")]
-        public string delApi([FromBody]dynamic data)
+        public string delApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -146,7 +146,7 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0104", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0602", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除SPI失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -207,7 +207,7 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0103", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0603", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -218,7 +218,7 @@ namespace SPPSApi.Controllers.G04
         #region 承认
         [HttpPost]
         [EnableCors("any")]
-        public string commitApi([FromBody]dynamic data)
+        public string commitApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -267,7 +267,7 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M0UE0601", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0604", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "承认失败。";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -279,7 +279,7 @@ namespace SPPSApi.Controllers.G04
         #region 发送
         [HttpPost]
         [EnableCors("any")]
-        public string sendApi([FromBody]dynamic data)
+        public string sendApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -328,7 +328,7 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M0UE0601", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0605", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "发送失败。";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -54,6 +54,7 @@ namespace SPPSApi.Controllers.G12
             JArray fileNameList = dataForm.fileNameList;
             string hashCode = dataForm.hashCode;
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
+            string msg = "";
             try
             {
                 if (!Directory.Exists(fileSavePath))
@@ -66,7 +67,7 @@ namespace SPPSApi.Controllers.G12
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
                 string[,] headers = new string[,] {{"品番","受入","车型","紧急区分","看板订单号","连番","备注"},
-                                                {"vcPartsNo","vcDock","vcCarType","vcEDflag","vcKBorderno","vcKBSerial","vcTips"},
+                                                {"vcPartsNo","vcDock","vcCarType","jinjiqufen","vcKBorderno","vcKBSerial","vcTips"},
                                                 {FieldCheck.NumChar,FieldCheck.NumChar,"","",FieldCheck.Num,FieldCheck.Num,""},
                                                 {"12","2","10","2","12","4","100"},//最大长度设定,不校验最大长度用0
                                                 {"12","2","1","2","10","4","0"},//最小长度设定,可以为空用0
@@ -99,7 +100,7 @@ namespace SPPSApi.Controllers.G12
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPartsNo"), r3 = r.Field<string>("vcDock"), r4 = r.Field<string>("vcEDflag"), r5 = r.Field<string>("vcKBorderno"), r6 = r.Field<string>("vcKBSerial") } into g
+                             group r by new { r2 = r.Field<string>("vcPartsNo"), r3 = r.Field<string>("vcDock"), r4 = r.Field<string>("jinjiqufen"), r5 = r.Field<string>("vcKBorderno"), r6 = r.Field<string>("vcKBSerial") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -114,22 +115,42 @@ namespace SPPSApi.Controllers.G12
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-                //fs1207_Logic.UpdateFZJS(importDt, loginInfo.UserId);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "保存成功";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                strMsg = fs1210_Logic.CheckPrint(importDt);
+                DataTable dt2;
+                if (!string.IsNullOrEmpty(msg))
+                {
+                    return msg;
+                }
+                else
+                {
+                    dt2 = fs1210_Logic.CreatDataTable(importDt);
+                }
+                if (dt2 != null && dt2.Rows.Count > 0)
+                {
+                    Dictionary<string, object> res = new Dictionary<string, object>();
+                    List<object> dt3 = ComFunction.convertAllToResult(dt2);
+                    res.Add("dt3", dt3);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = res;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                else
+                {
+                    ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导入失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
             }
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败" + ex.Message;
+                apiResult.data = "导入失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion
-
     }
 }

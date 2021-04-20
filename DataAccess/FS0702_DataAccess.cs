@@ -475,7 +475,7 @@ namespace DataAccess
                         sql.AppendLine(" '" + dUserTo + "',   \r\n");
                         sql.AppendLine(ComFunction.getSqlValue(dfrom, false) + ",\r\n");
                         sql.AppendLine(ComFunction.getSqlValue(dto, false) + ",\r\n");
-                        switch (listInfoData[i]["vcDistinguish"].ToString()) {
+                        switch (listInfoData[i]["vcDistinguish"].ToString().Substring(0, 1)) {
                             case "1":
                                 sql.AppendLine(" '1:个装',\r\n");
                                 break;
@@ -528,7 +528,7 @@ namespace DataAccess
                         sql.AppendLine($"   dUsedTo ='" + dUserTo + "',\r\n");
                         sql.AppendLine($"   dFrom ={ComFunction.getSqlValue(dfrom, false)},\r\n");
                         sql.AppendLine($"   dTo = {ComFunction.getSqlValue(dto, false)},\r\n");
-                        switch (listInfoData[i]["vcDistinguish"].ToString())
+                        switch (listInfoData[i]["vcDistinguish"].ToString().Substring(0, 1))
                         {
                             case "1":
                                 sql.AppendLine(" vcDistinguish ='1:个装',\r\n");
@@ -737,8 +737,28 @@ namespace DataAccess
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dFrom"], false) + ",\r\n");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dTo"], false) + ",\r\n");
 
-
-                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcDistinguish"], false) + ",\r\n");
+                        switch (dt.Rows[i]["vcDistinguish"].ToString().Substring(0,1))
+                        {
+                            case "1":
+                                sql.AppendLine(" '1:个装',\r\n");
+                                break;
+                            case "2":
+                                sql.AppendLine(" '2:内装',\r\n");
+                                break;
+                            case "3":
+                                sql.AppendLine(" '3:外装',\r\n");
+                                break;
+                            case "4":
+                                sql.AppendLine(" '4:防锈',\r\n");
+                                break;
+                            case "5":
+                                sql.AppendLine(" '5:取说',\r\n");
+                                break;
+                            default:
+                                sql.AppendLine(" '',\r\n");
+                                break;
+                        }
+                        //sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcDistinguish"], false) + ",\r\n");
 
 
                         if (dt.Rows[i]["iBiYao"].ToString() == "")

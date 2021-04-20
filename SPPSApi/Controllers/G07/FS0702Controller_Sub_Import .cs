@@ -68,7 +68,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"导入状态","对应标识", "变更事项", "包装场", "收货方", "品番", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数"},
+                string[,] headers = new string[,] {{"导入状态(必填)","对应标识(必填)", "变更事项", "包装场", "收货方(必填)", "品番(必填)", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番(必填)", "GPS品番", "开始时间(必填)", "结束时间(必填)", "包装材区分(必填)", "必要数(必填)"},
                                                 {"vcIsorNo","iAutoId", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo","vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"},
                                                 {"",FieldCheck.Num,"","","","","",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Date,FieldCheck.Date,"",FieldCheck.Decimal},
                                                 {"50","0","50","50","50","50","0","0","0","0","0","0","0","0","0"},

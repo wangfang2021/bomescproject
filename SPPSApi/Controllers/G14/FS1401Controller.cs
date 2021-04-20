@@ -211,7 +211,7 @@ namespace SPPSApi.Controllers.G14
             {
                 /*调用批处理*/
                 FP0011 fp = new FP0011();
-                fp.main(loginInfo.UserId, "tCheckMethod_Master");
+                fp.main(loginInfo.UserId, "tCheckMethod_Master"); 
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

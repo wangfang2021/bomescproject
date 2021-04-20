@@ -4143,13 +4143,13 @@ namespace Logic
 
                 DataRow dataRow1 = dataTable.NewRow();
                 dataRow1["vcProgect"] = "计划数量";
-                dataRow1["vcDeng"] = "0.00";
-                dataRow1["vcZhongxw"] = "0.00";
-                dataRow1["vcDaw"] = "0.00";
-                dataRow1["vcBol"] = "0.00";
-                dataRow1["vcBanj"] = "0.00";
-                dataRow1["vcChengx"] = "0.00";
-                dataRow1["vcHej"] = "0.00";
+                dataRow1["vcDeng"] = "0";
+                dataRow1["vcZhongxw"] = "0";
+                dataRow1["vcDaw"] = "0";
+                dataRow1["vcBol"] = "0";
+                dataRow1["vcBanj"] = "0";
+                dataRow1["vcChengx"] = "0";
+                dataRow1["vcHej"] = "0";
                 dataTable.Rows.Add(dataRow1);
 
                 DataRow dataRow2 = dataTable.NewRow();
@@ -4187,46 +4187,46 @@ namespace Logic
 
                 DataRow dataRow5 = dataTable.NewRow();
                 dataRow5["vcProgect"] = "当日作业计划";
-                dataRow5["vcDeng"] = "0.00";
-                dataRow5["vcZhongxw"] = "0.00";
-                dataRow5["vcDaw"] = "0.00";
-                dataRow5["vcBol"] = "0.00";
-                dataRow5["vcBanj"] = "0.00";
-                dataRow5["vcChengx"] = "0.00";
-                dataRow5["vcHej"] = "0.00";
+                dataRow5["vcDeng"] = "0";
+                dataRow5["vcZhongxw"] = "0";
+                dataRow5["vcDaw"] = "0";
+                dataRow5["vcBol"] = "0";
+                dataRow5["vcBanj"] = "0";
+                dataRow5["vcChengx"] = "0";
+                dataRow5["vcHej"] = "0";
                 dataTable.Rows.Add(dataRow5);
 
                 DataRow dataRow6 = dataTable.NewRow();
                 dataRow6["vcProgect"] = "现时点计划数量";
-                dataRow6["vcDeng"] = "0.00";
-                dataRow6["vcZhongxw"] = "0.00";
-                dataRow6["vcDaw"] = "0.00";
-                dataRow6["vcBol"] = "0.00";
-                dataRow6["vcBanj"] = "0.00";
-                dataRow6["vcChengx"] = "0.00";
-                dataRow6["vcHej"] = "0.00";
+                dataRow6["vcDeng"] = "0";
+                dataRow6["vcZhongxw"] = "0";
+                dataRow6["vcDaw"] = "0";
+                dataRow6["vcBol"] = "0";
+                dataRow6["vcBanj"] = "0";
+                dataRow6["vcChengx"] = "0";
+                dataRow6["vcHej"] = "0";
                 dataTable.Rows.Add(dataRow6);
 
                 DataRow dataRow7 = dataTable.NewRow();
                 dataRow7["vcProgect"] = "实绩完成数量";
-                dataRow7["vcDeng"] = "0.00";
-                dataRow7["vcZhongxw"] = "0.00";
-                dataRow7["vcDaw"] = "0.00";
-                dataRow7["vcBol"] = "0.00";
-                dataRow7["vcBanj"] = "0.00";
-                dataRow7["vcChengx"] = "0.00";
-                dataRow7["vcHej"] = "0.00";
+                dataRow7["vcDeng"] = "0";
+                dataRow7["vcZhongxw"] = "0";
+                dataRow7["vcDaw"] = "0";
+                dataRow7["vcBol"] = "0";
+                dataRow7["vcBanj"] = "0";
+                dataRow7["vcChengx"] = "0";
+                dataRow7["vcHej"] = "0";
                 dataTable.Rows.Add(dataRow7);
 
                 DataRow dataRow8 = dataTable.NewRow();
                 dataRow8["vcProgect"] = "现实点作业数量差";
-                dataRow8["vcDeng"] = "0.00";
-                dataRow8["vcZhongxw"] = "0.00";
-                dataRow8["vcDaw"] = "0.00";
-                dataRow8["vcBol"] = "0.00";
-                dataRow8["vcBanj"] = "0.00";
-                dataRow8["vcChengx"] = "0.00";
-                dataRow8["vcHej"] = "0.00";
+                dataRow8["vcDeng"] = "0";
+                dataRow8["vcZhongxw"] = "0";
+                dataRow8["vcDaw"] = "0";
+                dataRow8["vcBol"] = "0";
+                dataRow8["vcBanj"] = "0";
+                dataRow8["vcChengx"] = "0";
+                dataRow8["vcHej"] = "0";
                 dataTable.Rows.Add(dataRow8);
 
                 DataRow dataRow9 = dataTable.NewRow();

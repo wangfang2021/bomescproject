@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
+using BatchProcess;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -209,7 +210,8 @@ namespace SPPSApi.Controllers.G14
             try
             {
                 /*调用批处理*/
-
+                FP0011 fp = new FP0011();
+                fp.main(loginInfo.UserId, "tCheckMethod_Master");
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

@@ -1,23 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Text.Json;
-using System.Threading;
 using Common;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.ServiceModel;
-using System.Threading.Tasks;
 using System.IO;
 using System.Text;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Linq;
 using Logic;
 
@@ -52,10 +44,10 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
+                List<object> dataList_PlantSource = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 string RolePorType = logic.getRoleTip(loginInfo.UserId);
                 DataTable dtportype = logic.dllPorType(RolePorType.Split('*'));
-                List<Object> dataList_PorTypeSource = ComFunction.convertAllToResult(dtportype);
+                List<object> dataList_PorTypeSource = ComFunction.convertAllToResult(dtportype);
 
                 string printerName = logic.PrintMess(loginInfo.UserId);
                 res.Add("dataList_PlantSource", dataList_PlantSource);
@@ -109,7 +101,7 @@ namespace SPPSApi.Controllers.G12
                 DtConverter dtConverter = new DtConverter();
                 //dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 //dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(resutPrint, dtConverter);
+                List<object> dataList = ComFunction.convertAllToResultByConverter(resutPrint, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -276,11 +268,11 @@ namespace SPPSApi.Controllers.G12
             DataTable resutPrint = new DataTable();
             if (vcPorType != "PP")
             {
-                if (vcType == "3")
+                if (vcType == "3") //秦丰非ED
                 {
                     resutPrint = searchPrint(vcPrintPartNo, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, dtportype);
                 }
-                else
+                else //非秦丰和秦丰ED
                 {
                     resutPrint = searchPrint(vcPrintPartNo, vcType, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, dtportype);
                 }
@@ -903,26 +895,26 @@ namespace SPPSApi.Controllers.G12
             strSQL.AppendLine("                           when GETDATE()>=(select CONVERT(varchar(10),DateAdd(DAY,-1,GETDATE()),121)+' '+(select cast(vcyebanbegin as varchar(8)) from Mbaiye)) and GETDATE()<=(select CONVERT(varchar(10),GETDATE(),121)+' '+(select cast(vcyebanend as varchar(8)) from Mbaiye)) then '1'");
             strSQL.AppendLine("                      else '' end) as [by]) ");
             strSQL.AppendLine(" declare @vcComDate varchar(10) ");
-            strSQL.AppendLine("    set @vcComDate=(select (case when GETDATE()>=(select CONVERT(varchar(10),GETDATE(),121)+' 00:00:00.000') and GETDATE()<=(select CONVERT(varchar(10),GETDATE(),121)+' 06:00:00.000') then CONVERT(varchar(10),DateAdd(DAY,-1,GETDATE()),121)");
+            strSQL.AppendLine(" set @vcComDate=(select (case when GETDATE()>=(select CONVERT(varchar(10),GETDATE(),121)+' 00:00:00.000') and GETDATE()<=(select CONVERT(varchar(10),GETDATE(),121)+' 06:00:00.000') then CONVERT(varchar(10),DateAdd(DAY,-1,GETDATE()),121)");
             strSQL.AppendLine("                           else  CONVERT(varchar(10),GETDATE(),121) end) as [by])");
 
             strSQL.AppendLine("select a.vcPartsNo,A.vcDock,A.vcCarType AS vcCarFamilyCode,vcProType as vcPorType,A.vcEDflag,vcKBorderno,b.vcQFflag,");
-            strSQL.AppendLine("       '' as [image],A.vcKBSerial,vcTips,vcPlanMonth,A.iNo,A.vcPartFrequence");//品番频度
+            strSQL.AppendLine("'' as [image],A.vcKBSerial,vcTips,vcPlanMonth,A.iNo,A.vcPartFrequence");//品番频度
             strSQL.AppendLine("  FROM ( ");
             //strSQL.AppendLine(" (select * from tKanbanPrintTbl) A");//给看板打印数据left join品番频度
-            strSQL.AppendLine(" (SELECT distinct iNo,T1.vcPartsNo,vcDock,vcCarType,vcEDflag,vcKBorderno,vcKBSerial,vcTips,vcPrintflag,vcPrintTime,vcKBType,vcProject00,vcProject01,vcProject02,vcProject03,vcProject04,vcComDate00,vcComDate01,vcComDate02,vcComDate03,vcComDate04,vcBanZhi00,vcBanZhi01,vcBanZhi02,vcBanZhi03,vcBanZhi04,vcAB00,vcAB01,vcAB02,vcAB03,vcAB04,dCreatTime,vcCreater,dUpdateTime,vcUpdater,vcPlanMonth,vcPrintSpec,vcPrintflagED,vcDockED,vcPrintTimeED,vcQuantityPerContainer,iBaiJianFlag,T2.vcPartFrequence FROM tKanbanPrintTbl T1 left join (SELECT vcPartsNo,vcPartFrequence FROM tPartInfoMaster where dTimeFrom<=GETDATE() and dTimeTo>=GETDATE()) T2 on T1.vcPartsNo=T2.vcPartsNo) A");
+            strSQL.AppendLine(" (SELECT distinct iNo,T1.vcPartsNo,vcDock,vcCarType,vcEDflag,vcKBorderno,vcKBSerial,vcTips,vcPrintflag,vcPrintTime,vcKBType,vcProject00,vcProject01,vcProject02,vcProject03,vcProject04,vcComDate00,vcComDate01,vcComDate02,vcComDate03,vcComDate04,vcBanZhi00,vcBanZhi01,vcBanZhi02,vcBanZhi03,vcBanZhi04,vcAB00,vcAB01,vcAB02,vcAB03,vcAB04,dCreatTime,vcCreater,dUpdateTime,vcUpdater,vcPlanMonth,vcPrintSpec,vcPrintflagED,vcDockED,vcPrintTimeED,vcQuantityPerContainer,iBaiJianFlag,T2.vcPartFrequence FROM tKanbanPrintTbl T1 left join (SELECT vcPartsNo,vcPartFrequence FROM tPartInfoMaster where dTimeFrom<=GETDATE() and dTimeTo>=GETDATE()) T2 on T1.vcPartsNo=T2.vcPartsNo) A ");
             strSQL.AppendLine("left join ");
-            strSQL.AppendLine(" (select distinct vcProType,vcPartsNo,vcDock,vcMonth,vcCarType,vcQFflag,vcPlant from tPlanPartInfo) B");
-            strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock  and A.vcPlanMonth = B.vcMonth and A.vcCarType = B.vcCarType)");
-            strSQL.AppendLine("      where A.vcComDate00=CONVERT(varchar(10),@vcComDate,121) and  A.vcPrintflag is null and A.vcPrintflagED is null");
+            strSQL.AppendLine("(select distinct vcProType,vcPartsNo,vcDock,vcMonth,vcCarType,vcQFflag,vcPlant from tPlanPartInfo) B ");
+            strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock and A.vcPlanMonth=B.vcMonth and A.vcCarType=B.vcCarType) ");
+            strSQL.AppendLine("where A.vcComDate00=CONVERT(varchar(10),@vcComDate,121) and A.vcPrintflag is null and A.vcPrintflagED is null ");
 
-            if (vcType == "2")
+            if (vcType == "2") //秦丰ED
             {
-                strSQL.AppendLine(" and  A.vcBanZhi00=@banzhi and vcQFflag='1'");
+                strSQL.AppendLine(" and A.vcBanZhi00=@banzhi and vcQFflag='1'");
             }
-            if (vcType == "1")
+            if (vcType == "1") //非秦丰
             {
-                strSQL.AppendLine(" and  A.vcBanZhi00=@banzhi and vcQFflag<>'1'");
+                strSQL.AppendLine(" and A.vcBanZhi00=@banzhi and vcQFflag<>'1'");
             }
             if (vcPrintPartNo.Length != 0)
             {
@@ -930,15 +922,15 @@ namespace SPPSApi.Controllers.G12
             }
             if (vcKbOrderId.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcKBorderno = '" + vcKbOrderId + "'");
+                strSQL.AppendLine(" and A.vcKBorderno='" + vcKbOrderId + "'");
             }
             if (vcLianFan.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcKBSerial = '" + vcLianFan + "'");
+                strSQL.AppendLine(" and A.vcKBSerial='" + vcLianFan + "'");
             }
             if (vcPorType != "")
             {
-                strSQL.AppendLine(" and B.vcProType = '" + vcPorType + "'");
+                strSQL.AppendLine(" and B.vcProType='" + vcPorType + "'");
             }
             else
             {
@@ -1029,7 +1021,7 @@ namespace SPPSApi.Controllers.G12
             strSQL.AppendLine(" left join ");
             strSQL.AppendLine(" (select * from tPartInfoMaster) B");
             strSQL.AppendLine(" on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock)");
-            strSQL.AppendLine("      where A.vcPrintflag='1' and A.vcPrintflagED is not null and (a.vcPartsNo+a.vcDock+A.vcKBorderno+a.vcKBSerial)=any(" + KBorderno + ")");
+            strSQL.AppendLine("    where A.vcPrintflag='1' and A.vcPrintflagED is not null and (a.vcPartsNo+a.vcDock+A.vcKBorderno+a.vcKBSerial) in (" + KBorderno + ")");
             //strSQL.AppendLine(" A.vcComDate00=CONVERT(varchar(10),GETDATE(),121) and");
             if (vcPrintPartNo.Length != 0)
             {
@@ -1037,15 +1029,15 @@ namespace SPPSApi.Controllers.G12
             }
             if (vcKbOrderId.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcKBorderno = '" + vcKbOrderId + "'");
+                strSQL.AppendLine(" and A.vcKBorderno= '" + vcKbOrderId + "'");
             }
             if (vcLianFan.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcKBSerial = '" + vcLianFan + "'");
+                strSQL.AppendLine(" and A.vcKBSerial='" + vcLianFan + "'");
             }
             if (vcPorType != "")
             {
-                strSQL.AppendLine(" and B.vcPorType = '" + vcPorType + "'");
+                strSQL.AppendLine(" and B.vcPorType='" + vcPorType + "'");
             }
             else
             {
@@ -1070,9 +1062,9 @@ namespace SPPSApi.Controllers.G12
             }
             if (vcPlant != "")
             {
-                strSQL.AppendLine(" and B.vcPartPlant = '" + vcPlant + "'");
+                strSQL.AppendLine(" and B.vcPartPlant='" + vcPlant + "'");
             }
-            strSQL.AppendLine("order by  vcPorType,vcKBorderno,A.vcKBSerial");
+            strSQL.AppendLine("order by vcPorType,vcKBorderno,A.vcKBSerial");
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
         #endregion
@@ -1089,7 +1081,7 @@ namespace SPPSApi.Controllers.G12
         public string searchMasterED(string PartNo, string vcDock)
         {
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("select vcPartsNo from tPartInfoMaster where  substring(vcPartsNo,0,11)='" + PartNo.Substring(0, 10) + "' and substring(vcPartsNo,11,2)<>'ED'");
+            strSQL.AppendLine("select vcPartsNo from tPartInfoMaster where substring(vcPartsNo,0,11)='" + PartNo.Substring(0, 10) + "' and substring(vcPartsNo,11,2)<>'ED'");
             DataTable dt = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
             if (dt.Rows.Count != 0)
             {
@@ -1132,7 +1124,7 @@ namespace SPPSApi.Controllers.G12
             }
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("select vcPartsNo,vcDock,vcKBorderno,vcKBSerial from tKanbanPrintTbl  where (vcPrintflagED+vcDockED+vcKBorderno+vcKBSerial)=any(" + KBorderno + ")");
+            strSQL.AppendLine("select vcPartsNo,vcDock,vcKBorderno,vcKBSerial from tKanbanPrintTbl where (vcPrintflagED+vcDockED+vcKBorderno+vcKBSerial) in (" + KBorderno + ")");
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
 
@@ -1140,8 +1132,8 @@ namespace SPPSApi.Controllers.G12
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("SELECT [vcKBSerialBefore]");
-            strSQL.AppendLine("  FROM [KBSerial_history]");
+            strSQL.AppendLine("SELECT vcKBSerialBefore");
+            strSQL.AppendLine("  FROM KBSerial_history");
             strSQL.AppendLine(" WHERE vcPartsNo='" + vcPartsNo + "'");
             strSQL.AppendLine("       AND vcDock='" + vcDock + "'");
             strSQL.AppendLine("       AND vcKBorderno='" + vcKBorderno + "'");
@@ -1160,7 +1152,7 @@ namespace SPPSApi.Controllers.G12
         {
             StringBuilder strSQL = new StringBuilder();
             strSQL.AppendLine("select (case when GETDATE()>=(select CONVERT(varchar(10),GETDATE(),121)+' '+(select cast(vcbaibanbegin as varchar(8)) from Mbaiye)) and GETDATE()<=(select CONVERT(varchar(10),GETDATE(),121)+' '+(select cast(vcbaibanend as varchar(8)) from Mbaiye)) then '白值'");
-            strSQL.AppendLine("                          when GETDATE()>=(select CONVERT(varchar(10),GETDATE(),121)+' '+(select cast(vcyebanbegin as varchar(8)) from Mbaiye)) and GETDATE()<=(select CONVERT(varchar(10),GETDATE(),121)+' '+(select cast(vcyebanend as varchar(8)) from Mbaiye)) then '夜值'");
+            strSQL.AppendLine("                       when GETDATE()>=(select CONVERT(varchar(10),GETDATE(),121)+' '+(select cast(vcyebanbegin as varchar(8)) from Mbaiye)) and GETDATE()<=(select CONVERT(varchar(10),GETDATE(),121)+' '+(select cast(vcyebanend as varchar(8)) from Mbaiye)) then '夜值'");
             strSQL.AppendLine("                     else '' end) as [by]");
             DataTable dt = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
             return dt.Rows[0]["by"].ToString();
@@ -1169,7 +1161,7 @@ namespace SPPSApi.Controllers.G12
         public DataSet PrintExcel(string vcPorType, string vcorderno, string vcComDate01, string vcBanZhi01)
         {
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("select '' as no,(case when SUBSTRING(a.vcpartsNo,11,2)='00' then SUBSTRING(a.vcpartsNo,1,5)+'-'+SUBSTRING(a.vcpartsNo,6,5) else SUBSTRING(a.vcpartsNo,1,5)+'-'+SUBSTRING(a.vcpartsNo,6,5)+'-'+ SUBSTRING(a.vcpartsNo,11,2) end)  as vcpartsNo,a.vcCarFamlyCode as vcCarFamlyCode,a.vcPartsNameCHN as vcPartsNameCHN,");
+            strSQL.AppendLine("select '' as no,(case when SUBSTRING(a.vcpartsNo,11,2)='00' then SUBSTRING(a.vcpartsNo,1,5)+'-'+SUBSTRING(a.vcpartsNo,6,5) else SUBSTRING(a.vcpartsNo,1,5)+'-'+SUBSTRING(a.vcpartsNo,6,5)+'-'+ SUBSTRING(a.vcpartsNo,11,2) end) as vcpartsNo,a.vcCarFamlyCode as vcCarFamlyCode,a.vcPartsNameCHN as vcPartsNameCHN,");
             strSQL.AppendLine("       a.vcPCB01 as vcPCB01,a.meishu as meishu,a.minal+'-'+a.maxal as vcKBSerial from (");
             strSQL.AppendLine("select vcpartsNo,vcCarFamlyCode,vcPartsNameCHN,vcPCB01,");
             strSQL.AppendLine("       COUNT(iQuantityPerContainer) as meishu,");
@@ -1191,8 +1183,8 @@ namespace SPPSApi.Controllers.G12
             strSQL.AppendLine("       (select  ");
             strSQL.AppendLine("              COUNT(iQuantityPerContainer) as meishu, ");
             strSQL.AppendLine("              MAX(vcKBSerial) as maxal, ");
-            strSQL.AppendLine("              MIN(vcKBSerial) as minal   ");
-            strSQL.AppendLine("         from [testprinterExcel]   where vcKBorderno='" + vcorderno + "' and vcPorType='" + vcPorType + "' and vcPCB02='" + vcComDate01 + "' and vcPCB03='" + vcBanZhi01 + "'");
+            strSQL.AppendLine("              MIN(vcKBSerial) as minal  ");
+            strSQL.AppendLine("         from [testprinterExcel]  where vcKBorderno='" + vcorderno + "' and vcPorType='" + vcPorType + "' and vcPCB02='" + vcComDate01 + "' and vcPCB03='" + vcBanZhi01 + "'");
             strSQL.AppendLine("              )B  )");
 
             return excute.ExcuteSqlWithSelectToDS(strSQL.ToString());
@@ -1213,7 +1205,7 @@ namespace SPPSApi.Controllers.G12
             strSQL.AppendLine("(select * from tKanbanPrintTbl) A");
             strSQL.AppendLine("left join ");
             strSQL.AppendLine("(select * from tPartInfoMaster) B");
-            strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo and   A.vcDock=B.vcDock");
+            strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo and  A.vcDock=B.vcDock");
             strSQL.AppendLine("    WHERE A.[vcKBorderno]='" + vcKBorderno + "' and A.[vcKBSerial]='" + vcKBSerial + "'");
 
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
@@ -1319,7 +1311,7 @@ namespace SPPSApi.Controllers.G12
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("SELECT [vcPartsNo],[vcDock],[vcCarType],[vcEDflag],[vcKBorderno],[vcKBSerial],[vcTips],[vcPrintflag]  FROM [tKanbanPrintTbl]");
+            strSQL.AppendLine("SELECT [vcPartsNo],[vcDock],[vcCarType],[vcEDflag],[vcKBorderno],[vcKBSerial],[vcTips],[vcPrintflag] FROM [tKanbanPrintTbl]");
             strSQL.AppendLine("");
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
@@ -1341,7 +1333,7 @@ namespace SPPSApi.Controllers.G12
                         string vcKBSerial = dt.Rows[i]["vcKBSerial"].ToString();
                         if (type == "1")
                         {
-                            strSql = "UPDATE [tKanbanPrintTbl] SET [vcPrintflag]='1',[vcPrintTime] = GETDATE() where [vcKBorderno]='" + vcKBorderno + "' and [vcKBSerial]='" + vcKBSerial + "'";
+                            strSql = "UPDATE [tKanbanPrintTbl] SET [vcPrintflag]='1',[vcPrintTime]=GETDATE() where [vcKBorderno]='" + vcKBorderno + "' and [vcKBSerial]='" + vcKBSerial + "'";
                         }
                         else
                             if (type == "2")
@@ -2062,9 +2054,9 @@ namespace SPPSApi.Controllers.G12
                 string vcCarType = dt.Rows[i]["vcCarFamilyCode"].ToString().Trim();
                 //获取白件相应黑件在Master中的车型信息
                 //string vcCarType = BreakCarType(vcPartsNo, vcDock, vcplantMonth);
-                strSQL.AppendLine("SELECT  A.vcPrintflagED AS vcPartsNo,A.vcDockED AS vcDock, ");
+                strSQL.AppendLine("SELECT A.vcPrintflagED AS vcPartsNo,A.vcDockED AS vcDock, ");
                 strSQL.AppendLine("        B.vcSupplierCode,'vcSupplierPlant' as vcSupplierPlant, B.vcCpdCompany,A.vcCarType AS vcCarFamilyCode,A.vcKBorderno, ");
-                strSQL.AppendLine("        A.vcEDflag,B.vcPartsNameEN,B.vcPartsNameCHN,B.vcLogisticRoute,   ");
+                strSQL.AppendLine("        A.vcEDflag,B.vcPartsNameEN,B.vcPartsNameCHN,B.vcLogisticRoute,  ");
                 strSQL.AppendLine("        A.vcQuantityPerContainer as iQuantityPerContainer, ");
                 strSQL.AppendLine("isnull(A.vcProject01,'') as vcProject01,isnull(A.vcComDate01,'') as vcComDate01,(case when A.vcBanZhi01='1' then '夜' when A.vcBanZhi01='0' then '白' else '' end) as vcBanZhi01,isnull(A.vcAB01,'') as vcAB01, ");//20180921添加AB值信息 - 李兴旺
                 strSQL.AppendLine("isnull(A.vcProject02,'') as vcProject02,isnull(A.vcComDate02,'') as vcComDate02,(case when A.vcBanZhi02='1' then '夜' when A.vcBanZhi02='0' then '白' else '' end) as vcBanZhi02,isnull(A.vcAB02,'') as vcAB02, ");//20180921添加AB值信息 - 李兴旺

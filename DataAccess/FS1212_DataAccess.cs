@@ -107,7 +107,7 @@ namespace DataAccess
             strSQL.Append("from TPartInfoMaster ");
             strSQL.Append("left join (select vcCodeId, vcName, vcValue from TCode where vcCodeId='C047') t ");
             strSQL.Append("on vcPartFrequence=t.vcValue ");
-            strSQL.Append("where vcInOutFlag='0' ");
+            strSQL.Append("where 1=1 ");
             if (!string.IsNullOrEmpty(vcPartsNo))
             {
                 strSQL.AppendLine(" and vcPartsNo like '" + vcPartsNo + "%'");

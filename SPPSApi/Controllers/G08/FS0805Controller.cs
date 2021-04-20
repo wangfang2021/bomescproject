@@ -182,18 +182,6 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //DataTable dtExport = fS0805_Logic.getPrintInfo(loginInfo.UserId);
-                //if (dtExport.Rows.Count != 0)
-                //{
-
-                //    //序号赋值
-                //    for (int j = 0; j < dtExport.Rows.Count; j++)
-                //    {
-                //        dtExport.Rows[j]["LinId"] = j + 1;
-                //    }
-                //    //导出到excel中
-                //    string[] fields = { "LinId", "vcPartsno", "vcOrderno", "vcSeqno", "vcInvoiceno", "vcPartsnamechn", "vcPartsnameen", "vcShippingqty", "vcCaseno", "vcCostwithtaxes", "vcPrice" };
-                //    string filepath = fS0805_Logic.generateExcelWithXlt(dtExport, fields, _webHostEnvironment.ContentRootPath, "FS0805_Print.xlsx", 0, 4, loginInfo.UserId, FunctionID);
                 #region 调用webApi打印
                 DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("发货明细书", loginInfo.UserId);
                 if (dtPrinterInfo.Rows.Count != 0)
@@ -207,15 +195,6 @@ namespace SPPSApi.Controllers.G08
                     var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
                     //从工厂获取具体的调用实例
                     var callClient = factory.CreateChannel();
-                    //setExcelPrintRequestBody Body = new setExcelPrintRequestBody();
-                    //Body.strDiskFileName = filepath;
-                    //Body.strOperID = loginInfo.UserId;
-                    //Body.strPrinterName = strPrinterName;
-                    //调用具体的方法，这里是 HelloWorldAsync 方法
-                    //Task<setExcelPrintResponse> responseTask = callClient.setExcelPrintAsync(new setExcelPrintRequest(Body));
-                    ////获取结果
-                    //setExcelPrintResponse response = responseTask.Result;
-                    //if (response.Body.setExcelPrintResult != "打印成功")
                     setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
                     Body.strScrpit = "select * from tPrintTemp_FS0805 where vcOperator='" + loginInfo.UserId + "' order by CAST(vcRows as int)";
                     Body.strCRVName = file_crv + dtPrinterInfo.Rows[0]["vcReports"].ToString();
@@ -234,13 +213,6 @@ namespace SPPSApi.Controllers.G08
                         dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
                         dtMessage.Rows.Add(dataRow);
                     }
-                    //}
-                    //else
-                    //{
-                    //    DataRow dataRow = dtMessage.NewRow();
-                    //    dataRow["vcMessage"] = "出货明细书数据异常";
-                    //    dtMessage.Rows.Add(dataRow);
-                    //}
                 }
                 else
                 {

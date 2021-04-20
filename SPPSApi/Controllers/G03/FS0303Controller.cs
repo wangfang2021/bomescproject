@@ -136,6 +136,7 @@ namespace SPPSApi.Controllers.G03
 
             try
             {
+                fs0303_Logic.udpateSupplierName();//每次检索之前，刷新库里的供应商名称
                 DataTable dt = null;
                 int pageTotal = 0;//总页数
                 if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取

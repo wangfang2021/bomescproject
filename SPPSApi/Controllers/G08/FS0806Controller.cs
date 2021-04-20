@@ -260,12 +260,12 @@ namespace SPPSApi.Controllers.G08
                     #region 数据格式校验
                     string[,] strField = new string[,]
                     {
-                        {"数量"},//中文字段名
-                        {"iQuantity"},//英文字段名
-                        {FieldCheck.Num},//数据类型校验
-                        {"0"},//最大长度设定,不校验最大长度用0
-                        {"1"},//最小长度设定,可以为空用0
-                        {"12"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"数量","检查状态"},//中文字段名
+                        {"iQuantity","vcCheckStatus"},//英文字段名
+                        {FieldCheck.Num,FieldCheck.Char},//数据类型校验
+                        {"0","0"},//最大长度设定,不校验最大长度用0
+                        {"1","0"},//最小长度设定,可以为空用0
+                        {"12","20"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0806");
                     if (checkRes != null)
@@ -466,6 +466,10 @@ namespace SPPSApi.Controllers.G08
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
+                string vcPart_id = dataForm.vcPart_id;
+                string vcKBOrderNo = dataForm.vcKBOrderNo;
+                string vcKBLFNo = dataForm.vcKBLFNo;
+                string vcSR = dataForm.vcSR;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -506,7 +510,7 @@ namespace SPPSApi.Controllers.G08
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                fs0806_Logic.Save_sub(listInfoData, loginInfo.UserId);
+                fs0806_Logic.Save_sub(listInfoData, loginInfo.UserId,vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

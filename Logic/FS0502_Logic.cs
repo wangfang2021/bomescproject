@@ -32,9 +32,9 @@ namespace Logic
 
             return dataTable;
         }
-        public DataTable Search_DispLabel(string vcSupplier_id)
+        public DataTable Search_DispLabel(string strSupplier_GQ)
         {
-            return fs0502_DataAccess.Search_DispLabel(vcSupplier_id);
+            return fs0502_DataAccess.Search_DispLabel(strSupplier_GQ);
         }
         public string IsInteger(string s)
         {

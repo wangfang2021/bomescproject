@@ -22,7 +22,7 @@ namespace DataAccess
                 strSql.Append("select iAutoId,vcStatus,vcBoxNo,vcInstructionNo,vcPart_id,vcOrderNo,vcLianFanNo,  \n");
                 strSql.Append("isnull(iQuantity,0) as iQuantity,dBZID,dBZTime,dZXID,dZXTime,vcOperatorID,dOperatorTime,    \n");
                 strSql.Append("isnull(iRHQuantity,0) as iRHQuantity,vcLabelStart,vcLabelEnd,    \n");
-                strSql.Append("'0' as vcModFlag,'0' as vcAddFlag from TBoxMaster  where 1=1  \n");
+                strSql.Append("'0' as vcModFlag,'0' as vcAddFlag from TBoxMaster  where isnull(vcDelete,'')!='1' and dPrintBoxTime is null  \n");
                 if (vcBox_id!="" && vcBox_id !=null)
                     strSql.Append("and isnull(vcBoxNo,'') = '" + vcBox_id + "' \n");
                 if (vcLabelId != "" && vcLabelId != null)
@@ -64,7 +64,7 @@ namespace DataAccess
                         sql.Append("       [iQuantity] = " + listInfoData[i]["iQuantity"].ToString() + "  \n");
                         sql.Append("      ,[vcOperatorID] = '" + strUserId + "'  \n");
                         sql.Append("      ,[dOperatorTime] = getdate()  \n");
-                        sql.Append(" WHERE iAutoId=" + iAutoId + "  \n");
+                        sql.Append(" WHERE iAutoId=" + iAutoId + " and isnull(vcDelete,'')!='1' and dPrintBoxTime is null  \n");
                         #endregion
                     }
                 }
@@ -89,7 +89,8 @@ namespace DataAccess
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-                    sql.Append("delete from TBoxMaster where iAutoId=" + iAutoId + "   \n");
+                    sql.Append("update TBoxMaster set vcDelete='1' where iAutoId=" + iAutoId + " and isnull(vcDelete,'')!='1' and dPrintBoxTime is null  \n");
+                    //sql.Append("delete from TBoxMaster where iAutoId=" + iAutoId + "   \n");
                 }
                 if (sql.Length > 0)
                 {

@@ -34,13 +34,15 @@ namespace DataAccess
         }
         #endregion
 
-        public DataTable getOrderNo(string vcSupplier_id)
+        public DataTable getOrderNo(string strSupplier_GQ)
         {
             try
             {
+                string strSupplier = strSupplier_GQ.Substring(0, 4);
+                string strGQ = strSupplier_GQ.Substring(4, 1);
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select distinct vcOrderNo as vcName,vcOrderNo as vcValue from TUrgentOrder where vcSupplier_id='" + vcSupplier_id + "' " +
-                    "and vcStatus in ('1','2') and vcDelete='0'  \n");
+                sql.Append("select distinct vcOrderNo as vcName,vcOrderNo as vcValue from TUrgentOrder where vcSupplier_id='" + strSupplier + "' " +
+                    "and isnull(vcGQ,'')='" + strGQ + "' and vcStatus in ('1','2','3') and vcShowFlag='1'  \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -111,13 +113,15 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public DataTable Search_DispLabel(string vcSupplier_id)
+        public DataTable Search_DispLabel(string strSupplier_GQ)
         {
             try
             {
+                string strSupplier = strSupplier_GQ.Substring(0, 4);
+                string strGQ = strSupplier_GQ.Substring(4, 1);
                 StringBuilder sql = new StringBuilder();
                 sql.AppendLine("select * from TUrgentOrder");
-                sql.AppendLine("where isnull(vcSupplier_id,'')='"+ vcSupplier_id + "' and isnull(vcGQ,'')='0'");
+                sql.AppendLine("where isnull(vcSupplier_id,'')='"+ strSupplier + "' and isnull(vcGQ,'')='"+ strGQ + "'");
                 sql.AppendLine("and dSupReplyTime is null ");
                 sql.AppendLine("and isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1'");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
@@ -516,6 +520,7 @@ namespace DataAccess
         {
             try
             {
+                DateTime now = DateTime.Now;
                 string strLastTimeFlag = DateTime.Now.ToString("yyyyMMddHHmmss");
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("if object_id('tempdb..#TUrgentOrder_temp_cr') is not null       \n");
@@ -544,27 +549,46 @@ namespace DataAccess
                 strSql.Append(" UPDATE TUrgentOrder SET ");
                 strSql.Append("      vcStatus='2', "); //0：未发送；1：待回复；2：已回复；3：回复销售
                 strSql.Append("      vcSupReplier='" + strUserId + "', ");
-                strSql.Append("      dSupReplyTime=getdate(), ");
+                strSql.Append("      dSupReplyTime='"+now+"', ");
                 strSql.Append("      vcOperatorID='" + strUserId + "', ");
-                strSql.Append("      dOperatorTime=getDate() ");
+                strSql.Append("      dOperatorTime='" + now + "' ");
                 strSql.Append(" from TUrgentOrder a  \n ");
                 strSql.Append(" inner join  \n ");
                 strSql.Append(" (  \n ");
                 strSql.Append("    select * from #TUrgentOrder_temp_cr  \n ");
                 strSql.Append(" )b on a.vcOrderNo=b.vcOrderNo and a.vcPart_id=b.vcPart_id and a.vcSupplier_id=b.vcSupplier_id   \n ");
-
+                
                 //追加更新出荷日
                 strSql.Append(" declare @day int=0 ");
                 strSql.Append(" set @day=(select vcValue1 from TOutCode where vcIsColum=0 and vcCodeId='C013') ");
                 strSql.Append(" UPDATE a SET ");
                 strSql.Append("      a.dOutPutDate=DATEADD(DAY,@day,dDeliveryDate), ");
                 strSql.Append("      a.vcOperatorID='" + strUserId + "', ");
-                strSql.Append("      a.dOperatorTime=getDate() ");
+                strSql.Append("      a.dOperatorTime='" + now + "' ");
                 strSql.Append(" from (select * from TUrgentOrder_OperHistory where vcInputType='supplier' and dDeliveryDate is not null and dOutPutDate is null) a  \n ");
                 strSql.Append(" inner join  \n ");
                 strSql.Append(" (  \n ");
                 strSql.Append("    select * from #TUrgentOrder_temp_cr  \n ");
                 strSql.Append(" )b on a.vcOrderNo=b.vcOrderNo and a.vcPart_id=b.vcPart_id and a.vcSupplier_id=b.vcSupplier_id   \n ");
+
+                //将提交数据插入一版company
+                strSql.AppendLine("insert into TUrgentOrder_OperHistory (vcOrderNo,vcPart_id,vcSupplier_id,iDuiYingQuantity,dDeliveryDate,dOutPutDate,");
+                strSql.AppendLine("vcInputType,vcOperatorID,dOperatorTime,decBoxQuantity)");
+                strSql.AppendLine("select t1.vcOrderNo,t1.vcPart_id,t1.vcSupplier_id,t1.iDuiYingQuantity,t1.dDeliveryDate,t1.dOutPutDate,");
+                strSql.AppendLine("'company','" + strUserId + "','" + now + "',t1.decBoxQuantity ");
+                strSql.AppendLine("from (");
+                strSql.AppendLine("	select * from TUrgentOrder_OperHistory where vcInputType='supplier'");
+                strSql.AppendLine(")t1");
+                strSql.AppendLine("inner join (");
+                strSql.AppendLine("	select vcOrderNo,vcPart_id,vcSupplier_id,max(dOperatorTime) as dOperatorTime ");
+                strSql.AppendLine("	from TUrgentOrder_OperHistory ");
+                strSql.AppendLine("	where vcInputType='supplier'");
+                strSql.AppendLine("	group by vcOrderNo,vcPart_id,vcSupplier_id");
+                strSql.AppendLine(")t2 on t1.vcOrderNo=t2.vcOrderNo and t1.vcPart_id=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplier_id");
+                strSql.AppendLine("and t1.dOperatorTime=t2.dOperatorTime");
+                strSql.AppendLine("inner join #TUrgentOrder_temp_cr t3 ");
+                strSql.AppendLine("on t1.vcOrderNo=t3.vcOrderNo and t1.vcPart_id=t3.vcPart_id and t1.vcSupplier_id=t3.vcSupplier_id");
+
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)
@@ -579,6 +603,7 @@ namespace DataAccess
         {
             try
             {
+                DateTime now = DateTime.Now;
                 string strSupplier = strSupplier_GQ.Substring(0, 4);
                 string strGQ = strSupplier_GQ.Substring(4, 1);
 
@@ -588,9 +613,9 @@ namespace DataAccess
                 strSql.AppendLine(" UPDATE TUrgentOrder SET ");
                 strSql.Append("      vcStatus='2', ");//0：未发送；1：待回复；2：已回复；3：回复销售
                 strSql.Append("      vcSupReplier='" + strUserId + "', ");
-                strSql.Append("      dSupReplyTime=getdate(), ");
+                strSql.Append("      dSupReplyTime='" + now + "', ");
                 strSql.Append("      vcOperatorID='" + strUserId + "', ");
-                strSql.Append("      dOperatorTime=getDate() ");
+                strSql.Append("      dOperatorTime='" + now + "' ");
                 strSql.Append(" WHERE (isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1') ");//这几个状态(1)是可操作的状态
                 strSql.Append("	and isnull(vcSupplier_id,'')='" + strSupplier + "' and isnull(vcGQ,'')='" + strGQ + "'      \n");
                 strSql.Append("	and vcStatus in ('1','2','3')--1:待回复   2:已回复 3:回复销售   \n");
@@ -612,14 +637,13 @@ namespace DataAccess
                 strSql.Append("	and vcOrderNo like '%" + vcOrderNo + "%'    \n");
                 strSql.Append("	and vcPart_id like '%" + vcPart_id + "%'    \n");
 
-
                 //追加更新出荷日
                 strSql.Append(" declare @day int=0 ");
                 strSql.Append(" set @day=(select vcValue1 from TOutCode where vcIsColum=0 and vcCodeId='C013') ");
                 strSql.AppendLine("update b set ");
                 strSql.AppendLine(" b.dOutPutDate=DATEADD(DAY,@day,dDeliveryDate), ");
                 strSql.AppendLine(" b.vcOperatorID='" + strUserId + "', ");
-                strSql.AppendLine(" b.dOperatorTime=getDate() ");
+                strSql.AppendLine(" b.dOperatorTime='" + now + "' ");
                 strSql.AppendLine(" from ");
                 strSql.AppendLine(" (select * from TUrgentOrder");
                 strSql.Append(" WHERE (isnull(vcStatus,'')='2' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1') ");//这几个状态(1)是可操作的状态
@@ -646,6 +670,45 @@ namespace DataAccess
                 strSql.Append(" (select * from TUrgentOrder_OperHistory where vcInputType='supplier' and dDeliveryDate is not null and dOutPutDate is null) b  \n ");
                 strSql.Append(" ON a.vcOrderNo=b.vcOrderNo AND a.vcPart_id=b.vcPart_id AND a.vcSupplier_id=b.vcSupplier_id  \n ");
 
+                //将提交数据插入一版company
+                strSql.AppendLine("insert into TUrgentOrder_OperHistory (vcOrderNo,vcPart_id,vcSupplier_id,iDuiYingQuantity,dDeliveryDate,dOutPutDate,");
+                strSql.AppendLine("vcInputType,vcOperatorID,dOperatorTime,decBoxQuantity)");
+                strSql.AppendLine("select t1.vcOrderNo,t1.vcPart_id,t1.vcSupplier_id,t1.iDuiYingQuantity,t1.dDeliveryDate,t1.dOutPutDate,");
+                strSql.AppendLine("'company','" + strUserId + "','" + now + "',t1.decBoxQuantity ");
+                strSql.AppendLine("from (");
+                strSql.AppendLine("	select * from TUrgentOrder_OperHistory where vcInputType='supplier'");
+                strSql.AppendLine(")t1");
+                strSql.AppendLine("inner join (");
+                strSql.AppendLine("	select vcOrderNo,vcPart_id,vcSupplier_id,max(dOperatorTime) as dOperatorTime ");
+                strSql.AppendLine("	from TUrgentOrder_OperHistory ");
+                strSql.AppendLine("	where vcInputType='supplier'");
+                strSql.AppendLine("	group by vcOrderNo,vcPart_id,vcSupplier_id");
+                strSql.AppendLine(")t2 on t1.vcOrderNo=t2.vcOrderNo and t1.vcPart_id=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplier_id");
+                strSql.AppendLine("and t1.dOperatorTime=t2.dOperatorTime");
+                strSql.AppendLine("inner join ( ");
+                strSql.AppendLine("select * from TUrgentOrder");
+                strSql.Append(" WHERE (isnull(vcStatus,'')='2' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1') ");//这几个状态(1)是可操作的状态
+                strSql.Append("	and isnull(vcSupplier_id,'')='" + strSupplier + "' and isnull(vcGQ,'')='" + strGQ + "'      \n");
+                strSql.Append("	and vcStatus in ('1','2','3')--1:待回复   2:已回复 3:回复销售   \n");
+                //if (vcStatus == "待回复")
+                //{
+                //    //strSql.Append("	and dSupReplyTime is null    \n");
+                //    strSql.Append(" and isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1'  \n");
+                //}
+                //else if (vcStatus == "已回复")
+                //{
+                //    //strSql.Append("	and dSupReplyTime is not null     \n");
+                //    strSql.Append(" and isnull(vcStatus,'') in ('2','3') and isnull(vcShowFlag,'')='1'  \n");
+                //}
+                //else if (vcStatus == "延误")
+                //{
+                //    //strSql.Append("	and dSupReplyTime is null    \n");
+                //    strSql.Append(" and isnull(vcStatus,'')='3' and isnull(vcShowFlag,'')='1'  \n");
+                //}
+                strSql.Append("	and vcOrderNo like '%" + vcOrderNo + "%'    \n");
+                strSql.Append("	and vcPart_id like '%" + vcPart_id + "%'    \n");
+                strSql.AppendLine(") t3");
+                strSql.AppendLine("on t1.vcOrderNo=t3.vcOrderNo and t1.vcPart_id=t3.vcPart_id and t1.vcSupplier_id=t3.vcSupplier_id");
 
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }

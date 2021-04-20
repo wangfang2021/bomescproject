@@ -33,6 +33,46 @@ namespace SPPSApi.Controllers.G15
             _webHostEnvironment = webHostEnvironment;
         }
 
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                //if (loginInfo.Special == "财务用户")
+                //    res.Add("caiWuBtnVisible", false);
+                //else
+                //    res.Add("caiWuBtnVisible", true);
+
+                List<Object> dataList_SR = ComFunction.convertAllToResult(fs1501_Logic.getSR());//受入
+                List<Object> dataList_NRBianCi = ComFunction.convertAllToResult(fs1501_Logic.getNRBianCi());//纳入便次
+                res.Add("optionSR", dataList_SR);
+                res.Add("optionNRBianCi", dataList_NRBianCi); 
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0701", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 检索
         [HttpPost]
         [EnableCors("any")]

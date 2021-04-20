@@ -23,7 +23,7 @@ namespace DataAccess
                 strSql.Append("select t1.iAutoId,t1.vcZYType,t1.vcBZPlant,t1.vcInputNo,t1.vcKBOrderNo,t1.vcKBLFNo,t1.vcPart_id,t1.vcIOType, \n");
                 strSql.Append("t1.vcSupplier_id,t1.vcSupplierGQ,t1.dStart,t1.dEnd,cast(isnull(t1.iQuantity,0) as int) as iQuantity,cast(isnull(t1.iQuantity,0) as int) as iQuantity_old,    \n");
                 strSql.Append("t1.vcBZUnit,t1.vcSHF,t1.vcSR,t1.vcBoxNo,t1.vcSheBeiNo,t1.vcCheckType,cast(t1.iCheckNum as int) as iCheckNum,    \n");
-                strSql.Append("t1.vcCheckStatus,t1.vcLabelStart,t1.vcLabelEnd,t1.vcUnlocker,t1.dUnlockTime,t1.vcSellNo,    \n");
+                strSql.Append("t1.vcCheckStatus,vcCheckStatus as vcCheckStatus_old,t1.vcLabelStart,t1.vcLabelEnd,t1.vcUnlocker,t1.dUnlockTime,t1.vcSellNo,    \n");
                 strSql.Append("t1.vcOperatorID,t1.dOperatorTime,t1.vcHostIp,    \n");
                 strSql.Append("t3.vcName as vcBZPlantName,t2.vcName as vcZYTypeName, t4.vcUserName,'0' as vcModFlag,'0' as vcAddFlag,   \n");
                 strSql.Append("case when t1.vcZYType='S1' and t5.vcPart_id is not null then 'NG' else t1.vcCheckStatus end as vcStatus,    \n");
@@ -78,6 +78,7 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 sql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from TOperateSJ_NG where vcPart_id='" + vcPart_id + "' and vcKBOrderNo='" + vcKBOrderNo + "'     \n");
                 sql.Append("and vcKBLFNo='" + vcKBLFNo + "' and vcSR='" + vcSR + "'    \n");
+                sql.Append("order by dOperatorTime desc  \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -120,12 +121,13 @@ namespace DataAccess
                         string vcKBLFNo = listInfoData[i]["vcKBLFNo"].ToString();
                         string vcSR = listInfoData[i]["vcSR"].ToString();
                         string vcCheckStatus = listInfoData[i]["vcCheckStatus"].ToString();
+                        string vcCheckStatus_old = listInfoData[i]["vcCheckStatus_old"].ToString();
                         sql.Append("UPDATE [TOperateSJ]  \n");
                         sql.Append("   SET   \n");
                         sql.Append("       [iQuantity] = " + listInfoData[i]["iQuantity"].ToString() + "  \n");
                         sql.Append("      ,[vcCheckStatus] = '" + listInfoData[i]["vcCheckStatus"].ToString() + "'  \n");
                         sql.Append("      ,[vcOperatorID] = '" + strUserId + "'  \n");
-                        sql.Append("      ,[dOperatorTime] = '"+ now + "'  \n");
+                        sql.Append("      ,[dOperatorTime] = '" + now + "'  \n");
                         sql.Append(" WHERE iAutoId=" + iAutoId + "  \n");
                         #endregion
 
@@ -136,26 +138,29 @@ namespace DataAccess
                         //检查状态是NG时，往NG表中插入一条数据
                         if (vcCheckStatus == "NG")
                         {
-                            sql.AppendLine("INSERT INTO [TOperateSJ_NG]");
-                            sql.AppendLine("           ([vcPart_id]");
-                            sql.AppendLine("           ,[vcKBOrderNo]");
-                            sql.AppendLine("           ,[vcKBLFNo]");
-                            sql.AppendLine("           ,[vcSR]");
-                            sql.AppendLine("           ,[iNGQuantity]");
-                            sql.AppendLine("           ,[vcNGReason]");
-                            sql.AppendLine("           ,[vcZRBS]");
-                            sql.AppendLine("           ,[vcOperatorID]");
-                            sql.AppendLine("           ,[dOperatorTime])");
-                            sql.AppendLine("     VALUES");
-                            sql.AppendLine("           ('" + vcPart_id + "'");
-                            sql.AppendLine("           ,'" + vcKBOrderNo + "'");
-                            sql.AppendLine("           ,'" + vcKBLFNo + "'");
-                            sql.AppendLine("           ,'" + vcSR + "'");
-                            sql.AppendLine("           ,null");
-                            sql.AppendLine("           ,null");
-                            sql.AppendLine("           ,null");
-                            sql.AppendLine("           ,'" + strUserId + "'");
-                            sql.AppendLine("           ,'" + now + "')");
+                            if (vcCheckStatus_old != "NG")
+                            {
+                                sql.AppendLine("INSERT INTO [TOperateSJ_NG]");
+                                sql.AppendLine("           ([vcPart_id]");
+                                sql.AppendLine("           ,[vcKBOrderNo]");
+                                sql.AppendLine("           ,[vcKBLFNo]");
+                                sql.AppendLine("           ,[vcSR]");
+                                sql.AppendLine("           ,[iNGQuantity]");
+                                sql.AppendLine("           ,[vcNGReason]");
+                                sql.AppendLine("           ,[vcZRBS]");
+                                sql.AppendLine("           ,[vcOperatorID]");
+                                sql.AppendLine("           ,[dOperatorTime])");
+                                sql.AppendLine("     VALUES");
+                                sql.AppendLine("           ('" + vcPart_id + "'");
+                                sql.AppendLine("           ,'" + vcKBOrderNo + "'");
+                                sql.AppendLine("           ,'" + vcKBLFNo + "'");
+                                sql.AppendLine("           ,'" + vcSR + "'");
+                                sql.AppendLine("           ,null");
+                                sql.AppendLine("           ,null");
+                                sql.AppendLine("           ,null");
+                                sql.AppendLine("           ,'" + strUserId + "'");
+                                sql.AppendLine("           ,'" + now + "')");
+                            }
                         }
                     }
 
@@ -270,10 +275,11 @@ namespace DataAccess
             }
         }
         #region 保存_NG明细
-        public void Save_sub(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void Save_sub(List<Dictionary<string, Object>> listInfoData, string strUserId,string vcPart_id,string vcKBOrderNo,string vcKBLFNo,string vcSR)
         {
             try
             {
+                DateTime now = DateTime.Now;
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -285,12 +291,31 @@ namespace DataAccess
 
                     if (baddflag == true && bmodflag == true)
                     {//新增
-                        
+                        sql.AppendLine("INSERT INTO [TOperateSJ_NG]");
+                        sql.AppendLine("           ([vcPart_id]");
+                        sql.AppendLine("           ,[vcKBOrderNo]");
+                        sql.AppendLine("           ,[vcKBLFNo]");
+                        sql.AppendLine("           ,[vcSR]");
+                        sql.AppendLine("           ,[iNGQuantity]");
+                        sql.AppendLine("           ,[vcNGReason]");
+                        sql.AppendLine("           ,[vcZRBS]");
+                        sql.AppendLine("           ,[vcOperatorID]");
+                        sql.AppendLine("           ,[dOperatorTime])");
+                        sql.AppendLine("     VALUES");
+                        sql.AppendLine("           ('" + vcPart_id + "'");
+                        sql.AppendLine("           ,'" + vcKBOrderNo + "'");
+                        sql.AppendLine("           ,'" + vcKBLFNo + "'");
+                        sql.AppendLine("           ,'" + vcSR + "'");
+                        sql.AppendLine("           ,nullif('" + listInfoData[i]["iNGQuantity"].ToString() + "','')");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcNGReason"].ToString() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcZRBS"].ToString() + "'");
+                        sql.AppendLine("           ,'" + strUserId + "'");
+                        sql.AppendLine("           ,'" + now + "')");
                     }
                     else if (baddflag == false && bmodflag == true)
                     {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                        sql.Append("update TOperateSJ_NG set iNGQuantity=nullif('" + iNGQuantity + "',''),vcNGReason='" + vcNGReason + "',vcZRBS='" + vcZRBS + "',vcOperatorID='"+strUserId+ "',dOperatorTime=getdate() where iAutoId=" + iAutoId + "    \n");
+                        sql.Append("update TOperateSJ_NG set iNGQuantity=nullif('" + iNGQuantity + "',''),vcNGReason='" + vcNGReason + "',vcZRBS='" + vcZRBS + "',vcOperatorID='" + strUserId + "',dOperatorTime='" + now + "' where iAutoId=" + iAutoId + "    \n");
                     }
                 }
                 if (sql.Length > 0)

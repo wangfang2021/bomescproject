@@ -89,36 +89,52 @@ namespace DataAccess
                     //存储最后展开时间
                     strSql.Append("        declare @time datetime=null        \r\n");
 
-                    //获取Soq_Reply表中的发注工厂数量
-                    strSql.Append("        select @reply_plant_num=count(1) from (             \r\n");
-                    strSql.Append("        select distinct vcFZGC from TSoqReply where vcCLYM='"+strCLYM+"')t        \r\n");
-                    //获取Soq表中的发注工厂数量
-                    strSql.Append("        select @soq_plant_num=count(1) from (     \r\n");
-                    strSql.Append("        select distinct vcFZGC from TSoq where vcYearMonth='"+strDXYM+"')t     \r\n");
                     //获取Soq_Reply表中未展开数量
                     strSql.Append("        select @reply_notzk_num= count(1) from TSoqReply      \r\n");
-                    strSql.Append("        where vcCLYM='"+strCLYM+"' and vcInOutFlag='"+i+"' and dZhanKaiTime is null     \r\n");
-                    
-                    //获取状态
-                    strSql.Append("        if(@reply_plant_num<@soq_plant_num)     \r\n");
-                    strSql.Append("        begin     \r\n");
-                    strSql.Append("        	set @state ='待发送'     \r\n");
-                    strSql.Append("        end     \r\n");
-                    strSql.Append("        else     \r\n");
-                    strSql.Append("        begin     \r\n");
-                    strSql.Append("        	if(@reply_notzk_num>0)     \r\n");
-                    strSql.Append("        	begin     \r\n");
-                    strSql.Append("        		set @state = '待发送'     \r\n");
-                    strSql.Append("        	end     \r\n");
-                    strSql.Append("        	else     \r\n");
-                    strSql.Append("        	begin     \r\n");
-                    strSql.Append("        		set @state = '可下载'     \r\n");
-                    strSql.Append("        	end     \r\n");
-                    strSql.Append("        end     \r\n");
+                    strSql.Append("        where vcCLYM='" + strCLYM + "' and vcInOutFlag='" + i + "' and dZhanKaiTime is null     \r\n");
+
                     //获取最后展开时间
                     strSql.Append("        select @time = (     \r\n");
-                    strSql.Append("        select MAX(dZhanKaiTime)as dZhanKaiTime from TSoqReply where vcInOutFlag = '"+i+"' and vcCLYM = '"+strCLYM+"')     \r\n");
+                    strSql.Append("        select MAX(dZhanKaiTime)as dZhanKaiTime from TSoqReply where vcInOutFlag = '" + i + "' and vcCLYM = '" + strCLYM + "')     \r\n");
+
+
+                    strSql.Append("        IF('"+i+"'='1')     \r\n");
+                    strSql.Append("        BEGIN     \r\n");
+                    strSql.Append("            if(@reply_notzk_num>0)     \r\n");
+                    strSql.Append("            begin     \r\n");
+                    strSql.Append("                set @state = '待发送'     \r\n");
+                    strSql.Append("            end     \r\n");
+                    strSql.Append("            else     \r\n");
+                    strSql.Append("            begin     \r\n");
+                    strSql.Append("                set @state = '可下载'     \r\n");
+                    strSql.Append("            end     \r\n");
+                    strSql.Append("        END     \r\n");
                     strSql.Append("             \r\n");
+                    strSql.Append("        IF('"+i+"'='0')     \r\n");
+                    strSql.Append("        BEGIN     \r\n");
+                    strSql.Append("            select @reply_plant_num=count(1) from (     \r\n");
+                    strSql.Append("            select distinct vcFZGC from TSoqReply where vcCLYM='"+strCLYM+ "' and vcInOutFlag = '0')t     \r\n");
+                    strSql.Append("             \r\n");
+                    strSql.Append("            select @soq_plant_num=count(1) from (     \r\n");
+                    strSql.Append("            select distinct vcFZGC from TSoq where vcYearMonth='"+strDXYM+ "' and vcInOutFlag = '0')t     \r\n");
+                    strSql.Append("             \r\n");
+                    strSql.Append("            IF(@reply_plant_num<@soq_plant_num)     \r\n");
+                    strSql.Append("            BEGIN     \r\n");
+                    strSql.Append("                set @state ='待发送'     \r\n");
+                    strSql.Append("            END     \r\n");
+                    strSql.Append("            ELSE     \r\n");
+                    strSql.Append("            BEGIN     \r\n");
+                    strSql.Append("                if(@reply_notzk_num>0)     \r\n");
+                    strSql.Append("                BEGIN     \r\n");
+                    strSql.Append("                    set @state = '待发送'     \r\n");
+                    strSql.Append("                END     \r\n");
+                    strSql.Append("                ELSE     \r\n");
+                    strSql.Append("                BEGIN     \r\n");
+                    strSql.Append("                    set @state = '可下载'     \r\n");
+                    strSql.Append("                END     \r\n");
+                    strSql.Append("            END     \r\n");
+                    strSql.Append("        END     \r\n");
+                    
                     strSql.Append("        select '" + strDXYM+ "'as vcDXYM,'" + i+ "'as vcInOutFlag,@state as vcZhanKaiState,@time  as dZhanKaiTime     \r\n");
                     DataTable dt2 = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
                     DataDT.ImportRow(dt2.Rows[0]);

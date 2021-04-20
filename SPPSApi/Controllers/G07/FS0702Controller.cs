@@ -768,6 +768,13 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "请填写收货方！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    if (Convert.ToInt32(listInfoData[i]["vcShouhuofangID"].ToString())<0)
+                    {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "必要数不可小于‘0’";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     DataRow[] drr = dt1.Select("vcPackNo='"+ listInfoData[i]["vcPackNo"].ToString() + "'");
                     if (drr.Length==0) {
 

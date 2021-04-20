@@ -110,41 +110,41 @@ namespace DataAccess
                 strSql.AppendLine("  T_2.dUsedTo,   ");
                 strSql.AppendLine("  T_2.vcCycle,   ");
                 strSql.AppendLine("  T_2.iRelease,   ");
-                strSql.AppendLine("  T_1.iHySOQN,   ");
-                strSql.AppendLine("  T_1.iHySOQN1,   ");
-                strSql.AppendLine("  T_1.iHySOQN2,   ");
-                strSql.AppendLine("  case when 1>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 1<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD1 else '0' end as iD1,   ");
-                strSql.AppendLine("  case when 2>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 2<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD2 else '0' end as iD2,   ");
-                strSql.AppendLine("  case when 3>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 3<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD3 else '0' end as iD3,   ");
-                strSql.AppendLine("  case when 4>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 4<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD4 else '0' end as iD4,   ");
-                strSql.AppendLine("  case when 5>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 5<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD5 else '0' end as iD5,   ");
-                strSql.AppendLine("  case when 6>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 6<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD6 else '0' end as iD6,   ");
-                strSql.AppendLine("  case when 7>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 7<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD7 else '0' end as iD7,   ");
-                strSql.AppendLine("  case when 8>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 8<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD8 else '0' end as iD8,   ");
-                strSql.AppendLine("  case when 9>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 9<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD9 else '0' end as iD9,   ");
-                strSql.AppendLine("  case when 10>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 10<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD10 else '0' end as iD10,     ");
-                strSql.AppendLine("  case when 11>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 11<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD11 else '0' end as iD11,     ");
-                strSql.AppendLine("  case when 12>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 12<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD12 else '0' end as iD12,     ");
-                strSql.AppendLine("  case when 13>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 13<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD13 else '0' end as iD13,     ");
-                strSql.AppendLine("  case when 14>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 14<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD14 else '0' end as iD14,     ");
-                strSql.AppendLine("  case when 15>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 15<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD15 else '0' end as iD15,     ");
-                strSql.AppendLine("  case when 16>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 16<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD16 else '0' end as iD16,     ");
-                strSql.AppendLine("  case when 17>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 17<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD17 else '0' end as iD17,     ");
-                strSql.AppendLine("  case when 18>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 18<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD18 else '0' end as iD18,     ");
-                strSql.AppendLine("  case when 19>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 19<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD19 else '0' end as iD19,     ");
-                strSql.AppendLine("  case when 20>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 20<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD20 else '0' end as iD20,     ");
-                strSql.AppendLine("  case when 21>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 21<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD21 else '0' end as iD21,     ");
-                strSql.AppendLine("  case when 22>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 22<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD22 else '0' end as iD22,     ");
-                strSql.AppendLine("  case when 23>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 23<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD23 else '0' end as iD23,      ");
-                strSql.AppendLine("  case when 24>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 24<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD24 else '0' end as iD24,      ");
-                strSql.AppendLine("  case when 25>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 25<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD25 else '0' end as iD25,      ");
-                strSql.AppendLine("  case when 26>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 26<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD26 else '0' end as iD26,      ");
-                strSql.AppendLine("  case when 27>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 27<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD27 else '0' end as iD27,      ");
-                strSql.AppendLine("  case when 28>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 28<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD28 else '0' end as iD28,      ");
-                strSql.AppendLine("  case when 29>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 29<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD29 else '0' end as iD29,      ");
-                strSql.AppendLine("  case when 30>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 30<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD30 else '0' end as iD30,      ");
-                strSql.AppendLine("  case when 31>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 31<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD31 else '0' end as iD31,     ");
-               
+                strSql.AppendLine("  T_1.iHySOQN*T_2.iBiYao as iHySOQN,   ");
+                strSql.AppendLine("  T_1.iHySOQN1*T_2.iBiYao as iHySOQN1,   ");
+                strSql.AppendLine("  T_1.iHySOQN2*T_2.iBiYao as iHySOQN2,   ");
+                strSql.AppendLine("  case when 1>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 1<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD1*T_2.iBiYao else '0' end as iD1,   ");
+                strSql.AppendLine("  case when 2>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 2<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD2*T_2.iBiYao else '0' end as iD2,   ");
+                strSql.AppendLine("  case when 3>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 3<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD3*T_2.iBiYao else '0' end as iD3,   ");
+                strSql.AppendLine("  case when 4>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 4<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD4*T_2.iBiYao else '0' end as iD4,   ");
+                strSql.AppendLine("  case when 5>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 5<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD5*T_2.iBiYao else '0' end as iD5,   ");
+                strSql.AppendLine("  case when 6>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 6<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD6*T_2.iBiYao else '0' end as iD6,   ");
+                strSql.AppendLine("  case when 7>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 7<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD7*T_2.iBiYao else '0' end as iD7,   ");
+                strSql.AppendLine("  case when 8>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 8<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD8*T_2.iBiYao else '0' end as iD8,   ");
+                strSql.AppendLine("  case when 9>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 9<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD9*T_2.iBiYao else '0' end as iD9,   ");
+                strSql.AppendLine("  case when 10>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 10<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD10*T_2.iBiYao else '0' end as iD10,     ");
+                strSql.AppendLine("  case when 11>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 11<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD11*T_2.iBiYao else '0' end as iD11,     ");
+                strSql.AppendLine("  case when 12>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 12<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD12*T_2.iBiYao else '0' end as iD12,     ");
+                strSql.AppendLine("  case when 13>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 13<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD13*T_2.iBiYao else '0' end as iD13,     ");
+                strSql.AppendLine("  case when 14>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 14<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD14*T_2.iBiYao else '0' end as iD14,     ");
+                strSql.AppendLine("  case when 15>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 15<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD15*T_2.iBiYao else '0' end as iD15,     ");
+                strSql.AppendLine("  case when 16>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 16<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD16*T_2.iBiYao else '0' end as iD16,     ");
+                strSql.AppendLine("  case when 17>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 17<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD17*T_2.iBiYao else '0' end as iD17,     ");
+                strSql.AppendLine("  case when 18>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 18<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD18*T_2.iBiYao else '0' end as iD18,     ");
+                strSql.AppendLine("  case when 19>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 19<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD19*T_2.iBiYao else '0' end as iD19,     ");
+                strSql.AppendLine("  case when 20>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 20<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD20*T_2.iBiYao else '0' end as iD20,     ");
+                strSql.AppendLine("  case when 21>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 21<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD21*T_2.iBiYao else '0' end as iD21,     ");
+                strSql.AppendLine("  case when 22>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 22<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD22*T_2.iBiYao else '0' end as iD22,     ");
+                strSql.AppendLine("  case when 23>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 23<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD23*T_2.iBiYao else '0' end as iD23,      ");
+                strSql.AppendLine("  case when 24>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 24<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD24*T_2.iBiYao else '0' end as iD24,      ");
+                strSql.AppendLine("  case when 25>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 25<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD25*T_2.iBiYao else '0' end as iD25,      ");
+                strSql.AppendLine("  case when 26>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 26<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD26*T_2.iBiYao else '0' end as iD26,      ");
+                strSql.AppendLine("  case when 27>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 27<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD27*T_2.iBiYao else '0' end as iD27,      ");
+                strSql.AppendLine("  case when 28>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 28<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD28*T_2.iBiYao else '0' end as iD28,      ");
+                strSql.AppendLine("  case when 29>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 29<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD29*T_2.iBiYao else '0' end as iD29,      ");
+                strSql.AppendLine("  case when 30>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 30<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD30*T_2.iBiYao else '0' end as iD30,      ");
+                strSql.AppendLine("  case when 31>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 31<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD31*T_2.iBiYao else '0' end as iD31,     ");
+
                 strSql.AppendLine("  GETDATE() as dZCTime --作成时间         ");
                 strSql.AppendLine(" from          ");
                 strSql.AppendLine("  (        ");
@@ -156,8 +156,8 @@ namespace DataAccess
                 strSql.AppendLine("  b.iD1 ,b.iD2,b.iD3,b.iD4,b.iD5,b.iD6,b.iD7,b.iD8,b.iD9,b.iD10,b.iD11,b.iD12,b.iD13,b.iD14,b.iD15,b.iD16,      ");
                 strSql.AppendLine("  b.iD17,b.iD18,b.iD19,b.iD20,b.iD21,b.iD22,b.iD23,b.iD24,b.iD25,b.iD26,b.iD27,b.iD28,b.iD29,b.iD30,b.iD31      ");
                 strSql.AppendLine("  from    (  ");
-               
-                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN + "' and vcCLYM='"+ strN_CL + "'      ");
+
+                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN + "' and vcCLYM='" + strN_CL + "'      ");
                 strSql.AppendLine("  )b      ");
                 strSql.AppendLine("  left join       ");
                 strSql.AppendLine("  (         ");
@@ -190,16 +190,16 @@ namespace DataAccess
                 strSql.AppendLine("   left join      ");
                 strSql.AppendLine("   (          ");
                 strSql.AppendLine("      select vcPartsNo,ss.vcPackSpot,ss.vcSupplierCode,ss.vcSupplierPlant,ss.vcSupplierName,      ");
-                strSql.AppendLine("  	 ss.vcPackNo,ss.vcCycle,ss.iRelease,dUsedFrom,dUsedTo,s.vcPackGPSNo,s.dFrom1,s.dTo1       ");
+                strSql.AppendLine("  	 ss.vcPackNo,ss.vcCycle,ss.iRelease,dUsedFrom,dUsedTo,s.vcPackGPSNo,s.dFrom1,s.dTo1,s.iBiYao       ");
                 strSql.AppendLine("  	  from       ");
                 strSql.AppendLine("  	 (      ");
                 strSql.AppendLine("       select         ");
                 strSql.AppendLine("      vcPartsNo,vcPackNo,        ");
-                strSql.AppendLine("      case when dFrom>'"+ NowDF + "' then dFrom else '"+ NowDF + "'end as dFrom1,        ");
-                strSql.AppendLine("      case when dTo>'"+ NowDE + "' then  '"+ NowDE + "' else dTo  end as dTo1,        ");
+                strSql.AppendLine("      case when dFrom>'" + NowDF + "' then dFrom else '" + NowDF + "'end as dFrom1,        ");
+                strSql.AppendLine("      case when dTo>'" + NowDE + "' then  '" + NowDE + "' else dTo  end as dTo1,        ");
                 strSql.AppendLine("      vcPackGPSNo,vcPackSpot,vcShouhuofangID,vcCar,dUsedFrom,dUsedTo,vcDistinguish,iBiYao,varChangedItem        ");
-                strSql.AppendLine("      from TPackItem    where dFrom<='"+ NowDE + "'and dTo>='"+ NowDF + "'         ");
-        
+                strSql.AppendLine("      from TPackItem    where dFrom<='" + NowDE + "'and dTo>='" + NowDF + "'         ");
+
                 strSql.AppendLine("  	  )s LEFT join      ");
                 strSql.AppendLine("  	  (      ");
                 strSql.AppendLine("  	    select * from TPackBase      ");
@@ -229,7 +229,7 @@ namespace DataAccess
             }
         }
 
-       
+
         #endregion
 
 
@@ -444,9 +444,23 @@ namespace DataAccess
                     sql.AppendLine("   '" + listInfoData.Rows[i]["vcSupplierName"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["vcCycle"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["iRelease"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iHySOQN"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iHySOQN1"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iHySOQN2"].ToString() + "',   \n");
+                    if (string.IsNullOrEmpty(listInfoData.Rows[i]["iHySOQN"].ToString()))
+                    {
+                        sql.AppendLine("  0.00000,   \n");
+                    }
+                    else
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iHySOQN"].ToString() + "',   \n");
+
+                    if (string.IsNullOrEmpty(listInfoData.Rows[i]["iHySOQN1"].ToString()))
+                        sql.AppendLine("  0.00000,   \n");
+                    else
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iHySOQN1"].ToString() + "',   \n");
+
+                    if (string.IsNullOrEmpty(listInfoData.Rows[i]["iHySOQN2"].ToString()))
+                        sql.AppendLine("  0.00000,   \n");
+                    else
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iHySOQN2"].ToString() + "',   \n");
+
                     sql.AppendLine("   '" + listInfoData.Rows[i]["iD1"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["iD2"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["iD3"].ToString() + "',   \n");
@@ -505,8 +519,8 @@ namespace DataAccess
 
         }
 
-             
-   
+
+
         #endregion
 
         #region 查找工厂
@@ -540,11 +554,11 @@ namespace DataAccess
                     {
                         if (j != 0)
                         {
-                            SupplierCode = SupplierCode+ "," + SupplierCodeList[j].ToString();
+                            SupplierCode = SupplierCode + "," + SupplierCodeList[j].ToString();
                         }
                         else
                         {
-                            SupplierCode = SupplierCode+ SupplierCodeList[j].ToString();
+                            SupplierCode = SupplierCode + SupplierCodeList[j].ToString();
 
                         }
 
@@ -567,12 +581,12 @@ namespace DataAccess
                 sql.AppendLine("                ,[dOperatorTime])       \n");
                 sql.AppendLine("          VALUES       \n");
                 sql.AppendLine("         (   \n");
-                sql.AppendLine("         '"+ SupplierCode + "',   \n");
-                sql.AppendLine("         '"+ PackFrom + "',   \n");
+                sql.AppendLine("         '" + SupplierCode + "',   \n");
+                sql.AppendLine("         '" + PackFrom + "',   \n");
                 sql.AppendLine("         '月度内示',   \n");
                 sql.AppendLine("         NULL,   \n");
                 sql.AppendLine("         '0',   \n");
-                sql.AppendLine("         '"+ dt1 + "',   \n");
+                sql.AppendLine("         '" + dt1 + "',   \n");
                 sql.AppendLine("         NULL,   \n");
                 sql.AppendLine("   '" + userId + "',   \n");
                 sql.AppendLine("   getdate()  \n");
@@ -684,7 +698,7 @@ namespace DataAccess
                     sql.AppendLine("   '1', \n");
                     sql.AppendLine("   '0', \n");
                     sql.AppendLine("   '月度内示', \n");
-                    sql.AppendLine("   '"+ dt1 + "', \n");
+                    sql.AppendLine("   '" + dt1 + "', \n");
                     sql.AppendLine("   '" + userId + "',   \n");
                     sql.AppendLine("   getdate()  \n");
                     sql.AppendLine("    )  \n");

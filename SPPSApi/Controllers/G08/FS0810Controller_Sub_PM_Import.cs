@@ -116,15 +116,25 @@ namespace SPPSApi.Controllers.G08
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                //判断大品目是否存在
+               
                 DataTable dtBigPM = fs0810_Logic.getTCode("C003");
-                for(int i=0;i<importDt.Rows.Count;i++)
+                DataTable dtSmallPM= fs0810_Logic.getTCode("C050");
+                for (int i=0;i<importDt.Rows.Count;i++)
                 {
+                    //判断大品目是否存在
                     DataRow[] drs = dtBigPM.Select("vcValue='"+importDt.Rows[i]["vcBigPM"].ToString()+"' ");
                     if(drs.Length==0)
                     {//导入文件中大品目在DB中不存在
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "大品目："+ importDt.Rows[i]["vcBigPM"].ToString()+" 在系统中不存在。";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    //判断小品目是否存在
+                    DataRow[] drs2 = dtSmallPM.Select("vcValue='" + importDt.Rows[i]["vcSmallPM"].ToString() + "' ");
+                    if (drs2.Length == 0)
+                    {//导入文件中小品目在DB中不存在
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "小品目：" + importDt.Rows[i]["vcSmallPM"].ToString() + " 在系统中不存在。";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

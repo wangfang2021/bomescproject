@@ -13,6 +13,35 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
+        #region 下拉框选择
+        public DataTable getSR()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("select distinct vcSR as vcValue,vcSR as vcName from TNRBJSKBianCi  \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getNRBianCi()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("select distinct vcNRBianCi as vcValue,vcNRBianCi as vcName from TNRBJSKBianCi  \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 检索
         public DataTable Search(string vcSupplier_id, string vcGQ, string vcSR, string vcOrderNo, string vcNRBianCi, string vcNRBJSK)
         {

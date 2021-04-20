@@ -73,9 +73,9 @@ namespace Logic
         }
 
         #region 保存_NG明细
-        public void Save_sub(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void Save_sub(List<Dictionary<string, Object>> listInfoData, string strUserId, string vcPart_id, string vcKBOrderNo, string vcKBLFNo, string vcSR)
         {
-            fs0806_DataAccess.Save_sub(listInfoData, strUserId);
+            fs0806_DataAccess.Save_sub(listInfoData, strUserId,vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR);
         }
         #endregion
 

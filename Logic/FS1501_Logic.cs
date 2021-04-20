@@ -18,6 +18,17 @@ namespace Logic
             fs1501_DataAccess = new FS1501_DataAccess();
         }
 
+        #region 绑定
+        public DataTable getSR()
+        {
+            return fs1501_DataAccess.getSR();
+        }
+        public DataTable getNRBianCi()
+        {
+            return fs1501_DataAccess.getNRBianCi();
+        }
+        #endregion
+
         #region 检索
         public DataTable Search(string vcSupplier_id, string vcGQ, string vcSR, string vcOrderNo, string vcNRBianCi, string vcNRBJSK)
         {

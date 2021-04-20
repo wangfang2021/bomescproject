@@ -53,7 +53,9 @@ namespace SPPSApi.Controllers.G08
                 //    res.Add("caiWuBtnVisible", true);
 
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(fs0810_Logic.getTCode("C003"));//大品目
+                List<Object> dataList_C050 = ComFunction.convertAllToResult(fs0810_Logic.getTCode("C050"));//小品目
                 res.Add("C003", dataList_C003);
+                res.Add("C050", dataList_C050);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;

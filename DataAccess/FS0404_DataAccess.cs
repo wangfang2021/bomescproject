@@ -1992,7 +1992,7 @@ namespace DataAccess
                 sbr.AppendLine(") c ON a.vcSupplierId = b.vcSupplierId AND a.vcPartId = c.vcPartId AND a.vcReceiver = c.vcReceiver AND a.vcPackingPlant = c.vcPackingPlant");
                 sbr.AppendLine("LEFT JOIN");
                 sbr.AppendLine("(");
-                sbr.AppendLine("select vcValue1 as vcSupplierId,vcValue2 as vcSupplierPlant,vcValue3 as dFromTime,vcValue4 as dToTime,vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0' AND vcValue3<=CONVERT(VARCHAR(10),'" + timeFrom + "',23) AND vcValue4>=CONVERT(VARCHAR(10),'" + timeTo + "',23)");
+                sbr.AppendLine("select vcValue1 as vcSupplierId,vcValue2 as vcSupplierPlant,vcValue3 as dFromTime,vcValue4 as dToTime,vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0' AND vcValue3<=CONVERT(VARCHAR(10),CONVERT(datetime,'" + timeFrom + "'),23) AND vcValue4>=CONVERT(VARCHAR(10),CONVERT(datetime,'" + timeTo + "'),23)");
                 sbr.AppendLine(") d ON a.vcSupplierId = d.vcSupplierId AND c.vcSupplierPlant = d.vcSupplierPlant");
                 sbr.AppendLine("LEFT JOIN");
                 sbr.AppendLine("(");
@@ -2047,7 +2047,7 @@ namespace DataAccess
                 sbr.AppendLine(") c ON a.vcSupplierId = b.vcSupplierId AND a.vcPartId = c.vcPartId AND a.vcReceiver = c.vcReceiver AND a.vcPackingPlant = c.vcPackingPlant");
                 sbr.AppendLine("LEFT JOIN");
                 sbr.AppendLine("(");
-                sbr.AppendLine("select vcValue1 as vcSupplierId,vcValue2 as vcSupplierPlant,vcValue3 as dFromTime,vcValue4 as dToTime,vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0' AND vcValue3<=CONVERT(VARCHAR(10),'" + timeFrom + "',23) AND vcValue4>=CONVERT(VARCHAR(10),'" + timeTo + "',23)");
+                sbr.AppendLine("select vcValue1 as vcSupplierId,vcValue2 as vcSupplierPlant,vcValue3 as dFromTime,vcValue4 as dToTime,vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0' AND vcValue3<=CONVERT(VARCHAR(10),CONVERT(datetime,'" + timeFrom + "'),23) AND vcValue4>=CONVERT(VARCHAR(10),CONVERT(datetime,'" + timeTo + "'),23)");
                 sbr.AppendLine(") d ON a.vcSupplierId = d.vcSupplierId AND c.vcSupplierPlant = d.vcSupplierPlant");
                 sbr.AppendLine("LEFT JOIN");
                 sbr.AppendLine("(");

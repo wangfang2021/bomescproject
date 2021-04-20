@@ -104,7 +104,7 @@ namespace BatchProcess
 
                     plantList.Add(plant);
 
-                    fs0612_Logic.CreateView2(vcCLYM, plantList, strUserId);
+                    fs0612_Logic.CreateView2(vcCLYM, plantList, strUserId,"日度");
                 }
 
 

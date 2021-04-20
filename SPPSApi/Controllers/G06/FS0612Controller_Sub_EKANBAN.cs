@@ -195,7 +195,7 @@ namespace SPPSApi.Controllers.G06
                     }
                 }
                 //记录请求时间
-                fs0612_Logic.CreateView2(vcCLYM, plantList, loginInfo.UserId);
+                fs0612_Logic.CreateView2(vcCLYM, plantList, loginInfo.UserId,"月度");
 
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UI0103", null, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;

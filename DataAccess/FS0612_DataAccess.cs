@@ -138,7 +138,7 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public void CreateView2(string vcCLYM, List<string> plantList, string strUserId)
+        public void CreateView2(string vcCLYM, List<string> plantList, string strUserId,string strKind)
         {
             SqlConnection conn_sql = Common.ComConnectionHelper.CreateSqlConnection();
             Common.ComConnectionHelper.OpenConection_SQL(ref conn_sql);
@@ -152,8 +152,8 @@ namespace DataAccess
                 {
                     string strPlant = plantList[i];
                     string strMaxTimes = GetMaxTimes2(strPlant, vcCLYM);
-                    sql.Append("insert into TNQCStatus_HS_EKANBAN (vcCLYM,vcPlant,vcStatus,iTimes,dRequestTime,vcOperatorID,dOperatorTime) values     \n");
-                    sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",'" + strdate + "','" + strUserId + "','" + strdate + "')    \n");
+                    sql.Append("insert into TNQCStatus_HS_EKANBAN (vcCLYM,vcPlant,vcStatus,iTimes,dRequestTime,vcOperatorID,dOperatorTime,vcKind) values     \n");
+                    sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",'" + strdate + "','" + strUserId + "','" + strdate + "','"+strKind+"')    \n");
                 }
                 SqlCommand cd0 = new SqlCommand(sql.ToString(), conn_sql, st);
                 cd0.CommandType = System.Data.CommandType.Text;

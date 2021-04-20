@@ -37,9 +37,9 @@ namespace Logic
         {
             fs0612_DataAccess.CreateView(vcCLYM, dtPlant,strUserId);
         }
-        public void CreateView2(string vcCLYM, List<string> plantList, string strUserId)
+        public void CreateView2(string vcCLYM, List<string> plantList, string strUserId,string strKind)
         {
-            fs0612_DataAccess.CreateView2(vcCLYM, plantList, strUserId);
+            fs0612_DataAccess.CreateView2(vcCLYM, plantList, strUserId,strKind);
         }
         #endregion
 

@@ -238,8 +238,10 @@ namespace SPPSApi.Controllers.G07
                         string strYearMonth = list_NSMonth[i]["vcYearMonth"].ToString().Replace("-","");
                         string strFaBuTime = Convert.ToDateTime(list_NSMonth[i]["dFaBuTime"].ToString()).ToString();
                         DataTable dt_Month = FS0718_Logic.Search_Month(strSupplier, strYearMonth, strFaBuTime);
-                        ComFunction.ConsoleWriteLine("检索出月度内示数据条数(DataTable.rows)"+dt_Month.Rows.Count);
-                        string resMsg = "";
+                        ComFunction.ConsoleWriteLine("检索出月度内示数据条数(DataTable.rows)："+dt_Month.Rows.Count);
+
+                        string resMsg = "";         //错误消息
+                        
                         string[] head = { "对象月", "包装场",  "包装材品番",  "GPS品番", "供货商代码",   "供货商工区",   "供货商名称（中文）",   "纳入周期",    "纳入单位",    "当月合计必要数", "+1月合计必要数" ,   "+2月合计必要数",
                                           "1日" , "2日",  "3日",  "4日",  "5日",  "6日",  "7日",  "8日",  "9日",  "10日", "11日", "12日", "13日", "14日", "15日",
                                           "16日", "17日" ,"18日" ,"19日", "20日", "21日", "22日", "23日", "24日", "25日", "26日", "27日", "28日", "29日", "30日" ,"31日", "作成时间"};
@@ -252,6 +254,14 @@ namespace SPPSApi.Controllers.G07
                                             "iDay31","dZYTime"};
                         string strfileName = "月度内示书_"+strYearMonth+"_"+i+"_";
                         string filepath = ComFunction.DataTableToExcel(head, fields, dt_Month, _webHostEnvironment.ContentRootPath, loginInfo.UserId, strfileName, ref resMsg);
+
+                        if (!string.IsNullOrEmpty(resMsg))
+                        {
+                            ComFunction.ConsoleWriteLine(resMsg);
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = resMsg;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
 
                         string strFilePath_All = _webHostEnvironment.ContentRootPath + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar + filepath;
 
@@ -331,7 +341,9 @@ namespace SPPSApi.Controllers.G07
                         {
                             dt.Rows[t]["vcNum"] = (t + 1).ToString();
                         }
+
                         string resMsg = "";
+                        
                         int count = 0;
                         string[] headData = new string[0];
                         string[] fieldsData = new string[0];
@@ -465,7 +477,17 @@ namespace SPPSApi.Controllers.G07
                             strAfterBZ = "夜值";
                         }
                         string strfileName = "周度内示书_" + strBeforeTime+strBeforeBZ+" - "+strAfterTime+strAfterBZ + "_" + i + "_";
+                        
                         string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, strfileName, ref resMsg);
+
+                        if (!string.IsNullOrEmpty(resMsg))
+                        {
+                            ComFunction.ConsoleWriteLine(resMsg);
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = resMsg;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+
                         if (filepath == "")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;

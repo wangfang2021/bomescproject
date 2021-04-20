@@ -167,7 +167,9 @@ namespace DataAccess
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C059')T16--供应商包装");
                 strSql.AppendLine("ON T1.vcSupplierPacking=T16.vcValue");
                 strSql.AppendLine("WHERE 1=1");
-                strSql.AppendLine("ORDER BY T1.LinId");
+                strSql.AppendLine(
+                    " AND ISNULL(T2.vcSupplierPlant,'')<>'' AND ISNULL(T3.iPackingQty,0)<>0 AND ISNULL(T4.vcSufferIn,'')<>'' AND ISNULL(T5.vcOrderPlant,'')<>''");
+                strSql.AppendLine("ORDER BY T1.LinId ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

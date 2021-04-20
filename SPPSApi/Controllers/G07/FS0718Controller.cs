@@ -229,6 +229,7 @@ namespace SPPSApi.Controllers.G07
                 #endregion
 
                 #region 对所选月度内示进行处理
+                ComFunction.ConsoleWriteLine("开始对所选月度内示进行处理");
                 if (list_NSMonth.Count > 0)
                 {
                     for (int i = 0; i < list_NSMonth.Count; i++)
@@ -237,7 +238,7 @@ namespace SPPSApi.Controllers.G07
                         string strYearMonth = list_NSMonth[i]["vcYearMonth"].ToString().Replace("-","");
                         string strFaBuTime = Convert.ToDateTime(list_NSMonth[i]["dFaBuTime"].ToString()).ToString();
                         DataTable dt_Month = FS0718_Logic.Search_Month(strSupplier, strYearMonth, strFaBuTime);
-
+                        ComFunction.ConsoleWriteLine("检索出月度内示数据条数(DataTable.rows)"+dt_Month.Rows.Count);
                         string resMsg = "";
                         string[] head = { "对象月", "包装场",  "包装材品番",  "GPS品番", "供货商代码",   "供货商工区",   "供货商名称（中文）",   "纳入周期",    "纳入单位",    "当月合计必要数", "+1月合计必要数" ,   "+2月合计必要数",
                                           "1日" , "2日",  "3日",  "4日",  "5日",  "6日",  "7日",  "8日",  "9日",  "10日", "11日", "12日", "13日", "14日", "15日",

@@ -142,9 +142,9 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("    select a.vcPackSpot,a.vcFaZhuID,b.dEnd  from           \n");
+                strSql.AppendLine("    select a.vcPackSpot,a.vcFaZhuID,isnull(b.dEnd ,a.dFrom) as dEnd  from           \n");
                 strSql.AppendLine("    (           \n");
-                strSql.AppendLine("       select distinct vcPackSpot,vcFaZhuID from TPackFaZhuTime  where vcPackSpot='"+ strPackSpot + "'        \n");
+                strSql.AppendLine("       select distinct vcPackSpot,vcFaZhuID,dFrom from TPackFaZhuTime  where vcPackSpot='" + strPackSpot + "'        \n");
                 strSql.AppendLine("    )a           \n");
                 strSql.AppendLine("    left join           \n");
                 strSql.AppendLine("    (           \n");

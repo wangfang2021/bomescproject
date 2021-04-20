@@ -1047,5 +1047,25 @@ namespace DataAccess
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
         #endregion
+
+        #region 刷新供应商名称--每次检索之前得调用一次更新
+        public void udpateSupplierName()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("    update TUnit set vcSupplier_Name=b.vcSupplier_name from TUnit a     \n ");
+                sql.Append("    left join     \n ");
+                sql.Append("    (     \n ");
+                sql.Append("       select vcSupplier_id,vcSupplier_name from TSupplier     \n ");
+                sql.Append("    )b on a.vcSupplier_id=b.vcSupplier_id     \n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

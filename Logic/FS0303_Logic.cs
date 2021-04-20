@@ -557,5 +557,12 @@ namespace Logic
         }
 
         #endregion
+
+        #region 刷新供应商名称--每次检索之前得调用一次更新
+        public void udpateSupplierName()
+        {
+            fs0303_DataAccess.udpateSupplierName();
+        }
+        #endregion
     }
 }

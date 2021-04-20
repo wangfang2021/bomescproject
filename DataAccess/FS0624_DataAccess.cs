@@ -90,11 +90,12 @@ namespace DataAccess
                 strSql.Append("      			(										                 \n");
                 strSql.Append("      				SELECT ','+vcPlant+'厂:'+case when vcStatus='C' then '已送信' else '处理失败' end             \n");
                 strSql.Append("      			FROM VI_NQCStatus_HS_EKANBAN                \n");
-                strSql.Append("      				WHERE VI_NQCStatus_HS_EKANBAN.vcCLYM=a.vcCLYM                  \n");
+                strSql.Append("      				WHERE  VI_NQCStatus_HS_EKANBAN.vcKind='日度' and VI_NQCStatus_HS_EKANBAN.vcCLYM=a.vcCLYM                  \n");
                 strSql.Append("      				FOR XML PATH('')									                 \n");
                 strSql.Append("      			), 1, 1, ''										                 \n");
                 strSql.Append("      		)   AS vcState  		           \n");
                 strSql.Append("         from VI_NQCStatus_HS_EKANBAN a           \n");
+                strSql.Append("         where a.vcKind='日度'              \n");
                 strSql.Append("         GROUP BY vcCLYM              \n");
                 strSql.Append("       )c on left(a.vcChangeNo,6)=c.vcCLYM           \n");
                 strSql.Append("       where 1=1        \n");

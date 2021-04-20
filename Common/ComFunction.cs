@@ -1882,7 +1882,11 @@ namespace Common
             }
             catch (Exception ex)
             {
-                ComMessage.WriteInDB("dmzUpload", "E", "文件上传异常", "参数filepath="+ filepath + ",strFileName="+ strFileName + ",strToDir=" + strToDir, ex.StackTrace, "system");
+                ConsoleWriteLine(ex.Message);
+                ConsoleWriteLine("filepath:" + filepath);
+                ConsoleWriteLine("strFileName:" + strFileName);
+                ConsoleWriteLine("strToDir:" + strToDir);
+                ComMessage.WriteInDB("dmzUpload", "E", "文件上传异常", ex.Message+" 参数filepath=" + filepath + ",strFileName="+ strFileName + ",strToDir=" + strToDir, ex.StackTrace, "system");
                 throw ex;
             }
         }

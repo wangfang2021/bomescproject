@@ -320,7 +320,7 @@ namespace SPPSApi.Controllers.G01
                 }
                 #endregion
 
-                strErrAll = strErrAll.Substring(0, strErrAll.Length - 1);       //去掉最后一个'|'
+                strErrAll =strErrAll.Length>0? strErrAll.Substring(0, strErrAll.Length - 1):"";       //去掉最后一个'|'
 
                 if (strErrAll.Replace("|","")!="")
                 {

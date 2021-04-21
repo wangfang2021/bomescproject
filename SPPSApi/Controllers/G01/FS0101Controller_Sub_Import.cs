@@ -110,37 +110,13 @@ namespace SPPSApi.Controllers.G01
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
-                #region 错误信息
-                //工厂错误信息
-                string strErr1 = "";
-
-                //班值错误信息
-                string strErr2 = "";
-
-                //包装场错误信息
-                string strErr3 = "";
-
-                //用户编号错误信息
-                string strErr4 = "";
-
-                //用户名称错误信息
-                string strErr5 = "";
-
-                //用户密码错误信息
-                string strErr6 = "";
-
-                //角色错误信息
-                string strErr7 = "";
-
-                //邮箱地址错误信息
-                string strErr8 = "";
-
-                //特殊权限错误信息
-                string strErr9 = "";
-
-                //所有的错误
+                //记录所有的错误信息
                 string strErrAll = "";
-                #endregion
+
+                //记录重复的用户ID和发生重复的行号
+                DataTable usersIdDT = new DataTable();
+                usersIdDT.Columns.Add("userID");
+
 
                 #region 从数据库中取出需要验证的数据
                 //工厂    dt列     vcPlantCode,vcPlantName
@@ -165,6 +141,36 @@ namespace SPPSApi.Controllers.G01
                 #region 校验所有数据
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
+                    #region 错误信息
+                    //工厂错误信息
+                    string strErr1 = "";
+
+                    //班值错误信息
+                    string strErr2 = "";
+
+                    //包装场错误信息
+                    string strErr3 = "";
+
+                    //用户编号错误信息
+                    string strErr4 = "";
+
+                    //用户名称错误信息
+                    string strErr5 = "";
+
+                    //用户密码错误信息
+                    string strErr6 = "";
+
+                    //角色错误信息
+                    string strErr7 = "";
+
+                    //邮箱地址错误信息
+                    string strErr8 = "";
+
+                    //特殊权限错误信息
+                    string strErr9 = "";
+
+                    #endregion
+
                     //工厂信息
                     string str1 = importDt.Rows[i]["vcPlantCode"] == null ? "" : importDt.Rows[i]["vcPlantCode"].ToString();
 
@@ -196,22 +202,6 @@ namespace SPPSApi.Controllers.G01
                     string str10 = importDt.Rows[i]["vcStop"] == null ? "" : importDt.Rows[i]["vcStop"].ToString();
 
                     #region 校验必填的字段
-                    if (string.IsNullOrEmpty(str4.Trim()))     //用户编号
-                    {
-                        strErr4 += "第" + (i + 2) + "行用户编号必填;";
-                    }
-                    if (string.IsNullOrEmpty(str5.Trim()))     //用户名称
-                    {
-                        strErr4 += "第" + (i + 2) + "行用户名称必填;";
-                    }
-                    if (string.IsNullOrEmpty(str6.Trim()))     //用户密码
-                    {
-                        strErr4 += "第" + (i + 2) + "行用户密码必填;";
-                    }
-                    if (string.IsNullOrEmpty(str7.Trim()))
-                    {
-                        strErr4 += "第" + (i + 2) + "行角色至少要有一个;";
-                    }
 
                     #region 校验工厂,并将name值转换为value值
                     str1 = str1.Trim();
@@ -231,6 +221,10 @@ namespace SPPSApi.Controllers.G01
                             }
                             else
                             {
+                                if (str1Conver.Length>0)
+                                {
+                                    str1Conver += ",";
+                                }
                                 str1Conver += dt1.Select("vcPlantName = '" + str1s[j] + "'")[0]["vcPlantCode"].ToString();
                             }
                         }
@@ -274,10 +268,16 @@ namespace SPPSApi.Controllers.G01
                     str4 = str4.Trim();
                     if (str4.Length > 0)  //不为空
                     {
+                        if (importDt.Select("vcUserID = '" + str4 + "'").Length > 1)
+                        {
+                            //errorUserIdLists.Add((i + 2).ToString(), str4);
+                        }
+
                         if (dt4.Select("vcUserID = '" + str4 + "'").Length > 0)
                         {
                             strErr4 += "第" + (i + 2) + "行用户编号'" + str4 + "'已存在;";
                         }
+
                     }
                     #endregion
 
@@ -313,17 +313,25 @@ namespace SPPSApi.Controllers.G01
 
                     #endregion
 
-                    strErrAll += strErr1 + strErr2 + strErr3 + strErr4 + strErr5 + strErr6 + strErr7 + strErr8 + strErr9+"|";
+                    if ((strErr1 + strErr2 + strErr3 + strErr4 + strErr5 + strErr6 + strErr7 + strErr8 + strErr9).Length>0)
+                    {
+                        strErrAll += strErr1 + strErr2 + strErr3 + strErr4 + strErr5 + strErr6 + strErr7 + strErr8 + strErr9+"|";
+                    }
                 }
                 #endregion
-                strErrAll = strErrAll.Substring(0, strErrAll.Length - 1);       //去掉最后一个'|'
+
+                strErrAll =strErrAll.Length>0? strErrAll.Substring(0, strErrAll.Length - 1):"";       //去掉最后一个'|'
 
                 if (strErrAll.Replace("|","")!="")
                 {
+
                     string strReturn = "";
                     for (int i = 0; i < strErrAll.Split('|').Length; i++)
                     {
-                        strReturn += strErrAll.Split('|')[i] + "<br/>";
+                        if (strErrAll.Split('|')[i].Trim().Length>0)
+                        {
+                            strReturn += strErrAll.Split('|')[i] + "<br/>";
+                        }
                     }
                     res.Add("strErr", "<br/>" + strReturn);
                     apiResult.code = ComConstant.ERROR_CODE;

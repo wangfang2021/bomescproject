@@ -555,7 +555,7 @@ namespace DataAccess
                 strSql.Append(" from TUrgentOrder a  \n ");
                 strSql.Append(" inner join  \n ");
                 strSql.Append(" (  \n ");
-                strSql.Append("    select * from #TUrgentOrder_temp_cr  \n ");
+                strSql.Append("    select distinct vcOrderNo,vcPart_id,vcSupplier_id from #TUrgentOrder_temp_cr  \n ");
                 strSql.Append(" )b on a.vcOrderNo=b.vcOrderNo and a.vcPart_id=b.vcPart_id and a.vcSupplier_id=b.vcSupplier_id   \n ");
                 
                 //追加更新出荷日
@@ -568,7 +568,7 @@ namespace DataAccess
                 strSql.Append(" from (select * from TUrgentOrder_OperHistory where vcInputType='supplier' and dDeliveryDate is not null and dOutPutDate is null) a  \n ");
                 strSql.Append(" inner join  \n ");
                 strSql.Append(" (  \n ");
-                strSql.Append("    select * from #TUrgentOrder_temp_cr  \n ");
+                strSql.Append("    select distinct vcOrderNo,vcPart_id,vcSupplier_id from #TUrgentOrder_temp_cr  \n ");
                 strSql.Append(" )b on a.vcOrderNo=b.vcOrderNo and a.vcPart_id=b.vcPart_id and a.vcSupplier_id=b.vcSupplier_id   \n ");
 
                 //将提交数据插入一版company
@@ -586,7 +586,7 @@ namespace DataAccess
                 strSql.AppendLine("	group by vcOrderNo,vcPart_id,vcSupplier_id");
                 strSql.AppendLine(")t2 on t1.vcOrderNo=t2.vcOrderNo and t1.vcPart_id=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplier_id");
                 strSql.AppendLine("and t1.dOperatorTime=t2.dOperatorTime");
-                strSql.AppendLine("inner join #TUrgentOrder_temp_cr t3 ");
+                strSql.AppendLine("inner join (select distinct vcOrderNo,vcPart_id,vcSupplier_id from #TUrgentOrder_temp_cr) t3 ");
                 strSql.AppendLine("on t1.vcOrderNo=t3.vcOrderNo and t1.vcPart_id=t3.vcPart_id and t1.vcSupplier_id=t3.vcSupplier_id");
 
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());

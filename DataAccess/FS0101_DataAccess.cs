@@ -402,7 +402,7 @@ namespace DataAccess
                     for (int rolesIndex = 0; rolesIndex < roleList.Count; rolesIndex++)
                     {
                         strSql.Append("   insert into SUserRole     \n");
-                        strSql.Append("   select '" + strUserID + "',vcRoleID from SRole where vcRoleID='" + roleList[rolesIndex] + "';     \n");
+                        strSql.Append("   select " + ComFunction.getSqlValue(dt.Rows[i]["vcUserID"], false) + ",vcRoleID from SRole where vcRoleName='" + roleList[rolesIndex] + "';     \n");
                     }
                     //strSql.Append("  insert into tPointPower     \n");
                     //strSql.Append("  (vcUserId,vcPlant)      \n");

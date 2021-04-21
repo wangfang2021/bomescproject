@@ -4249,7 +4249,7 @@ namespace Logic
                     ssql += "  where t1.vcEDflag ='S' and t1.vcKBorderno='" + dt.Rows[n]["vcKBorderno"].ToString() + "' ";
                     ssql += " and t2.vcPorType = '" + dt.Rows[n]["bushu"].ToString() + "' and vcComDate00 ='" + dt.Rows[n]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[n]["vcBanZhi00"].ToString() + "' ";
                     ssql += " and vcComDate01 ='" + dt.Rows[n]["vcComDate01"].ToString() + "' and vcBanZhi01 ='" + dt.Rows[n]["vcBanZhi01"].ToString() + "' ";
-                    ssql += " and t2.vcPartFrequence = '周度' ";
+                    ssql += " and t2.vcPartFrequence = '2' ";
 
                     //ssql += "and dTimeFrom>=convert(varchar(10),GETDATE(),23) and dTimeTo<=convert(varchar(10),GETDATE(),23)  ";//改造是月度品番，这里是周度品番
                     //20180930上面SQL文最后一行增加对周度月度品番的判断，因为SQL文是按照部署、工程0和工程1的日期和值别检索数据，

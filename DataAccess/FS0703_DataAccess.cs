@@ -97,6 +97,24 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" delete from TPackJSException   ;      ");
                 strSql.AppendLine(" delete from TPackNSCalculation   ;      ");
+
+                strSql.AppendLine("  select        ");
+                strSql.AppendLine("  tt1.vcYearMonth, tt1.vcPart_id, tt1.vcPackSpot, tt1.vcSupplierCode,  tt1.vcSupplierPlant,          ");
+                strSql.AppendLine("  tt1.vcSupplierName, tt1.vcPackGPSNo, tt1.vcPackNo, tt1.dUsedFrom, tt1.dUsedTo, tt1.vcCycle,          ");
+                strSql.AppendLine("  tt1.iRelease,          ");
+                strSql.AppendLine("  (tt1.iD1+tt1.iD2+tt1.iD3+tt1.iD4+tt1.iD5+tt1.iD6+tt1.iD7+tt1.iD8+tt1.iD9+tt1.iD10+       ");
+                strSql.AppendLine("  tt1.iD11+tt1.iD12+tt1.iD13+tt1.iD14+tt1.iD15+tt1.iD16+tt1.iD17+tt1.iD18+tt1.iD19+tt1.iD20+       ");
+                strSql.AppendLine("  tt1.iD21+tt1.iD22+tt1.iD23+tt1.iD24+tt1.iD25+tt1.iD26+tt1.iD27+tt1.iD28+tt1.iD29+tt1.iD30+tt1.iD31       ");
+                strSql.AppendLine("  )as iHySOQN,          ");
+                strSql.AppendLine("  tt1.iHySOQN1,          ");
+                strSql.AppendLine("  tt1.iHySOQN2,       ");
+                strSql.AppendLine("  tt1.iD1,tt1.iD2,tt1.iD3,tt1.iD4,tt1.iD5,tt1.iD6,tt1.iD7,tt1.iD8,tt1.iD9,tt1.iD10,       ");
+                strSql.AppendLine("  tt1.iD11,tt1.iD12,tt1.iD13,tt1.iD14,tt1.iD15,tt1.iD16,tt1.iD17,tt1.iD18,tt1.iD19,tt1.iD20,       ");
+                strSql.AppendLine("  tt1.iD21,tt1.iD22,tt1.iD23,tt1.iD24,tt1.iD25,tt1.iD26,tt1.iD27,tt1.iD28,tt1.iD29,tt1.iD30,tt1.iD31,       ");
+                strSql.AppendLine("  tt1.dZCTime       ");
+                strSql.AppendLine("  from       ");
+                strSql.AppendLine("  (       ");
+              
                 strSql.AppendLine(" select         ");
                 strSql.AppendLine("  T_1.vcYearMonth,   ");
                 strSql.AppendLine("  T_1.vcPart_id,   ");
@@ -110,9 +128,17 @@ namespace DataAccess
                 strSql.AppendLine("  T_2.dUsedTo,   ");
                 strSql.AppendLine("  T_2.vcCycle,   ");
                 strSql.AppendLine("  T_2.iRelease,   ");
-                strSql.AppendLine("  T_1.iHySOQN*T_2.iBiYao as iHySOQN,   ");
-                strSql.AppendLine("  T_1.iHySOQN1*T_2.iBiYao as iHySOQN1,   ");
-                strSql.AppendLine("  T_1.iHySOQN2*T_2.iBiYao as iHySOQN2,   ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("  (T_1.i1D1+T_1.i1D2+T_1.i1D3+T_1.i1D4+T_1.i1D5+T_1.i1D6+T_1.i1D7+T_1.i1D8+T_1.i1D9+T_1.i1D10  ");
+                strSql.AppendLine("   +T_1.i1D11+T_1.i1D12+T_1.i1D13+T_1.i1D14+T_1.i1D15+T_1.i1D16+T_1.i1D17+T_1.i1D18+T_1.i1D19+T_1.i1D20  ");
+                strSql.AppendLine("   +T_1.i1D21+T_1.i1D22+T_1.i1D23+T_1.i1D24+T_1.i1D25+T_1.i1D26+T_1.i1D27+T_1.i1D28+T_1.i1D29+T_1.i1D30+T_1.i1D31  ");
+                strSql.AppendLine("   )*T_2.iBiYao as iHySOQN1,  ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("   (T_1.i2D1+T_1.i2D2+T_1.i2D3+T_1.i2D4+T_1.i2D5+T_1.i2D6+T_1.i2D7+T_1.i2D8+T_1.i2D9+T_1.i2D10  ");
+                strSql.AppendLine("   +T_1.i2D11+T_1.i2D12+T_1.i2D13+T_1.i2D14+T_1.i2D15+T_1.i2D16+T_1.i2D17+T_1.i2D18+T_1.i2D19+T_1.i2D20  ");
+                strSql.AppendLine("   +T_1.i2D21+T_1.i2D22+T_1.i2D23+T_1.i2D24+T_1.i2D25+T_1.i2D26+T_1.i2D27+T_1.i2D28+T_1.i2D29+T_1.i2D30+T_1.i2D31  ");
+                strSql.AppendLine("   )*T_2.iBiYao as iHySOQN2,  ");
+
                 strSql.AppendLine("  case when 1>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 1<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD1*T_2.iBiYao else '0' end as iD1,   ");
                 strSql.AppendLine("  case when 2>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 2<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD2*T_2.iBiYao else '0' end as iD2,   ");
                 strSql.AppendLine("  case when 3>= CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dFrom1,23),9,2))and 3<=CONVERT(int, SUBSTRING(CONVERT(varchar(100),T_2.dTo1,23),9,2)) then T_1.iD3*T_2.iBiYao else '0' end as iD3,   ");
@@ -155,6 +181,21 @@ namespace DataAccess
                 strSql.AppendLine("  ,b.vcDXYM as vcDXYM,c.vcDXYM as vcDXYM1,d.vcDXYM as vcDXYM2,b.iQuantityPercontainer,      ");
                 strSql.AppendLine("  b.iD1 ,b.iD2,b.iD3,b.iD4,b.iD5,b.iD6,b.iD7,b.iD8,b.iD9,b.iD10,b.iD11,b.iD12,b.iD13,b.iD14,b.iD15,b.iD16,      ");
                 strSql.AppendLine("  b.iD17,b.iD18,b.iD19,b.iD20,b.iD21,b.iD22,b.iD23,b.iD24,b.iD25,b.iD26,b.iD27,b.iD28,b.iD29,b.iD30,b.iD31      ");
+
+
+                strSql.AppendLine("   , c.iD1 as i1D1 ,c.iD2 as i1D2,c.iD3 as i1D3,c.iD4 as i1D4,c.iD5 as i1D5,c.iD6 as i1D6,c.iD7 as i1D7,c.iD8 as i1D8,c.iD9 as i1D9,c.iD10 as i1D10,  ");
+                strSql.AppendLine("    c.iD11 as i1D11,c.iD12 as i1D12,c.iD13 as i1D13,c.iD14 as i1D14,c.iD15 as i1D15,c.iD16 as i1D16,c.iD17 as i1D17,c.iD18 as i1D18,c.iD19 as i1D19,c.iD20 as i1D20,  ");
+                strSql.AppendLine("    c.iD21 as i1D21,c.iD22 as i1D22,c.iD23 as i1D23,c.iD24 as i1D24,c.iD25 as i1D25,c.iD26 as i1D26,c.iD27 as i1D27,c.iD28 as i1D28,c.iD29 as i1D29,  ");
+                strSql.AppendLine("    c.iD30 as i1D30,c.iD31 as i1D31  ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("   , d.iD1 as i2D1 ,d.iD2 as i2D2,d.iD3 as i2D3,d.iD4 as i2D4,d.iD5 as i2D5,d.iD6 as i2D6,d.iD7 as i2D7,d.iD8 as i2D8,d.iD9 as i2D9,d.iD10 as i2D10,  ");
+                strSql.AppendLine("    d.iD11 as i2D11,d.iD12 as i2D12,d.iD13 as i2D13,d.iD14 as i2D14,d.iD15 as i2D15,d.iD16 as i2D16,d.iD17 as i2D17,d.iD18 as i2D18,d.iD19 as i2D19,d.iD20 as i2D20,  ");
+                strSql.AppendLine("    d.iD21 as i2D21,d.iD22 as i2D22,d.iD23 as i2D23,d.iD24 as i2D24,d.iD25 as i2D25,d.iD26 as i2D26,d.iD27 as i2D27,d.iD28 as i2D28,d.iD29 as i2D29,  ");
+                strSql.AppendLine("    d.iD30 as i2D30,d.iD31 as i2D31  ");
+                strSql.AppendLine("    ");
+
+
+
                 strSql.AppendLine("  from    (  ");
 
                 strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN + "' and vcCLYM='" + strN_CL + "'      ");
@@ -220,7 +261,8 @@ namespace DataAccess
                         strSql.AppendLine("  '" + strSupplierCode[i] + "' ,    ");
                 }
                 strSql.AppendLine(" )     ");
-
+                strSql.AppendLine("    )tt1      ");
+                strSql.AppendLine("         ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

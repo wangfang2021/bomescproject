@@ -64,8 +64,8 @@ namespace BatchProcess
                 sql.Append("          , Temp2.vcCarModel as vcCar                      \n");
                 sql.Append("          , Temp3.dFromTime  as dUsedFrom                  \n");
                 sql.Append("          , Temp4.dToTime as dUsedTo                    \n");
-                sql.Append("          ,temp.dPackFrom  as [dFrom]                 \n");
-                sql.Append("          ,temp.dPackTo as [dTo]                \n");
+                sql.Append("          ,temp.dFrom  as [dFrom]                 \n");
+                sql.Append("          ,temp.dTo as [dTo]                \n");
                 sql.Append("          ,temp.[vcDistinguish]                    \n");
                 sql.Append("          ,temp.[iBiYao]                    \n");
                 sql.Append("          ,temp.[vcOperatorID]                    \n");
@@ -75,8 +75,8 @@ namespace BatchProcess
                 sql.Append("           \n");
                 sql.Append("   from         \n");
                 sql.Append("  (         \n");
-                sql.Append("   select ss.[vcPartsNo],ss.[vcPackNo],sss.[vcPackGPSNo],sss.dPackFrom    \n");
-                sql.Append("   ,sss.dPackTo,ss.[vcDistinguish],ss.[iBiYao],ss.[vcOperatorID],ss.[dOperatorTime]     \n");
+                sql.Append("   select ss.[vcPartsNo],ss.[vcPackNo],ss.[vcPackGPSNo],sss.dPackFrom    \n");
+                sql.Append("   ,sss.dPackTo,ss.[vcDistinguish],ss.[iBiYao],ss.[vcOperatorID],ss.[dOperatorTime],ss.dFrom,ss.dTo     \n");
                 sql.Append("   from(     \n");
                 sql.Append("   select *from TPackItem      \n");
                 sql.Append("   )ss left join     \n");

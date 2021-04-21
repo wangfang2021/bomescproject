@@ -406,6 +406,7 @@ namespace DataAccess
                     string vcChange = "";
                     string vcCar = "";
                     string strSHFID = "";
+                    dtPackBase.CaseSensitive = true;
                     DataRow[] dr1 = dtPackBase.Select("vcPackNo='" + listInfoData[i]["vcPackNo"] + "'");
                     if (dr1.Length == 0)
                     {
@@ -668,6 +669,7 @@ namespace DataAccess
                     string dUserTo = "";
                     string vcChange = "";
                     string vcCar = "";
+                    dtPackBase.CaseSensitive = true;
                     DataRow[] dr1 = dtPackBase.Select("vcPackNo='" + dt.Rows[i]["vcPackNo"].ToString() + "'");
                     if (dr1.Length == 0)
                     {
@@ -977,6 +979,7 @@ namespace DataAccess
             }
         }
         #endregion
+
         #region 检查品番
         public DataTable CheckPartsNo_1()
         {

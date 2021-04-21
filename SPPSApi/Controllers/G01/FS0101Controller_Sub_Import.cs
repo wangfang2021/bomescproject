@@ -112,7 +112,12 @@ namespace SPPSApi.Controllers.G01
 
                 //记录所有的错误信息
                 string strErrAll = "";
-                
+
+                //记录重复的用户ID和发生重复的行号
+                DataTable usersIdDT = new DataTable();
+                usersIdDT.Columns.Add("userID");
+
+
                 #region 从数据库中取出需要验证的数据
                 //工厂    dt列     vcPlantCode,vcPlantName
                 DataTable dt1 = fs0101_Logic.getPlantList(loginInfo.UnitCode);

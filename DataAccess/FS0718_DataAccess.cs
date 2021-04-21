@@ -66,8 +66,9 @@ namespace DataAccess
                     strSql.AppendLine("       and dSendTime = '"+dFaBuTime+"'      ");
                 }
                 strSql.Append("     group by vcPackNo, vcYearMonth, vcPackNo,vcPackGPSNo,vcPackSpot,vcSupplierCode,vcSupplierWork,vcSupplierName,vcSupplierPack ,vcCycle,iRelease,dZYTime        \n");
-                ComFunction.ConsoleWriteLine("以下位检索SQL语句：");
+                ComFunction.ConsoleWriteLine("以下位检索SQL语句***************************************************************");
                 ComFunction.ConsoleWriteLine(strSql.ToString());
+                ComFunction.ConsoleWriteLine("***************************************************************");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

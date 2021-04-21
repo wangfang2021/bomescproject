@@ -268,11 +268,6 @@ namespace SPPSApi.Controllers.G01
                     str4 = str4.Trim();
                     if (str4.Length > 0)  //不为空
                     {
-                        if (importDt.Select("vcUserID = '" + str4 + "'").Length > 1)
-                        {
-                            //errorUserIdLists.Add((i + 2).ToString(), str4);
-                        }
-
                         if (dt4.Select("vcUserID = '" + str4 + "'").Length > 0)
                         {
                             strErr4 += "第" + (i + 2) + "行用户编号'" + str4 + "'已存在;";
@@ -340,7 +335,23 @@ namespace SPPSApi.Controllers.G01
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
+                #region 校验用户编号重复性
+                for (int i = 0; i < importDt.Rows.Count; i++)
+                {
+                    string strUserID = importDt.Rows[i]["vcUserID"].ToString();
+                    if (importDt.Select("vcUserID = '"+strUserID+"'").Length>1)
+                    {
+                        res.Add("strErr","用户编号:'"+strUserID+"'重复");
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.flag = 1;
+                        apiResult.data = res;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+                #endregion
+
                 fs0101_Logic.ImportAddUsers(loginInfo.UnitCode, importDt, loginInfo.PlatForm, loginInfo.UserId);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "导入成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

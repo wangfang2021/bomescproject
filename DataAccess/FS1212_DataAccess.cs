@@ -13,62 +13,6 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        #region 插入数据事务
-        /// <summary>
-        /// 插入数据事务
-        /// </summary>
-        /// <param name="dt"></param>
-        /// <param name="useid">创建人</param>
-        public void DoTransactionOfInsert(DataTable dt, string useid)
-        {
-            StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("UPDATE [tPartInfoMaster]");
-            strSQL.AppendLine("   SET [vcCarFamilyCode] = @vcCarFamilyCode");
-            strSQL.AppendLine("      ,[vcQFflag] = @vcQFflag");
-            strSQL.AppendLine("      ,[vcQJcontainer] =@vcQJcontainer");
-            strSQL.AppendLine("      ,[vcPorType] = @vcPorType");
-            strSQL.AppendLine("      ,[vcZB] = @vcZB");
-            strSQL.AppendLine("      ,[dUpdataTime] = getdate()");
-            strSQL.AppendLine("      ,[vcUpdataUser] =@useid");
-            strSQL.AppendLine("      ,[vcPartPlant] =@vcPartPlant");
-            strSQL.AppendLine("      ,[vcPartFrequence] = @vcPartFrequence");
-            strSQL.AppendLine(" WHERE  [vcPartsNo]=@vcPartsNo AND  [vcDock]=@vcDock");
-            using (SqlConnection connection = new SqlConnection(ComConnectionHelper.GetConnectionString()))
-            {
-                connection.Open();
-                SqlTransaction trans = connection.BeginTransaction();
-                try
-                {
-                    SqlParameter[] paras;
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        paras = new SqlParameter[10];
-                        paras[0] = new SqlParameter("@vcCarFamilyCode", dr["vcCarFamilyCode"].ToString());
-                        paras[1] = new SqlParameter("@vcQFflag", dr["vcQFflag"].ToString());
-                        paras[2] = new SqlParameter("@vcQJcontainer", dr["vcQJcontainer"].ToString());
-                        paras[3] = new SqlParameter("@vcPorType", dr["vcPorType"].ToString());
-                        paras[4] = new SqlParameter("@vcZB", dr["vcZB"].ToString());
-                        paras[5] = new SqlParameter("@useid", useid);
-                        paras[6] = new SqlParameter("@vcPartPlant", dr["vcPartPlant"].ToString());
-                        paras[7] = new SqlParameter("@vcPartFrequence", dr["vcPartFrequence"].ToString());
-                        paras[8] = new SqlParameter("@vcPartsNo", dr["vcPartsNo"].ToString());
-                        paras[9] = new SqlParameter("@vcDock", dr["vcDock"].ToString());
-                        excute.ExcuteSqlWithStringOper(strSQL.ToString(), paras);
-                    }
-                    trans.Commit();
-                }
-                catch
-                {
-                    trans.Rollback();
-                }
-                finally
-                {
-                    connection.Close();
-                }
-            }
-        }
-        #endregion
-
         #region 函数applendWhereIfNeed
         bool hasWhere = false;
         private bool applendWhereIfNeed(StringBuilder strSQL, bool haswhere)
@@ -85,16 +29,6 @@ namespace DataAccess
             }
         }
         #endregion
-
-        public DataTable SearchPartData(string vcPorType, string vcZB)
-        {
-            StringBuilder strSQL = new StringBuilder();
-            //增加dTimeFrom、dTimeTo两个字段 - 刘刚
-            //增加品番频度 - 李兴旺
-            strSQL.AppendLine("select vcData1,vcData3 from ConstMst where vcDataId='ProType' and " +
-                " vcData1='" + vcPorType + "' and vcData3='" + vcZB + "' order by vcData1,vcData3");
-            return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
-        }
 
         //检索数据//需要修改SQL语句关联生产部署表和组别表20121221(世界末日)
         public DataTable SearchPartData(string vcPartsNo, string vcCarFamilyCode, string vcPorType, string vcZB, string vcPartPlant, string vcPartFrequence)
@@ -455,96 +389,6 @@ namespace DataAccess
             return false;
         }
         #endregion
-
-
-        /// <summary>
-        /// 更新内制品品番表
-        /// </summary>
-        /// <param name="dt"></param>
-        /// <param name="useid"></param>
-        /// <returns></returns>
-        public bool InUpdeOldData(DataTable dt, string useid)
-        {
-            using (SqlConnection connection = new SqlConnection(ComConnectionHelper.GetConnectionString()))
-            {
-                connection.Open();
-                SqlTransaction trans = connection.BeginTransaction();
-                DataRow[] rows = dt.Select("iFlag='2' or iFlag='3'");
-                string vcDateTime = System.DateTime.Now.ToString();
-                try
-                {
-                    for (int i = 0; i < rows.Length; i++)
-                    {
-                        DataRow rowdselect = rows[i];
-                        string strSqlUp = "";//更新语句
-                        string strSqlDe = "";//删除语句
-                        string vcPartsNo = rowdselect["vcPartsNo"].ToString();
-                        string vcDock = rowdselect["vcDock"].ToString();
-                        string vcCarFamilyCode = rowdselect["vcCarFamilyCode"].ToString();
-                        string qinfengtz = rowdselect["qinfengtz"].ToString();
-                        string vcQJcontainer = rowdselect["vcQJcontainer"].ToString();
-                        string shengchanbs = rowdselect["shengchanbs"].ToString();
-                        string zubie = rowdselect["zubie"].ToString();
-                        string leibie = rowdselect["leibie"].ToString();
-                        string flag = rowdselect["iFlag"].ToString();
-                        string pinfanpindu = rowdselect["pinfanpindu"].ToString();//20180908增加品番频度的更新字段 - 李兴旺
-                        string dTimeFrom = rowdselect["dTimeFrom"].ToString();//20180908通过起止时间确定唯一选中的一行 - 李兴旺
-                        string dTimeTo = rowdselect["dTimeTo"].ToString();//20180908通过起止时间确定唯一选中的一行 - 李兴旺
-                        if (flag == "2")
-                        {
-                            strSqlUp = "UPDATE [tPartInfoMaster]";
-                            strSqlUp += "   SET [vcCarFamilyCode] ='" + vcCarFamilyCode + "'";
-                            strSqlUp += "      ,[vcQFflag] ='" + qinfengtz + "'";
-                            strSqlUp += "      ,[vcQJcontainer] ='" + vcQJcontainer + "'";
-                            strSqlUp += "      ,[vcPorType] ='" + shengchanbs + "'";
-                            strSqlUp += "      ,[vcZB] ='" + zubie + "'";
-                            strSqlUp += "      ,[dUpdataTime] =getdate()";
-                            strSqlUp += "      ,[vcUpdataUser] ='" + useid + "'";
-                            strSqlUp += "      ,[vcPartPlant] ='" + leibie + "'";
-                            strSqlUp += "      ,[vcPartFrequence] ='" + pinfanpindu + "'";//20180908增加品番频度的更新字段 - 李兴旺
-                            strSqlUp += " WHERE  [vcPartsNo]='" + vcPartsNo + "' AND  [vcDock]='" + vcDock + "'";
-                            strSqlUp += "   AND  [dTimeFrom]='" + dTimeFrom + "' ";//20180908通过起止时间确定唯一选中的一行 - 李兴旺
-                            strSqlUp += "   AND  [dTimeTo]='" + dTimeTo + "' ";//20180908通过起止时间确定唯一选中的一行 - 李兴旺
-                        }
-                        else
-                            if (flag == "3")
-                        {
-                            strSqlDe = "DELETE FROM [tPartInfoMaster]";
-                            strSqlDe += " WHERE  [vcPartsNo]='" + vcPartsNo + "' AND  [vcDock]='" + vcDock + "'";
-                            strSqlDe += "   AND  [dTimeFrom]='" + dTimeFrom + "' ";//20180908通过起止时间确定唯一选中的一行 - 李兴旺
-                            strSqlDe += "   AND  [dTimeTo]='" + dTimeTo + "' ";//20180908通过起止时间确定唯一选中的一行 - 李兴旺
-                        }
-                        if (strSqlUp != "")
-                        {
-                            SqlCommand cmd = new SqlCommand();
-                            cmd.Connection = connection;
-                            cmd.Transaction = trans;
-                            cmd.CommandText = strSqlUp;
-                            cmd.ExecuteNonQuery();
-                        }
-                        if (strSqlDe != "")
-                        {
-                            SqlCommand cmd = new SqlCommand();
-                            cmd.Connection = connection;
-                            cmd.Transaction = trans;
-                            cmd.CommandText = strSqlDe;
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-                    trans.Commit();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    trans.Rollback();
-                    throw ex;
-                }
-                finally
-                {
-                    connection.Close();
-                }
-            }
-        }
 
         public DataTable SearchPartData(string strSql)
         {

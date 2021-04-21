@@ -352,103 +352,6 @@ namespace Logic
         //}
         #endregion
 
-        /// <summary>
-        /// 品番基础数据获取批处理
-        /// </summary>
-        public bool BatchProcess()
-        {
-           
-            DataTable dt = new DataTable();
-            // 定义列
-            DataColumn dc_PARTSNO = new DataColumn();//品番 
-            DataColumn dc_TIMEFROM = new DataColumn();//有效期起
-            DataColumn dc_TIMETO = new DataColumn();//有效期止
-            DataColumn dc_DOCK = new DataColumn();//受入
-            DataColumn dc_CPDCOMPANY = new DataColumn();//收货方
-            DataColumn dc_CARFAMILYCODE = new DataColumn();//车种代码
-            DataColumn dc_INOUTFLAG = new DataColumn();//内外区分
-            DataColumn dc_SUPPLIERCODE = new DataColumn();//供应商编号
-            DataColumn dc_SUPPLIERPLANT = new DataColumn();//供应商工区
-            DataColumn dc_QUANTITYPERCONTAINER = new DataColumn();//收容数
-            DataColumn dc_PACKINGFLAG = new DataColumn();//包装区分
-            DataColumn dc_PARTSNAMEEN = new DataColumn();//中文名
-            DataColumn dc_PARTSNAMECHN = new DataColumn();//英文名
-            DataColumn dc_PHOTOPATH = new DataColumn();//照片路径
-            DataColumn dc_ROUTE = new DataColumn();//物流路径
-            DataColumn dc_CURRENTPASTCODE = new DataColumn();//好旧区分
-            DataColumn dc_REMARK1 = new DataColumn();//特记事项1
-            DataColumn dc_REMARK2 = new DataColumn();//特记事项2
-
-            // 定义列名
-            dc_PARTSNO.ColumnName = "PARTSNO";
-            dc_TIMEFROM.ColumnName = "TIMEFROM";
-            dc_TIMETO.ColumnName = "TIMETO";
-            dc_DOCK.ColumnName = "DOCK";
-            dc_CPDCOMPANY.ColumnName = "CPDCOMPANY";
-            dc_CARFAMILYCODE.ColumnName = "CARFAMILYCODE";
-            dc_INOUTFLAG.ColumnName = "INOUTFLAG";
-            dc_SUPPLIERCODE.ColumnName = "SUPPLIERCODE";
-            dc_SUPPLIERPLANT.ColumnName = "SUPPLIERPLANT";
-            dc_QUANTITYPERCONTAINER.ColumnName = "QUANTITYPERCONTAINER";
-            dc_PACKINGFLAG.ColumnName = "PACKINGFLAG";
-            dc_PARTSNAMEEN.ColumnName = "PARTSNAMEEN";
-            dc_PARTSNAMECHN.ColumnName = "PARTSNAMECHN";
-            dc_PHOTOPATH.ColumnName = "PHOTOPATH";
-            dc_ROUTE.ColumnName = "ROUTE";
-            dc_CURRENTPASTCODE.ColumnName = "CURRENTPASTCODE";
-            dc_REMARK1.ColumnName = "REMARK1";
-            dc_REMARK2.ColumnName = "REMARK2";
-
-            // 将定义的列加入到dtTemp中
-            dt.Columns.Add(dc_PARTSNO);
-            dt.Columns.Add(dc_TIMEFROM);
-            dt.Columns.Add(dc_TIMETO);
-            dt.Columns.Add(dc_DOCK);
-            dt.Columns.Add(dc_CPDCOMPANY);
-            dt.Columns.Add(dc_CARFAMILYCODE);
-            dt.Columns.Add(dc_INOUTFLAG);
-            dt.Columns.Add(dc_SUPPLIERCODE);
-            dt.Columns.Add(dc_SUPPLIERPLANT);
-            dt.Columns.Add(dc_QUANTITYPERCONTAINER);
-            dt.Columns.Add(dc_PACKINGFLAG);
-            dt.Columns.Add(dc_PARTSNAMEEN);
-            dt.Columns.Add(dc_PARTSNAMECHN);
-            dt.Columns.Add(dc_PHOTOPATH);
-            dt.Columns.Add(dc_ROUTE);
-            dt.Columns.Add(dc_CURRENTPASTCODE);
-            dt.Columns.Add(dc_REMARK1);
-            dt.Columns.Add(dc_REMARK2);
-            try
-            {
-
-                bool result = false;
-                //批处理正常启动，记录数据库日志
-                //LogHelper.WriteLog("批处理获取品番基础数据正常启动");
-
-                if (dataAccess.GetTable(ref dt))
-                {
-                    if (dataAccess.TurnCate())
-                    {
-                        dataAccess.insertTableLN(dt);
-                        ComUpdataTable();
-                        result = true;
-                    }
-                }
-
-                //批处理正常结束，记录数据库日志
-                //LogHelper.WriteLog("获取品番基础数据结束");
-                //批处理后数据的整理、比较
-
-                return result;
-            }
-            catch (WebException ex)
-            {
-
-                //LogHelper.ErrorLog("批处理获取品番基础数据异常");
-                throw ex;
-            }
-        }
-
         #region 比较更新新增并更新Master
         public bool ComUpdataTable()
         {
@@ -541,35 +444,7 @@ namespace Logic
         {
             return dataAccess.OutputPartData(vcPartsNo, vcCarFamilyCode, vcPorType, vcZB, vcPartPlant, vcPartFrequence);
         }
-
-        //导出数据
-        public DataTable SearchPartDataEX(string vcPartsNo, string vcCarFamilyCode, string vcPorType, string vcZB, string vcPartPlant, string vcPartFrequence)
-        {            
-            return dataAccess.SearchPartDataEX(vcPartsNo, vcCarFamilyCode, vcPorType, vcZB, vcPartPlant, vcPartFrequence);
-        }
-
-
-        #region 导入后保存
-        public void importSave(DataTable dt, string strUserId)
-        {
-            dataAccess.importSave(dt, strUserId);
-        }
-        #endregion
-
-        public DataTable dllPorType()
-        {           
-            return dataAccess.dllPorType();
-        }
-
-        public DataTable dllZB()
-        {
-            return dataAccess.dllZB();
-        }
-
-        public DataTable dllLB()
-        {
-            return dataAccess.dllLB();
-        }        
+      
 
         /// <summary>
         /// 检索信息栏绑定生产部署
@@ -609,18 +484,6 @@ namespace Logic
         {
             return dataAccess.checkmod(vcPartsNo);
         }
-
-        /// <summary>
-        /// 更新内制品品番表
-        /// </summary>
-        /// <param name="dt"></param>
-        /// <param name="useid"></param>
-        /// <returns></returns>
-        public bool InUpdeOldData(DataTable dt, string useid)
-        {
-            return dataAccess.InUpdeOldData(dt, useid);
-        }
-
 
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)

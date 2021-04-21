@@ -119,8 +119,8 @@ namespace DataAccess
             ssql.AppendLine(" select t1.* ,t2.vcProName1, t2.vcProName2, t2.vcProName3, t2.vcProName4 from (");
             ssql.AppendLine(" select vcPartsNo, vcDock, iQuantityPerContainer, vcQJcontainer, vcPorType, vcZB,");
             ssql.AppendLine("vcCarFamilyCode, vcPartType, vcPartPlant, vcInOutFlag");
-            ssql.AppendLine(" from dbo.tPartInfoMaster where dTimeFrom<='" + vcMon + "' and dTimeTo>='" + vcMon + "') t1 ");
-            ssql.AppendLine(" left join dbo.ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB=t2.vcZB");
+            ssql.AppendLine(" from tPartInfoMaster where dTimeFrom<='" + vcMon + "' and dTimeTo>='" + vcMon + "') t1 ");
+            ssql.AppendLine(" left join ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB=t2.vcZB");
             try
             {
                 return excute.ExcuteSqlWithSelectToDT(ssql.ToString());
@@ -185,7 +185,7 @@ namespace DataAccess
                 cmd.CommandText = "select TOP(1) * from " + TableName;//20180929实测没用，是为了把变量apt引出 - 李兴旺
                 SqlDataAdapter apt = new SqlDataAdapter(cmd);//20180929实测没用，是为了把变量apt引出 - 李兴旺
                 apt.Fill(dt2);//20180929实测没用，是为了把变量apt引出 - 李兴旺
-                cmd.CommandText = "delete from " + TableName + " where (vcMonth='" + lbltime + "' or montouch ='" + lbltime + "') and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = " + TableName + ".vcPartsno   and dTimeFrom<= '" + lbltime + "-01" + "' and dTimeTo >= '" + lbltime + "-01" + "' ) ";
+                cmd.CommandText = "delete from " + TableName + " where (vcMonth='" + lbltime + "' or montouch ='" + lbltime + "') and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = " + TableName + ".vcPartsno   and dTimeFrom<= '" + lbltime + "-01" + "' and dTimeTo >= '" + lbltime + "-01" + "' ) ";
                 cmd.ExecuteNonQuery();
                 for (int i = 0; i < partsInfo.Rows.Count; i++)
                 {
@@ -199,7 +199,7 @@ namespace DataAccess
                     //20180929在从SOQReply数据生成包装计划时就已经把5个工程的计划都生成一遍了，所以要在这里，生成看板打印数据时，把周度品番筛走 - 李兴旺
                     //20180929查看该品番的品番频度 - 李兴旺
                     string vcPartFrequence = "";
-                    string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM SPPSBS.dbo.tPartInfoMaster where vcPartsNo = '" + vcPartsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCarType + "' and dTimeFrom<='" + lbltime + "-01' and dTimeTo>='" + lbltime + "-01' ";
+                    string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM tPartInfoMaster where vcPartsNo = '" + vcPartsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCarType + "' and dTimeFrom<='" + lbltime + "-01' and dTimeTo>='" + lbltime + "-01' ";
                     cmd.CommandText = sqlPartFrequence;
                     DataTable dtPartFrequence = new DataTable();
                     apt.Fill(dtPartFrequence);
@@ -697,7 +697,7 @@ namespace DataAccess
             ssql += "  t3.vcProName3,t3.vcLT3,	t3.vcCalendar3, ";
             ssql += "  t3.vcProName4,t3.vcLT4,	t3.vcCalendar4  ";
             ssql += "   from dbo.tSOQREPExport t1 ";
-            ssql += "  left join dbo.tPartInfoMaster t2  ";
+            ssql += "  left join tPartInfoMaster t2  ";
             ssql += "  on t1.PartsNo = t2.vcPartsNo and t1.CFC = t2.vcCarFamilyCode   ";
             ssql += "  left join dbo.ProRuleMst t3 ";
             ssql += "  on t3.vcPorType=t2.vcPorType and t3.vcZB = t2.vcZB ";
@@ -1099,7 +1099,7 @@ namespace DataAccess
                 string vcCarType = dt.Rows[j]["vcCarType"].ToString();
                 //20180928查看该品番的品番频度 - 李兴旺
                 string vcPartFrequence = "";
-                string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM SPPSBS.dbo.tPartInfoMaster where vcPartsNo = '" + partsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCarType + "' and dTimeFrom<='" + month + "-01' and dTimeTo>='" + month + "-01' ";
+                string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM tPartInfoMaster where vcPartsNo = '" + partsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCarType + "' and dTimeFrom<='" + month + "-01' and dTimeTo>='" + month + "-01' ";
                 cmd.CommandText = sqlPartFrequence;
                 DataTable dtPartFrequence = new DataTable();
                 apt.Fill(dtPartFrequence);
@@ -1431,7 +1431,7 @@ namespace DataAccess
             sb.AppendLine(" select distinct vcPartsno ,vcCarType,vcDock   from MonthPackPlanTbl ");
             sb.AppendFormat(" where montouch ='{0}' or (vcMonth ='{1}' and montouch is null)", mon, mon);
             sb.AppendLine(" ) t1");
-            sb.AppendLine(" left join dbo.tPartInfoMaster t2");
+            sb.AppendLine(" left join tPartInfoMaster t2");
             sb.AppendLine(" on t1.vcPartsno = t2.vcPartsNo  and t1.vcDock = t2.vcDock ");
             sb.AppendFormat(" where t2.vcPartPlant ='{0}'  and t2.dTimeFrom <='{1}' and t2.dTimeTo>='{2}'", plant, tmpmon, tmpmon);
 
@@ -1751,21 +1751,21 @@ namespace DataAccess
 
         public void updatePlan(SqlCommand cmd, string mon, string plant)
         {
-            cmd.CommandText = "insert into MonthKanBanPlanTbl select * from MonthKanBanPlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "') and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = t.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "insert into MonthP3PlanTbl select * from MonthP3PlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = t.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "insert into MonthPackPlanTbl select * from MonthPackPlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = t.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "insert into MonthProdPlanTbl select * from MonthProPlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = t.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "insert into MonthTZPlanTbl select * from MonthTZPlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = t.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText = "insert into MonthKanBanPlanTbl select * from MonthKanBanPlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "') and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = t.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "insert into MonthP3PlanTbl select * from MonthP3PlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = t.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "insert into MonthPackPlanTbl select * from MonthPackPlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = t.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "insert into MonthProdPlanTbl select * from MonthProPlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = t.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "insert into MonthTZPlanTbl select * from MonthTZPlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = t.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
             cmd.ExecuteNonQuery();
         }
 
         public void deleteTMP(SqlCommand cmd, string mon, string plant)
         {
-            cmd.CommandText = "delete from MonthKanBanPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = MonthKanBanPlanTblTMP.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "delete from MonthP3PlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = MonthP3PlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "delete from MonthPackPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = MonthPackPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "delete from MonthProPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = MonthProPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "delete from MonthTZPlanTblTMP where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = MonthTZPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText = "delete from MonthKanBanPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = MonthKanBanPlanTblTMP.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "delete from MonthP3PlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = MonthP3PlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "delete from MonthPackPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = MonthPackPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "delete from MonthProPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = MonthProPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "delete from MonthTZPlanTblTMP where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant in" + StrToList(plant) + " and vcPartsNo = MonthTZPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
             cmd.ExecuteNonQuery();
         }
 
@@ -1773,17 +1773,17 @@ namespace DataAccess
         {
             string ssql = "";
             ssql += "  delete  from MonthP3PlanTbl where vcPartsno in  (";
-            ssql += "  select t1.vcPartsno from dbo.MonthP3PlanTbl t1";
-            ssql += "  left join dbo.tPartInfoMaster t2 ";
+            ssql += "  select t1.vcPartsno from MonthP3PlanTbl t1";
+            ssql += "  left join tPartInfoMaster t2 ";
             ssql += "  on t1.vcPartsno = t2.vcPartsNo and t1.vcDock = t2.vcDock  and   t2.dTimeFrom<= '" + mon + "-01" + "' and t2.dTimeTo >= '" + mon + "-01" + "' ";
-            ssql += "  left join dbo.ProRuleMst t3 on t2.vcPorType = t3.vcPorType and t2.vcZB = t3.vcZB ";
+            ssql += "  left join ProRuleMst t3 on t2.vcPorType = t3.vcPorType and t2.vcZB = t3.vcZB ";
             ssql += "  where t3.vcCalendar3 is null or LEN(t3.vcCalendar3)=0";
             ssql += "  ) and   vcDock in ";
             ssql += "  (";
-            ssql += "  select t1.vcDock  from dbo.MonthP3PlanTbl t1";
-            ssql += "  left join dbo.tPartInfoMaster t2 ";
+            ssql += "  select t1.vcDock  from MonthP3PlanTbl t1";
+            ssql += "  left join tPartInfoMaster t2 ";
             ssql += "  on t1.vcPartsno = t2.vcPartsNo and t1.vcDock = t2.vcDock  and   t2.dTimeFrom<= '" + mon + "-01" + "' and t2.dTimeTo >= '" + mon + "-01" + "' ";
-            ssql += "  left join dbo.ProRuleMst t3 on t2.vcPorType = t3.vcPorType and t2.vcZB = t3.vcZB ";
+            ssql += "  left join ProRuleMst t3 on t2.vcPorType = t3.vcPorType and t2.vcZB = t3.vcZB ";
             ssql += "  where t3.vcCalendar3 is null or LEN(t3.vcCalendar3)=0";
             ssql += "  )";
 
@@ -1791,18 +1791,18 @@ namespace DataAccess
             cmd.ExecuteNonQuery();
 
             ssql = "";
-            ssql += "  delete  from dbo.MonthTZPlanTbl where vcPartsno in  (";
+            ssql += "  delete  from MonthTZPlanTbl where vcPartsno in  (";
             ssql += "  select t1.vcPartsno from MonthTZPlanTbl t1";
-            ssql += "  left join dbo.tPartInfoMaster t2 ";
+            ssql += "  left join tPartInfoMaster t2 ";
             ssql += "  on t1.vcPartsno = t2.vcPartsNo and t1.vcDock = t2.vcDock and   t2.dTimeFrom<= '" + mon + "-01" + "' and t2.dTimeTo >= '" + mon + "-01" + "' ";
-            ssql += "  left join dbo.ProRuleMst t3 on t2.vcPorType = t3.vcPorType and t2.vcZB = t3.vcZB ";
+            ssql += "  left join ProRuleMst t3 on t2.vcPorType = t3.vcPorType and t2.vcZB = t3.vcZB ";
             ssql += "  where t3.vcCalendar2 is null or LEN(t3.vcCalendar2)=0";
             ssql += "  ) and   vcDock in ";
             ssql += "  (";
-            ssql += "  select t1.vcDock  from dbo.MonthTZPlanTbl t1";
-            ssql += "  left join dbo.tPartInfoMaster t2 ";
+            ssql += "  select t1.vcDock  from MonthTZPlanTbl t1";
+            ssql += "  left join tPartInfoMaster t2 ";
             ssql += "  on t1.vcPartsno = t2.vcPartsNo and t1.vcDock = t2.vcDock  and   t2.dTimeFrom<= '" + mon + "-01" + "' and t2.dTimeTo >= '" + mon + "-01" + "' ";
-            ssql += "  left join dbo.ProRuleMst t3 on t2.vcPorType = t3.vcPorType and t2.vcZB = t3.vcZB ";
+            ssql += "  left join ProRuleMst t3 on t2.vcPorType = t3.vcPorType and t2.vcZB = t3.vcZB ";
             ssql += "  where t3.vcCalendar2 is null or LEN(t3.vcCalendar2)=0";
             ssql += "  )";
             cmd.CommandText = ssql;
@@ -1839,7 +1839,7 @@ namespace DataAccess
             sb.AppendLine("     )) P ) t2 ");
             sb.AppendLine("     on t1.allTotal = t2.dayN");
             sb.AppendLine(" ) tall ");
-            sb.AppendLine(" left join dbo.tPartInfoMaster tinfo on tall.vcPartsno = tinfo.vcPartsNo and tall.vcDock = tinfo.vcDock  and   tinfo.dTimeFrom<= '" + mon + "-01" + "' and tinfo.dTimeTo >= '" + mon + "-01" + "'");
+            sb.AppendLine(" left join tPartInfoMaster tinfo on tall.vcPartsno = tinfo.vcPartsNo and tall.vcDock = tinfo.vcDock  and   tinfo.dTimeFrom<= '" + mon + "-01" + "' and tinfo.dTimeTo >= '" + mon + "-01" + "'");
             sb.AppendFormat(" where tinfo.vcPartPlant ='{0}' ", plant);
             sb.AppendLine("    order by vcMonth , allTotal");
             cmd.CommandText = sb.ToString();
@@ -1870,7 +1870,7 @@ namespace DataAccess
             BulkInsert.Columns.Add("dayin");
             BulkInsert.Columns.Add("shengchan");
             string partsql = " select vcPartsno,vcDock,vcCarFamilyCode ,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4  from dbo.tPartInfoMaster t1";
-            partsql += " left join dbo.ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB = t2.vcZB ";
+            partsql += " left join ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB = t2.vcZB ";
             partsql += "  where exists (select vcPartsno from MonthPackPlanTbl where (vcMonth='" + mon + "' or montouch ='" + mon + "') and vcPartsno = t1.vcPartsno  )  and t1.dTimeFrom<= '" + mon + "-01" + "' and t1.dTimeTo >= '" + mon + "-01" + "'  ";
             cmd.CommandText = partsql;
             DataTable dtcalendarname = new DataTable();
@@ -1891,7 +1891,7 @@ namespace DataAccess
                     string flag = dr[j]["flag"].ToString();
                     //20180929查看该品番的品番频度 - 李兴旺                    
                     string vcPartFrequence = "";
-                    string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM SPPSBS.dbo.tPartInfoMaster where vcPartsNo = '" + vcPartsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCartype + "' and dTimeFrom<='" + mon + "-01' and dTimeTo>='" + mon + "-01'  ";
+                    string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM tPartInfoMaster where vcPartsNo = '" + vcPartsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCartype + "' and dTimeFrom<='" + mon + "-01' and dTimeTo>='" + mon + "-01'  ";
                     cmd.CommandText = sqlPartFrequence;
                     DataTable dtPartFrequence = new DataTable();
                     apt.Fill(dtPartFrequence);
@@ -2164,7 +2164,7 @@ namespace DataAccess
             sb.AppendLine("     )) P ) t2 ");
             sb.AppendLine("     on t1.allTotal = t2.dayN");
             sb.AppendLine("    ) Tall ");
-            sb.AppendLine("  left join dbo.tPartInfoMaster Tinfo on Tall.vcPartsno = Tinfo.vcPartsNo and Tall.vcDock = Tinfo.vcDock and Tall.vcCarType = Tinfo.vcCarFamilyCode  and   Tinfo.dTimeFrom<= '" + mon + "-01" + "' and Tinfo.dTimeTo >= '" + mon + "-01" + "' ");
+            sb.AppendLine("  left join tPartInfoMaster Tinfo on Tall.vcPartsno = Tinfo.vcPartsNo and Tall.vcDock = Tinfo.vcDock and Tall.vcCarType = Tinfo.vcCarFamilyCode  and   Tinfo.dTimeFrom<= '" + mon + "-01" + "' and Tinfo.dTimeTo >= '" + mon + "-01" + "' ");
             sb.AppendFormat("  where Tinfo.vcPartPlant ='{0}'", plant);
             sb.AppendLine(" order by vcMonth ,daysig,vcPartsno,vcDock,vcCartype");
             return sb.ToString();

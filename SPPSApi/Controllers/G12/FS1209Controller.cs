@@ -902,7 +902,8 @@ namespace SPPSApi.Controllers.G12
             strSQL.AppendLine("'' as [image],A.vcKBSerial,vcTips,vcPlanMonth,A.iNo,A.vcPartFrequence");//品番频度
             strSQL.AppendLine("  FROM ( ");
             //strSQL.AppendLine(" (select * from tKanbanPrintTbl) A");//给看板打印数据left join品番频度
-            strSQL.AppendLine(" (SELECT distinct iNo,T1.vcPartsNo,vcDock,vcCarType,vcEDflag,vcKBorderno,vcKBSerial,vcTips,vcPrintflag,vcPrintTime,vcKBType,vcProject00,vcProject01,vcProject02,vcProject03,vcProject04,vcComDate00,vcComDate01,vcComDate02,vcComDate03,vcComDate04,vcBanZhi00,vcBanZhi01,vcBanZhi02,vcBanZhi03,vcBanZhi04,vcAB00,vcAB01,vcAB02,vcAB03,vcAB04,dCreatTime,vcCreater,dUpdateTime,vcUpdater,vcPlanMonth,vcPrintSpec,vcPrintflagED,vcDockED,vcPrintTimeED,vcQuantityPerContainer,iBaiJianFlag,T2.vcPartFrequence FROM tKanbanPrintTbl T1 left join (SELECT vcPartsNo,vcPartFrequence FROM tPartInfoMaster where dTimeFrom<=GETDATE() and dTimeTo>=GETDATE()) T2 on T1.vcPartsNo=T2.vcPartsNo) A ");
+            //strSQL.AppendLine(" (SELECT distinct iNo,T1.vcPartsNo,vcDock,vcCarType,vcEDflag,vcKBorderno,vcKBSerial,vcTips,vcPrintflag,vcPrintTime,vcKBType,vcProject00,vcProject01,vcProject02,vcProject03,vcProject04,vcComDate00,vcComDate01,vcComDate02,vcComDate03,vcComDate04,vcBanZhi00,vcBanZhi01,vcBanZhi02,vcBanZhi03,vcBanZhi04,vcAB00,vcAB01,vcAB02,vcAB03,vcAB04,dCreatTime,vcCreater,dUpdateTime,vcUpdater,vcPlanMonth,vcPrintSpec,vcPrintflagED,vcDockED,vcPrintTimeED,vcQuantityPerContainer,iBaiJianFlag,T2.vcPartFrequence FROM tKanbanPrintTbl T1 left join (SELECT vcPartsNo,vcPartFrequence FROM tPartInfoMaster where dTimeFrom<=GETDATE() and dTimeTo>=GETDATE()) T2 on T1.vcPartsNo=T2.vcPartsNo) A ");
+            strSQL.AppendLine(" (SELECT distinct iNo,T1.vcPartsNo,vcDock,vcCarType,vcEDflag,vcKBorderno,vcKBSerial,vcTips,vcPrintflag,vcPrintTime,vcKBType,vcProject00,vcProject01,vcProject02,vcProject03,vcProject04,vcComDate00,vcComDate01,vcComDate02,vcComDate03,vcComDate04,vcBanZhi00,vcBanZhi01,vcBanZhi02,vcBanZhi03,vcBanZhi04,vcAB00,vcAB01,vcAB02,vcAB03,vcAB04,dCreatTime,vcCreater,dUpdateTime,vcUpdater,vcPlanMonth,vcPrintSpec,vcPrintflagED,vcDockED,vcPrintTimeED,vcQuantityPerContainer,iBaiJianFlag,T2.vcPartFrequence FROM tKanbanPrintTbl T1 left join (SELECT vcPartsNo,vcPartFrequence,dTimeFrom,dTimeTo FROM tPartInfoMaster) T2 on T1.vcPartsNo=T2.vcPartsNo and T2.dTimeFrom<=T1.vcPlanMonth and T2.dTimeTo>=T1.vcPlanMonth) A ");
             strSQL.AppendLine("left join ");
             strSQL.AppendLine("(select distinct vcProType,vcPartsNo,vcDock,vcMonth,vcCarType,vcQFflag,vcPlant from tPlanPartInfo) B ");
             strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock and A.vcPlanMonth=B.vcMonth and A.vcCarType=B.vcCarType) ");
@@ -1016,12 +1017,12 @@ namespace SPPSApi.Controllers.G12
             StringBuilder strSQL = new StringBuilder();
             strSQL.AppendLine("SELECT A.vcPrintflagED as vcPartsNo,A.vcDockED as vcDock,A.vcCarType AS vcCarFamilyCode,vcPorType,A.vcEDflag,vcKBorderno,");
             strSQL.AppendLine("       B.vcPhotoPath as [image],A.vcKBSerial,vcTips,vcPlanMonth,A.iNo");
-            strSQL.AppendLine("  FROM ( ");
-            strSQL.AppendLine(" (select * from tKanbanPrintTbl) A");
+            strSQL.AppendLine(" FROM ( ");
+            strSQL.AppendLine(" tKanbanPrintTbl A");
             strSQL.AppendLine(" left join ");
-            strSQL.AppendLine(" (select * from tPartInfoMaster) B");
+            strSQL.AppendLine(" tPartInfoMaster B");
             strSQL.AppendLine(" on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock)");
-            strSQL.AppendLine("    where A.vcPrintflag='1' and A.vcPrintflagED is not null and (a.vcPartsNo+a.vcDock+A.vcKBorderno+a.vcKBSerial) in (" + KBorderno + ")");
+            strSQL.AppendLine(" where A.vcPrintflag='1' and A.vcPrintflagED is not null and (a.vcPartsNo+a.vcDock+A.vcKBorderno+a.vcKBSerial) in (" + KBorderno + ")");
             //strSQL.AppendLine(" A.vcComDate00=CONVERT(varchar(10),GETDATE(),121) and");
             if (vcPrintPartNo.Length != 0)
             {
@@ -1029,7 +1030,7 @@ namespace SPPSApi.Controllers.G12
             }
             if (vcKbOrderId.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcKBorderno= '" + vcKbOrderId + "'");
+                strSQL.AppendLine(" and A.vcKBorderno='" + vcKbOrderId + "'");
             }
             if (vcLianFan.Length != 0)
             {
@@ -2005,12 +2006,12 @@ namespace SPPSApi.Controllers.G12
             strSQL.AppendLine("       isnull(A.vcProject02,'') as vcProject02,isnull(A.vcComDate02,'') as vcComDate02,(case when A.vcBanZhi02='1' then '夜' when A.vcBanZhi02='0' then '白' else '' end) as vcBanZhi02,");
             strSQL.AppendLine("       isnull(A.vcProject03,'') as vcProject03,isnull(A.vcComDate03,'') as vcComDate03,(case when A.vcBanZhi03='1' then '夜' when A.vcBanZhi03='0' then '白' else '' end) as vcBanZhi03,");
             strSQL.AppendLine("       isnull(A.vcProject04,'') as vcProject04,isnull(A.vcComDate04,'') as vcComDate04,(case when A.vcBanZhi04='1' then '夜' when A.vcBanZhi04='0' then '白' else '' end) as vcBanZhi04,");
-            strSQL.AppendLine("       isnull(B.vcRemark1,'') as vcRemark1,isnull(B.vcRemark2,'') as vcRemark2,b.vcPorType from");
-            strSQL.AppendLine("(select * from tKanbanPrintTbl) A");
+            strSQL.AppendLine("       isnull(B.vcRemark1,'') as vcRemark1,isnull(B.vcRemark2,'') as vcRemark2,b.vcPorType from ");
+            strSQL.AppendLine("(select * from tKanbanPrintTbl) A ");
             strSQL.AppendLine("left join ");
-            strSQL.AppendLine("(select * from tPartInfoMaster) B");
-            strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo and   A.vcDock=B.vcDock");
-            strSQL.AppendLine("    WHERE A.[vcKBorderno]='" + vcKBorderno + "' and A.[vcKBSerial]='" + vcKBSerial + "' and A.vcPartsNo='" + vcPartsNo + "' and  A.vcDock='" + vcDock + "'");
+            strSQL.AppendLine("(select * from tPartInfoMaster) B ");
+            strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo and A.vcDock=B.vcDock");
+            strSQL.AppendLine(" WHERE A.[vcKBorderno]='" + vcKBorderno + "' and A.[vcKBSerial]='" + vcKBSerial + "' and A.vcPartsNo='" + vcPartsNo + "' and  A.vcDock='" + vcDock + "' ");
 
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }

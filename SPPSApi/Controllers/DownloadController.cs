@@ -343,7 +343,8 @@ namespace SPPSApi.Controllers
                 }
                 else
                 {
-                    realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_spisapply" + Path.DirectorySeparatorChar + "apply" + Path.DirectorySeparatorChar;
+                    //realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_spisapply" + Path.DirectorySeparatorChar + "apply" + Path.DirectorySeparatorChar;
+                    realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
                 }
                 String path = realPath;
                 string fileSavePath = path;
@@ -377,16 +378,38 @@ namespace SPPSApi.Controllers
         {
             try
             {
-                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
-                var provider = new FileExtensionContentTypeProvider();
-                FileInfo fileInfo = new FileInfo(fileSavePath + path);
-                var ext = fileInfo.Extension;
-                new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
-                byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
-                return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+                string environment = Environment.OSVersion.ToString().ToLower();
+                //Console.WriteLine(environment);
+                if (!environment.Contains("windows"))
+                {
+                    //Console.WriteLine("读取linux");
+                    string realPath = ComFunction.HttpDownload(@"Doc\Image\SPISImage\", path, _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage");
+                    //Console.WriteLine("读取成功后的地址");
+                    string filepath = System.IO.Path.GetFileName(realPath);
+                    //Console.WriteLine(realPath);
+                    var provider = new FileExtensionContentTypeProvider();
+                    FileInfo fileInfo = new FileInfo(realPath);
+                    //Console.WriteLine(filepath);
+                    var ext = fileInfo.Extension;
+                    new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                    byte[] bt = System.IO.File.ReadAllBytes(realPath);
+                    return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+                }
+                else
+                {
+                    string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                    var provider = new FileExtensionContentTypeProvider();
+                    FileInfo fileInfo = new FileInfo(fileSavePath + path);
+                    var ext = fileInfo.Extension;
+                    new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                    byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                    return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+
+                }
             }
             catch (Exception ex)
             {
+                //Console.WriteLine(ex);
                 ContentResult result = new ContentResult();
                 result.Content = "<script>alert('导出失败,没有找到要导出的图片！')</script>";
                 result.ContentType = "text/html;charset=utf-8";
@@ -423,16 +446,36 @@ namespace SPPSApi.Controllers
         {
             try
             {
-                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISPic" + Path.DirectorySeparatorChar;
-                var provider = new FileExtensionContentTypeProvider();
-                FileInfo fileInfo = new FileInfo(fileSavePath + path);
-                var ext = fileInfo.Extension;
-                new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
-                byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
-                return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+                string environment = Environment.OSVersion.ToString().ToLower();
+                //Console.WriteLine(environment);
+                if (!environment.Contains("windows"))
+                {
+                    //Console.WriteLine("读取linux");
+                    string realPath = ComFunction.HttpDownload(@"Doc\Image\SPISPic\", path, _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISPic");
+                    //Console.WriteLine("读取成功后的地址");
+                    string filepath = System.IO.Path.GetFileName(realPath);
+                    var provider = new FileExtensionContentTypeProvider();
+                    FileInfo fileInfo = new FileInfo(realPath);
+                    var ext = fileInfo.Extension;
+                    new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                    byte[] bt = System.IO.File.ReadAllBytes(realPath);
+                    return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+                }
+                else
+                {
+                    string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISPic" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                    var provider = new FileExtensionContentTypeProvider();
+                    FileInfo fileInfo = new FileInfo(fileSavePath + path);
+                    var ext = fileInfo.Extension;
+                    new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                    byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                    return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+
+                }
             }
             catch (Exception ex)
             {
+                //Console.WriteLine(ex);
                 ContentResult result = new ContentResult();
                 result.Content = "<script>alert('导出失败,没有找到要导出的图片！')</script>";
                 result.ContentType = "text/html;charset=utf-8";

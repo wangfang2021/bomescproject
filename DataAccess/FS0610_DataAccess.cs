@@ -856,7 +856,7 @@ namespace DataAccess
                     string month = dt.Rows[i]["vcMonth"].ToString();
                     string vcDock = dt.Rows[i]["vcDock"].ToString();
                     string vcCarType = dt.Rows[i]["vcCarType"].ToString();
-                    cmd.CommandText = " select iQuantityPerContainer from tPartInfoMaster where vcPartsno = '" + partsno + "' and vcDock ='" + vcDock + "' and vcCarFamilyCode ='" + vcCarType + "'   and dTimeFrom<= '" + month + "-01" + "' and dTimeTo >= '" + month + "-01" + "' ";
+                    cmd.CommandText = " select iQuantityPerContainer from tPartInfoMaster where vcPartsno= '" + partsno + "' and vcDock='" + vcDock + "' and vcCarFamilyCode='" + vcCarType + "'   and dTimeFrom<='" + month + "-01" + "' and dTimeTo>='" + month + "-01" + "' ";
                     DataTable srsdt = new DataTable();
                     apt.Fill(srsdt);
                     cmd.CommandText = " select * from MonthProPlanTblTMP where montouch='" + month + "' and vcPartsno='" + partsno + "' and vcDock='" + vcDock + "' and vcCarType='" + vcCarType + "'";
@@ -2360,8 +2360,8 @@ namespace DataAccess
             for (int i = 1; i < 31 + 1; i++)
             {
                 if (i == 31)
-                    tmpT += "t1.vcD" + i + "b as	TD" + i + "b,	t1.vcD" + i + "y 	as	TD" + i + "y";
-                else tmpT += "t1.vcD" + i + "b 	as	TD" + i + "b,	t1.vcD" + i + "y 	as	TD" + i + "y,";
+                    tmpT += "t1.vcD" + i + "b as TD" + i + "b, t1.vcD" + i + "y as TD" + i + "y";
+                else tmpT += "t1.vcD" + i + "b as TD" + i + "b, t1.vcD" + i + "y as TD" + i + "y,";
             }
             StringBuilder sb = new StringBuilder();
 
@@ -2373,7 +2373,7 @@ namespace DataAccess
             sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
             sb.AppendLine("  on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
             sb.AppendLine("  left join (select distinct vcMonth,vcPartNameCN,vcZB,vcHJ,vcDock,vcCarType,vcPartsNo,vcProType,vcPlant,vcEDFlag from tPlanPartInfo) t3");
-            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock=t2.vcDock and t3.vcCarType=t2.vcCarType and  t3.vcMonth= '" + mon + "' ");
+            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock=t2.vcDock and t3.vcCarType=t2.vcCarType and t3.vcMonth='" + mon + "' ");
             sb.AppendLine("  left join ProRuleMst t4");
             sb.AppendLine("  on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
             sb.AppendLine(" left join (select vcData1,vcData2 from ConstMst where vcDataId='kbplant') t5");
@@ -2580,15 +2580,15 @@ namespace DataAccess
             for (int i = 1; i < 31 + 1; i++)
             {
                 if (i == 31)
-                    tmpE += "t2.vcD" + i + "b as	ED" + i + "b,	t2.	vcD" + i + "y	as	ED" + i + "y";
-                else tmpE += "t2.vcD" + i + "b	as	ED" + i + "b,	t2.vcD" + i + "y	as	ED" + i + "y,";
+                    tmpE += "t2.vcD" + i + "b as ED" + i + "b, t2.vcD" + i + "y as ED" + i + "y";
+                else tmpE += "t2.vcD" + i + "b as ED" + i + "b, t2.vcD" + i + "y as ED" + i + "y,";
             }
             double daynum2 = (tim - tim.AddMonths(-1)).TotalDays;
             for (int i = 1; i < 31 + 1; i++)
             {
                 if (i == 31)
-                    tmpT += "t1.vcD" + i + "b 	as	TD" + i + "b,	t1.vcD" + i + "y	as	TD" + i + "y";
-                else tmpT += "t1.vcD" + i + "b 	as	TD" + i + "b,	t1.vcD" + i + "y	as	TD" + i + "y,";
+                    tmpT += "t1.vcD" + i + "b as TD" + i + "b,	t1.vcD" + i + "y as TD" + i + "y";
+                else tmpT += "t1.vcD" + i + "b as TD" + i + "b,	t1.vcD" + i + "y as TD" + i + "y,";
             }
             #region 作废
             //StringBuilder sb = new StringBuilder();
@@ -2691,24 +2691,24 @@ namespace DataAccess
             sb.AppendLine("  ");
             sb.AppendLine("   from (");
             sb.AppendFormat("    select '{0}' as vcMonth ,", mon);
-            sb.AppendLine("   case when t2.vcPartsno is null then t1.vcPartsno  else t2.vcPartsno end as vcPartsno  ,");
+            sb.AppendLine("   case when t2.vcPartsno is null then t1.vcPartsno else t2.vcPartsno end as vcPartsno,");
             sb.AppendLine("    case when t2.vcDock is null then t1.vcDock else t2.vcDock end as vcDock");
             sb.AppendLine("   ,case when t2.vcCarType is null then t1.vcCarType else t2.vcCarType end as vcCarType");
             sb.AppendLine("  ,'0' as vcMonTotal,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("   from (select * from  {0} where montouch is not null ) t1  ", TblName);
-            sb.AppendFormat("    full join (select * from  {0} where montouch is null ) t2", TblName);
-            sb.AppendLine("    on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendFormat("     where (t1.montouch = '{0}' or t2.vcMonth ='{1}')", mon, mon);
+            sb.AppendFormat("   from (select * from {0} where montouch is not null ) t1  ", TblName);
+            sb.AppendFormat("    full join (select * from {0} where montouch is null ) t2", TblName);
+            sb.AppendLine("    on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
+            sb.AppendFormat("     where (t1.montouch='{0}' or t2.vcMonth='{1}')", mon, mon);
             sb.AppendLine("    ) tt1");
-            sb.AppendLine("   left join (select distinct vcMonth,vcPartsNo,vcDock,vcCarType,vcZB,vcProType,vcEDFlag,vcPlant,vcHJ,vcPartNameCN from dbo.tPlanPartInfo) t3");
-            sb.AppendLine("     on t3.vcPartsNo=tt1.vcPartsNo and t3.vcDock = tt1.vcDock and t3.vcCarType = tt1.vcCarType and  t3.vcMonth = '" + mon + "' ");
-            sb.AppendLine("     left join dbo.ProRuleMst t4");
-            sb.AppendLine("   on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
-            sb.AppendLine(" left join (select vcData1 ,vcData2  from dbo.ConstMst where vcDataId ='kbplant') t5");
-            sb.AppendLine(" on t3.vcPlant = t5.vcData1 ");
-            sb.AppendFormat("   where t3.vcPlant ='{0}' and vcEDFlag ='E' ", plant);
+            sb.AppendLine("   left join (select distinct vcMonth,vcPartsNo,vcDock,vcCarType,vcZB,vcProType,vcEDFlag,vcPlant,vcHJ,vcPartNameCN from tPlanPartInfo) t3");
+            sb.AppendLine("     on t3.vcPartsNo=tt1.vcPartsNo and t3.vcDock=tt1.vcDock and t3.vcCarType=tt1.vcCarType and t3.vcMonth= '" + mon + "' ");
+            sb.AppendLine("     left join ProRuleMst t4");
+            sb.AppendLine("   on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
+            sb.AppendLine(" left join (select vcData1,vcData2 from ConstMst where vcDataId='kbplant') t5");
+            sb.AppendLine(" on t3.vcPlant=t5.vcData1 ");
+            sb.AppendFormat("   where t3.vcPlant='{0}' and vcEDFlag='E' ", plant);
             try
             {
                 dt = excute.ExcuteSqlWithSelectToDT(sb.ToString());
@@ -2745,13 +2745,13 @@ namespace DataAccess
             sb.AppendFormat("  )) P where LEN(sigTotal)>0 and montouch ='{0}'", mon);
             sb.AppendLine("    union all ");
             sb.AppendFormat("    select vcMonth,vcPartsno,vcDock,vcCartype,sigTotal , allTotal from {0}  ", TableName);
-            sb.AppendFormat("    unpivot( sigTotal for allTotal in( {0} ", tmp);
+            sb.AppendFormat("    unpivot(sigTotal for allTotal in( {0} ", tmp);
             sb.AppendFormat("  )) P where LEN(sigTotal)>0 and vcMonth ='{0}'", mon);
             sb.AppendLine("    ) t1");
             sb.AppendLine("    left join (");
-            sb.AppendFormat("    select daysig , dayN from sPlanConst unpivot ( daysig for dayN in( {0}", tmp);
+            sb.AppendFormat("    select daysig, dayN from sPlanConst unpivot ( daysig for dayN in( {0}", tmp);
             sb.AppendLine("     )) P ) t2 ");
-            sb.AppendLine("     on t1.allTotal = t2.dayN");
+            sb.AppendLine("     on t1.allTotal=t2.dayN");
             sb.AppendLine("    ) Tall order by vcMonth ,daysig,vcPartsno,vcDock,vcCartype");
             return sb.ToString();
         }

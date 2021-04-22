@@ -87,7 +87,7 @@ namespace BatchProcess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append(" select vcOrderNo from TPackRuKuInFo  where  dYanshouTime is null and vcPackNo is null and vcIsorNoRuKu<>'1' \n");
+                sql.Append(" select vcOrderNo from TPackRuKuInFo  where  dYanshouTime is null  and vcIsorNoRuKu<>'1' \n");
 
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
@@ -107,7 +107,7 @@ namespace BatchProcess
                 StringBuilder sql = new StringBuilder();
                 DataTable dt = new DataTable();
                 sql.Append(" --订单号，订单数，订单时间，验收数，验收时间,费用负担，验收时间，电送化时间，更新时间     \n");
-                sql.Append("   select c.ORDER_NO,c.ORDER_QUANTITY,c.ORDER_DATE,cast(c.RECEIVED_QUANTITY as int)as RECEIVED_QUANTITY,c.RECEIVED_DATE,c.COST_GROUP,c.YanShouDate,   \n");
+                sql.Append("   select distinct c.ORDER_NO,c.ORDER_QUANTITY,c.ORDER_DATE,cast(c.RECEIVED_QUANTITY as int)as RECEIVED_QUANTITY,c.RECEIVED_DATE,c.COST_GROUP,c.YanShouDate,   \n");
                 sql.Append("   c.Email_TIME,c.CREATE_TIME,c.PART_ID,d.SUPPLIER_CODE,c.UNIT,d.PART_NO,c.FI_STORE_CODE,d.CREATE_USER,e.CREATE_TIME as SJNRTime   \n");
                 sql.Append("   from(   \n");
                 sql.Append("    select ORDER_NO,ORDER_QUANTITY,ORDER_DATE,RECEIVED_QUANTITY,RECEIVED_DATE,COST_GROUP,YanShouDate, \n");
@@ -205,15 +205,13 @@ namespace BatchProcess
                         PackNo = dr1[0]["vcPackNo"].ToString();
                         PackSpot = dr1[0]["vcPackSpot"].ToString();
                     }
-                    if (dtINFO_1.Select("vcOrderNo = '" + dtNewItem.Rows[i]["ORDER_NO"] + "'").Length!=0) {
+                    //DataRow[] drr = dtINFO_1.Select("vcOrderNo = '" + dtNewItem.Rows[i]["ORDER_NO"] + "'");
+
+
+                    if (dtINFO_1.Select("vcOrderNo = '" + dtNewItem.Rows[i]["ORDER_NO"] + "'").Length!=0)
+                    {
                         sql.Append("UPDATE [dbo].[TPackRuKuInFo]  ");
-                         sql.Append("   SET  ");
-                        //sql.Append("      ,[vcPackNo] =''  ");
-                        //sql.Append("      ,[vcPackGPSNo] = ''  ");
-                        //sql.Append("      ,[vcPackSpot] = ''  ");
-                        //sql.Append("      ,[vcSupplieCode] = ''  ");
-                        //sql.Append("      ,[iDGNum] = ''  ");
-                        //sql.Append("      ,[vcDGTime] = ''  ");
+                        sql.Append("   SET  ");
                         if (string.IsNullOrEmpty(dtNewItem.Rows[i]["RECEIVED_QUANTITY"].ToString()))
                         {
                             sql.Append("       [iSJNum] = '0.00'  ");
@@ -222,14 +220,10 @@ namespace BatchProcess
                         {
                             sql.Append("       [iSJNum] = '" + dtNewItem.Rows[i]["RECEIVED_QUANTITY"].ToString() + "'  ");
                         }
-                        sql.Append("      ,[vcSJTime] = '"+ dtNewItem.Rows[i]["SJNRTime"].ToString() + "'  ");
-                        //sql.Append("      ,[vcUnit] = ''  ");
-                        //sql.Append("      ,[vcCostID] = ''  ");
-                        //sql.Append("      ,[vcCodeID] = ''  ");
-                        //sql.Append("      ,[vcIsorNoRuKu] = ''  ");
+                        sql.Append("      ,[vcSJTime] = '" + dtNewItem.Rows[i]["SJNRTime"].ToString() + "'  ");
                         if (string.IsNullOrEmpty(dtNewItem.Rows[i]["YanShouDate"].ToString()))
                         {
-                            sql.Append("      ,[dYanshouTime] = 'NULL'  ");
+                            sql.Append("      ,[dYanshouTime] = NULL ");
                         }
                         else
                         {
@@ -237,18 +231,18 @@ namespace BatchProcess
                         }
                         if (string.IsNullOrEmpty(dtNewItem.Rows[i]["Email_TIME"].ToString()))
                         {
-                            sql.Append("      ,[dEmailTime] = 'NULL'  ");
+                            sql.Append("      ,[dEmailTime] = NULL  ");
                         }
                         else
                         {
                             sql.Append("  ,[dEmailTime] ='" + dtNewItem.Rows[i]["Email_TIME"].ToString() + "'  \n");
                         }
-                        
+
                         sql.Append("      ,[vcYanShouID] = '" + dtNewItem.Rows[i]["CREATE_USER"].ToString() + "'  ");
                         sql.Append("      ,[dUpdateTime] = '" + dtNewItem.Rows[i]["CREATE_TIME"].ToString() + "'  ");
-                        sql.Append("      ,[vcOperatorID] = '"+ strUserId + "'  ");
+                        sql.Append("      ,[vcOperatorID] = '" + strUserId + "'  ");
                         sql.Append("      ,[dOperatorTime] = GETDATE()  ");
-                        sql.Append(" WHERE vcOrderNo='"+ dtNewItem.Rows[i]["ORDER_NO"] + "'  ");
+                        sql.Append(" WHERE vcOrderNo='" + dtNewItem.Rows[i]["ORDER_NO"] + "'  ");
 
                     }
                     else
@@ -324,7 +318,7 @@ namespace BatchProcess
                 {
                     excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
-
+                sql = new StringBuilder();
                 #endregion
 
                 DataTable dtINFO = this.SearchINFO();
@@ -369,7 +363,8 @@ namespace BatchProcess
                                 sql.Append($" vcState='0', \n");
                                 sql.Append($" vcColour='0' \n");
                             }
-                            else {
+                            else
+                            {
 
 
                                 sql.Append($" vcState='7', \n");
@@ -427,7 +422,7 @@ namespace BatchProcess
                 //根据品番分组
                 DataTable dtcope = dtINFO.Copy();
                 dtcope.Clear();
-                DataRow[] drnew = dtINFO.Select("vcSJTime is not null and dYanshouTime is not null and dEmailTime is not null and vcIsorNoRuKu ='0' ");
+                DataRow[] drnew = dtINFO.Select("vcSJTime is not null and dYanshouTime is not null  and vcIsorNoRuKu ='0' ");
 
                 //a.vcOrderNo,b.vcOrderNo as vcIsorNoOrder,b.vcPackNo,b.vcPackGPSNo, 
                 //b.vcPackSpot,vcSupplieCode,iDGNum,vcDGTime,iSJNum,vcSJTime,vcUnit,vcCostID,vcCodeID,
@@ -489,7 +484,7 @@ namespace BatchProcess
                 #region 更新在库表
                 for (int j = 0; j < dtb.Rows.Count; j++)
                 {
-                    
+
                     DataRow[] dr = dtZk.Select("vcPackGPSNo='" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'");
                     DataRow[] dsave = dtSave.Select("vcPackGPSNo='" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'");
                     DataRow[] dr1 = dtBase.Select("vcPackGPSNo='" + dtb.Rows[j]["vcPackGPSNo"] + "'");
@@ -744,7 +739,7 @@ namespace BatchProcess
                 //strSql.AppendLine(" b.vcPackSpot,vcSupplieCode,iDGNum,vcDGTime,iSJNum,vcSJTime,vcUnit,vcCostID,vcCodeID,  ");
                 //strSql.AppendLine(" dYanshouTime,dEmailTime,vcYanShouID,dUpdateTime,a.dNaRuYuDing,c.vcIsorNoFaZhu,b.vcIsorNoRuKu  ");
                 //strSql.AppendLine(" from(  ");
-                strSql.AppendLine(" select * from TPack_FaZhu_ShiJi  ");
+                strSql.AppendLine(" select * from TPackRuKuInFo ");
                 //strSql.AppendLine(" )a left join  ");
                 //strSql.AppendLine(" (  ");
                 //strSql.AppendLine("  select * from TPackRuKuInFo   ");

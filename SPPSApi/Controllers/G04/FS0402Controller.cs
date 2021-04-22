@@ -56,7 +56,7 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0201", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -64,38 +64,38 @@ namespace SPPSApi.Controllers.G04
         }
         #endregion
 
-        #region 获取对象年月 格式YYYY/MM
-        [HttpPost]
-        [EnableCors("any")]
-        public string getYearMonthApi()
-        {
+        //#region 获取对象年月 格式YYYY/MM
+        //[HttpPost]
+        //[EnableCors("any")]
+        //public string getYearMonthApi()
+        //{
 
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
+        //    string strToken = Request.Headers["X-Token"];
+        //    if (!isLogin(strToken))
+        //    {
+        //        return error_login();
+        //    }
+        //    LoginInfo loginInfo = getLoginByToken(strToken);
+        //    //以下开始业务处理
+        //    ApiResult apiResult = new ApiResult();
             
-            try
-            {
-                DateTime dNow = DateTime.Now.AddMonths(1);
+        //    try
+        //    {
+        //        DateTime dNow = DateTime.Now.AddMonths(1);
 
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dNow.ToString("yyyy/MM");
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0201", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
+        //        apiResult.code = ComConstant.SUCCESS_CODE;
+        //        apiResult.data = dNow.ToString("yyyy/MM");
+        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0201", ex, loginInfo.UserId);
+        //        apiResult.code = ComConstant.ERROR_CODE;
+        //        apiResult.data = "检索失败";
+        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //    }
+        //}
+        //#endregion
 
         #region 检索数据
         [HttpPost]
@@ -218,7 +218,7 @@ namespace SPPSApi.Controllers.G04
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "";
+                apiResult.data = "承认失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -297,9 +297,9 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0206", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "";
+                apiResult.data = "退回失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -378,7 +378,7 @@ namespace SPPSApi.Controllers.G04
             {
                 DataTable dt = fs0402_Logic.SearchHistory();
                 string[] heads = { "对象年月","品番", "错误消息"};
-                string[] fields = { "vcYearMonth", "vcPart_id", "vcMessage" };
+                string[] fields = { "vcYearMonth", "vcPart_id_export", "vcMessage" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -393,9 +393,9 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0205", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0206", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导出失败";
+                apiResult.data = "履历导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

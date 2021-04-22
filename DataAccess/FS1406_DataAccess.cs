@@ -16,8 +16,14 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select * from (");
                 strSql.AppendLine("select T1.LinId AS LinId");
                 strSql.AppendLine("		,t1.vcSPISStatus AS vcSPISStatus");
+                strSql.AppendLine("		,case when t1.vcSPISStatus='4' then 0");
+                strSql.AppendLine("			  when t1.vcSPISStatus='1' then 1");
+                strSql.AppendLine("			  when t1.vcSPISStatus='0' then 2");
+                strSql.AppendLine("			  when t1.vcSPISStatus='2' then 3");
+                strSql.AppendLine("			  when t1.vcSPISStatus='3' then 4 else 5 end AS iOrderBy");
                 strSql.AppendLine("		,T6.vcName AS vcSPISStatus_name");
                 strSql.AppendLine("		,T1.vcApplyId AS vcApplyId");
                 strSql.AppendLine("		,case when t5.LinId is null then convert(varchar(10),t1.dFromTime,23) else convert(varchar(10),t5.dFromTime_SPIS,23) end as dFromTime_SPIS");
@@ -88,8 +94,8 @@ namespace DataAccess
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT * FROM TSPISApply)T5");
                 strSql.AppendLine("ON T1.vcApplyId=T5.vcApplyId");
-                strSql.AppendLine("where 1=1");
-                strSql.AppendLine("order by t1.vcPartId,t1.dFromTime");
+                strSql.AppendLine(")tt");
+                strSql.AppendLine("order by iOrderBy,vcPartId,dFromTime");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -110,18 +116,14 @@ namespace DataAccess
                 sqlCommand_modinfo.CommandType = CommandType.Text;
                 StringBuilder strSql_modinfo = new StringBuilder();
                 strSql_modinfo.AppendLine("update tCheckMethod_Master set vcSPISStatus=@vcSPISStatus where vcApplyId=@vcApplyId");
-                strSql_modinfo.AppendLine("update TSPISApply set vcSPISStatus=@vcSPISStatus,vcSupplier_1=@vcSupplier_1,vcSupplier_2=@vcSupplier_2,vcOperatorID='" + strOperId + "',dOperatorTime=GETDATE() where vcApplyId=@vcApplyId");
+                strSql_modinfo.AppendLine("update TSPISApply set vcSPISStatus=@vcSPISStatus,vcOperatorID='" + strOperId + "',dOperatorTime=GETDATE() where vcApplyId=@vcApplyId");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcApplyId", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcSPISStatus", "");
-                sqlCommand_modinfo.Parameters.AddWithValue("@vcSupplier_1", "");
-                sqlCommand_modinfo.Parameters.AddWithValue("@vcSupplier_2", "");
                 foreach (DataRow item in dtImport.Rows)
                 {
                     sqlCommand_modinfo.Parameters["@vcApplyId"].Value = item["vcApplyId"].ToString();
                     sqlCommand_modinfo.Parameters["@vcSPISStatus"].Value = item["vcSPISStatus"].ToString();
-                    sqlCommand_modinfo.Parameters["@vcSupplier_1"].Value = item["vcSupplier_1"].ToString();
-                    sqlCommand_modinfo.Parameters["@vcSupplier_2"].Value = item["vcSupplier_2"].ToString();
                     sqlCommand_modinfo.ExecuteNonQuery();
                 }
                 //提交事务

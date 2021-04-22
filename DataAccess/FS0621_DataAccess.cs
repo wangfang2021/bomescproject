@@ -173,7 +173,7 @@ namespace DataAccess
                     }
                 }
 
-                strSql.AppendLine("  order by  dOperatorTime desc ");
+                strSql.AppendLine("  order by  dOperatorTime desc,a.INOUTFLAG asc,a.PARTSNO  asc");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

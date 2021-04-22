@@ -61,9 +61,25 @@ namespace Logic
         }
         #endregion
 
-        public DataTable getPlant(string strDXYM)
+        public DataTable getPlant(string strDXYM, string strKind)
         {
-            return fs0612_DataAccess.getPlant(strDXYM);
+            return fs0612_DataAccess.getPlant(strDXYM, strKind);
+        }
+        public bool isHaveSoqData(string strDXYM, string strPlant, string strKind)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                int num = fs0612_DataAccess.isHaveSoqData(strDXYM, strPlant, strKind);
+                if (num > 0)
+                    return true;
+                else
+                    return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 

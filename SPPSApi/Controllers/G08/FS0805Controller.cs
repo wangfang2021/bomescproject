@@ -60,7 +60,7 @@ namespace SPPSApi.Controllers.G08
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08PE0500", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -129,7 +129,7 @@ namespace SPPSApi.Controllers.G08
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08PE0501", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -235,9 +235,9 @@ namespace SPPSApi.Controllers.G08
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08PE0502", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "生成印刷文件失败";
+                apiResult.data = "打印失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

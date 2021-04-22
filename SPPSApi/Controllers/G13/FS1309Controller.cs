@@ -73,7 +73,7 @@ namespace SPPSApi.Controllers.G13
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE0900", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -112,9 +112,9 @@ namespace SPPSApi.Controllers.G13
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "页面加载失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -248,7 +248,7 @@ namespace SPPSApi.Controllers.G13
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE0902", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

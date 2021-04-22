@@ -72,7 +72,7 @@ namespace SPPSApi.Controllers.G14
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M14PE0100", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -125,7 +125,7 @@ namespace SPPSApi.Controllers.G14
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M14PE0101", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -182,7 +182,7 @@ namespace SPPSApi.Controllers.G14
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M14PE0102", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -219,9 +219,9 @@ namespace SPPSApi.Controllers.G14
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M14PE0103", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "执行批处理失败";
+                apiResult.data = "获取手配数据失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

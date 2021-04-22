@@ -768,7 +768,7 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "请填写收货方！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (Convert.ToInt32(listInfoData[i]["vcShouhuofangID"].ToString())<0)
+                    if (Convert.ToDecimal(listInfoData[i]["iBiYao"].ToString())<0)
                     {
 
                         apiResult.code = ComConstant.ERROR_CODE;

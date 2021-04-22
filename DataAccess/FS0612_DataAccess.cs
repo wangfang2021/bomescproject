@@ -25,7 +25,7 @@ namespace DataAccess
                 strSql.Append("from (    \n");
                 strSql.Append("	select * from VI_NQCStatus_HS_FORECAST where 1=1     \n");
                 if (vcCLYM != "" && vcCLYM != null)
-                    strSql.Append("and vcCLYM= '" + vcCLYM.Replace("/","") + "'   \n");
+                    strSql.Append("and vcCLYM= '" + vcCLYM.Replace("/", "") + "'   \n");
                 strSql.Append(")t1    \n");
                 strSql.Append("order by t1.vcCLYM desc,(case when t1.vcStatus='C' then t1.dWCTime else null end) desc    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -53,7 +53,7 @@ namespace DataAccess
                 strSql.Append(")t1        \n");
                 strSql.Append("left join (select vcValue,vcName from tcode where vcCodeId='C000')t2 on t1.vcPlant=t2.vcValue    \n");
                 strSql.Append("order by t1.vcCLYM desc,(case when t1.vcStatus='C' then t1.dWCTime else null end) desc        \n");
-               
+
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -123,7 +123,7 @@ namespace DataAccess
                     string strPlant = dtPlant.Rows[i]["vcFZGC"].ToString();
                     string strMaxTimes = GetMaxTimes(strPlant, vcCLYM);
                     sql.Append("insert into TNQCStatus_HS_FORECAST (vcCLYM,vcPlant,vcStatus,iTimes,dRequestTime,vcOperatorID,dOperatorTime) values     \n");
-                    sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",'" + strdate + "','" + strUserId + "','"+ strdate + "')    \n");
+                    sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",'" + strdate + "','" + strUserId + "','" + strdate + "')    \n");
                 }
                 SqlCommand cd0 = new SqlCommand(sql.ToString(), conn_sql, st);
                 cd0.CommandType = System.Data.CommandType.Text;
@@ -138,7 +138,7 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public void CreateView2(string vcCLYM, List<string> plantList, string strUserId,string strKind)
+        public void CreateView2(string vcCLYM, List<string> plantList, string strUserId, string strKind)
         {
             SqlConnection conn_sql = Common.ComConnectionHelper.CreateSqlConnection();
             Common.ComConnectionHelper.OpenConection_SQL(ref conn_sql);
@@ -153,7 +153,7 @@ namespace DataAccess
                     string strPlant = plantList[i];
                     string strMaxTimes = GetMaxTimes2(strPlant, vcCLYM);
                     sql.Append("insert into TNQCStatus_HS_EKANBAN (vcCLYM,vcPlant,vcStatus,iTimes,dRequestTime,vcOperatorID,dOperatorTime,vcKind) values     \n");
-                    sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",'" + strdate + "','" + strUserId + "','" + strdate + "','"+strKind+"')    \n");
+                    sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",'" + strdate + "','" + strUserId + "','" + strdate + "','" + strKind + "')    \n");
                 }
                 SqlCommand cd0 = new SqlCommand(sql.ToString(), conn_sql, st);
                 cd0.CommandType = System.Data.CommandType.Text;
@@ -177,7 +177,7 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append("select Process_YYYYMM,Start_date_for_daily_qty,Process_Factory,COUNT(1) as num from TNQCReceiveInfo    \n");
-                sql.Append("where Process_YYYYMM='"+vcCLYM+"'    \n");
+                sql.Append("where Process_YYYYMM='" + vcCLYM + "'    \n");
                 sql.Append("group by Process_YYYYMM,Start_date_for_daily_qty,Process_Factory    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
@@ -217,13 +217,26 @@ namespace DataAccess
         }
         #endregion
 
-        public DataTable getPlant(string strDXYM)
+        public DataTable getPlant(string strDXYM, string strKind)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select distinct vcFZGC from TSoq where vcYearMonth='"+strDXYM+"'    \n");
+                sql.Append("select distinct vcFZGC from TSoq where vcYearMonth='" + strDXYM + "' and vcInOutFlag in (" + strKind + ")   \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public int isHaveSoqData(string strDXYM, string strPlant, string strKind)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.AppendLine("select count(1) from tSoq where vcFZGC='" + strPlant + "' and vcYearMonth ='" + strDXYM + "' and vcInOutFlag in (" + strKind + ")  ");
+                return excute.ExecuteScalar(sql.ToString());
             }
             catch (Exception ex)
             {

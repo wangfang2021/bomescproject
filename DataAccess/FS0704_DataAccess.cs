@@ -59,7 +59,7 @@ namespace DataAccess
 
                 }
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select '0' as vcModFlag,'0' as vcAddFlag, ");
+                strSql.AppendLine("      select '0' as vcModFlag,'0' as vcAddFlag,iAutoId, ");
                 strSql.AppendLine("   vcFaZhuID,vcRuHeFromDay,dRuHeFromTime,vcRuHeToDay,druHeToTime,   ");
                 strSql.AppendLine("   vcFaZhuFromDay,dFaZhuFromTime,vcFaZhuToDay,dFaZhuToTime,   ");
                 strSql.AppendLine("   vcNaQiFromDay,dNaQiFromTime,vcNaQiToDay,dNaQiToTime,vcBianCi,   ");

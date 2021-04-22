@@ -68,6 +68,26 @@ namespace DataAccess
         }
         #endregion
 
+
+
+
+        public DataTable Search_C()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  SELECT  * from TPackOrderFaZhu   ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+
         #region 恢复
         public void recover(List<Dictionary<string, object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
@@ -107,7 +127,7 @@ namespace DataAccess
 
 
         #region 发注检索
-        public DataTable Search_F()
+        public DataTable Search_F(string strOrder)
         {
             try
             {
@@ -131,7 +151,10 @@ namespace DataAccess
                 strSql.AppendLine("        ,[vcOperatorID]    ");
                 strSql.AppendLine("        ,[dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag,vcIsStop,vcRecover    ");
                 strSql.AppendLine("      FROM");
-                strSql.AppendLine("      	TPackOrderFaZhu where vcIsorNoFaZhu='0' and vcIsStop<>'1'");
+                strSql.AppendLine("      	TPackOrderFaZhu where vcIsorNoFaZhu='0' and vcIsStop<>'1' ");
+                if(!string.IsNullOrEmpty(strOrder))
+                    strSql.AppendLine("     and vcOrderNo in ('" + strOrder + "')");
+
 
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -350,7 +373,7 @@ namespace DataAccess
                                 }
                             }
                             DataRow[] dr2 = dtCode.Select(" vcValue2='" + listInfoData[i]["vcPackSpot"] + "'");
-                            if (Convert.ToInt32(listInfoData[i]["iOrderNumber"])%Convert.ToInt32(dr[0]["iRelease"].ToString())   != 0)
+                            if (Convert.ToInt32(listInfoData[i]["iOrderNumber"]) % Convert.ToInt32(dr[0]["iRelease"].ToString()) != 0)
                             {
                                 strErrorPartId = "维护的订购数量错误！订购数量不是发注收容数的整数倍";
                                 return;
@@ -614,7 +637,19 @@ namespace DataAccess
                     if (!string.IsNullOrEmpty(dt.Rows[i]["vcOrderNo"].ToString()))
                     {
                         DataRow[] drorder = dtOrderNO.Select("vcOrderNo='" + dt.Rows[i]["vcOrderNo"] + "'");
-                        if (Convert.ToInt32(drorder[i]["vcNaRuUnit"]) % Convert.ToInt32(drorder[i]["iOrderNumber"]) != 0)
+                        if (drorder[i]["vcIsorNoFaZhu"].ToString() == "1")
+                        {
+                            strErrorPartId = "此订单号:" + drorder[i]["vcOrderNo"].ToString() + "已经发注不可修改！";
+                            return;
+                        }
+                        if (drorder[i]["vcIsStop"].ToString() == "1")
+                        {
+                            strErrorPartId = "此订单号:" + drorder[i]["vcOrderNo"].ToString() + "，超月的不可修改！";
+                            return;
+                        }
+                        DataRow[] dr = dtbase.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "'");
+
+                        if (Convert.ToInt32(dt.Rows[i]["iOrderNumber"]) % Convert.ToInt32(dr[i]["iZCRelease"]) != 0)
                         {
                             strErrorPartId = "此订单号:" + drorder[i]["vcOrderNo"].ToString() + "的发注收容数不是订购数量的整数倍！请修改订购数量";
                             return;
@@ -633,7 +668,6 @@ namespace DataAccess
                         sql.AppendLine("  SET ");
                         sql.AppendLine($"   iOrderNumber = {ComFunction.getSqlValue(dt.Rows[i]["iOrderNumber"], false)},");
                         sql.AppendLine($"   dNaRuYuDing = {ComFunction.getSqlValue(dt.Rows[i]["dNaRuTime"], false)},");
-                        sql.AppendLine($"   vcNaRuUnit={ComFunction.getSqlValue(dt.Rows[i]["vcNaRuUnit"], false)},");
                         sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false)},");
                         sql.AppendLine($"   vcOperatorID = {strUserId},");
                         sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
@@ -645,7 +679,7 @@ namespace DataAccess
                     {
 
                         //插入
-                        DataRow[] dr = dtbase.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackGPSNo"] + "'");
+                        DataRow[] dr = dtbase.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "'");
                         string time = dt.Rows[i]["dNaRuTime"].ToString().Split(' ')[1];
                         DataRow[] dr1 = dtFaZhuTime.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackGPSNo"] + "'and dNaQiFromTime<='" + time + "'and dNaQiToTime>='" + time + "' ");
                         DataRow[] dr2 = dtCode.Select(" vcValue2='" + dt.Rows[i]["vcPackSpot"] + "'");
@@ -917,7 +951,7 @@ namespace DataAccess
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     DataRow[] drpm = dtpm.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "' and  vcBZPlant='" + dt.Rows[i]["vcPackSpot"] + "'");
-                    if (Convert.ToDecimal(drpm[0]["iNum"].ToString()) - Convert.ToDecimal(dt.Rows[i]["iOrderNumber"].ToString()) > 0|| dt.Rows[i]["vcRecover"].ToString()=="1" )
+                    if (Convert.ToDecimal(drpm[0]["iNum"].ToString()) - Convert.ToDecimal(dt.Rows[i]["iOrderNumber"].ToString()) > 0 || dt.Rows[i]["vcRecover"].ToString() == "1")
                     {
                         sql.AppendLine("  INSERT INTO [dbo].[TB_B0030]    \r\n");
                         sql.AppendLine("             ([ORDER_NO]    \r\n");
@@ -1005,7 +1039,8 @@ namespace DataAccess
 
 
                     }
-                    else {
+                    else
+                    {
 
                         string vcOrderNo = dt.Rows[i]["vcOrderNo"].ToString();
 
@@ -1018,13 +1053,15 @@ namespace DataAccess
                         sql1.AppendLine($"  vcOrderNo='{vcOrderNo}';");
                     }
                 }
-                if (sql.Length>0) {
+                if (sql.Length > 0)
+                {
                     this.MAPSSearch(sql.ToString());
                 }
-                if (sql1.Length>0) {
+                if (sql1.Length > 0)
+                {
                     excute.ExcuteSqlWithStringOper(sql1.ToString());
                 }
-                
+
             }
             catch (Exception ex)
             {

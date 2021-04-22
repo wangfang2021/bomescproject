@@ -121,7 +121,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select * from TSoqInputErrDetail    \n");
+                sql.Append("select *,case when RIGHT(vcPart_id,2)='00' then LEFT(vcPart_id,10) else vcPart_id end as vcPart_id_export from TSoqInputErrDetail    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)

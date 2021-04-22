@@ -153,19 +153,27 @@ namespace SPPSApi.Controllers.G07
                 #region 验证补给品番是否存在有效的包材构成
                 string[] strArray = fs0705_Logic.getPackCheckDT(strFaZhuID,loginInfo.BaoZhuangPlace);
 
-                string strErr1 = strArray[0];
-                string strErr2 = strArray[1];
+                string strErr1 = "";
+                string strErr2 = "";
 
-                if (strErr1 != "")
+                if (strArray[0] != "")
                 {
+                    foreach (var item in strArray[0].Split(","))
+                    {
+                        strErr1 += item + "<br/>";
+                    }
                     res.Add("errPart", "发注数量计算失败,以下品番无包材构成！"+ "<br/>" + strErr1);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.flag = 1;
                     apiResult.data = res;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                if (strErr2 != "")
+                if (strArray[1] != "")
                 {
+                    foreach (var item in strArray[0].Split(","))
+                    {
+                        strErr2 += item + "<br/>";
+                    }
                     res.Add("errPart",  "发注数量计算失败,以下品番包材构成无效！"+ "<br/>" + strErr2);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.flag = 1;

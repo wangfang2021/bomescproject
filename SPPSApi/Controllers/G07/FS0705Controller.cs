@@ -217,7 +217,7 @@ namespace SPPSApi.Controllers.G07
                 string strOrderNo = fs0705_Logic.getNewOrderNo();
                 //生成发注数据
                 /*
-                 * 查询出计算结果中订单号未空的数据
+                 * 查询出计算结果中订单号为空的数据(订单号为空，说明没有生成发注数据),并且计算出的订购数量大于0(等于0不需要订购)
                  */
                 DataTable JGDT = fs0705_Logic.SCFZDataSearchComputeJG(loginInfo.BaoZhuangPlace);
                 fs0705_Logic.SCFZData(JGDT, strOrderNo);

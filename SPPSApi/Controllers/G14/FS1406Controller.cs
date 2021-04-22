@@ -277,16 +277,34 @@ namespace SPPSApi.Controllers.G14
                 DataTable dtImport = fS1406_Logic.setInfoList(dataForm);
                 string hashCode = dataForm.hashCode;
                 DataTable dtApplyList = dtImport.Clone();
+                //正式原图路径windows和lincx通用
                 string strPath_temp = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_spisapply" + Path.DirectorySeparatorChar + "apply" + Path.DirectorySeparatorChar;
-                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
-                SaveFile(fileSavePath);
-                //转存到windows
-
-                //文件路径都应该是windows
-
                 string strPath_pic = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISPic" + Path.DirectorySeparatorChar;
-                string strPath_pdf = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISPdf" + Path.DirectorySeparatorChar;
-                string strPath_sips = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
+
+                //pdf及spis照片路径
+                //获取文件路径
+                string strPath_pdf = string.Empty;
+                string strPath_sips = string.Empty;
+                string strPath_crv = string.Empty;
+                string[] vsPath = getWindowPath();
+                strPath_pdf = vsPath[0];
+                strPath_sips = vsPath[1];
+                strPath_crv = vsPath[2];
+                if (strPath_pdf == string.Empty|| strPath_sips ==string.Empty)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "未能正确获取SPIS生成路径";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //数据整理集合
                 DataTable dtPDF_temp = fS1406_Logic.getTempDataInfo();
                 fS1406_Logic.checkSaveInfo(dtImport, ref dtApplyList, ref dtPDF_temp, strPath_temp, strPath_pic, strPath_pdf, strPath_sips, loginInfo.UserId, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
@@ -299,7 +317,9 @@ namespace SPPSApi.Controllers.G14
                 }
                 //处理图像
                 //1.插入并打印
+                        Console.WriteLine("sql调用开始");
                 DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("SPIS生成", "");
+                        Console.WriteLine("sql调用结束");
                 if (dtPrinterInfo.Rows.Count != 0)
                 {
                     for (int i = 0; i < dtPDF_temp.Rows.Count; i++)
@@ -310,10 +330,11 @@ namespace SPPSApi.Controllers.G14
                         fS1406_Logic.setCRVtoPdf(drPDF_temp, loginInfo.UserId, ref dtMessage);
                         #region 调用webApiPDF导出
                         //创建 HTTP 绑定对象
-                        string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                        string file_crv = strPath_crv;
                         var binding = new BasicHttpBinding();
                         //根据 WebService 的 URL 构建终端点对象
                         var endpoint = new EndpointAddress(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
+                        Console.WriteLine(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
                         //创建调用接口的工厂，注意这里泛型只能传入接口
                         var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
                         //从工厂获取具体的调用实例
@@ -327,8 +348,10 @@ namespace SPPSApi.Controllers.G14
                         Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();
                         Body.sqlCatalog = dtPrinterInfo.Rows[0]["vcSqlCatalog"].ToString();
                         Body.sqlSource = dtPrinterInfo.Rows[0]["vcSqlSource"].ToString();
+                        Console.WriteLine("web参数完备");
                         //调用具体的方法，这里是 HelloWorldAsync 方法
                         Task<setCRVToIMGResponse> responseTask = callClient.setCRVToIMGAsync(new setCRVToIMGRequest(Body));
+                        Console.WriteLine("调用web");
                         //获取结果
                         setCRVToIMGResponse response = responseTask.Result;
                         if (response.Body.setCRVToIMGResult != "导出成功")
@@ -379,41 +402,28 @@ namespace SPPSApi.Controllers.G14
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-        public void SaveFile(string filePath)
+        public string[] getWindowPath()
         {
             try
             {
-
-                DirectoryInfo theFolder = new DirectoryInfo(filePath);
+                string[] vs =new string[3];
                 string environment = Environment.OSVersion.ToString().ToLower();
-                //Console.WriteLine("进入保存方法");
                 if (!environment.Contains("windows"))
                 {
-                    //Console.WriteLine("linux");
-                    foreach (FileInfo info in theFolder.GetFiles())
-                    {
-                        //Console.WriteLine("linux正式保存");
-                        ComFunction.HttpUploadFile(info.FullName, info.Name, @"Doc\upload_spisapply\apply\");
-                        //Console.WriteLine("linux结束保存");
-                    }
+                    vs[0] = ComFunction.HttpGetWindowPath("pdf");
+                    vs[1] = ComFunction.HttpGetWindowPath("img");
+                    vs[2] = ComFunction.HttpGetWindowPath("crv");
                 }
                 else
                 {
-                    //Console.WriteLine("windows");
-                    //转存下载
-                    foreach (FileInfo info in theFolder.GetFiles())
-                    {
-                        //Console.WriteLine("windows正式保存");
-                        string realPath = _webHostEnvironment.ContentRootPath + @"\Doc\upload_spisapply\apply\" + info.Name;
-                        System.IO.File.Copy(info.FullName, realPath, true);
-                        //Console.WriteLine("windows正式保存");
-                    }
-
+                    vs[0] = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISPdf" + Path.DirectorySeparatorChar;
+                    vs[1] = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
+                    vs[2] = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
                 }
+                return vs;
             }
             catch (Exception ex)
             {
-                //Console.WriteLine(ex);
                 throw ex;
             }
         }

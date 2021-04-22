@@ -170,7 +170,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 if (strArray[1] != "")
                 {
-                    foreach (var item in strArray[0].Split(","))
+                    foreach (var item in strArray[1].Split(","))
                     {
                         strErr2 += item + "<br/>";
                     }

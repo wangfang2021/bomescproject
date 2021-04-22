@@ -351,7 +351,7 @@ namespace DataAccess
                 str += "           left join \r\n";
                 str += "           (select distinct C.vcPartsNo,C.iCONum from tSSP C \r\n";
                 str += "            inner join \r\n";
-                str += "	        (select vcPartsNo,MAX(vcMonth) as vcMonth from tSSP where vcMonth<='" + mon + "' group by vcPartsNo) D \r\n";
+                str += "	        (select vcPartsNo,MAX(vcMonth) as vcMonth from tSSP where vcMonth<'" + mon + "' group by vcPartsNo) D \r\n";
                 str += "            on C.vcPartsNo=D.vcPartsNo and C.vcMonth=D.vcMonth \r\n";
                 str += "            ) B on A1.vcPartsNo=B.vcPartsNo \r\n";
                 str += "        ) t3 \r\n";
@@ -398,7 +398,7 @@ namespace DataAccess
             try
             {
                 string str = "select vcPartsNo from ( \r\n";
-                str += "select vcMonth,vcPartsNo from tSSP) t1 \r\n";
+                str += "select vcMonth,vcPartsNo from tSSP where iFZFlg='0') t1 \r\n";
                 //str += "join \r\n";
                 //str += "( select vcData1,vcData2   from ConstMst where vcDataId='vcDockPj' and vcData3 in ('MSP构成','JSP构成'))t2 \r\n";
                 //str += " on t1.vcSource=t2.vcData1 and t1.vcDock=t2.vcData2 \r\n";

@@ -215,7 +215,7 @@ namespace SPPSApi.Controllers.G04
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0207", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导入失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -287,9 +287,9 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0205", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0208", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导出失败";
+                apiResult.data = "模板导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

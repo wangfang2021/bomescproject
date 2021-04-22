@@ -134,11 +134,24 @@ namespace SPPSApi.Controllers.G07
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             try
             {
-                DataTable dt = FS0719_Logic.Search_F();
+
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+            
+                string strOrderAll = "";
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        strOrderAll = strOrderAll+"','"+ listInfoData[i]["vcOrderNo"].ToString();
+                    else
+                        strOrderAll = listInfoData[i]["vcOrderNo"].ToString();
+                }
+
+                DataTable dt = FS0719_Logic.Search_F(strOrderAll);
                 if (dt.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

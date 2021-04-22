@@ -1,24 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
-using System.Threading;
-using Common;
+﻿using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
 namespace SPPSApi.Controllers.G12
 {
@@ -52,8 +42,8 @@ namespace SPPSApi.Controllers.G12
             ApiResult apiResult = new ApiResult();
             try
             {
-                Dictionary<string, Object> res = new Dictionary<string, Object>();
-                List<Object> dataList_SaleUserSource = ComFunction.convertAllToResult(logic.ddlSaleUser());
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                List<object> dataList_SaleUserSource = ComFunction.convertAllToResult(logic.ddlSaleUser());
                 res.Add("SaleUserSource", dataList_SaleUserSource);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -448,7 +438,7 @@ namespace SPPSApi.Controllers.G12
 
                 //获取销售公司信息
 
-                DataTable dtSaleuser = logic.GetSaleuser(UserId);
+                DataTable dtSaleuser = logic.GetSaleuser(vcSaleUser);
                 //获取发注担当信息
                 DataTable dtUser = logic.GetUser(UserId);
                 if (dtUser.Rows.Count == 0)

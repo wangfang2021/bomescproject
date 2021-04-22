@@ -70,11 +70,11 @@ namespace SPPSApi.Controllers.G07
                 string strMsg = "";
                                         
 
-                string[,] headers = new string[,] {{"订单号","GPS品番", "订购数量","纳入预定日","包装厂"},
-                                                {"vcOrderNo","vcPackGPSNo","iOrderNumber","dNaRuTime","vcPackSpot"},
-                                                {"","",FieldCheck.Num,FieldCheck.Date,""},
-                                                {"0","50","0","0","0"},
-                                                {"0","1","0","0","0" }
+                string[,] headers = new string[,] {{"订单号","GPS品番", "订购数量","纳入预定时间","纳入便次","包装厂"},
+                                                {"vcOrderNo","vcPackGPSNo","iOrderNumber","dNaRuTime","vcNaRuBianci","vcPackSpot"},
+                                                {"","",FieldCheck.Num,FieldCheck.Date,"",""},
+                                                {"0","50","0","0","0","0"},
+                                                {"0","1","0","0","0","0" }
                                                };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())

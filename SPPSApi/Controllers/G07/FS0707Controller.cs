@@ -218,7 +218,7 @@ namespace SPPSApi.Controllers.G07
                     else
                     {
                         DateTime dt1 = Convert.ToDateTime(strBegin).AddDays(1 - Convert.ToDateTime(strBegin).Day).AddMonths(1).AddDays(-1);
-                        int ss = Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) - 1;
+                        int ss = Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("/")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) - 1;
                         for (int z = 0; z <= ss + 1; z++)
                         {
                             if (strFromBeginBZ == "1" && z == 0)
@@ -394,13 +394,13 @@ namespace SPPSApi.Controllers.G07
                 {
 
                     DateTime dt1 = Convert.ToDateTime(strBegin).AddDays(1 - Convert.ToDateTime(strBegin).Day).AddMonths(1).AddDays(-1);
-                    int ss = (Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1) * 2;
+                    int ss = (Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("/")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1) * 2;
                     int cs = Convert.ToInt32(strEnd.Split("-")[2]) * 2;
                     if (strFromBeginBZ == "1")
                     {
                         ss--;
                     }
-                    else if (strFromBeginBZ == "0")
+                    else if (strFromEndBZ == "0")
                     {
                         cs--;
                     }
@@ -433,27 +433,35 @@ namespace SPPSApi.Controllers.G07
                             fieldsData[4 + x] = "vcD" + i + "yF";
                             x++;
                         }
-                        if (dt.Rows[0]["vcD" + i + "bTShow"].ToString() == "true")
-                        {
-                            headData[4 + x] = i + "日白值T";
-                            fieldsData[4 + x] = "vcD" + i + "bT";
-                            x++;
-                        }
-
-                        if (dt.Rows[0]["vcD" + i + "yTShow"].ToString() == "true")
-                        {
-                            headData[4 + x] = i + "日夜值T";
-                            fieldsData[4 + x] = "vcD" + i + "yT";
-                            x++;
-
-                        }
+                        
                     }
+                    for (int j = 1; j <= 31; j++) {
+
+                        if (dt.Rows[0]["vcD" + j + "bTShow"].ToString() == "true")
+                        {
+                            headData[4 + x] = j + "日白值T";
+                            fieldsData[4 + x] = "vcD" + j + "bT";
+                            x++;
+                        }
+
+                        if (dt.Rows[0]["vcD" + j + "yTShow"].ToString() == "true")
+                        {
+                            headData[4 + x] = j + "日夜值T";
+                            fieldsData[4 + x] = "vcD" + j + "yT";
+                            x++;
+
+                        }
+
+                    }
+
+
+
 
                 }
                 string[] head = headData;
                 string[] fields = fieldsData;
 
-                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "周度内饰导出", ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

@@ -286,14 +286,9 @@ namespace DataAccess
                 strSql.AppendLine(" TARGETMONTH, ");
                 strSql.AppendLine(" TOTALWORKDAYS ");
                 strSql.AppendLine(" FROM TCalendar_PingZhun_Nei ");
-
                 strSql.AppendLine(" WHERE vcFZGC=@vcFZGC ");
                 strSql.AppendLine(string.Format(" AND TARGETMONTH in ('{0}','{1}','{2}')", varDxny.ToString("yyyyMM"), varDxny.AddMonths(1).ToString("yyyyMM"), varDxny.AddMonths(2).ToString("yyyyMM")));
-
                 strSql.AppendLine(" ORDER BY TARGETMONTH; ");
-
-
-
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), parameters);
             }
             catch (Exception ex)

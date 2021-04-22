@@ -17,8 +17,14 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select * from (");
                 strSql.AppendLine("select T1.LinId AS LinId");
                 strSql.AppendLine("		,t1.vcSPISStatus AS vcSPISStatus");
+                strSql.AppendLine("		,case when t1.vcSPISStatus='2' then 0");
+                strSql.AppendLine("			  when t1.vcSPISStatus='4' then 1");
+                strSql.AppendLine("			  when t1.vcSPISStatus='1' then 2");
+                strSql.AppendLine("			  when t1.vcSPISStatus='0' then 3");
+                strSql.AppendLine("			  when t1.vcSPISStatus='3' then 4 else 5 end AS iOrderBy");
                 strSql.AppendLine("		,T6.vcName AS vcSPISStatus_name");
                 strSql.AppendLine("		,T1.vcApplyId AS vcApplyId");
                 strSql.AppendLine("		,case when t5.LinId is null then convert(varchar(10),t1.dFromTime,23) else convert(varchar(10),t5.dFromTime_SPIS,23) end as dFromTime_SPIS");
@@ -132,8 +138,7 @@ namespace DataAccess
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT * FROM TSPISApply where vcSPISStatus in ('2','3'))T5");
                 strSql.AppendLine("ON T1.vcApplyId=T5.vcApplyId");
-                strSql.AppendLine("where 1=1");
-                strSql.AppendLine("order by t1.vcPartId,t1.dFromTime");
+                strSql.AppendLine(")tt order by iOrderBy,vcSupplierId,vcPartId,dFromTime");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

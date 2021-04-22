@@ -73,7 +73,7 @@ namespace Logic
                     drs = packCheckDT.Select("vcPart_id='" + partLists[i] + "' and dUsedFrom<'" + DateTime.Now.ToString() + "' and '" + DateTime.Now.ToString() + "'<dUsedTo");
                     if (drs.Length<=0)
                     {
-                        strErr2 += partLists[i]+" ";
+                        strErr2 += partLists[i]+",";
                     }
                 }
             }

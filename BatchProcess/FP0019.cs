@@ -208,11 +208,11 @@ namespace BatchProcess
                 strSql.AppendLine("      )  a       ");
                 strSql.AppendLine("      inner join        ");
                 strSql.AppendLine("      (       ");
-                strSql.AppendLine("      select vcEmail1 as 'address',vcSupplier_id as 'displayName' from TSupplier where vcEmail2 is not null and vcEmail1 !=''       ");
+                strSql.AppendLine("      select vcEmail1 as 'address',vcSupplier_id as 'displayName' from TSupplier where vcEmail1 is not null and vcEmail1 !=''       ");
                 strSql.AppendLine("      union all       ");
                 strSql.AppendLine("      select vcEmail2 as 'address',vcSupplier_id as 'displayName' from TSupplier where vcEmail2 is not null and vcEmail2 !=''       ");
                 strSql.AppendLine("      union all       ");
-                strSql.AppendLine("      select vcEmail3 as 'address',vcSupplier_id as 'displayName' from TSupplier where vcEmail2 is not null and vcEmail3 !=''       ");
+                strSql.AppendLine("      select vcEmail3 as 'address',vcSupplier_id as 'displayName' from TSupplier where vcEmail3 is not null and vcEmail3 !=''       ");
                 strSql.AppendLine("      ) b on a.vcSupplier_id = b.displayName       ");
                 strSql.AppendLine("      group by address,displayName        ");
 

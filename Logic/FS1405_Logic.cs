@@ -6,6 +6,7 @@ using System.Data;
 using DataAccess;
 using System.Collections;
 using System.IO;
+using Common;
 
 namespace Logic
 {
@@ -13,6 +14,7 @@ namespace Logic
     {
         FS1405_DataAccess fs1405_DataAccess;
         FS0603_DataAccess fs0603_DataAccess = new FS0603_DataAccess();
+        FS0602_DataAccess fs0602_DataAccess = new FS0602_DataAccess();
         FS1406_DataAccess fs1406_DataAccess = new FS1406_DataAccess();
         FS0603_Logic fs0603_Logic = new FS0603_Logic();
         FS0617_Logic fS0617_Logic = new FS0617_Logic();
@@ -238,6 +240,8 @@ namespace Logic
                     string strColourCode = dtImport.Rows[i]["vcColourCode"].ToString();
                     string strColourName = dtImport.Rows[i]["vcColourName"].ToString();
                     string strModItem = dtImport.Rows[i]["vcModItem"].ToString();
+                    string strSupplier_1 = dtImport.Rows[i]["vcSupplier_1"].ToString();
+                    string strSupplier_2 = dtImport.Rows[i]["vcSupplier_2"].ToString();
 
                     string strPICUrl = dtImport.Rows[i]["vcPicUrl"].ToString();//原图正式文件
                     string sources_pic = dtImport.Rows[i]["vcPICPath"].ToString();//原图正式文件地址
@@ -250,8 +254,7 @@ namespace Logic
                     string strSPISUrl = dtImport.Rows[i]["vcSPISUrl"].ToString();//正式文件
                     string sources_spis = dtImport.Rows[i]["vcSPISPath"].ToString();//式文件地址
 
-                    string strSupplier_1 = dtImport.Rows[i]["vcSupplier_1"].ToString();
-                    string strSupplier_2 = dtImport.Rows[i]["vcSupplier_2"].ToString();
+
                     string strOperName = dtImport.Rows[i]["vcOperName"].ToString();
                     string strGM = dtImport.Rows[i]["vcGM"].ToString();
                     #endregion
@@ -280,6 +283,7 @@ namespace Logic
                     drPDF_temp["vcOperName"] = strOperName;
                     drPDF_temp["vcGM"] = strGM;
                     drPDF_temp["vcPDFPath"] = sources_pdf;
+                    drPDF_temp["vcSPISPath"] = sources_spis;
                     dtPDF_temp.Rows.Add(drPDF_temp);
                     #endregion
 
@@ -556,6 +560,74 @@ namespace Logic
 
             return sbr.ToString();
         }
+        public DataTable getToList(DataTable dataTable, ref DataTable dtMessage)
+        {
+            try
+            {
+                //根据供应商及纳期进行分组
+                DataTable dtb = new DataTable("dtb");
+                DataColumn dc1 = new DataColumn("vcSupplierId", Type.GetType("System.String"));
+                //DataColumn dc2 = new DataColumn("vcSupplierPlant", Type.GetType("System.String"));
+                dtb.Columns.Add(dc1);
+                //dtb.Columns.Add(dc2);
+                var query = from t in dataTable.AsEnumerable()
+                            group t by new { t1 = t.Field<string>("vcSupplierId")} into m
+                            select new
+                            {
+                                SupplierId = m.Key.t1,
+                                //SupplierPlant = m.Key.t2,
+                                rowcount = m.Count()
+                            };
+                if (query.ToList().Count > 0)
+                {
+                    query.ToList().ForEach(q =>
+                    {
+                        DataRow dr = dtb.NewRow();
+                        dr["vcSupplierId"] = q.SupplierId;
+                        //dr["vcSupplierPlant"] = q.SupplierPlant;
+                        dtb.Rows.Add(dr);
+                    });
+                }
+                return dtb;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void sendEmailInfo(string strFRId, string strFRName, string strFRAddress, string strTheme, string strEmailBody, DataTable dtToList, ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dtEmail = fs0602_DataAccess.getSupplierEmail();
+                for (int i = 0; i < dtToList.Rows.Count; i++)
+                {
+                    string strSupplierId = dtToList.Rows[i]["vcSupplierId"].ToString();
+                    //string strSupplierPlant = dtToList.Rows[i]["vcSupplierPlant"].ToString();
+                    DataTable dtToInfo = fs0603_Logic.createTable("mailaddress");
+                    DataRow[] drEmail = dtEmail.Select("vcSupplier_id = '" + strSupplierId + "'");
+                    for (int j = 0; j < drEmail.Length; j++)
+                    {
+                        DataRow drToInfo = dtToInfo.NewRow();
+                        drToInfo["address"] = drEmail[j]["vcEmail1"].ToString();
+                        drToInfo["displayName"] = drEmail[j]["vcLXR1"].ToString();
+                        dtToInfo.Rows.Add(drToInfo);
+                    }
+                    DataTable dtCcInfo = null;
+                    string result = ComFunction.SendEmailInfo(strFRAddress, strFRName, strEmailBody, dtToInfo, dtCcInfo, strTheme, "", false);
+                    if (result != "Success")
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "供应商代码：" + strSupplierId +"邮件发送失败，请采取其他形式联络。";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
+        }
     }
 }

@@ -184,7 +184,7 @@ namespace DataAccess
             strSql.Append("       set @dBegin=(     \r\n");
             strSql.Append("           select isnull(b.dEnd ,a.dFrom) as dEnd from                \r\n");
             strSql.Append("            (                \r\n");
-            strSql.Append("                select distinct vcPackSpot,vcFaZhuID,dFrom from TPackFaZhuTime  where vcFaZhuID = '外注纸箱' and vcPackSpot='H2'     \r\n");
+            strSql.Append("                select distinct vcPackSpot,vcFaZhuID,dFrom from TPackFaZhuTime  where vcFaZhuID = '外注纸箱' and vcPackSpot='H2' and (dFrom<GETDATE() and dTo>GETDATE() )    \r\n");
             strSql.Append("            )a                \r\n");
             strSql.Append("            left join                \r\n");
             strSql.Append("            (                \r\n");

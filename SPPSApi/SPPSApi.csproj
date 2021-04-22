@@ -246,10 +246,10 @@
     <Content Include="Doc\Template\FS0303_Export.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Doc\Template\fs0304_Export.xlsx">
+    <Content Include="Doc\Template\FS0304_Export.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Doc\Template\fs0305_Export.xlsx">
+    <Content Include="Doc\Template\FS0305_Export.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Doc\Template\FS0307.xlsx">

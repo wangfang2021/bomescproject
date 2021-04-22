@@ -7,6 +7,7 @@ using DataAccess;
 using System.Collections;
 using System.IO;
 using ImageMagick;
+using Common;
 
 namespace Logic
 {
@@ -228,6 +229,17 @@ namespace Logic
                                 dtImport.Rows[i]["vcPDFUrl"] = strPartId + strSupplierId + Convert.ToDateTime(strFromTime_SPIS).ToString("yyyyMMdd") + "_2.pdf";
                                 //SPIS名
                                 dtImport.Rows[i]["vcSPISUrl"] = strPartId + strSupplierId + Convert.ToDateTime(strFromTime_SPIS).ToString("yyyyMMdd") + "_3.jpg";
+                                string sources_temp = strPath_temp + strOperImage;//原图临时文件地址
+                                string sources_pic = strPath_pic + (strPartId + strSupplierId + Convert.ToDateTime(strFromTime_SPIS).ToString("yyyyMMdd") + "_1.jpg");//原图正式文件地址
+                                //移动到原图正式地址
+                                if (System.IO.File.Exists(sources_temp))
+                                {
+                                    File.Copy(sources_temp, sources_pic, true);//true代表可以覆盖同名文件
+                                    File.Delete(sources_temp);
+                                    //转移pic照片到window中
+                                    SavePicFiletoWindow(sources_pic);
+                                }
+
                                 if (strApplyId == "")
                                 {
                                     dtImport.Rows[i]["vcType"] = "add";
@@ -287,11 +299,11 @@ namespace Logic
                     string strPICUrl = dtImport.Rows[i]["vcPicUrl"].ToString();//原图正式文件
                     string sources_pic = strPath_pic + strPICUrl;//原图正式文件地址
                     //移动到原图正式地址
-                    if (System.IO.File.Exists(sources_temp))
-                    {
-                        File.Copy(sources_temp, sources_pic, true);//true代表可以覆盖同名文件
-                        File.Delete(sources_temp);
-                    }
+                    //if (System.IO.File.Exists(sources_temp))
+                    //{
+                    //    File.Copy(sources_temp, sources_pic, true);//true代表可以覆盖同名文件
+                    //    File.Delete(sources_temp);
+                    //}
                     //正式地址图片转成二进制流
                     byte[] btPICImage = fS0617_Logic.PhotoToArray(sources_pic);
 
@@ -458,6 +470,45 @@ namespace Logic
             }
             catch (Exception ex)
             {
+                throw ex;
+            }
+        }
+        public void SavePicFiletoWindow(string filePath)
+        {
+            try
+            {
+
+                DirectoryInfo theFolder = new DirectoryInfo(filePath);
+                string environment = Environment.OSVersion.ToString().ToLower();
+                //Console.WriteLine("进入保存方法");
+                if (!environment.Contains("windows"))
+                {
+                    //Console.WriteLine("linux");
+                    //foreach (FileInfo info in theFolder.GetFiles())
+                    //{
+                    Console.WriteLine("linux正式保存");
+                    FileInfo info = new FileInfo(filePath);
+                    ComFunction.HttpUploadFile(info.FullName, info.Name, @"Doc\Image\SPISPic\");
+                    Console.WriteLine("linux结束保存");
+                    //}
+                }
+                //else
+                //{
+                //    //Console.WriteLine("windows");
+                //    //转存下载
+                //    foreach (FileInfo info in theFolder.GetFiles())
+                //    {
+                //        //Console.WriteLine("windows正式保存");
+                //        string realPath = basePath + @"\Doc\upload_spisapply\apply\" + info.Name;
+                //        System.IO.File.Copy(info.FullName, realPath, true);
+                //        //Console.WriteLine("windows正式保存");
+                //    }
+
+                //}
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine(ex);
                 throw ex;
             }
         }

@@ -680,11 +680,25 @@ namespace DataAccess
 
                         //插入
                         DataRow[] dr = dtbase.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "'");
-                        string time = dt.Rows[i]["dNaRuTime"].ToString().Split(' ')[1];
-                        DataRow[] dr1 = dtFaZhuTime.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackGPSNo"] + "'and dNaQiFromTime<='" + time + "'and dNaQiToTime>='" + time + "' ");
+                       // DateTime time = Convert.ToDateTime(dt.Rows[i]["dNaRuTime"].ToString());
+                        DateTime time = Convert.ToDateTime(dt.Rows[i]["dNaRuTime"].ToString().Split(' ')[1]);
+                        DataRow[] dr1 = dtFaZhuTime.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "'");
+
+                        string bianci = "";
+                        for (int y = 0; y < dr1.Length; y++)
+                        {
+                            DateTime time1 = Convert.ToDateTime(dr1[y]["dNaQiFromTime"].ToString());
+                            DateTime time2 = Convert.ToDateTime(dr1[y]["dNaQiToTime"].ToString());
+                            if (time1 <= time && time2 >= time)
+                            {
+
+                                bianci = dr1[y]["vcBianCi"].ToString();
+                                break;
+                            }
+                        }
                         DataRow[] dr2 = dtCode.Select(" vcValue2='" + dt.Rows[i]["vcPackSpot"] + "'");
 
-                        if (Convert.ToInt32(dr[i]["vcNaRuUnit"]) % Convert.ToInt32(dr[i]["iOrderNumber"]) != 0)
+                        if (Convert.ToInt32(dt.Rows[i]["iOrderNumber"]) % Convert.ToInt32(dr[i]["iZCRelease"]) != 0)
                         {
                             strErrorPartId = "此订单号:" + dr[i]["vcPackGPSNo"].ToString() + "的发注收容数不是订购数量的整数倍！请修改订购数量";
                             return;
@@ -702,7 +716,7 @@ namespace DataAccess
                         sql.AppendLine("      vcSupplierCode,");
                         sql.AppendLine("      vcBuShu,");
                         sql.AppendLine("      vcPackSpot,");
-                        sql.AppendLine("      vcCangKuCode,vcIsStop");
+                        sql.AppendLine("      vcCangKuCode,vcIsStop,vcIsorNoFaZhu,");
                         sql.AppendLine("      vcOperatorID,");
                         sql.AppendLine("      dOperatorTime");
                         sql.AppendLine("     )");
@@ -715,21 +729,21 @@ namespace DataAccess
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], true) + ",");
                         sql.AppendLine("'" + dr[0]["vcParstName"].ToString() + "',");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["iOrderNumber"], false) + ",");
-                        sql.AppendLine("'0',");
+                        sql.AppendLine("'1',");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dNaRuTime"], false) + ",");
-                        string vcNaRuBianci = dr1[0]["vcFaZhuID"].ToString() == "" ? dt.Rows[i]["vcNaRuBianci"].ToString() : dr1[0]["vcFaZhuID"].ToString();
+                        string vcNaRuBianci = bianci == "" ? dt.Rows[i]["vcNaRuBianci"].ToString() : bianci;
 
                         sql.AppendLine("'" + vcNaRuBianci + "',");
                         sql.AppendLine("'" + dr[0]["iRelease"].ToString() + "',");
                         sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
-                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcBuShu"], false) + ",");
+                        //sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcBuShu"], false) + ",");
                         sql.AppendLine("'" + dr2[0]["vcValue3"].ToString() + "',");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + ",");
                         sql.AppendLine("'" + dr2[0]["vcValue4"].ToString() + "',");
                         //if (Convert.ToInt32(drpm[0]["iNum"].ToString()) > 0)
                         sql.AppendLine($"   '0',");
                         //else
-                        //    sql.AppendLine($"   '1',");
+                         sql.AppendLine($"   '0',");
                         sql.AppendLine($"     		{strUserId},");
                         sql.AppendLine("     		getDate()");
                         sql.AppendLine("     	); ");
@@ -758,7 +772,7 @@ namespace DataAccess
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], true) + ",");
                         sql.AppendLine("'" + dr[0]["vcParstName"].ToString() + "',");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["iOrderNumber"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["VCFaBuType"], false) + ",");
+                        sql.AppendLine("'1',");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dNaRuTime"], false) + ",");
 
                         sql.AppendLine("'" + vcNaRuBianci + "',");

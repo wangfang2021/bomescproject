@@ -177,7 +177,7 @@ namespace DataAccess
                 sbr.AppendLine("                  LEFT JOIN(SELECT vcPart_id, vcReceiver, vcSupplierId, vcPackingPlant, vcBZPlant, vcBZUnit,vcSYTCode");
                 sbr.AppendLine("                            FROM VI_TPackageMaster");
                 sbr.AppendLine("                           ) e ON a.vcPackingPlant=e.vcPackingPlant AND a.vcReceiver=e.vcReceiver AND a.vcPartId=e.vcPart_id AND a.vcSupplierId=e.vcSupplierId AND A.vcSYTCode=e.vcSYTCode");
-                sbr.AppendLine("                  LEFT JOIN(SELECT vcPartsNo, vcPackNo, vcShouhuofangID,vcSYTCode FROM VI_PackItem  WHERE  dUsedFrom <= GETDATE() AND dUsedTo >= GETDATE()");
+                sbr.AppendLine("                  LEFT JOIN(SELECT vcPartsNo, vcPackNo, vcShouhuofangID,vcSYTCode FROM VI_PackItem");
                 sbr.AppendLine("                            ) f ON a.vcPartId=f.vcPartsNo AND a.vcReceiver=f.vcShouhuofangID and a.vcSYTCode=f.vcSYTCode");
                 sbr.AppendLine("	) b ON (CASE WHEN LEN(REPLACE(a.vcPart_id,'-','')) = 12 THEN REPLACE(a.vcPart_id,'-','') WHEN LEN(REPLACE(a.vcPart_id,'-','')) = 10 THEN REPLACE(a.vcPart_id,'-','')+'00' END)=b.vcPartId AND a.vcReceiver=b.vcReceiver AND a.vcSupplier_id=b.vcSupplierId");
                 sbr.AppendLine("    LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C003') e ON a.vcInOutflag=e.vcValue");

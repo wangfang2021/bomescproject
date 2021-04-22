@@ -248,7 +248,7 @@ namespace SPPSApi.Controllers.G03
                                     "vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8","vcNum9",
                                     "vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "fs0304_export.xlsx", 2, logininfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0304_export.xlsx", 2, logininfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiresult.code = ComConstant.ERROR_CODE;

@@ -179,6 +179,15 @@ namespace SPPSApi.Controllers.G07
                 #region 计算完毕检索计算结果
                 DataTable computeJGDT = fs0705_Logic.searchComputeJG(loginInfo.BaoZhuangPlace);
 
+                if (computeJGDT.Rows.Count<=0)
+                {
+                    //计算成功，本次计算订购数量为0
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.flag = 2;
+                    apiResult.data = "计算成功，本次计算订购数量为0";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("dTimeStr", ConvertFieldType.DateType, "yyyy/MM/dd hh:mm:ss");

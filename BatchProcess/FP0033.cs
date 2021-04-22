@@ -20,18 +20,18 @@ namespace BatchProcess
             try
             {
                 //批处理开始
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0200", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI3301", null, strUserId);
 
                 Start();
 
                 //批处理结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI3302", null, strUserId);
                 return true;
             }
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PE0200", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE3301", null, strUserId);
                 throw ex;
             }
         }

@@ -26,7 +26,7 @@ namespace BatchProcess
             try
             {
                 //批处理开始
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0200", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1101", null, strUserId);
                 if (strTableName == "tCheckMethod_Master")
                     UpdateDB_tCheckMethod_Master(strUserId);//更新检查表
                 if (strTableName == "TPackageMaster")
@@ -43,13 +43,13 @@ namespace BatchProcess
                     fp.main(strUserId);
                 }
                 //批处理结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1102", null, strUserId);
                 return true;
             }
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PE0200", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1101", null, strUserId);
                 throw ex;
             }
         }

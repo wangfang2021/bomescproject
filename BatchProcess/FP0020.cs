@@ -20,28 +20,28 @@ namespace BatchProcess
             try
             {
                 //批处理开始
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0200", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI2001", null, strUserId);
                 DataTable dt = GetRequestData();
                 if (dt.Rows.Count == 0)
-                {//没有FORECAST要请求的数据
-                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                {//没有EKANBAN要请求的数据
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE2001", null, strUserId);
                     return true;
                 }
                 DataSet ds = GetNQCData(dt);
                 if (ds.Tables.Count == 0)
-                {//没有FORECAST结果数据
-                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                {//没有EKANBAN结果数据
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE2002", null, strUserId);
                     return true;
                 }
                 UpdateDB(ds, strUserId);
                 //批处理结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI2002", null, strUserId);
                 return true;
             }
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PE0200", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE2003", null, strUserId);
                 throw ex;
             }
         }

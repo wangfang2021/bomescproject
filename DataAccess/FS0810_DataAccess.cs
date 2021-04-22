@@ -171,7 +171,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select iAutoId,vcBigPM,vcSmallPM,'0' as vcAddFlag,'0' as vcModFlag,vcStandardTime  \n");
+                strSql.Append("select iAutoId,vcBigPM,vcSmallPM,'0' as vcAddFlag,'0' as vcModFlag,cast(vcStandardTime as int) as vcStandardTime  \n");
                 strSql.Append("from TPMRelation where 1=1  \n");
                 if(smallpm!="" && smallpm!=null)
                     strSql.Append("and isnull(vcSmallPM,'') like '%" + smallpm + "%'  \n");

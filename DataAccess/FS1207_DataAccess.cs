@@ -349,9 +349,9 @@ namespace DataAccess
                 str += "           select A1.vcPartsNo,A1.vcMonth,B.iCONum,A1.Total,A1.iXZNum, A1.iAutoId from \r\n";
                 str += "	       (select vcMonth,vcPartsNo,iCONum,Total,iXZNum, iAutoId from tSSP where vcMonth='" + mon + "' and iFZFlg='0') A1 \r\n";
                 str += "           left join \r\n";
-                str += "           (select distinct C.vcPartsNo,C.iCONum from tSSP C \r\n";
+                str += "           (select distinct C.vcPartsNo,C.iCO as iCONum from tSSP C \r\n";
                 str += "            inner join \r\n";
-                str += "	        (select vcPartsNo,MAX(vcMonth) as vcMonth from tSSP where vcMonth<'" + mon + "' group by vcPartsNo) D \r\n";
+                str += "	        (select vcPartsNo,MAX(vcMonth) as vcMonth from tSSP where vcMonth<='" + mon + "' group by vcPartsNo) D \r\n";
                 str += "            on C.vcPartsNo=D.vcPartsNo and C.vcMonth=D.vcMonth \r\n";
                 str += "            ) B on A1.vcPartsNo=B.vcPartsNo \r\n";
                 str += "        ) t3 \r\n";

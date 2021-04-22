@@ -1823,7 +1823,7 @@ namespace Common
         /// <param name="strFileName">文件名</param>
         /// <param name="strToDir">Doc\\Export\\  或者其他</param>
         /// <returns></returns>
-        public static bool HttpUploadFile( string filepath,string strFileName,string strToDir)
+        public static bool HttpUploadFile(string filepath, string strFileName, string strToDir)
         {
             //        调用例子
             //        ComFunction.HttpUploadFile(_webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar
@@ -1875,7 +1875,7 @@ namespace Common
                 {
                     throw new Exception("文件上传异常");
                 }
-                    
+
                 else
                     return true;
 
@@ -1886,7 +1886,55 @@ namespace Common
                 ConsoleWriteLine("filepath:" + filepath);
                 ConsoleWriteLine("strFileName:" + strFileName);
                 ConsoleWriteLine("strToDir:" + strToDir);
-                ComMessage.WriteInDB("dmzUpload", "E", "文件上传异常", ex.Message+" 参数filepath=" + filepath + ",strFileName="+ strFileName + ",strToDir=" + strToDir, ex.StackTrace, "system");
+                ComMessage.WriteInDB("dmzUpload", "E", "文件上传异常", ex.Message + " 参数filepath=" + filepath + ",strFileName=" + strFileName + ",strToDir=" + strToDir, ex.StackTrace, "system");
+                throw ex;
+            }
+        }
+        public static string HttpGetWindowPath(string pathtype)
+        {
+            //返回windows路径
+            try
+            {
+                string url = "";
+                if (pathtype == "pdf")
+                    url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/getWindowsPath_pdf";
+                if (pathtype == "img")
+                    url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/getWindowsPath_img";
+                if (pathtype == "crv")
+                    url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/getWindowsPath_crv";
+                if(url=="")
+                {
+                    throw new Exception("路径读取失败");
+                }
+                // 设置参数
+                HttpWebRequest request = WebRequest.Create(url + "?type=" + pathtype) as HttpWebRequest;
+                CookieContainer cookieContainer = new CookieContainer();
+                request.CookieContainer = cookieContainer;
+                request.AllowAutoRedirect = true;
+                request.Method = "POST";
+                string boundary = DateTime.Now.Ticks.ToString("X"); // 随机分隔线
+                request.ContentType = "multipart/form-data;charset=utf-8;boundary=" + boundary;
+
+                //发送请求并获取相应回应数据
+                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                //直到request.GetResponse()程序才开始向目标网页发送Post请求
+                Stream instream = response.GetResponseStream();
+                StreamReader sr = new StreamReader(instream, Encoding.UTF8);
+                //返回结果网页（html）代码
+                string content = sr.ReadToEnd();
+                if (content == "error")
+                {
+                    throw new Exception("路径读取失败");
+                }
+
+                else
+                    return content;
+
+            }
+            catch (Exception ex)
+            {
+                ConsoleWriteLine(ex.Message);
+                ComMessage.WriteInDB("dmzUpload", "E", "路径读取失败", ex.Message, ex.StackTrace, "system");
                 throw ex;
             }
         }
@@ -1897,7 +1945,7 @@ namespace Common
         /// <param name="strFileName">获取的文件名</param>
         /// <param name="strToPath">保存到linux的目录（相对应用目录）</param>
         /// <returns></returns>
-        public static string HttpDownload(string strFromDir,string strFileName, string strToPath)
+        public static string HttpDownload(string strFromDir, string strFileName, string strToPath)
         {
             //调用例子
             //ComFunction.HttpDownload("Doc\\Export\\",
@@ -1908,7 +1956,7 @@ namespace Common
 
             string url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/downloadDMZApi" + "?name=" + strFileName + "&dir=" + strFromDir;
 
-            string tempFile = strToPath + Path.DirectorySeparatorChar + strFileName; 
+            string tempFile = strToPath + Path.DirectorySeparatorChar + strFileName;
             if (System.IO.File.Exists(tempFile))
             {
                 System.IO.File.Delete(tempFile);    //存在则删除

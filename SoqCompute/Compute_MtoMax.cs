@@ -32,7 +32,7 @@ namespace SoqCompute
 			for (int i = 0; i < beginData.Count; i++)
 			{
 				string[] temp = (string[])beginData[i];
-				//if (temp[0] == "G90101201000")
+				//if (temp[0] == "435120R03000")
 				//{
 				//	int a = 0;
 				//	a = 1;
@@ -41,7 +41,6 @@ namespace SoqCompute
 				if (iBox_Last_PZ == 0)
 					continue;//没有剩余的箱子要分配，跳过
 							 //返回某周分配总数最少的一天
-
 				int iMinDay = -1;
 				switch (nowWeek.ToString()) {
 					case "1": iMinDay = getWeekMinDay(dtCalendar, nowWeek.ToString(), beginData, beforeTotalList, ref hash_week1); break;

@@ -100,9 +100,9 @@ namespace SoqCompute
 							iBox = iBox * 2;
 						//以下存储要匹配收容数，最后按照订单数进行比较
 						if (hash[j] == null)
-							hash[j] = iBox * iQuantityPercontainer;
+							hash[j] = iBox ;
 						else
-							hash[j] = Convert.ToInt32(hash[j]) + iBox * iQuantityPercontainer;
+							hash[j] = Convert.ToInt32(hash[j]) + iBox ;
 					}
 				}
 				for (int i = 0; i < beginData.Count; i++)
@@ -119,9 +119,9 @@ namespace SoqCompute
 							iBox = iBox * 2;
 						//以下存储要匹配收容数，最后按照订单数进行比较
 						if (hash[j] == null)
-							hash[j] = iBox * iQuantityPercontainer;
+							hash[j] = iBox ;
 						else
-							hash[j] = Convert.ToInt32(hash[j]) + iBox * iQuantityPercontainer;
+							hash[j] = Convert.ToInt32(hash[j]) + iBox ;
 					}
 				}
 			}

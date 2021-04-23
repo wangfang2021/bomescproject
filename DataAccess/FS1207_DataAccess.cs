@@ -301,10 +301,10 @@ namespace DataAccess
             try
             {
                 string str = "";
-                str += "	select vcMonth,t1.vcPartsNo,convert(int,isnull(iSRNum,0)) as iSRNum,Total,iXZNum,Total+iXZNum as iBYNum,iFZNum,iCO AS syco,iCONum,'2' as iFlag,vcPartsNoFZ,vcSource, t1.iAutoId, '0' as vcModFlag,'0' as vcAddFlag  from (															\r\n";
-                str += "	select * from tSSP) t1															\r\n";
-                str += "	left join tSSPMaster t2															\r\n";
-                str += "	on t1.vcPartsNo=t2.vcPartsNo 															\r\n";
+                str += "	select vcMonth,t1.vcPartsNo,convert(int,isnull(iSRNum,0)) as iSRNum,Total,iXZNum,Total+iXZNum as iBYNum,iFZNum,iCO AS syco,iCONum,'2' as iFlag,vcPartsNoFZ,vcSource, t1.iAutoId, '0' as vcModFlag,'0' as vcAddFlag from ( \r\n";
+                str += "	select * from tSSP) t1  \r\n";
+                str += "	left join tSSPMaster t2  \r\n";
+                str += "	on t1.vcPartsNo=t2.vcPartsNo  \r\n";
                 str += " where 1=1 \r\n";
                 if (mon != "")
                 {
@@ -312,7 +312,7 @@ namespace DataAccess
                 }
                 if (partsno != "")
                 {
-                    str += "AND t1.vcPartsNo like '" + partsno + "%'									";
+                    str += "AND t1.vcPartsNo like '" + partsno + "%' ";
                 }
                 str += "order by t1.vcPartsNo,t1.iAutoId";
                 return excute.ExcuteSqlWithSelectToDT(str.ToString());
@@ -375,10 +375,10 @@ namespace DataAccess
         public DataTable searchFZFinsh(string mon, string partsno)
         {
             string str = "";
-            str += "	select vcMonth,t1.vcPartsNo,convert(int,isnull(iSRNum,0)) as iSRNum,Total,iXZNum,Total+iXZNum as iBYNum,iFZNum,iCO AS syco,iCONum,'2' as iFlag,vcPartsNoFZ,vcSource, t1.iAutoId, '0' as vcModFlag,'0' as vcAddFlag  from (															\r\n";
-            str += "	select * from tSSP where iFZFlg='1') t1															\r\n";
-            str += "	left join tSSPMaster t2															\r\n";
-            str += "	on t1.vcPartsNo=t2.vcPartsNo 															\r\n";
+            str += "	select vcMonth,t1.vcPartsNo,convert(int,isnull(iSRNum,0)) as iSRNum,Total,iXZNum,Total+iXZNum as iBYNum,iFZNum,iCO AS syco,iCONum,'2' as iFlag,vcPartsNoFZ,vcSource, t1.iAutoId, '0' as vcModFlag,'0' as vcAddFlag from (  \r\n";
+            str += "	select * from tSSP where iFZFlg='1') t1  \r\n";
+            str += "	left join tSSPMaster t2	 \r\n";
+            str += "	on t1.vcPartsNo=t2.vcPartsNo  \r\n";
             str += " where 1=1 \r\n";
             if (mon != "")
             {
@@ -386,7 +386,7 @@ namespace DataAccess
             }
             if (partsno != "")
             {
-                str += "AND t1.vcPartsNo like '" + partsno + "%'									";
+                str += "AND t1.vcPartsNo like '" + partsno + "%' ";
             }
             str += "order by t1.vcPartsNo,t1.iAutoId";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());

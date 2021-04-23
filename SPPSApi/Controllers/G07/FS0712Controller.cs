@@ -197,10 +197,12 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 DataTable dt = FS0712_Logic.Search(PackSpot, PackNo, PackGPSNo, ZuoYeQuFen, PackSupplier, dFrom, dTo);
+                string resMsg = "";
+                string[] head = { "作业区分", "订单号", "包材品番", "GPS品番", "供应商", "包装场", "数量" ,"补给作业时间","资材作业时间","验收者"};
                 string[] fields = { "vcZuoYeQuFen","vcOrderNo","vcPackNo","vcPackGPSNo","vcSupplierID","vcPackSpot","iNumber","dBuJiTime",
                     "dZiCaiTime","vcYanShouID"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0712_Export.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "包装材作业实绩导出", ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

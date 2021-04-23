@@ -355,7 +355,7 @@ namespace DataAccess
                 strSql.AppendLine("  and dYanshouTime between '" + dFrom + "' and '" + dTo + "'     ");
                 if (strSupplierCode.Count != 0)
                 {
-                    strSql.AppendLine($"      AND vcPackSpot in( ");
+                    strSql.AppendLine($"      AND  vcSupplieCode in( ");
                     for (int i = 0; i < strSupplierCode.Count; i++)
                     {
                         if (strSupplierCode.Count - i == 1)
@@ -369,7 +369,7 @@ namespace DataAccess
                 }
                 if (PackSpot.Count != 0)
                 {
-                    strSql.AppendLine($"      AND vcSupplieCode in( ");
+                    strSql.AppendLine($"      AND vcPackSpot in( ");
                     for (int i = 0; i < PackSpot.Count; i++)
                     {
                         if (PackSpot.Count - i == 1)
@@ -447,7 +447,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("      select * from TPackDDTJ_Temp         \n");
+                strSql.Append("      select * from TPackDDTJ_Temp   order by vcOrderNo asc      \n");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

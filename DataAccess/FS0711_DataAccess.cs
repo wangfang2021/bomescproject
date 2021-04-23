@@ -92,13 +92,13 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("  select  ");
                 strSql.AppendLine("  t1.vcPackNo,t1.vcPackSpot,   ");
-                strSql.AppendLine("  t1.iLiLun+t1.iConsume-t1.iRKNum as ibeginNum,   ");
-                strSql.AppendLine("  t1.iConsume,t1.iRKNum,t1.iLiLun   ");
+                strSql.AppendLine("  t1.iLiLun+t1.iConsume-t1.iRKNum-t1.dChange as ibeginNum,   ");
+                strSql.AppendLine("  t1.iConsume,t1.iRKNum,t1.iLiLun ,t1.dChange  ");
                 strSql.AppendLine("  from(   ");
                 strSql.AppendLine("  select a.vcPackSpot,a.vcPackNo,      ");
                 strSql.AppendLine("        case when isnull(b.iRNum,0)<>0 then b.iRNum else 0 end  as iRKNum,      ");
                 strSql.AppendLine(" 	   case when isnull(c.iCNum,0)<>0 then c.iCNum else 0 end  as iConsume,    ");
-                strSql.AppendLine("        a.iLiLun from           ");
+                strSql.AppendLine("        a.iLiLun,a.dChange from           ");
                 strSql.AppendLine("   (    ");
                 strSql.AppendLine("   select * from TPackZaiKu     ");
                 strSql.AppendLine("   where 1=1    ");

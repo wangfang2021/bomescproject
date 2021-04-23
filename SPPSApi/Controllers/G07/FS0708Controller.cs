@@ -102,7 +102,7 @@ namespace SPPSApi.Controllers.G07
             }
             string OrderFrom = dataForm.OrderFrom;
             string OrderTo = dataForm.OrderTo;
-            string PackNo = dataForm.PackNo;
+            string PackNo = dataForm.PackNO;
             string PackGPSNo = dataForm.PackGPSNo;
             List<Object> Type = new List<object>();
             if (dataForm.Type.ToObject<List<Object>>() == null)

@@ -103,6 +103,13 @@ namespace DataAccess
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
 
                     DataRow[] dr = dtbase.Select("vcPackSpot='"+ listInfoData[i]["vcPackSpot"].ToString() + "' and vcPackGPSNo='"+ listInfoData[i]["vcPackGPSNo"].ToString()+ "'");
+                    if (dr.Length==0) {
+
+                        strErrorPartId = "没有维护此品番!";
+                        return;
+                    }
+                    
+                    
                     if (bAddFlag == true)
                     {//新增
                         sql.AppendLine("     INSERT INTO TPackPanKui ( ");
@@ -131,6 +138,18 @@ namespace DataAccess
                         sql.AppendLine("     		getDate()");
                         sql.AppendLine("     	); ");
 
+                        if (listInfoData[i]["vcXiuZhengFlag"].ToString() == "0")
+                        {
+
+                            sql.AppendLine("    update TPackZaiKu set iLiLun=iLiLun+'" + listInfoData[i]["iNumber"].ToString() + "' ,dChange=dChange+'" + listInfoData[i]["iNumber"].ToString() + "' where vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString() + "' and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString() + "'	 ");
+                        }
+                        else {
+
+                            sql.AppendLine("    update TPackZaiKu set iLiLun=iLiLun-'" + listInfoData[i]["iNumber"].ToString() + "' ,dChange=dChange-'" + listInfoData[i]["iNumber"].ToString() + "' where vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString() + "' and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString() + "'	 ");
+
+                        }
+
+
 
                     }
                     else if (bAddFlag == false && bModFlag == true)
@@ -152,6 +171,17 @@ namespace DataAccess
                         sql.AppendLine($"  WHERE");
                         sql.AppendLine($"  iAutoId='{iAutoId}';");
 
+                        if (listInfoData[i]["vcXiuZhengFlag"].ToString() == "0")
+                        {
+
+                            sql.AppendLine("    update TPackZaiKu set iLiLun=iLiLun+'" + listInfoData[i]["iNumber"].ToString() + "' ,dChange=dChange+'" + listInfoData[i]["iNumber"].ToString() + "' where vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString() + "' and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString() + "'	 ");
+                        }
+                        else
+                        {
+
+                            sql.AppendLine("    update TPackZaiKu set iLiLun=iLiLun-'" + listInfoData[i]["iNumber"].ToString() + "' ,dChange=dChange-'" + listInfoData[i]["iNumber"].ToString() + "' where vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString() + "' and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString() + "'	 ");
+
+                        }
 
                     }
                     excute.ExcuteSqlWithStringOper(sql.ToString());

@@ -359,9 +359,16 @@ namespace SPPSApi.Controllers.G07
                 if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
                 {
                     dtJS = getResultCashByKey(strSearchKey);
+                    if (dtJS.Rows.Count==0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "没有可导出数据！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 else
                 {
+                 
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "没有可导出数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -460,7 +467,7 @@ namespace SPPSApi.Controllers.G07
                     }
 
                 }
-                string filepath = ComFunction.DataTableToExcel(head, fields, dtJS, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
+                string filepath = ComFunction.DataTableToExcel(head, fields, dtJS, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "消耗计算导出", ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

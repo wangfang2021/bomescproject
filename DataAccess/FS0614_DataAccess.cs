@@ -107,7 +107,7 @@ namespace DataAccess
 
                 }
 
-
+                List<string> supplierList = new List<string>();
 
                 TargetYM = TargetYM.Distinct().ToList();
                 //获取基础信息
@@ -450,6 +450,11 @@ namespace DataAccess
                                 string vcSCSName = row1[0]["vcSCSName"].ToString();
                                 string vcSCSAdress = row1[0]["vcSCSAdress"].ToString();
 
+
+                                if (!supplierList.Contains(vcSupplierId))
+                                {
+                                    supplierList.Add(vcSupplierId);
+                                }
                                 //
                                 while (qty - BZUnit >= 0)
                                 {
@@ -468,7 +473,7 @@ namespace DataAccess
                             int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                             sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1' ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE(),dCreateDate = GETDATE() WHERE iAutoId =" + iAutoId + " ");
 
-
+                            sbr.AppendLine("");
                         }
 
                     }
@@ -1659,7 +1664,7 @@ namespace DataAccess
             {
                 string time = DateTime.Now.ToString("yyyy/MM/dd");
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT SEQNO FROM dbo.TSeqNo WHERE DDATE = '" + time + "' AND dbo.TSeqNo = 'OrdH2'");
+                sbr.AppendLine("SELECT SEQNO FROM dbo.TSeqNo WHERE DDATE = '" + time + "' AND FLAG = 'OrdH2'");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
                 if (dt.Rows.Count > 0)
                 {

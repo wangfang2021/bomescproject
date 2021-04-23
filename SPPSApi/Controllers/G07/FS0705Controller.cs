@@ -237,7 +237,7 @@ namespace SPPSApi.Controllers.G07
                  * 查询出计算结果中订单号为空的数据(订单号为空，说明没有生成发注数据),并且计算出的订购数量大于0(等于0不需要订购)
                  */
                 DataTable JGDT = fs0705_Logic.SCFZDataSearchComputeJG(loginInfo.BaoZhuangPlace);
-                fs0705_Logic.SCFZData(JGDT, strOrderNo);
+                fs0705_Logic.SCFZData(JGDT, strOrderNo,loginInfo.UserId);
 
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -278,7 +278,7 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "没有找到需要订购的品番信息";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string[] fields = { "vcPackNo","vcPackGPSNo","iF_DingGou","vcBianCi","dTimeStr"};
+                string[] fields = { "vcFaZhuID","vcPackNo","vcPackGPSNo","iF_DingGou","vcBianCi","dTimeStr"};
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {

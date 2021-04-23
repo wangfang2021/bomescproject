@@ -381,7 +381,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="strSql"></param>
         /// <param name="strOrderNo"></param>
-        public void SCFZData(DataTable dt, string strOrderNo)
+        public void SCFZData(DataTable dt, string strOrderNo,string strUserID)
         {
             StringBuilder strSql = new StringBuilder();
             try
@@ -478,11 +478,11 @@ namespace DataAccess
                 strSql.AppendLine("        ,b.iA_SRS      ");
                 strSql.AppendLine("        ,c.vcSupplierCode      ");
                 strSql.AppendLine("        ,c.vcSupplierName      ");
-                strSql.AppendLine("        ,(select top 1 vcValue3 from TOutCode where vcIsColum = '0' and vcCodeId = 'C055' and vcValue1 = '替换用户ID' and vcValue2 = '替换包装厂')      ");
+                strSql.AppendLine("        ,d.vcValue3      ");
                 strSql.AppendLine("        ,b.vcPackSpot      ");
-                strSql.AppendLine("        ,(select top 1 vcValue4 from TOutCode where vcIsColum = '0' and vcCodeId = 'C055' and vcValue1 = '替换用户ID' and vcValue2 = '替换包装厂')      ");
+                strSql.AppendLine("        ,d.vcValue4      ");
                 strSql.AppendLine("        ,'0'      ");
-                strSql.AppendLine("        ,'替换用户ID'      ");
+                strSql.AppendLine("        ,'"+strUserID+"'      ");
                 strSql.AppendLine("        ,GETDATE()      ");
                 strSql.AppendLine("       from          ");
                 strSql.AppendLine("       (          ");
@@ -498,8 +498,8 @@ namespace DataAccess
                 strSql.AppendLine("       ) c on b.vcPackNo = c.vcPackNo and b.vcPackSpot = c.vcPackSpot          ");
                 strSql.AppendLine("       left JOIN          ");
                 strSql.AppendLine("       (          ");
-                strSql.AppendLine("           select vcPackNo,vcPackSpot,vcBuShu,vcCangKuCode from TPackOrderFaZhu          ");
-                strSql.AppendLine("       ) d on b.vcPackNo = c.vcPackNo and b.vcPackSpot = d.vcPackSpot          ");
+                strSql.AppendLine("            select * from TOutCode where vcCodeId='C055'and vcValue1='" + strUserID + "'         ");
+                strSql.AppendLine("       ) d on b.vcPackSpot = d.vcValue2          ");
                 #endregion
 
                 #region 将此次的数据结果插入包材实际表中
@@ -536,11 +536,11 @@ namespace DataAccess
                 strSql.AppendLine("        ,'0'          ");
                 strSql.AppendLine("        ,c.vcSupplierCode          ");
                 strSql.AppendLine("        ,b.vcPackSpot          ");
-                strSql.AppendLine("        ,(select top 1 vcValue4 from TOutCode where vcIsColum = '0' and vcCodeId = 'C055' and vcValue1 = '替换用户ID' and vcValue2 = '替换包装厂')          ");
+                strSql.AppendLine("        ,d.vcValue4          ");
                 strSql.AppendLine("        ,b.dNaQiTime          ");
                 strSql.AppendLine("        ,'0'          ");
-                strSql.AppendLine("        ,(select top 1 vcValue3 from TOutCode where vcIsColum = '0' and vcCodeId = 'C055' and vcValue1 = '替换用户ID' and vcValue2 = '替换包装厂')          ");
-                strSql.AppendLine("        ,'替换用户ID'          ");
+                strSql.AppendLine("        ,d.vcValue3          ");
+                strSql.AppendLine("        ,'"+strUserID+"'          ");
                 strSql.AppendLine("        ,GETDATE()          ");
                 strSql.AppendLine("        from                                     ");
                 strSql.AppendLine("        (                                        ");
@@ -556,8 +556,8 @@ namespace DataAccess
                 strSql.AppendLine("       ) c on b.vcPackNo = c.vcPackNo and b.vcPackSpot = b.vcPackSpot          ");
                 strSql.AppendLine("       left JOIN          ");
                 strSql.AppendLine("       (          ");
-                strSql.AppendLine("           select vcPackNo,vcPackSpot,vcBuShu,vcCangKuCode from TPackOrderFaZhu          ");
-                strSql.AppendLine("       ) d on b.vcPackNo = c.vcPackNo and b.vcPackSpot = d.vcPackSpot          ");
+                strSql.AppendLine("           select * from TOutCode where vcCodeId='C055'and vcValue1='"+strUserID+"'          ");
+                strSql.AppendLine("       ) d on b.vcPackSpot=d.vcValue2          ");
                 #endregion
 
                 excute.ExcuteSqlWithStringOper(strSql.ToString());

@@ -393,47 +393,47 @@ namespace DataAccess
                 switch (Kind)
                 {
                     case "0":
-                        //strSql.AppendLine("    select * from MonthProdPlanTbl where vcMonth='" + dFtime + "'       ");
-                        //strSql.AppendLine("    union all                                                    ");
-                        strSql.AppendLine("    select * from WeekProdPlanTbl	where vcMonth='" + dFtime + "'      ");
+                        strSql.AppendLine("    select * from WeekProdPlanTbl where vcMonth='" + dFtime + "'  and isnull(montouch,'')=''      ");
+                        strSql.AppendLine("    union all                                                    ");
+                        strSql.AppendLine("    select * from WeekProdPlanTbl	where montouch='" + dFtime + "'      ");
                         strSql.AppendLine("    )a                                                           ");
                         if (dFtime.Split("-")[1] != dTtime.Split("-")[1])
                         {
                             strSql.AppendLine("    left join                                                   ");
                             strSql.AppendLine("    (                                                            ");
-                            //strSql.AppendLine("    select * from MonthProdPlanTbl where vcMonth='" + dTtime + "'       ");
-                            //strSql.AppendLine("    union all                                                    ");
-                            strSql.AppendLine("    select * from WeekProdPlanTbl	where vcMonth='" + dTtime + "'     ");
+                            strSql.AppendLine("    select * from WeekProdPlanTbl where vcMonth='" + dTtime + "'   and isnull(montouch,'')=''       ");
+                            strSql.AppendLine("    union all                                                    ");
+                            strSql.AppendLine("    select * from WeekProdPlanTbl	where montouch='" + dTtime + "'     ");
                             strSql.AppendLine("    )c on a.vcPartsno=c.vcPartsno                                ");
                         }
                         break;
                     case "1":
-                        //strSql.AppendLine("    select * from MonthPackPlanTbl where vcMonth='" + dFtime + "'       ");
-                        //strSql.AppendLine("    union all                                                    ");
-                        strSql.AppendLine("    select * from WeekPackPlanTbl	where vcMonth='" + dFtime + "'      ");
+                        strSql.AppendLine("    select * from WeekPackPlanTbl where vcMonth='" + dFtime + "'  and isnull(montouch,'')=''      ");
+                        strSql.AppendLine("    union all                                                    ");
+                        strSql.AppendLine("    select * from WeekPackPlanTbl	where montouch='" + dFtime + "'      ");
                         strSql.AppendLine("    )a                                                           ");
                         if (dFtime.Split("-")[1] != dTtime.Split("-")[1])
                         {
                             strSql.AppendLine("    left join                                                   ");
                             strSql.AppendLine("    (                                                            ");
-                            //strSql.AppendLine("    select * from MonthPackPlanTbl where vcMonth='" + dTtime + "'       ");
-                            //strSql.AppendLine("    union all                                                    ");
-                            strSql.AppendLine("    select * from WeekPackPlanTbl	where vcMonth='" + dTtime + "'     ");
+                            strSql.AppendLine("    select * from WeekPackPlanTbl where vcMonth='" + dTtime + "'  and isnull(montouch,'')=''     ");
+                            strSql.AppendLine("    union all                                                    ");
+                            strSql.AppendLine("    select * from WeekPackPlanTbl	where montouch='" + dTtime + "'     ");
                             strSql.AppendLine("    )c on a.vcPartsno=c.vcPartsno                                ");
                         }
                         break;
                     case "2":
-                        //strSql.AppendLine("    select * from MonthKanBanPlanTbl where vcMonth='" + dFtime + "'       ");
-                        //strSql.AppendLine("    union all                                                    ");
-                        strSql.AppendLine("    select * from WeekKanBanPlanTbl	where vcMonth='" + dFtime + "'      ");
+                        strSql.AppendLine("    select * from WeekKanBanPlanTbl where vcMonth='" + dFtime + "' and isnull(montouch,'')=''      ");
+                        strSql.AppendLine("    union all                                                    ");
+                        strSql.AppendLine("    select * from WeekKanBanPlanTbl	where montouch='" + dFtime + "'      ");
                         strSql.AppendLine("    )a                                                           ");
                         if (dFtime.Split("-")[1] != dTtime.Split("-")[1])
                         {
                             strSql.AppendLine("    left join                                                   ");
                             strSql.AppendLine("    (                                                            ");
-                            //strSql.AppendLine("    select * from MonthKanBanPlanTbl where vcMonth='" + dTtime + "'       ");
-                            //strSql.AppendLine("    union all                                                    ");
-                            strSql.AppendLine("    select * from WeekKanBanPlanTbl	where vcMonth='" + dTtime + "'     ");
+                            strSql.AppendLine("    select * from WeekKanBanPlanTbl where vcMonth='" + dTtime + "'  and isnull(montouch,'')=''     ");
+                            strSql.AppendLine("    union all                                                    ");
+                            strSql.AppendLine("    select * from WeekKanBanPlanTbl	where montouch='" + dTtime + "'     ");
                             strSql.AppendLine("    )c on a.vcPartsno=c.vcPartsno                                ");
                         }
                         break;

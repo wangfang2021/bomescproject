@@ -263,7 +263,7 @@ namespace SPPSApi.Controllers.G07
                 };
 
             
-                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "月度内饰书导出", ref resMsg);
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "月度内示书导出", ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -324,7 +324,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 string[] fields = { "vcValue","vcName"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0703_Exception.xlsx", 1, loginInfo.UserId, "月度内示");
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0703_Exception.xlsx", 1, loginInfo.UserId, "月度内示错误");
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

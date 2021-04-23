@@ -38,8 +38,13 @@ namespace DataAccess
                 strSql.Append("select iAutoId,vcQueRenNo,vcProject,dChuHeDate,iQuantity,    \n");
                 strSql.Append("case when dQueRenPrintTime is not null then '√' else '' end as QueRenPrintFlag,    \n");
                 strSql.Append("case when vcQueRenNo like 'BJW%' then '━' when dKBPrintTime is not null then '√' else '' end as KBPrintFlag,    \n");
-                strSql.Append("case when dChuHeOKTime is not null then '√' else '' end as ChuHeOKFlag    \n");
-                strSql.Append("from TChuHe where 1=1   \n");
+                strSql.Append("case when dChuHeOKTime is not null then '√' else '' end as ChuHeOKFlag,t2.iQuantity_chuhe    \n");
+                strSql.Append("from TChuHe t1    \n");
+                strSql.Append("left join (  \n");
+                strSql.Append("	select iQuantity as iQuantity_chuhe,vcQueRenNo as vcQueRenNo_chuhe from TChuHe_PrintTemp_FS1702   \n");
+                strSql.Append("	where id='' and vcPart_id='' and vcBackPart_id=''  \n");//合计行
+                strSql.Append(")t2 on t1.vcQueRenNo=t2.vcQueRenNo_chuhe  \n");
+                strSql.Append("where 1=1  \n");
                 if (vcProject != "" && vcProject != null)
                     strSql.Append("and vcProject = '" + vcProject + "'    \n");
                 if (dChuHeDateFrom == "" || dChuHeDateFrom == null)
@@ -692,6 +697,16 @@ namespace DataAccess
                     #endregion
                     sqlCommand_sub.ExecuteNonQuery();
                 }
+
+                //sqlCommand_sub = sqlConnection.CreateCommand();
+                //sqlCommand_sub.Transaction = sqlTransaction;
+                //sqlCommand_sub.CommandType = CommandType.Text;
+                //strSql_sub = new StringBuilder();
+                //strSql_sub.AppendLine("insert into tPrintTemp_FS1702");
+                //strSql_sub.AppendLine("select UUID,'"+ strOperId + "',GETDATE(),vcQueRenNo,null,null,null,sum(cast(iQuantity as int)) from tPrintTemp_FS1702 where vcOperator='"+ strOperId + "'");
+                //strSql_sub.AppendLine("group by UUID,vcQueRenNo");
+                //sqlCommand_sub.ExecuteNonQuery();
+
                 #endregion
                 //提交事务
                 sqlTransaction.Commit();

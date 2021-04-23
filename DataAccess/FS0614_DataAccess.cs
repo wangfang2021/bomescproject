@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Common;
 using System.Data;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -11,7 +13,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.Office.Interop.Excel;
 using DataTable = System.Data.DataTable;
-
+using QRCoder;
 
 namespace DataAccess
 {
@@ -19,6 +21,8 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
         private bool bReault;
+
+
 
         #region 检索
         public DataTable searchApi(string orderState, string targetYM, string orderNo, string vcOrderType, string dUpload, string memo)
@@ -91,7 +95,7 @@ namespace DataAccess
                 FS0403_DataAccess fs0403_dataAccess = new FS0403_DataAccess();
                 List<string> TargetYM = new List<string>();
 
-
+                string yyMMdd = DateTime.Now.ToString("yyMMdd");
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -108,6 +112,8 @@ namespace DataAccess
                 }
 
                 List<string> supplierList = new List<string>();
+
+                string url = "https://wxsite.ftms.com.cn/carowner/part?tabindex=3&tracingcode=";
 
                 TargetYM = TargetYM.Distinct().ToList();
                 //获取基础信息
@@ -146,7 +152,8 @@ namespace DataAccess
                 DataTable PackUnit = getPackUnit();
                 //获取供应商信息
                 DataTable Supplier = getSupplier();
-
+                //获取ED信息
+                DataTable EDPart = getEDPart();
 
                 //读取文件
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -158,10 +165,10 @@ namespace DataAccess
                     //读取Order
                     Order order = GetPartFromFile(path + listInfoData[i]["vcFilePath"].ToString(), listInfoData[i]["vcOrderNo"].ToString(), ref msg);
                     string vcOrderNo = order.Head.No;
-                    //string vcOrderNo = listInfoData[i]["vcOrderNo"].ToString();
 
                     StringBuilder sbr = new StringBuilder();
-
+                    StringBuilder tagsbr = new StringBuilder();
+                    StringBuilder edsbr = new StringBuilder();
                     if (Type.Equals("S"))
                     {
                         string vcMakingOrderType = getTypeMethod(Type);
@@ -311,37 +318,11 @@ namespace DataAccess
                                 bReault = false;
                             }
                         }
-                        //if (dicPartNo.Count != drArrayTmp.Length)
-                        //{
-                        //    DataRow dataRow = dtMessage.NewRow();
-                        //    dataRow["vcOrder"] = vcOrderNo;
-                        //    dataRow["vcPartNo"] = "";
-                        //    dataRow["vcMessage"] = vcOrderNo + "文件的品番个数与月度replay的品番个数不一样";
-                        //    dtMessage.Rows.Add(dataRow);
-                        //    bReault = false;
-                        //}
 
                         #endregion
 
                         if (bReault)
                         {
-                            ////获取连番
-                            //StringBuilder getSeqNo = new StringBuilder();
-                            //getSeqNo.AppendLine("DECLARE @tmp INT");
-                            //getSeqNo.AppendLine("SET @tmp = (SELECT COUNT(*) FROM TSeqNo WHERE Flag = 'LBLH3' AND DDATE = CONVERT(VARCHAR(10),GETDATE(),111))");
-                            //getSeqNo.AppendLine("if @tmp = 0");
-                            //getSeqNo.AppendLine("BEGIN");
-                            //getSeqNo.AppendLine("INSERT INTO TSeqNo(FLAG,DDATE,SEQNO)");
-                            //getSeqNo.AppendLine("VALUES('LBLH3',CONVERT(VARCHAR(10),GETDATE(),111),0)");
-                            //getSeqNo.AppendLine("SELECT SEQNO FROM TSeqNo WHERE Flag = 'LBLH3' AND DDATE = CONVERT(VARCHAR(10),GETDATE(),111)");
-                            //getSeqNo.AppendLine("END");
-                            //getSeqNo.AppendLine("ELSE");
-                            //getSeqNo.AppendLine("BEGIN");
-                            //getSeqNo.AppendLine("SELECT SEQNO FROM TSeqNo WHERE Flag = 'LBLH3' AND DDATE = CONVERT(VARCHAR(10),GETDATE(),111)");
-                            //getSeqNo.AppendLine("END");
-                            //DataTable seqNodt = excute.ExcuteSqlWithSelectToDT(getSeqNo.ToString());
-                            //int seqNo = Convert.ToInt32(seqNodt.Rows[0]["SEQNO"]);
-                            ////
                             foreach (Detail detail in order.Details)
                             {
                                 string tmp = "";
@@ -357,6 +338,8 @@ namespace DataAccess
                                 string inout = "";
                                 string packingSpot = "";
 
+                                string isTag = "";
+
                                 Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, (DataTable)dockTmp[TargetTmp.Substring(0, 6)]);
 
                                 inout = ObjToString(hashtable["vcInOut"]);
@@ -365,6 +348,7 @@ namespace DataAccess
                                 vcCarType = ObjToString(hashtable["vcCarfamilyCode"]);
                                 vcPartId_Replace = ObjToString(hashtable["vcPartId_Replace"]);
                                 vcSupplierPlant = ObjToString(hashtable["vcSupplierPlant"]);
+                                isTag = ObjToString(hashtable["vcSupplierPacking"]);
 
                                 DataRow[] packingSpotRow = PackSpot.Select("vcPart_id = '" + vcPart_id + "' AND vcReceiver = '" + CPD + "' AND vcSupplierId = '" + vcSupplierId + "' AND vcPackingPlant = '" + vcPackingFactory + "'");
 
@@ -438,34 +422,59 @@ namespace DataAccess
                                 sbr.Append(ComFunction.getSqlValue(vcSupplierPlant, true) + ",");
                                 sbr.Append("'0','0') \r\n");
 
-                                #region 插入标签打印
+                                #region 插入ED订单
 
-                                int qty = Convert.ToInt32(detail.QTY);
-                                //Add
-                                DataRow[] row = PackUnit.Select("vcPart_id = '" + detail.PartsNo + "' and vcReceiver = '" + detail.CPD + "' and vcSupplierId = '" + vcSupplierId + "' and dTimeFrom<='" + Time + "' and dTimeTo>='" + Time + "' ");
-                                int BZUnit = Convert.ToInt32(row[0]["vcBZUnit"].ToString());
-
-                                DataRow[] row1 = Supplier.Select("vcPart_Id = '" + detail.PartsNo + "' AND vcCPDCompany = '" + detail.CPD + "' AND vcSupplier_id = '" + vcSupplierId + "' AND dTimeFrom <= '" + Time + "' AND dTimeTo >= '" + Time + "'");
-                                string partNameCN = row1[0]["vcPartNameCN"].ToString();
-                                string vcSCSName = row1[0]["vcSCSName"].ToString();
-                                string vcSCSAdress = row1[0]["vcSCSAdress"].ToString();
-
-
-                                if (!supplierList.Contains(vcSupplierId))
+                                DataRow[] edRows = EDPart.Select("");
+                                if (edRows.Length > 0)
                                 {
-                                    supplierList.Add(vcSupplierId);
-                                }
-                                //
-                                while (qty - BZUnit >= 0)
-                                {
-                                    SeqNo = SeqNo++;
-                                    sbr.AppendLine("");
-                                    qty = qty - BZUnit;
-                                }
 
+                                }
 
                                 #endregion
+
+
+                                #region 插入标签打印
+
+                                if (isTag.Equals("1"))
+                                {
+                                    int qty = Convert.ToInt32(detail.QTY);
+                                    //Add
+                                    DataRow[] row = PackUnit.Select("vcPart_id = '" + detail.PartsNo + "' and vcReceiver = '" + detail.CPD + "' and vcSupplierId = '" + vcSupplierId + "' and dTimeFrom<='" + Time + "' and dTimeTo>='" + Time + "' ");
+                                    int BZUnit = Convert.ToInt32(row[0]["vcBZUnit"].ToString());
+
+                                    DataRow[] row1 = Supplier.Select("vcPart_Id = '" + detail.PartsNo + "' AND vcCPDCompany = '" + detail.CPD + "' AND vcSupplier_id = '" + vcSupplierId + "' AND dTimeFrom <= '" + Time + "' AND dTimeTo >= '" + Time + "'");
+                                    string partNameCN = row1[0]["vcPartNameCN"].ToString();
+                                    string vcSCSName = row1[0]["vcSCSName"].ToString();
+                                    string vcSCSAdress = row1[0]["vcSCSAdress"].ToString();
+
+
+                                    if (!supplierList.Contains(vcSupplierId))
+                                    {
+                                        supplierList.Add(vcSupplierId);
+                                    }
+
+                                    while (qty - BZUnit >= 0)
+                                    {
+                                        SeqNo = SeqNo++;
+
+                                        string sf = yyMMdd + string.Format("{0:d5}", SeqNo);
+
+                                        string qr = url + detail.PartsNo + sf;
+                                        string qr1 = url + detail.PartsNo + sf + "B";
+
+
+                                        byte[] iCodemage = GenerateQRCode(qr);//二维码信息
+                                        byte[] iCodemage1 = GenerateQRCode(qr1);//二维码信息
+
+                                        tagsbr.AppendLine("");
+                                        qty = qty - BZUnit;
+                                    }
+
+                                }
+                                #endregion
                             }
+
+
 
                             //进入内示
                             sbr.AppendLine(MonthToNeishi(Time, userId));
@@ -473,7 +482,6 @@ namespace DataAccess
                             int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                             sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1' ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE(),dCreateDate = GETDATE() WHERE iAutoId =" + iAutoId + " ");
 
-                            sbr.AppendLine("");
                         }
 
                     }
@@ -508,7 +516,6 @@ namespace DataAccess
                                 bReault = false;
                             }
 
-                            //DataRow[] rowNQ = OrderNQ.Select(" vcOrderNo = '" + vcOrderNoOld + "' AND vcPart_id = '" + vcPart_id + "'");
                             DataRow[] rowNQ = OrderNQ.Select(" vcOrderNo = '" + vcOrderNoOld + "' AND vcPart_id = '" + vcPart_id + "' AND TargetYM = '" + ObjToString(listInfoData[i]["vcTargetYM"]) + "'");
 
                             if (rowNQ.Length == 0)
@@ -801,7 +808,6 @@ namespace DataAccess
 
                                 string dateTime = detail.Date.Trim();
 
-                                //DateTime Time = DateTime.ParseExact(timeYM, "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
                                 DateTime Time = DateTime.Parse(timeYM.Substring(0, 4) + "-" + timeYM.Substring(4, 2) + "-01");
                                 DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
@@ -848,10 +854,43 @@ namespace DataAccess
                         return false;
                     }
 
+                    string ymd = DateTime.Now.ToString("yyyy/MM/dd");
+
+                    //标签
+                    StringBuilder tagSbr = new StringBuilder();
+                    if (tagsbr.Length > 0)
+                    {
+                        string delsbr = " delete FROM dbo.tPrintTemp_tag_FS1103 WHERE vcOperatorID = 'order' ";
+                        tagSbr.AppendLine(delsbr);
+                        tagSbr.AppendLine(tagsbr.ToString());
+                    }
+
+                    //ED
+
+
+
                     if (sbr.Length > 0)
                     {
-                        excute.ExcuteSqlWithStringOper(sbr.ToString());
+                        StringBuilder ss = new StringBuilder();
+                        if (sbr.Length > 0)
+                        {
+                            ss.AppendLine(sbr.ToString());
+                        }
+
+                        if (tagSbr.Length > 0)
+                        {
+                            ss.AppendLine(tagSbr.ToString());
+                        }
+
+                        if (edsbr.Length > 0)
+                        {
+                            ss.AppendLine(edsbr.ToString());
+                        }
+                        excute.ExcuteSqlWithStringOper(ss.ToString());
                     }
+
+                    //生成标签
+
 
                 }
                 return true;
@@ -1323,8 +1362,7 @@ namespace DataAccess
                             hashtable.Add("vcSupplierPacking", dt.Rows[i]["vcSupplierPacking"].ToString());
                             hashtable.Add("vcPartNameCn", dt.Rows[i]["vcPartNameCn"].ToString());
                             hashtable.Add("vcPartENName", dt.Rows[i]["vcPartENName"].ToString());
-
-
+                            hashtable.Add("vcSupplierPacking", dt.Rows[i]["vcSupplierPacking"].ToString());
 
                             break;
                         }
@@ -1345,9 +1383,9 @@ namespace DataAccess
                 DateTime timeTo = timeFrom;
                 StringBuilder sbr = new StringBuilder();
 
-                sbr.AppendLine("SELECT a.vcPartId,a.vcPartId_Replace,a.vcOESP,e.iPackingQty,a.vcSupplierPlace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSufferIn,a.vcPackingPlant,a.vcInOut,a.vcOrderingMethod,c.vcSupplierPlant,vcHaoJiu,d.vcOrderPlant,vcSupplierPacking,vcPartNameCn,vcPartENName FROM ");
+                sbr.AppendLine("SELECT a.vcPartId,a.vcPartId_Replace,a.vcOESP,e.iPackingQty,a.vcSupplierPlace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSufferIn,a.vcPackingPlant,a.vcInOut,a.vcOrderingMethod,c.vcSupplierPlant,vcHaoJiu,d.vcOrderPlant,vcSupplierPacking,vcPartNameCn,vcPartENName,vcSupplierPacking FROM ");
                 sbr.AppendLine("(");
-                sbr.AppendLine("	SELECT vcSupplierId,vcOESP,vcSupplierPlace,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcHaoJiu,vcSupplierPacking,vcPartNameCn,vcPartENName FROM TSPMaster WHERE ");
+                sbr.AppendLine("	SELECT vcSupplierId,vcOESP,vcSupplierPlace,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcHaoJiu,vcSupplierPacking,vcPartNameCn,vcPartENName,vcSupplierPacking FROM TSPMaster WHERE ");
                 sbr.AppendLine("	dFromTime <= '" + timeFrom + "' AND dToTime >='" + timeTo + "' and isnull(vcDelete, '') <> '1' ");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("LEFT JOIN");
@@ -1708,5 +1746,35 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        public DataTable getEDPart()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcPart_id,vcSHF,vcSupplier_id,dTimeFrom,dTimeTo FROM dbo.TEDTZPartsNoMaster");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #region 生成QRCODE二维码
+        public byte[] GenerateQRCode(string content)
+        {
+            var generator = new QRCodeGenerator();
+
+            var codeData = generator.CreateQrCode(content, QRCodeGenerator.ECCLevel.M, true);
+            QRCoder.QRCode qrcode = new QRCoder.QRCode(codeData);
+
+            var bitmapImg = qrcode.GetGraphic(10, Color.Black, Color.White, false);
+
+            using MemoryStream stream = new MemoryStream();
+            bitmapImg.Save(stream, ImageFormat.Jpeg);
+            return stream.GetBuffer();
+        }
+        #endregion
     }
 }

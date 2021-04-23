@@ -450,7 +450,7 @@ namespace DataAccess
                             sql.AppendLine("     vcState,	 ");//纳入状态
                             sql.AppendLine("     vcPackSupplierID,	 ");
                             sql.AppendLine("     vcPackSpot,	 ");
-                            sql.AppendLine("     vcCangKuID,vcFeiYongID,vcOperatorID,dOperatorTime	 ");
+                            sql.AppendLine("     vcFeiYongID,vcCangKuID,vcOperatorID,dOperatorTime	 ");
                             sql.AppendLine("     	) ");
                             sql.AppendLine("     VALUES");
                             sql.AppendLine("     	(");

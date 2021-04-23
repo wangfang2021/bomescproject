@@ -406,6 +406,7 @@ namespace Logic
                     {
                         DataTable dtInfo = fs1702_DataAccess.GetqrdInfo(vcProject, dChuHeDate);
                         string uuid = Guid.NewGuid().ToString("N");
+                        int sum = 0;
                         for (int j = 0; j < dtInfo.Rows.Count; j++)
                         {
                             DataRow dataRow = dtSub.NewRow();
@@ -475,7 +476,17 @@ namespace Logic
                                 dataRow["iQuantity"] = dtInfo.Rows[j]["iQuantity"].ToString();
                             dataRow["vcQueRenNo"] = vcQueRenNo;
                             dtSub.Rows.Add(dataRow);
+                            sum += dataRow["iQuantity"].ToString() == "" ? 0 : Convert.ToInt32(dataRow["iQuantity"].ToString());
                         }
+                        //加合计行
+                        DataRow dr = dtSub.NewRow();
+                        dr["UUID"] = uuid;
+                        dr["id"] = "";
+                        dr["vcPart_id"] = "";
+                        dr["vcBackPart_id"] = "";
+                        dr["iQuantity"] = sum;
+                        dr["vcQueRenNo"] = vcQueRenNo;
+                        dtSub.Rows.Add(dr);
                     }
                 }
                 if (dtSub.Rows.Count == 0)
@@ -484,6 +495,7 @@ namespace Logic
                     dataRow["vcMessage"] = "没有有效的确认单数据，请确认后再操作。";
                     dtMessage.Rows.Add(dataRow);
                 }
+                
                 if (dtMessage.Rows.Count != 0)
                     return false;
                 fs1702_DataAccess.setPrintTemp(dtSub, strOperId, ref dtMessage);

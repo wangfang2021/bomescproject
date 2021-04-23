@@ -469,9 +469,9 @@ namespace Logic
         #endregion
 
         #region 调整数据输入-保存
-        public void Save_Sub(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void Save_Sub(List<Dictionary<string, Object>> listInfoData, string strUserId,string strPackSport)
         {
-            fs0705_DataAccess.save_Sub(listInfoData, strUserId);
+            fs0705_DataAccess.save_Sub(listInfoData, strUserId,strPackSport);
         }
         #endregion
 

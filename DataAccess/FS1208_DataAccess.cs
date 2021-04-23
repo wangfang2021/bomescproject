@@ -350,14 +350,14 @@ namespace DataAccess
                 //生成紧急订单内制看板
                 cmd.CommandText = "   ";
                 cmd.CommandText += "   SELECT t1.vcMonth, t1.vcPartsno, t1.vcDock, t1.vcCarType,t2.vcSRS as iQuantityPerContainer, vcNum,vcOrderNo, vcPro0Day, vcPro0Zhi, vcPro1Day,";
-                cmd.CommandText += "   vcPro1Zhi, vcPro2Day, vcPro2Zhi, vcPro3Day, vcPro3Zhi, vcPro4Day, vcPro4Zhi , UpdateFlag ,t3.vcPorType, ";
-                cmd.CommandText += "   t3.vcProName0 ,t3.vcProName1,t3.vcProName2 ,t3.vcProName3,t3.vcProName4  ";
-                cmd.CommandText += "  FROM  EDMonthPlanTMP t1";
-                cmd.CommandText += "  left join (select * from tPlanPartInfo where vcmonth='" + mon + "'  and vcEDFlag ='E' ) t2 ";
-                cmd.CommandText += "  on t1.vcPartsno = t2.vcPartsNo and t1.vcCarType = t2.vcCarType and t1.vcDock = t2.vcDock ";
-                cmd.CommandText += "  left join dbo.ProRuleMst t3 ";
-                cmd.CommandText += "  on t3.vcPorType = t2.vcProType and t3.vcZB = t2.vcZB";
-                cmd.CommandText += "  where (UpdateFlag is  null  or UpdateFlag <>'1') and t1.vcMonth='" + mon + "'";
+                cmd.CommandText += "   vcPro1Zhi, vcPro2Day, vcPro2Zhi, vcPro3Day, vcPro3Zhi, vcPro4Day, vcPro4Zhi, UpdateFlag,t3.vcPorType, ";
+                cmd.CommandText += "   t3.vcProName0,t3.vcProName1,t3.vcProName2,t3.vcProName3,t3.vcProName4 ";
+                cmd.CommandText += "  FROM EDMonthPlanTMP t1";
+                cmd.CommandText += "  left join (select * from tPlanPartInfo where vcmonth='" + mon + "' and vcEDFlag='E') t2 ";
+                cmd.CommandText += "  on t1.vcPartsno=t2.vcPartsNo and t1.vcCarType=t2.vcCarType and t1.vcDock=t2.vcDock ";
+                cmd.CommandText += "  left join ProRuleMst t3 ";
+                cmd.CommandText += "  on t3.vcPorType=t2.vcProType and t3.vcZB=t2.vcZB";
+                cmd.CommandText += "  where (UpdateFlag is null or UpdateFlag<>'1') and t1.vcMonth='" + mon + "'";
                 DataTable dt_print = new DataTable();
                 apt.Fill(dt_print);
                 if (dt_print.Rows.Count == 0)
@@ -375,9 +375,9 @@ namespace DataAccess
                     string plant = getPartsPlant(partsno, dock, mon);//20180917根据品番和受入确定该品番厂区 - 李兴旺
                                                                      //根据对象月、品番、受入确定该品番5个工程的vcCalendar - 李兴旺
                     string partsql = " select vcPartsno, vcDock, vcCarFamilyCode, t1.iQuantityPerContainer, t1.vcPorType, t1.vcZB, t2.vcProName0, t2.vcProName1, t2.vcProName2, t2.vcProName3, t2.vcProName4, t2.vcCalendar0, t2.vcCalendar1, t2.vcCalendar2, t2.vcCalendar3, t2.vcCalendar4 from tPartInfoMaster t1 ";
-                    partsql += " left join ProRuleMst t2 on t1.vcPorType = t2.vcPorType and t1.vcZB = t2.vcZB ";
-                    partsql += " where exists (select vcPartsno from EDMonthPlanTMP where vcMonth = '" + mon + "' and vcPartsno = t1.vcPartsno) and t1.dTimeFrom <= '" + mon + "-01" + "' and t1.dTimeTo >= '" + mon + "-01" + "' ";//20181204修改
-                    partsql += " and vcPartsno = '" + partsno + "' and vcDock = '" + dock + "' ";
+                    partsql += " left join ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB=t2.vcZB ";
+                    partsql += " where exists (select vcPartsno from EDMonthPlanTMP where vcMonth='" + mon + "' and vcPartsno=t1.vcPartsno) and t1.dTimeFrom<='" + mon + "-01" + "' and t1.dTimeTo>='" + mon + "-01" + "' ";//20181204修改
+                    partsql += " and vcPartsno='" + partsno + "' and vcDock='" + dock + "' ";
                     DataTable dtCalendar = getCalendar(partsql);
 
                     int num = Convert.ToInt32(dt_print.Rows[i]["vcNum"].ToString().Trim().Length == 0 ? "0" : dt_print.Rows[i]["vcNum"].ToString().Trim());
@@ -538,10 +538,10 @@ namespace DataAccess
                     dv.Sort = "vcProject01";//按工位排序
                     dt = dv.ToTable();
                     //找到打印表中的紧急订单，相同订单号相同部署相同打印日期生产日期的最大连番
-                    string tmpsql = "select MAX(vcKBSerial) as serial from tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock  = t2.vcDock where vcEDflag ='E' and  ";
-                    tmpsql += " vcKBorderno ='" + dt.Rows[0]["vcKBorderno"].ToString() + "' and vcPorType ='" + dt.Rows[0]["bushu"].ToString() + "'";
-                    tmpsql += " and vcComDate00 ='" + dt.Rows[0]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[0]["vcBanZhi00"].ToString() + "'";
-                    tmpsql += " and vcComDate01 ='" + dt.Rows[0]["vcComDate01"].ToString() + "' and vcBanZhi01 ='" + dt.Rows[0]["vcBanZhi01"].ToString() + "'";
+                    string tmpsql = "select MAX(vcKBSerial) as serial from tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo=t2.vcPartsNo and t1.vcDock=t2.vcDock where vcEDflag='E' and  ";
+                    tmpsql += " vcKBorderno='" + dt.Rows[0]["vcKBorderno"].ToString() + "' and vcPorType='" + dt.Rows[0]["bushu"].ToString() + "'";
+                    tmpsql += " and vcComDate00='" + dt.Rows[0]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[0]["vcBanZhi00"].ToString() + "'";
+                    tmpsql += " and vcComDate01='" + dt.Rows[0]["vcComDate01"].ToString() + "' and vcBanZhi01='" + dt.Rows[0]["vcBanZhi01"].ToString() + "'";
                     cmd.CommandText = tmpsql;
                     cmd.CommandType = CommandType.Text;
                     DataTable dt_serial = new DataTable();
@@ -612,10 +612,10 @@ namespace DataAccess
 
                 //将更新后的条目的updateFlag 设置成1
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = " update EDMonthPlanTMP set UpdateFlag ='1' , vcUpdateID='" + user + "' , dUpdateTime =getdate() where vcMonth='" + mon + "' ";
-                cmd.CommandText += " and (select COUNT(1) from tPlanPartInfo where tPlanPartInfo.vcMonth ='" + mon + "' and tPlanPartInfo.vcPartsno = EDMonthPlanTMP.vcPartsno  and tPlanPartInfo.vcDock = EDMonthPlanTMP.vcDock ";
+                cmd.CommandText = " update EDMonthPlanTMP set UpdateFlag='1', vcUpdateID='" + user + "', dUpdateTime=getdate() where vcMonth='" + mon + "' ";
+                cmd.CommandText += " and (select COUNT(1) from tPlanPartInfo where tPlanPartInfo.vcMonth='" + mon + "' and tPlanPartInfo.vcPartsno=EDMonthPlanTMP.vcPartsno and tPlanPartInfo.vcDock=EDMonthPlanTMP.vcDock ";
                 //cmd.CommandText += " and tPlanPartInfo.vcCarType = EDMonthPlanTMP.vcCarType and vcPlant ='" + plant + "' ) >0 ";
-                cmd.CommandText += " and tPlanPartInfo.vcCarType = EDMonthPlanTMP.vcCarType ) >0 ";
+                cmd.CommandText += " and tPlanPartInfo.vcCarType=EDMonthPlanTMP.vcCarType)>0 ";
                 cmd.ExecuteNonQuery();
                 cmd.Transaction.Commit();
                 cmd.Connection.Close();
@@ -641,7 +641,7 @@ namespace DataAccess
             cmd.Connection.Open();
             cmd.Transaction = cmd.Connection.BeginTransaction();
             DataTable dt = new DataTable();
-            string strSQL = "SELECT [vcPartPlant] FROM [tPartInfoMaster] where [vcPartsNo] = '" + strPartsNo + "' and [vcDock] = '" + strDock + "' and [dTimeFrom] <= '" + strMonth + "-01' and [dTimeTo] >= '" + strMonth + "-01'";
+            string strSQL = "SELECT vcPartPlant FROM tPartInfoMaster where vcPartsNo='" + strPartsNo + "' and vcDock='" + strDock + "' and dTimeFrom<='" + strMonth + "-01' and dTimeTo>='" + strMonth + "-01'";
             cmd.CommandText = strSQL;
             SqlDataAdapter apt = new SqlDataAdapter(cmd);
             apt.Fill(dt);
@@ -725,11 +725,11 @@ namespace DataAccess
                     int tmp = Convert.ToInt32(dr[0][col].ToString().Length == 0 ? "0" : dr[0][col].ToString());
                     if (montouch.ToString().Length > 0)
                     {
-                        ssql = " update " + TableName + " set " + col + "='" + (tmp + num) + "' , DUPDTIME =getdate() , CUPDUSER ='" + user + "' where vcMonth ='" + month + "' and  vcDock ='" + dock + "' and vcCarType ='" + CarType + "' and vcPartsno ='" + partsno + "' and montouch = '" + montouch + "'  ";
+                        ssql = " update " + TableName + " set " + col + "='" + (tmp + num) + "' , DUPDTIME =getdate(), CUPDUSER ='" + user + "' where vcMonth ='" + month + "' and  vcDock ='" + dock + "' and vcCarType ='" + CarType + "' and vcPartsno ='" + partsno + "' and montouch = '" + montouch + "'  ";
                     }
                     else
                     {
-                        ssql = " update " + TableName + " set " + col + "='" + (tmp + num) + "' , DUPDTIME =getdate() , CUPDUSER ='" + user + "' where vcMonth ='" + month + "' and  vcDock ='" + dock + "' and vcCarType ='" + CarType + "' and vcPartsno ='" + partsno + "' and montouch is null ";
+                        ssql = " update " + TableName + " set " + col + "='" + (tmp + num) + "' , DUPDTIME =getdate(), CUPDUSER ='" + user + "' where vcMonth ='" + month + "' and  vcDock ='" + dock + "' and vcCarType ='" + CarType + "' and vcPartsno ='" + partsno + "' and montouch is null ";
                     }
                 }
                 else
@@ -1138,5 +1138,4 @@ namespace DataAccess
         }
         #endregion
     }
-
 }

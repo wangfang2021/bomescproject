@@ -381,7 +381,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="strSql"></param>
         /// <param name="strOrderNo"></param>
-        public void SCFZData(DataTable dt, string strOrderNo)
+        public void SCFZData(DataTable dt, string strOrderNo,string strUserID)
         {
             StringBuilder strSql = new StringBuilder();
             try
@@ -478,11 +478,11 @@ namespace DataAccess
                 strSql.AppendLine("        ,b.iA_SRS      ");
                 strSql.AppendLine("        ,c.vcSupplierCode      ");
                 strSql.AppendLine("        ,c.vcSupplierName      ");
-                strSql.AppendLine("        ,(select top 1 vcValue3 from TOutCode where vcIsColum = '0' and vcCodeId = 'C055' and vcValue1 = '替换用户ID' and vcValue2 = '替换包装厂')      ");
+                strSql.AppendLine("        ,d.vcValue3      ");
                 strSql.AppendLine("        ,b.vcPackSpot      ");
-                strSql.AppendLine("        ,(select top 1 vcValue4 from TOutCode where vcIsColum = '0' and vcCodeId = 'C055' and vcValue1 = '替换用户ID' and vcValue2 = '替换包装厂')      ");
+                strSql.AppendLine("        ,d.vcValue4      ");
                 strSql.AppendLine("        ,'0'      ");
-                strSql.AppendLine("        ,'替换用户ID'      ");
+                strSql.AppendLine("        ,'"+strUserID+"'      ");
                 strSql.AppendLine("        ,GETDATE()      ");
                 strSql.AppendLine("       from          ");
                 strSql.AppendLine("       (          ");
@@ -498,8 +498,8 @@ namespace DataAccess
                 strSql.AppendLine("       ) c on b.vcPackNo = c.vcPackNo and b.vcPackSpot = c.vcPackSpot          ");
                 strSql.AppendLine("       left JOIN          ");
                 strSql.AppendLine("       (          ");
-                strSql.AppendLine("           select vcPackNo,vcPackSpot,vcBuShu,vcCangKuCode from TPackOrderFaZhu          ");
-                strSql.AppendLine("       ) d on b.vcPackNo = c.vcPackNo and b.vcPackSpot = d.vcPackSpot          ");
+                strSql.AppendLine("            select * from TOutCode where vcCodeId='C055'and vcValue1='" + strUserID + "'         ");
+                strSql.AppendLine("       ) d on b.vcPackSpot = d.vcValue2          ");
                 #endregion
 
                 #region 将此次的数据结果插入包材实际表中
@@ -536,11 +536,11 @@ namespace DataAccess
                 strSql.AppendLine("        ,'0'          ");
                 strSql.AppendLine("        ,c.vcSupplierCode          ");
                 strSql.AppendLine("        ,b.vcPackSpot          ");
-                strSql.AppendLine("        ,(select top 1 vcValue4 from TOutCode where vcIsColum = '0' and vcCodeId = 'C055' and vcValue1 = '替换用户ID' and vcValue2 = '替换包装厂')          ");
+                strSql.AppendLine("        ,d.vcValue4          ");
                 strSql.AppendLine("        ,b.dNaQiTime          ");
                 strSql.AppendLine("        ,'0'          ");
-                strSql.AppendLine("        ,(select top 1 vcValue3 from TOutCode where vcIsColum = '0' and vcCodeId = 'C055' and vcValue1 = '替换用户ID' and vcValue2 = '替换包装厂')          ");
-                strSql.AppendLine("        ,'替换用户ID'          ");
+                strSql.AppendLine("        ,d.vcValue3          ");
+                strSql.AppendLine("        ,'"+strUserID+"'          ");
                 strSql.AppendLine("        ,GETDATE()          ");
                 strSql.AppendLine("        from                                     ");
                 strSql.AppendLine("        (                                        ");
@@ -556,8 +556,8 @@ namespace DataAccess
                 strSql.AppendLine("       ) c on b.vcPackNo = c.vcPackNo and b.vcPackSpot = b.vcPackSpot          ");
                 strSql.AppendLine("       left JOIN          ");
                 strSql.AppendLine("       (          ");
-                strSql.AppendLine("           select vcPackNo,vcPackSpot,vcBuShu,vcCangKuCode from TPackOrderFaZhu          ");
-                strSql.AppendLine("       ) d on b.vcPackNo = c.vcPackNo and b.vcPackSpot = d.vcPackSpot          ");
+                strSql.AppendLine("           select * from TOutCode where vcCodeId='C055'and vcValue1='"+strUserID+"'          ");
+                strSql.AppendLine("       ) d on b.vcPackSpot=d.vcValue2          ");
                 #endregion
 
                 excute.ExcuteSqlWithStringOper(strSql.ToString());
@@ -861,7 +861,7 @@ namespace DataAccess
         #endregion
 
         #region 调整数据输入-保存
-        public void save_Sub(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void save_Sub(List<Dictionary<string, Object>> listInfoData, string strUserId,string strPackSport)
         {
             StringBuilder strSql = new StringBuilder();
 
@@ -872,14 +872,14 @@ namespace DataAccess
             strSql.Append("        End  \n");
             strSql.Append("        select * into #TPackCompute_Ajust_temp from       \n");
             strSql.Append("        (      \n");
-            strSql.Append("      	  select vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime from TPackCompute_Ajust where 1=0      \n");
+            strSql.Append("      	  select * from TPackCompute_Ajust where 1=0      \n");
             strSql.Append("        ) a      ;\n");
             #endregion
 
             #region 将数据插入临时表
             for (int i = 0; i < listInfoData.Count; i++)
             {
-                strSql.AppendLine("      insert into #TPackCompute_Ajust_temp(vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime)       ");
+                strSql.AppendLine("      insert into #TPackCompute_Ajust_temp(vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime,vcPackSpot)       ");
                 strSql.AppendLine("      values       ");
                 strSql.AppendLine("      (       ");
                 strSql.AppendLine("       " + ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false) + "       ");
@@ -901,13 +901,14 @@ namespace DataAccess
                 strSql.AppendLine("      ," + ComFunction.getSqlValue(listInfoData[i]["vcReason"], false) + "       ");
                 strSql.AppendLine("      ,'" + strUserId + "'       ");
                 strSql.AppendLine("      ,GETDATE()       ");
+                strSql.AppendLine("      ,'"+strPackSport+"'       ");
                 strSql.AppendLine("      )       ");
             }
             #endregion
 
             #region 临时表关联包材基础信息表，关联出包材品番，将临时表数据插入调整数据输入表
-            strSql.AppendLine("      insert into  TPackCompute_Ajust(vcPackNo,vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime)       ");
-            strSql.AppendLine("      select b.vcPackNo,a.vcPackGPSNo,a.iNumber,a.vcType,a.dTime,a.vcReason,a.vcOperatorID,a.dOperatorTime from  #TPackCompute_Ajust_temp a       ");
+            strSql.AppendLine("      insert into  TPackCompute_Ajust(vcPackNo,vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime,vcPackSpot)       ");
+            strSql.AppendLine("      select b.vcPackNo,a.vcPackGPSNo,a.iNumber,a.vcType,a.dTime,a.vcReason,a.vcOperatorID,a.dOperatorTime,a.vcPackSpot from  #TPackCompute_Ajust_temp a       ");
             strSql.AppendLine("      left JOIN       ");
             strSql.AppendLine("      (       ");
             strSql.AppendLine("          select vcPackNo,vcPackGPSNo from TPackBase       ");

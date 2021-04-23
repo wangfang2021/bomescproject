@@ -284,13 +284,13 @@ namespace Logic
         #endregion
 
         #region 生成订单数据
-        public void SCFZData(DataTable dt,string strOrderNo)
+        public void SCFZData(DataTable dt,string strOrderNo,string strUserid)
         {
-            fs0705_DataAccess.SCFZData(dt,strOrderNo);
+            fs0705_DataAccess.SCFZData(dt,strOrderNo,strUserid);
         }
         #endregion
 
-        #region 获取新订单号
+        #region 订单发注表中最后一个订单号
         public string getNewOrderNo()
         {
             DataTable dt = fs0705_DataAccess.getMAXOrderNo();
@@ -304,7 +304,7 @@ namespace Logic
                     return "AA00000";
                 else
                 {
-                    return getNewOrderNo(dt.Rows[0][0].ToString());
+                    return dt.Rows[0][0].ToString();
                 }
             }
         }
@@ -469,9 +469,9 @@ namespace Logic
         #endregion
 
         #region 调整数据输入-保存
-        public void Save_Sub(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void Save_Sub(List<Dictionary<string, Object>> listInfoData, string strUserId,string strPackSport)
         {
-            fs0705_DataAccess.save_Sub(listInfoData, strUserId);
+            fs0705_DataAccess.save_Sub(listInfoData, strUserId,strPackSport);
         }
         #endregion
 

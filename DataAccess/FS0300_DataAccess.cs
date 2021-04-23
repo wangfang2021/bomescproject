@@ -168,7 +168,8 @@ namespace DataAccess
                 sbr.AppendLine("     FROM(SELECT vcOriginCompany, vcPart_id, vcReceiver, vcPartNameEn, vcPartNameCn, vcCarTypeDesign, vcCarTypeDev, dTimeFrom, dTimeTo, vcPartReplace, vcInOutflag, vcOE, vcHKPart_id,");
                 sbr.AppendLine("	 vcHaoJiu, dJiuBegin, dJiuEnd, case when dJiuBegin is not null and dJiuEnd is null and year(GETDATE())-year(dJiuBegin)>0 then cast(year(GETDATE())-year(dJiuBegin)  as varchar(10)) else '' end as vcJiuYear, vcNXQF, dSSDate, vcSupplier_id, vcSCPlace, vcCHPlace, vcSYTCode, vcSCSName, vcSCSAdress, vcZXBZNo, vcCarTypeName, vcFXDiff, vcFXNo");
                 sbr.AppendLine("          FROM TUnit");
-                sbr.AppendLine("          WHERE dTimeFrom<=GETDATE()AND dTimeTo>=GETDATE()) a");
+                //sbr.AppendLine("          WHERE dTimeFrom<=GETDATE()AND dTimeTo>=GETDATE()) a");
+                sbr.AppendLine("         ) a");
                 sbr.AppendLine("         LEFT JOIN(SELECT vcPart_id, vcReceiver, vcSupplier_id, vcOriginCompany, decPriceOrigin, decPriceTNPWithTax,vcSYTCode FROM VI_Price  WHERE dPricebegin<=GETDATE()AND dPriceEnd>=GETDATE()");
                 sbr.AppendLine("             ) b ON a.vcOriginCompany=b.vcOriginCompany AND (CASE WHEN LEN(REPLACE(a.vcPart_id,'-','')) = 12 THEN REPLACE(a.vcPart_id,'-','') WHEN LEN(REPLACE(a.vcPart_id,'-','')) = 10 THEN REPLACE(a.vcPart_id,'-','')+'00' END)=b.vcPart_id AND a.vcReceiver=b.vcReceiver AND a.vcSupplier_id=b.vcSupplier_id AND a.vcSYTCode=b.vcSYTCode");
                 sbr.AppendLine("         LEFT JOIN(SELECT vcSupplier_id, vcSupplier_name FROM TSupplier) c ON a.vcSupplier_id=c.vcSupplier_id) a");

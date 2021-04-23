@@ -506,7 +506,7 @@ namespace SPPSApi.Controllers.G07
                 #endregion
 
 
-                zIPHelper.strZIPFileName = "内示下载" + DateTime.Now.ToString("yyyyMMdd") + ".zip";
+                zIPHelper.strZIPFileName = "内示下载" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".zip";
                 zIPHelper.strZIPFilePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;
                 
                 zIPHelper.createZIPFile();

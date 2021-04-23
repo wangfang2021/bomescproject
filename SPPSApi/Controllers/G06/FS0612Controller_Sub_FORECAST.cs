@@ -70,9 +70,9 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0701", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE1208", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "初始化失败";
+                apiResult.data = "FORECAST页面初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -110,7 +110,7 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //DataTable dtPlant = ComFunction.getTCode("C000");
-                DataTable dtPlant = fs0612_Logic.getPlant(vcDXYM);
+                DataTable dtPlant = fs0612_Logic.getPlant(vcDXYM,"'0'");
                 //判断内制结果是否已处理完
                 DataTable dtNQCResult = fs0612_Logic.dtNQCReceive(vcCLYM);
                 for (int i = 0; i < dtPlant.Rows.Count; i++)
@@ -140,6 +140,7 @@ namespace SPPSApi.Controllers.G06
                 }
                 //判断外注平准化数据是否展开
                 DataTable dtSOQReply = fs0630_Logic.GetSOQReply(vcCLYM,"1");
+                dtPlant = fs0612_Logic.getPlant(vcDXYM, "'1'");
                 for (int i = 0; i < dtPlant.Rows.Count; i++)
                 {
                     string strPlant = dtPlant.Rows[i]["vcFZGC"].ToString();
@@ -189,9 +190,9 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE1209", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "请求失败";
+                apiResult.data = "FORECAST确定失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

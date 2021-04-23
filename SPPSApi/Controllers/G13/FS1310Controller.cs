@@ -65,7 +65,7 @@ namespace SPPSApi.Controllers.G13
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE1000", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -108,7 +108,7 @@ namespace SPPSApi.Controllers.G13
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE1001", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -154,7 +154,7 @@ namespace SPPSApi.Controllers.G13
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE1002", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -276,9 +276,9 @@ namespace SPPSApi.Controllers.G13
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE1003", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败" + ex.Message;
+                apiResult.data = "批量维护失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -335,7 +335,7 @@ namespace SPPSApi.Controllers.G13
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE1004", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -436,7 +436,7 @@ namespace SPPSApi.Controllers.G13
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M05UE0305", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE1005", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -481,56 +481,11 @@ namespace SPPSApi.Controllers.G13
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE1006", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除操作失败";
+                apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-
-        /// <summary>
-        /// 解压缩
-        /// </summary>
-        /// <param name="unRarPatch">解压路径</param>
-        /// <param name="rarPatch">压缩包路路径</param>
-        /// <param name="rarName">文件名</param>
-        //public void unCompressRAR(string unRarPatch, string rarPatch, string rarName)
-        //{
-        //    try
-        //    {
-        //        string the_rar;
-        //        RegistryKey the_Reg;
-        //        object the_Obj;
-        //        string the_Info;
-
-        //        the_Reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\WinRAR.exe");
-        //        the_Obj = the_Reg.GetValue("");
-        //        the_rar = the_Obj.ToString();
-        //        the_Reg.Close();
-
-        //        if (Directory.Exists(unRarPatch) == false)
-        //        {
-        //            Directory.CreateDirectory(unRarPatch);
-        //        }
-        //        the_Info = "x  -y  " + rarName + " " + unRarPatch;
-        //        ProcessStartInfo the_StartInfo = new ProcessStartInfo();
-        //        the_StartInfo.FileName = the_rar;
-        //        the_StartInfo.Arguments = the_Info;
-        //        the_StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-        //        the_StartInfo.WorkingDirectory = rarPatch;//获取压缩包路径
-
-        //        Process the_Process = new Process();
-        //        the_Process.StartInfo = the_StartInfo;
-        //        the_Process.Start();
-        //        the_Process.WaitForExit();
-        //        the_Process.Close();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-
-
     }
 }

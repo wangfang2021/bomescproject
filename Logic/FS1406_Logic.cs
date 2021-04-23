@@ -7,6 +7,7 @@ using DataAccess;
 using System.Collections;
 using System.IO;
 using ImageMagick;
+using Common;
 
 namespace Logic
 {
@@ -51,8 +52,8 @@ namespace Logic
                             string strModItem = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcModItem"], "", "");
                             string strSPISUrl = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcSPISUrl"], "", "");
                             string strSPISPath = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcSPISPath"], "", "");
-                            string strSupplier_1 = strOpername;
-                            string strSupplier_2 = strOpername;
+                            string strSupplier_1 = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcSupplier_1"], "", "");
+                            string strSupplier_2 = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcSupplier_2"], "", "");
                             DataRow drImport = dtImport.NewRow();
                             drImport["LinId"] = strLinId;
                             drImport["vcApplyId"] = strApplyId;
@@ -95,8 +96,10 @@ namespace Logic
                     string strColourName = dtImport.Rows[i]["vcColourName"].ToString();
                     string strModItem = dtImport.Rows[i]["vcModItem"].ToString();
                     string strSPISPath = dtImport.Rows[i]["vcSPISPath"].ToString();
+                    string strSupplier_1 = dtImport.Rows[i]["vcSupplier_1"].ToString();
+                    string strSupplier_2 = dtImport.Rows[i]["vcSupplier_2"].ToString();
 
-                    if (strSupplierName == "" || strColourNo == "" || strColourCode == "" || strColourName == "" || strModItem == "")
+                    if (strSupplierName == "" || strSupplier_1 == "" || strSupplier_2 == "")
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcMessage"] = strPartId + "缺少必填项请完善数据。";
@@ -140,8 +143,8 @@ namespace Logic
                 string strColourCode = dataForm.ColourCode == null ? "" : dataForm.ColourCode.ToString();
                 string strColourName = dataForm.ColourName == null ? "" : dataForm.ColourName.ToString();
                 string strModItem = dataForm.ModItem == null ? "" : dataForm.ModItem.ToString();
-                string strSupplier_1 = dataForm.strSupplier_1 == null ? "" : dataForm.strSupplier_1.ToString();
-                string strSupplier_2 = dataForm.strSupplier_2 == null ? "" : dataForm.strSupplier_2.ToString();
+                string strSupplier_1 = dataForm.Supplier_1 == null ? "" : dataForm.Supplier_1.ToString();
+                string strSupplier_2 = dataForm.Supplier_2 == null ? "" : dataForm.Supplier_2.ToString();
                 string strOperImage = dataForm.PicRoutes == null ? "" : dataForm.PicRoutes.ToString();
                 string strDelImageRoutes = dataForm.DelPicRoutes == null ? "" : dataForm.DelPicRoutes.ToString();
                 DataRow drImport = dtImport.NewRow();
@@ -196,7 +199,7 @@ namespace Logic
                     string strOperImage = dtImport.Rows[i]["vcTempUrl"].ToString();
                     string strSPISStatus = dtImport.Rows[i]["vcSPISStatus"].ToString();
 
-                    if (strSupplierName == ""|| strSupplier_1 == "" || strSupplier_2=="")
+                    if (strSupplierName == "" || strSupplier_1 == "" || strSupplier_2 == "")
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcMessage"] = "缺少必填项请完善数据。";
@@ -226,6 +229,17 @@ namespace Logic
                                 dtImport.Rows[i]["vcPDFUrl"] = strPartId + strSupplierId + Convert.ToDateTime(strFromTime_SPIS).ToString("yyyyMMdd") + "_2.pdf";
                                 //SPIS名
                                 dtImport.Rows[i]["vcSPISUrl"] = strPartId + strSupplierId + Convert.ToDateTime(strFromTime_SPIS).ToString("yyyyMMdd") + "_3.jpg";
+                                string sources_temp = strPath_temp + strOperImage;//原图临时文件地址
+                                string sources_pic = strPath_pic + (strPartId + strSupplierId + Convert.ToDateTime(strFromTime_SPIS).ToString("yyyyMMdd") + "_1.jpg");//原图正式文件地址
+                                //移动到原图正式地址
+                                if (System.IO.File.Exists(sources_temp))
+                                {
+                                    File.Copy(sources_temp, sources_pic, true);//true代表可以覆盖同名文件
+                                    File.Delete(sources_temp);
+                                    //转移pic照片到window中
+                                    SavePicFiletoWindow(sources_pic);
+                                }
+
                                 if (strApplyId == "")
                                 {
                                     dtImport.Rows[i]["vcType"] = "add";
@@ -249,7 +263,9 @@ namespace Logic
         }
         public DataTable getTempDataInfo()
         {
-            return fs1406_DataAccess.getPrintTemp("FS1406").Clone();
+            DataTable dataTable = fs1406_DataAccess.getPrintTemp("FS1406").Clone();
+            dataTable.Columns.Add("vcSPISPath");
+            return dataTable;
         }
         public void saveSPISPicAndApplyList(DataTable dtImport, ref DataTable dtApplyList, ref DataTable dtPDF_temp,
             string strPath_temp, string strPath_pic, string strPath_pdf, string strPath_sips,
@@ -283,11 +299,11 @@ namespace Logic
                     string strPICUrl = dtImport.Rows[i]["vcPicUrl"].ToString();//原图正式文件
                     string sources_pic = strPath_pic + strPICUrl;//原图正式文件地址
                     //移动到原图正式地址
-                    if (System.IO.File.Exists(sources_temp))
-                    {
-                        File.Copy(sources_temp, sources_pic, true);//true代表可以覆盖同名文件
-                        File.Delete(sources_temp);
-                    }
+                    //if (System.IO.File.Exists(sources_temp))
+                    //{
+                    //    File.Copy(sources_temp, sources_pic, true);//true代表可以覆盖同名文件
+                    //    File.Delete(sources_temp);
+                    //}
                     //正式地址图片转成二进制流
                     byte[] btPICImage = fS0617_Logic.PhotoToArray(sources_pic);
 
@@ -295,10 +311,7 @@ namespace Logic
                     string sources_pdf = strPath_pdf + strPDFUrl;//PDF文件地址
 
                     string strSPISUrl = dtImport.Rows[i]["vcSPISUrl"].ToString();//正式文件
-                    string sources_spis = strPath_sips + strSPISUrl;//式文件地址
-
-                    //string strSupplier_1 = dtImport.Rows[i]["vcSupplier_1"].ToString();
-                    //string strSupplier_2 = dtImport.Rows[i]["vcSupplier_2"].ToString();
+                    string sources_spis = strPath_sips + strSPISUrl;//正式文件地址
                     string strOperName = dtImport.Rows[i]["vcOperName"].ToString();
                     string strGM = dtImport.Rows[i]["vcGM"].ToString();
                     #endregion
@@ -327,6 +340,7 @@ namespace Logic
                     drPDF_temp["vcOperName"] = strOperName;
                     drPDF_temp["vcGM"] = strGM;
                     drPDF_temp["vcPDFPath"] = sources_pdf;
+                    drPDF_temp["vcSPISPath"] = sources_spis;
                     dtPDF_temp.Rows.Add(drPDF_temp);
                     #endregion
 
@@ -379,7 +393,6 @@ namespace Logic
         {
             try
             {
-                string sources_pdf = drPDF_temp["vcPDFPath"].ToString();
                 fs1406_DataAccess.setPrintTemp(drPDF_temp, strOperId, ref dtMessage);
             }
             catch (Exception ex)
@@ -457,6 +470,45 @@ namespace Logic
             }
             catch (Exception ex)
             {
+                throw ex;
+            }
+        }
+        public void SavePicFiletoWindow(string filePath)
+        {
+            try
+            {
+
+                DirectoryInfo theFolder = new DirectoryInfo(filePath);
+                string environment = Environment.OSVersion.ToString().ToLower();
+                //Console.WriteLine("进入保存方法");
+                if (!environment.Contains("windows"))
+                {
+                    //Console.WriteLine("linux");
+                    //foreach (FileInfo info in theFolder.GetFiles())
+                    //{
+                    Console.WriteLine("linux正式保存");
+                    FileInfo info = new FileInfo(filePath);
+                    ComFunction.HttpUploadFile(info.FullName, info.Name, @"Doc\Image\SPISPic\");
+                    Console.WriteLine("linux结束保存");
+                    //}
+                }
+                //else
+                //{
+                //    //Console.WriteLine("windows");
+                //    //转存下载
+                //    foreach (FileInfo info in theFolder.GetFiles())
+                //    {
+                //        //Console.WriteLine("windows正式保存");
+                //        string realPath = basePath + @"\Doc\upload_spisapply\apply\" + info.Name;
+                //        System.IO.File.Copy(info.FullName, realPath, true);
+                //        //Console.WriteLine("windows正式保存");
+                //    }
+
+                //}
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine(ex);
                 throw ex;
             }
         }

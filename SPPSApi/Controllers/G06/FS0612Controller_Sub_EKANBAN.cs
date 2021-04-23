@@ -73,9 +73,9 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0701", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE1206", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "初始化失败";
+                apiResult.data = "EKANBAN初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -133,22 +133,31 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtNQCResult = fs0612_Logic.dtNQCReceive(vcCLYM);
                 for (int i = 0; i < plantList.Count; i++)
                 {
+                    //先判断某工厂是否soq内外制数据都没有
+                    if(fs0612_Logic.isHaveSoqData(vcDXYM,plantList[i].ToString(),"'0','1'")==false)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("工厂{0},对象年月{1}没有内外SOQ数据,无需请求。", plantList[i].ToString(), vcDXYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    
                     DataRow[] drs_dxny = dtNQCResult.Select("Process_Factory='TFTM" + plantList[i].ToString() + "' and Start_date_for_daily_qty like '" + vcDXYM + "%'  ");
                     DataRow[] drs_nsny = dtNQCResult.Select("Process_Factory='TFTM" + plantList[i].ToString() + "' and Start_date_for_daily_qty like '" + vcNSYM + "%'  ");
                     DataRow[] drs_nnsny = dtNQCResult.Select("Process_Factory='TFTM" + plantList[i].ToString() + "' and Start_date_for_daily_qty like '" + vcNNSYM + "%'  ");
-                    if (drs_dxny.Length == 0)
+                    bool isHave = fs0612_Logic.isHaveSoqData(vcDXYM, plantList[i].ToString(), "'0'");
+                    if (isHave && drs_dxny.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("工厂{0},对象年月{1}内制结果未处理。", plantList[i].ToString(), vcDXYM);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (drs_nsny.Length == 0)
+                    if (isHave && drs_nsny.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("工厂{0},内示年月{1}内制结果未处理。", plantList[i].ToString(), vcNSYM);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (drs_nnsny.Length == 0)
+                    if (isHave && drs_nnsny.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("工厂{0},内内示年月{1}内制结果未处理。", plantList[i].ToString(), vcNNSYM);
@@ -162,19 +171,20 @@ namespace SPPSApi.Controllers.G06
                     DataRow[] drs_dxny = dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='" + vcDXYM + "'  ");
                     DataRow[] drs_nsny = dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='" + vcNSYM + "'  ");
                     DataRow[] drs_nnsny = dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='" + vcNNSYM + "'  ");
-                    if (drs_dxny.Length == 0)
+                    bool isHave = fs0612_Logic.isHaveSoqData(vcDXYM, plantList[i].ToString(), "'1'");
+                    if (isHave && drs_dxny.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("工厂{0},对象年月{1}外注平准化数据没有展开。", plantList[i].ToString(), vcDXYM);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (drs_nsny.Length == 0)
+                    if (isHave && drs_nsny.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("工厂{0},内示年月{1}外注平准化数据没有展开。", plantList[i].ToString(), vcNSYM);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (drs_nnsny.Length == 0)
+                    if (isHave && drs_nnsny.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("工厂{0},内内示年月{1}外注平准化数据没有展开。", plantList[i].ToString(), vcNNSYM);
@@ -205,9 +215,9 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE1207", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "请求失败";
+                apiResult.data = "EKANBAN确定失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

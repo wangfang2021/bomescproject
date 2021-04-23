@@ -31,9 +31,9 @@ namespace Logic
         #endregion
 
         #region 
-        public DataTable Search_F()
+        public DataTable Search_F(string strOrder)
         {
-            return FS0719_DataAccess.Search_F();
+            return FS0719_DataAccess.Search_F(strOrder);
         }
         #endregion
 
@@ -67,7 +67,7 @@ namespace Logic
         #region 导入后保存
         public void importSave(DataTable dt, string strUserId,ref string strErrorPartId)
         {
-            DataTable dtOrderNO = FS0719_DataAccess.Search();
+            DataTable dtOrderNO = FS0719_DataAccess.Search_C();
             DataTable dtbase = FS0719_DataAccess.SearchBase();
             DataTable dtFaZhuTime = FS0719_DataAccess.SearchFaZhuTime();
             DataTable dtCode = FS0719_DataAccess.SearchCode(strUserId);

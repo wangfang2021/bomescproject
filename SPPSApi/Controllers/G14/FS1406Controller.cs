@@ -66,7 +66,7 @@ namespace SPPSApi.Controllers.G14
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M14PE0600", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -113,7 +113,7 @@ namespace SPPSApi.Controllers.G14
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M14PE0601", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -169,9 +169,9 @@ namespace SPPSApi.Controllers.G14
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M14PE0602", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "回复SPIS失败";
+                apiResult.data = "回复失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -246,7 +246,7 @@ namespace SPPSApi.Controllers.G14
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M14PE0603", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -275,11 +275,36 @@ namespace SPPSApi.Controllers.G14
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
                 DataTable dtImport = fS1406_Logic.setInfoList(dataForm);
+                string hashCode = dataForm.hashCode;
                 DataTable dtApplyList = dtImport.Clone();
+                //正式原图路径windows和lincx通用
                 string strPath_temp = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_spisapply" + Path.DirectorySeparatorChar + "apply" + Path.DirectorySeparatorChar;
                 string strPath_pic = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISPic" + Path.DirectorySeparatorChar;
-                string strPath_pdf = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISPdf" + Path.DirectorySeparatorChar;
-                string strPath_sips = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
+
+                //pdf及spis照片路径
+                //获取文件路径
+                string strPath_pdf = string.Empty;
+                string strPath_sips = string.Empty;
+                string strPath_crv = string.Empty;
+                string[] vsPath = getWindowPath();
+                strPath_pdf = vsPath[0];
+                strPath_sips = vsPath[1];
+                strPath_crv = vsPath[2];
+                if (strPath_pdf == string.Empty|| strPath_sips ==string.Empty)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "未能正确获取SPIS生成路径";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //数据整理集合
                 DataTable dtPDF_temp = fS1406_Logic.getTempDataInfo();
                 fS1406_Logic.checkSaveInfo(dtImport, ref dtApplyList, ref dtPDF_temp, strPath_temp, strPath_pic, strPath_pdf, strPath_sips, loginInfo.UserId, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
@@ -292,37 +317,44 @@ namespace SPPSApi.Controllers.G14
                 }
                 //处理图像
                 //1.插入并打印
+                        Console.WriteLine("sql调用开始");
                 DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("SPIS生成", "");
+                        Console.WriteLine("sql调用结束");
                 if (dtPrinterInfo.Rows.Count != 0)
                 {
                     for (int i = 0; i < dtPDF_temp.Rows.Count; i++)
                     {
                         DataRow drPDF_temp = dtPDF_temp.Rows[i];
                         string sources_pdf = drPDF_temp["vcPDFPath"].ToString();
+                        string sources_sips = drPDF_temp["vcSPISPath"].ToString();
                         fS1406_Logic.setCRVtoPdf(drPDF_temp, loginInfo.UserId, ref dtMessage);
                         #region 调用webApiPDF导出
                         //创建 HTTP 绑定对象
-                        string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                        string file_crv = strPath_crv;
                         var binding = new BasicHttpBinding();
                         //根据 WebService 的 URL 构建终端点对象
                         var endpoint = new EndpointAddress(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
+                        Console.WriteLine(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
                         //创建调用接口的工厂，注意这里泛型只能传入接口
                         var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
                         //从工厂获取具体的调用实例
                         var callClient = factory.CreateChannel();
-                        setCRVToPDFRequestBody Body = new setCRVToPDFRequestBody();
+                        setCRVToIMGRequestBody Body = new setCRVToIMGRequestBody();
                         Body.strScrpit = "select * from tPrintTemp_FS1406 WHERE vcOperator='" + loginInfo.UserId + "' ORDER BY LinId";
-                        Body.strDiskFileName = sources_pdf;
+                        Body.strPdfFileName = sources_pdf;
+                        Body.strImgFileName = sources_sips;
                         Body.strCRVName = file_crv + dtPrinterInfo.Rows[0]["vcReports"].ToString();
                         Body.sqlUserID = dtPrinterInfo.Rows[0]["vcSqlUserID"].ToString();
                         Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();
                         Body.sqlCatalog = dtPrinterInfo.Rows[0]["vcSqlCatalog"].ToString();
                         Body.sqlSource = dtPrinterInfo.Rows[0]["vcSqlSource"].ToString();
+                        Console.WriteLine("web参数完备");
                         //调用具体的方法，这里是 HelloWorldAsync 方法
-                        Task<setCRVToPDFResponse> responseTask = callClient.setCRVToPDFAsync(new setCRVToPDFRequest(Body));
+                        Task<setCRVToIMGResponse> responseTask = callClient.setCRVToIMGAsync(new setCRVToIMGRequest(Body));
+                        Console.WriteLine("调用web");
                         //获取结果
-                        setCRVToPDFResponse response = responseTask.Result;
-                        if (response.Body.setCRVToPDFResult != "导出成功")
+                        setCRVToIMGResponse response = responseTask.Result;
+                        if (response.Body.setCRVToIMGResult != "导出成功")
                         {
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
@@ -338,9 +370,8 @@ namespace SPPSApi.Controllers.G14
                         }
                         #endregion
                     }
-
-                    //2.PDF转SPIS图片
-                    fS1406_Logic.setPdftoImgs(dtApplyList, loginInfo.UserId, ref dtMessage);
+                    ////2.PDF转SPIS图片
+                    //fS1406_Logic.setPdftoImgs(dtApplyList, loginInfo.UserId, ref dtMessage);
                     //3.保存数据
                     fS1406_Logic.setSaveInfo(dtApplyList, loginInfo.UserId, ref dtMessage);
                 }
@@ -365,12 +396,36 @@ namespace SPPSApi.Controllers.G14
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M14PE0604", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存SPIS失败";
+                apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-
+        public string[] getWindowPath()
+        {
+            try
+            {
+                string[] vs =new string[3];
+                string environment = Environment.OSVersion.ToString().ToLower();
+                if (!environment.Contains("windows"))
+                {
+                    vs[0] = ComFunction.HttpGetWindowPath("pdf");
+                    vs[1] = ComFunction.HttpGetWindowPath("img");
+                    vs[2] = ComFunction.HttpGetWindowPath("crv");
+                }
+                else
+                {
+                    vs[0] = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISPdf" + Path.DirectorySeparatorChar;
+                    vs[1] = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
+                    vs[2] = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                }
+                return vs;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

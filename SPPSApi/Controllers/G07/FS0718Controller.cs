@@ -236,7 +236,9 @@ namespace SPPSApi.Controllers.G07
                     {
                         string strSupplier = list_NSMonth[i]["vcSupplier"].ToString();
                         string strYearMonth = list_NSMonth[i]["vcYearMonth"].ToString().Replace("-","");
-                        string strFaBuTime = Convert.ToDateTime(list_NSMonth[i]["dFaBuTime"].ToString()).ToString();
+                        DateTime dateTime = Convert.ToDateTime(list_NSMonth[i]["dFaBuTime"].ToString());
+
+                        string strFaBuTime = dateTime.ToString("yyyy") + "-" + dateTime.ToString("MM") + "-" + dateTime.ToString("dd") + " " + dateTime.ToString("HH:mm:ss");
                         DataTable dt_Month = FS0718_Logic.Search_Month(strSupplier, strYearMonth, strFaBuTime);
                         ComFunction.ConsoleWriteLine("检索出月度内示数据条数(DataTable.rows)："+dt_Month.Rows.Count);
 

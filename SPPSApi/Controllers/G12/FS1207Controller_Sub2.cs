@@ -330,7 +330,7 @@ namespace SPPSApi.Controllers.G12
                 }
                 //获取销售公司信息
 
-                DataTable dtSaleuser = logic.GetSaleuser(UserId);
+                DataTable dtSaleuser = logic.GetSaleuser(vcSaleUser);
                 //获取发注担当信息
                 DataTable dtUser = logic.GetUser(UserId);
                 if (dtUser.Rows.Count == 0)

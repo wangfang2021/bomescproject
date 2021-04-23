@@ -3008,6 +3008,7 @@ namespace DataAccess
             {
                 StringBuilder strSql_insert = new StringBuilder();
                 #region 初始化植入从临时表原单位到正式表
+                strSql_insert.AppendLine("UPDATE [dbo].[TSPMaster_temp] SET [vcUpdateType]='1'");
                 strSql_insert.AppendLine("INSERT INTO [dbo].[TSPMaster]");
                 strSql_insert.AppendLine("           ([dSyncTime]");
                 strSql_insert.AppendLine("           ,[vcChanges]");
@@ -3089,13 +3090,13 @@ namespace DataAccess
                 strSql_insert.AppendLine("      ,[dSyncToSPTime]");
                 strSql_insert.AppendLine("      ,[vcPartNameCn]");
                 strSql_insert.AppendLine("	  ,GETDATE()");
-                strSql_insert.AppendLine("  FROM [dbo].[TSPMaster_temp]");
+                strSql_insert.AppendLine("  FROM [dbo].[TSPMaster_temp] WHERE [vcUpdateType]='1'");
                 excute.ExcuteSqlWithStringOper(strSql_insert.ToString());
                 #endregion 
 
                 StringBuilder strSql_delete = new StringBuilder();
                 #region 删除清空
-                strSql_delete.AppendLine("DELETE  FROM [dbo].[TSPMaster_temp]");
+                strSql_delete.AppendLine("DELETE  FROM [dbo].[TSPMaster_temp]  WHERE [vcUpdateType]='1'");
                 excute.ExcuteSqlWithStringOper(strSql_delete.ToString());
                 #endregion
 

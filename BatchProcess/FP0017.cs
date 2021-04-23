@@ -20,28 +20,28 @@ namespace BatchProcess
             try
             {
                 //批处理开始
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0200", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1701", null, strUserId);
                 DataTable dt = GetRequestData();
                 if (dt.Rows.Count == 0)
                 {//没有FORECAST要请求的数据
-                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1701", null, strUserId);
                     return true;
                 }
                 DataSet ds = GetNQCData(dt);
                 if (ds.Tables.Count == 0)
                 {//没有FORECAST结果数据
-                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1702", null, strUserId);
                     return true;
                 }
                 UpdateDB(ds, strUserId);
                 //批处理结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1702", null, strUserId);
                 return true;
             }
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PE0200", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1703", null, strUserId);
                 throw ex;
             }
         }

@@ -108,17 +108,17 @@ namespace BatchProcess
                 DataTable dt = new DataTable();
                 sql.Append(" --订单号，订单数，订单时间，验收数，验收时间,费用负担，验收时间，电送化时间，更新时间     \n");
                 sql.Append("   select distinct c.ORDER_NO,c.ORDER_QUANTITY,c.ORDER_DATE,cast(c.RECEIVED_QUANTITY as int)as RECEIVED_QUANTITY,c.RECEIVED_DATE,c.COST_GROUP,c.YanShouDate,   \n");
-                sql.Append("   c.Email_TIME,c.CREATE_TIME,c.PART_ID,d.SUPPLIER_CODE,c.UNIT,d.PART_NO,c.FI_STORE_CODE,d.CREATE_USER,e.CREATE_TIME as SJNRTime   \n");
+                sql.Append("   c.Email_TIME,c.CREATE_TIME,c.PART_ID,d.SUPPLIER_CODE,c.UNIT,d.PART_NO,c.FI_STORE_CODE,d.CREATE_USER,e.CREATE_TIME as SJNRTime,c.UPDATE_USER   \n");
                 sql.Append("   from(   \n");
                 sql.Append("    select ORDER_NO,ORDER_QUANTITY,ORDER_DATE,RECEIVED_QUANTITY,RECEIVED_DATE,COST_GROUP,YanShouDate, \n");
-                sql.Append("    Email_TIME,CREATE_TIME,PART_ID,UNIT ,FI_STORE_CODE \n");
+                sql.Append("    Email_TIME,CREATE_TIME,PART_ID,UNIT ,FI_STORE_CODE,UPDATE_USER \n");
                 sql.Append("    from TB_B0030 where CONVERT(datetime,CREATE_TIME)>='" + strDate + "' \n");
                 sql.Append("    and (ASCII(SUBSTRING(ORDER_NO,1,1))between 65 and 90) and (ASCII(SUBSTRING(ORDER_NO,2,1))between 65 and 90) \n");
                 if (dtOrder.Rows.Count > 0)
                 {
                     sql.Append("  union all  \n");
                     sql.Append("  select ORDER_NO,ORDER_QUANTITY,ORDER_DATE,RECEIVED_QUANTITY,RECEIVED_DATE,COST_GROUP,YanShouDate,  \n");
-                    sql.Append("  Email_TIME,CREATE_TIME,PART_ID,UNIT,FI_STORE_CODE   \n");
+                    sql.Append("  Email_TIME,CREATE_TIME,PART_ID,UNIT,FI_STORE_CODE,UPDATE_USER   \n");
                     sql.Append("  from TB_B0030 where ORDER_NO in (  \n");
                     for (int i = 0; i < dtOrder.Rows.Count; i++)
                     {
@@ -238,7 +238,7 @@ namespace BatchProcess
                             sql.Append("  ,[dEmailTime] ='" + dtNewItem.Rows[i]["Email_TIME"].ToString() + "'  \n");
                         }
 
-                        sql.Append("      ,[vcYanShouID] = '" + dtNewItem.Rows[i]["CREATE_USER"].ToString() + "'  ");
+                        sql.Append("      ,[vcYanShouID] = '" + dtNewItem.Rows[i]["UPDATE_USER"].ToString() + "'  ");
                         sql.Append("      ,[dUpdateTime] = '" + dtNewItem.Rows[i]["CREATE_TIME"].ToString() + "'  ");
                         sql.Append("      ,[vcOperatorID] = '" + strUserId + "'  ");
                         sql.Append("      ,[dOperatorTime] = GETDATE()  ");
@@ -515,6 +515,7 @@ namespace BatchProcess
                         sql.Append("            ,[vcSupplierID]   \n");
                         sql.Append("            ,[iLiLun]   \n");
                         sql.Append("            ,[iAnQuan]   \n");
+                        sql.Append("            ,[dChange]   \n");
                         sql.Append("            ,[vcOperatorID]   \n");
                         sql.Append("            ,[dOperatorTime])   \n");
                         sql.Append("  VALUES  \n");
@@ -525,6 +526,7 @@ namespace BatchProcess
                         sql.Append("   '" + dr1[0]["vcSupplierCode"].ToString() + "', \n");
                         sql.Append("   '" + dtb.Rows[j]["iSJNum"].ToString() + "', \n");
                         sql.Append("   '" + SaveZK + "', \n");
+                        sql.Append("   0.00, \n");
                         sql.Append("   '" + strUserId + "', \n");
                         sql.Append("   getdate() \n");
                         sql.Append("   ) \n");
@@ -769,7 +771,7 @@ namespace BatchProcess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("  select * from TB_B0030_Delete where (ASCII(SUBSTRING(ORDER_NO,1,1))between 65 and 90) and (ASCII(SUBSTRING(ORDER_NO,2,1))between 65 and 90)  ");
+                strSql.AppendLine("  select distinct ORDER_NO from TB_B0030_DelHis where (ASCII(SUBSTRING(ORDER_NO,1,1))between 65 and 90) and (ASCII(SUBSTRING(ORDER_NO,2,1))between 65 and 90)  ");
 
                 return this.MAPSSearch(strSql.ToString());
 

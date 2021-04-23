@@ -35,11 +35,7 @@ namespace SPPSApi.Controllers.G13
         {
             _webHostEnvironment = webHostEnvironment;
         }
-        /// <summary>
-        /// 检索方法
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        
         [HttpPost]
         [EnableCors("any")]
         public string pageloadApi([FromBody] dynamic data)
@@ -92,9 +88,9 @@ namespace SPPSApi.Controllers.G13
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE0600", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -134,9 +130,9 @@ namespace SPPSApi.Controllers.G13
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M13PE0601", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "页面加载失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

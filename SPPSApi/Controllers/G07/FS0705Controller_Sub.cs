@@ -303,7 +303,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 #endregion
 
-                fs0705_Logic.Save_Sub(listInfoData, loginInfo.UserId);
+                fs0705_Logic.Save_Sub(listInfoData, loginInfo.UserId,loginInfo.BaoZhuangPlace);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "";

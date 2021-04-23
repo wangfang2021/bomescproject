@@ -381,7 +381,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="strSql"></param>
         /// <param name="strOrderNo"></param>
-        public void SCFZData(DataTable dt, string strOrderNo)
+        public void SCFZData(DataTable dt, string strOrderNo,string strUserID)
         {
             StringBuilder strSql = new StringBuilder();
             try
@@ -444,44 +444,46 @@ namespace DataAccess
                 #endregion
 
                 #region 将此次的数据结果插入包材发注表中
-                strSql.AppendLine("       insert into TPackOrderFaZhu          ");
-                strSql.AppendLine("       (          ");
-                strSql.AppendLine("           vcOrderNo,          ");
-                strSql.AppendLine("           vcPackNo,           ");
-                strSql.AppendLine("           vcPackGPSNo,        ");
-                strSql.AppendLine("           vcPartName,         ");
-                strSql.AppendLine("           iOrderNumber,       ");
-                strSql.AppendLine("           vcIsorNoFaZhu,      ");
-                strSql.AppendLine("           vcFaBuType,         ");
-                strSql.AppendLine("           dNaRuTime,          ");
-                strSql.AppendLine("           vcNaRuBianci,       ");
-                strSql.AppendLine("           vcNaRuUnit,         ");
-                strSql.AppendLine("           vcSupplierCode,     ");
-                strSql.AppendLine("           vcSupplierName,     ");
-                strSql.AppendLine("           vcBuShu,            ");
-                strSql.AppendLine("           vcPackSpot,         ");
-                strSql.AppendLine("           vcCangKuCode,       ");
-                strSql.AppendLine("           vcOperatorID,       ");
-                strSql.AppendLine("           dOperatorTime,      ");
-                strSql.AppendLine("       )                       ");
-                strSql.AppendLine("       select                  ");
-                strSql.AppendLine("       b.vcOrderNo,            ");
-                strSql.AppendLine("       b.vcPackNo,             ");
-                strSql.AppendLine("       b.vcPackGPSNo,          ");
-                strSql.AppendLine("       c.vcParstName,          ");
-                strSql.AppendLine("       b.iF_DingGou,           ");
-                strSql.AppendLine("       '0',                    ");
-                strSql.AppendLine("       '0',                    ");
-                strSql.AppendLine("       b.dNaRuTime,            ");
-                strSql.AppendLine("       b.vcBianCi,             ");
-                strSql.AppendLine("       b.iA_SRS,               ");
-                strSql.AppendLine("       c.vcSupplierCode,       ");
-                strSql.AppendLine("       c.vcSupplierName,       ");
-                strSql.AppendLine("       d.vcBuShu,              ");
-                strSql.AppendLine("       a.vcPackSpot,           ");
-                strSql.AppendLine("       d.vcCangKuCode,         ");
-                strSql.AppendLine("       b.vcOperatorID,           ");
-                strSql.AppendLine("       b.dOperatorTime,          ");
+                strSql.AppendLine("        insert into TPackOrderFaZhu      ");
+                strSql.AppendLine("        (      ");
+                strSql.AppendLine("         vcOrderNo      ");
+                strSql.AppendLine("        ,vcPackNo      ");
+                strSql.AppendLine("        ,vcPackGPSNo      ");
+                strSql.AppendLine("        ,vcPartName      ");
+                strSql.AppendLine("        ,iOrderNumber      ");
+                strSql.AppendLine("        ,vcIsorNoFaZhu      ");
+                strSql.AppendLine("        ,vcFaBuType      ");
+                strSql.AppendLine("        ,dNaRuTime      ");
+                strSql.AppendLine("        ,vcNaRuBianci      ");
+                strSql.AppendLine("        ,vcNaRuUnit      ");
+                strSql.AppendLine("        ,vcSupplierCode      ");
+                strSql.AppendLine("        ,vcSupplierName      ");
+                strSql.AppendLine("        ,vcBuShu      ");
+                strSql.AppendLine("        ,vcPackSpot      ");
+                strSql.AppendLine("        ,vcCangKuCode      ");
+                strSql.AppendLine("        ,vcIsStop      ");
+                strSql.AppendLine("        ,vcOperatorID      ");
+                strSql.AppendLine("        ,dOperatorTime      ");
+                strSql.AppendLine("        )      ");
+                strSql.AppendLine("        select       ");
+                strSql.AppendLine("         b.vcOrderNo      ");
+                strSql.AppendLine("        ,b.vcPackNo      ");
+                strSql.AppendLine("        ,b.vcPackGPSNo      ");
+                strSql.AppendLine("        ,c.vcParstName      ");
+                strSql.AppendLine("        ,b.iF_DingGou      ");
+                strSql.AppendLine("        ,'0'      ");
+                strSql.AppendLine("        ,'0'      ");
+                strSql.AppendLine("        ,b.dNaQiTime      ");
+                strSql.AppendLine("        ,b.vcBianCi      ");
+                strSql.AppendLine("        ,b.iA_SRS      ");
+                strSql.AppendLine("        ,c.vcSupplierCode      ");
+                strSql.AppendLine("        ,c.vcSupplierName      ");
+                strSql.AppendLine("        ,d.vcValue3      ");
+                strSql.AppendLine("        ,b.vcPackSpot      ");
+                strSql.AppendLine("        ,d.vcValue4      ");
+                strSql.AppendLine("        ,'0'      ");
+                strSql.AppendLine("        ,'"+strUserID+"'      ");
+                strSql.AppendLine("        ,GETDATE()      ");
                 strSql.AppendLine("       from          ");
                 strSql.AppendLine("       (          ");
                 strSql.AppendLine("           select * from #TPackCompute_temp          ");
@@ -493,47 +495,53 @@ namespace DataAccess
                 strSql.AppendLine("       left JOIN          ");
                 strSql.AppendLine("       (          ");
                 strSql.AppendLine("           select * from TPackBase          ");
-                strSql.AppendLine("       ) c on b.vcPackNo = c.vcPackNo and a.vcPackSpot = c.vcPackSpot          ");
+                strSql.AppendLine("       ) c on b.vcPackNo = c.vcPackNo and b.vcPackSpot = c.vcPackSpot          ");
                 strSql.AppendLine("       left JOIN          ");
                 strSql.AppendLine("       (          ");
-                strSql.AppendLine("           select vcPackNo,vcPackSpot,vcBuShu,vcCangKuCode from TPackOrderFaZhu          ");
-                strSql.AppendLine("       ) d on b.vcPackNo = c.vcPackNo and a.vcPackSpot = d.vcPackSpot          ");
+                strSql.AppendLine("            select * from TOutCode where vcCodeId='C055'and vcValue1='" + strUserID + "'         ");
+                strSql.AppendLine("       ) d on b.vcPackSpot = d.vcValue2          ");
                 #endregion
 
                 #region 将此次的数据结果插入包材实际表中
-                strSql.AppendLine("        insert into TPack_FaZhu_ShiJi(           ");
-                strSql.AppendLine("            vcOrderNo,                           ");
-                strSql.AppendLine("            vcPackNo,                            ");
-                strSql.AppendLine("            vcPackGPSNo,                         ");
-                strSql.AppendLine("            vcPartName,                          ");
-                strSql.AppendLine("            iOrderNumber,                        ");
-                strSql.AppendLine("            vcType,                              ");
-                strSql.AppendLine("            dFaZhuTime,                          ");
-                strSql.AppendLine("            vcNaRuBianCi,                        ");
-                //strSql.AppendLine("            vcNaRuUnit,                          ");
-                //strSql.AppendLine("            vcState,                             ");
-                strSql.AppendLine("            vcPackSupplierID,                    ");
-                strSql.AppendLine("            vcPackSpot                           ");
-                strSql.AppendLine("            vcCangKuID                           ");
-                strSql.AppendLine("            vcOperatorID                         ");
-                strSql.AppendLine("            dOperatorTime                        ");
-                strSql.AppendLine("        )                                        ");
-                strSql.AppendLine("        select                                   ");
-                strSql.AppendLine("            b.vcOrderNo,                         ");
-                strSql.AppendLine("            b.vcPackNo,                          ");
-                strSql.AppendLine("            b.vcPackGPSNo,                       ");
-                strSql.AppendLine("            c.vcParstName,                       ");
-                strSql.AppendLine("            b.iF_DingGou,                        ");
-                strSql.AppendLine("            '0',                                 ");
-                //strSql.AppendLine("            '0',                                 ");
-                strSql.AppendLine("            GETDATE(),                           ");
-                strSql.AppendLine("            b.vcNaRuBianCi,                        ");//
-                //strSql.AppendLine("            vcNaRuUnit,                          ");
-                strSql.AppendLine("            vcCangKuID                           ");//
-                strSql.AppendLine("            c.vcSupplierCode,                    ");
-                strSql.AppendLine("            c.vcPackSpot                         ");
-                strSql.AppendLine("            b.vcOperatorID                       ");//
-                strSql.AppendLine("            b.dOperatorTime                      ");//
+                strSql.AppendLine("        insert into TPack_FaZhu_ShiJi(                     ");
+                strSql.AppendLine("         vcOrderNo          ");
+                strSql.AppendLine("        ,vcPackNo          ");
+                strSql.AppendLine("        ,vcPackGPSNo          ");
+                strSql.AppendLine("        ,vcPartName          ");
+                strSql.AppendLine("        ,iOrderNumber          ");
+                strSql.AppendLine("        ,vcType          ");
+                strSql.AppendLine("        ,dFaZhuTime          ");
+                strSql.AppendLine("        ,vcNaRuBianCi          ");
+                strSql.AppendLine("        ,vcNaRuUnit          ");
+                strSql.AppendLine("        ,vcState          ");
+                strSql.AppendLine("        ,vcPackSupplierID          ");
+                strSql.AppendLine("        ,vcPackSpot          ");
+                strSql.AppendLine("        ,vcCangKuID          ");
+                strSql.AppendLine("        ,dNaRuYuDing          ");
+                strSql.AppendLine("        ,vcColour          ");
+                strSql.AppendLine("        ,vcFeiYongID          ");
+                strSql.AppendLine("        ,vcOperatorID          ");
+                strSql.AppendLine("        ,dOperatorTime          ");
+                strSql.AppendLine("        )          ");
+                strSql.AppendLine("        select                     ");
+                strSql.AppendLine("         b.vcOrderNo          ");
+                strSql.AppendLine("        ,b.vcPackNo          ");
+                strSql.AppendLine("        ,b.vcPackGPSNo          ");
+                strSql.AppendLine("        ,c.vcParstName          ");
+                strSql.AppendLine("        ,b.iF_DingGou          ");
+                strSql.AppendLine("        ,'0'          ");
+                strSql.AppendLine("        ,GETDATE()          ");
+                strSql.AppendLine("        ,b.vcBianCi          ");
+                strSql.AppendLine("        ,b.iA_SRS          ");
+                strSql.AppendLine("        ,'0'          ");
+                strSql.AppendLine("        ,c.vcSupplierCode          ");
+                strSql.AppendLine("        ,b.vcPackSpot          ");
+                strSql.AppendLine("        ,d.vcValue4          ");
+                strSql.AppendLine("        ,b.dNaQiTime          ");
+                strSql.AppendLine("        ,'0'          ");
+                strSql.AppendLine("        ,d.vcValue3          ");
+                strSql.AppendLine("        ,'"+strUserID+"'          ");
+                strSql.AppendLine("        ,GETDATE()          ");
                 strSql.AppendLine("        from                                     ");
                 strSql.AppendLine("        (                                        ");
                 strSql.AppendLine("            select * from #TPackCompute_temp     ");
@@ -545,11 +553,11 @@ namespace DataAccess
                 strSql.AppendLine("       left JOIN          ");
                 strSql.AppendLine("       (          ");
                 strSql.AppendLine("           select * from TPackBase          ");
-                strSql.AppendLine("       ) c on b.vcPackNo = c.vcPackNo and a.vcPackSpot = c.vcPackSpot          ");
+                strSql.AppendLine("       ) c on b.vcPackNo = c.vcPackNo and b.vcPackSpot = b.vcPackSpot          ");
                 strSql.AppendLine("       left JOIN          ");
                 strSql.AppendLine("       (          ");
-                strSql.AppendLine("           select vcPackNo,vcPackSpot,vcBuShu,vcCangKuCode from TPackOrderFaZhu          ");
-                strSql.AppendLine("       ) d on b.vcPackNo = c.vcPackNo and a.vcPackSpot = d.vcPackSpot          ");
+                strSql.AppendLine("           select * from TOutCode where vcCodeId='C055'and vcValue1='"+strUserID+"'          ");
+                strSql.AppendLine("       ) d on b.vcPackSpot=d.vcValue2          ");
                 #endregion
 
                 excute.ExcuteSqlWithStringOper(strSql.ToString());
@@ -853,7 +861,7 @@ namespace DataAccess
         #endregion
 
         #region 调整数据输入-保存
-        public void save_Sub(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void save_Sub(List<Dictionary<string, Object>> listInfoData, string strUserId,string strPackSport)
         {
             StringBuilder strSql = new StringBuilder();
 
@@ -864,14 +872,14 @@ namespace DataAccess
             strSql.Append("        End  \n");
             strSql.Append("        select * into #TPackCompute_Ajust_temp from       \n");
             strSql.Append("        (      \n");
-            strSql.Append("      	  select vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime from TPackCompute_Ajust where 1=0      \n");
+            strSql.Append("      	  select * from TPackCompute_Ajust where 1=0      \n");
             strSql.Append("        ) a      ;\n");
             #endregion
 
             #region 将数据插入临时表
             for (int i = 0; i < listInfoData.Count; i++)
             {
-                strSql.AppendLine("      insert into #TPackCompute_Ajust_temp(vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime)       ");
+                strSql.AppendLine("      insert into #TPackCompute_Ajust_temp(vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime,vcPackSpot)       ");
                 strSql.AppendLine("      values       ");
                 strSql.AppendLine("      (       ");
                 strSql.AppendLine("       " + ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false) + "       ");
@@ -893,13 +901,14 @@ namespace DataAccess
                 strSql.AppendLine("      ," + ComFunction.getSqlValue(listInfoData[i]["vcReason"], false) + "       ");
                 strSql.AppendLine("      ,'" + strUserId + "'       ");
                 strSql.AppendLine("      ,GETDATE()       ");
+                strSql.AppendLine("      ,'"+strPackSport+"'       ");
                 strSql.AppendLine("      )       ");
             }
             #endregion
 
             #region 临时表关联包材基础信息表，关联出包材品番，将临时表数据插入调整数据输入表
-            strSql.AppendLine("      insert into  TPackCompute_Ajust(vcPackNo,vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime)       ");
-            strSql.AppendLine("      select b.vcPackNo,a.vcPackGPSNo,a.iNumber,a.vcType,a.dTime,a.vcReason,a.vcOperatorID,a.dOperatorTime from  #TPackCompute_Ajust_temp a       ");
+            strSql.AppendLine("      insert into  TPackCompute_Ajust(vcPackNo,vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime,vcPackSpot)       ");
+            strSql.AppendLine("      select b.vcPackNo,a.vcPackGPSNo,a.iNumber,a.vcType,a.dTime,a.vcReason,a.vcOperatorID,a.dOperatorTime,a.vcPackSpot from  #TPackCompute_Ajust_temp a       ");
             strSql.AppendLine("      left JOIN       ");
             strSql.AppendLine("      (       ");
             strSql.AppendLine("          select vcPackNo,vcPackGPSNo from TPackBase       ");

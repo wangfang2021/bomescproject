@@ -22,7 +22,7 @@ namespace Common
         /// <summary>邮件发送服务器</summary>
         public const string strSmtp = "apl.aplmail.local";
         /// <summary>公共邮箱</summary>
-        public const string strComEmail = "maps@tftm.com.cn";
+        public const string strComEmail = "buji@tftm.com.cn";
         /// <summary>公共邮箱密码</summary>
         public const string strComEmailPwd = "";
         /// <summary>NQC错误信息路径</summary>

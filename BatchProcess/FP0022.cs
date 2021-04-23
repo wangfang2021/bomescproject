@@ -129,14 +129,6 @@ namespace BatchProcess
                 sql.Append("	on a.vcPartId=d.vcPartId and a.vcPackingPlant=d.vcPackingPlant and a.vcReceiver=d.vcReceiver and a.vcSupplierId=d.vcSupplierId) t  \n");
                 sql.Append("where not EXISTS (select vcPartId,vcReceiver,vcSupplierId  \n");
                 sql.Append("from TPartInfoMaster b where t.vcPartId=b.vcPartsNo and b.vcCpdCompany=t.vcReceiver and b.vcSupplierCode=t.vcSupplierId)  \n");
-                sql.Append("union all  \n");
-                //以下ED品番基础数据
-                sql.Append("select t.vcPart_id as vcPartId, convert(varchar,t.dTimeFrom,23) as dFromTime, convert(varchar,t.dTimeTo,23) as dToTime, t.vcSR as vcDock,  \n");
-                sql.Append("t.vcCarType as vcCarFamilyCode, t.vcPartNameEn, t.iContainerQuantity as iQuantityPerContainer, '0' as vcOrderingMethod, t.vcSHF as vcReceiver,  \n");
-                sql.Append("t.vcSupplier_id as vcSupplierId, '' as vcSupplierPlant, t.vcPhotoPath as vcPartImage, '1' as vcPassProject, '' as vcHaoJiu, '1' as vcInOutFlag,  t.dOperatorTime  \n");
-                sql.Append("from TEDTZPartsNoMaster t   \n");
-                sql.Append("where not EXISTS (select vcPartsNo,vcCpdCompany,vcSupplierCode   \n");
-                sql.Append("from TPartInfoMaster b where b.vcPartsNo=t.vcPart_id and b.vcCpdCompany=t.vcSHF and b.vcSupplierCode=t.vcSupplier_id)  \n");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 return dt;
             }

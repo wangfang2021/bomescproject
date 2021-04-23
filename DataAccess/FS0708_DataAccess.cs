@@ -31,11 +31,11 @@ namespace DataAccess
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(List<object> PackSpot, string PackNo, string PackGPSNo, string OrderFrom, string OrderTo, List<object> Type, List<Object> OrderState, string IsQianPin, List<object> SupplierName, string ZuCode, string dFaZhuFrom, string dFaZhuTo, string dNaQiFrom,string dNaQiTo,string dNaRuFrom, string dNaRuTo)
+        public DataTable Search(List<object> PackSpot, string PackNo, string PackGPSNo, string OrderFrom, string OrderTo, List<object> Type, List<Object> OrderState, string IsQianPin, List<object> SupplierName, string ZuCode, string dFaZhuFrom, string dFaZhuTo, string dNaQiFrom, string dNaQiTo, string dNaRuFrom, string dNaRuTo)
         {
             try
             {
-               
+
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("      select '0' as vcModFlag,'0' as vcAddFlag,iAutoId, ");
                 strSql.AppendLine("    vcOrderNo,vcPackNo,vcPackGPSNo,vcPartName,iOrderNumber,iSJNumber,   ");
@@ -95,41 +95,41 @@ namespace DataAccess
                     strSql.AppendLine($"      AND vcType in( ");
                     for (int i = 0; i < Type.Count; i++)
                     {
-                        if (PackSpot.Count - i == 1)
+                        if (i == 0)
                         {
                             strSql.AppendLine("   '" + Type[i] + "'   \n");
                         }
                         else
-                            strSql.AppendLine("  '" + Type[i] + "' ,   \n");
+                            strSql.AppendLine("  ,'" + Type[i] + "'    \n");
                     }
                     strSql.Append("   )       \n");
                 }
 
 
-                
-                if (!string.IsNullOrEmpty(IsQianPin))
-                {
-                    strSql.AppendLine($"      AND isQianPin = '{IsQianPin}'");
-                }
+
+                //if (!string.IsNullOrEmpty(IsQianPin))
+                //{
+                //    strSql.AppendLine($"      AND isQianPin = '{IsQianPin}'");
+                //}
                 if (!string.IsNullOrEmpty(ZuCode))
                 {
-                    strSql.AppendLine($"      AND vcZuCode = '{ZuCode}'");
+                    strSql.AppendLine($"      AND vcFeiYongID = '{ZuCode}'");
                 }
                 if (OrderState.Count != 0)
                 {
                     strSql.AppendLine($"      AND vcState in( ");
                     for (int i = 0; i < OrderState.Count; i++)
                     {
-                        if (OrderState.Count - i == 1)
+                        if (i == 0)
                         {
                             strSql.AppendLine("   '" + OrderState[i] + "'   \n");
                         }
                         else
-                            strSql.AppendLine("  '" + OrderState[i] + "' ,   \n");
+                            strSql.AppendLine("  ,'" + OrderState[i] + "'    \n");
                     }
                     strSql.Append("   )       \n");
                 }
-                if (!string.IsNullOrEmpty(dNaRuFrom)|| !string.IsNullOrEmpty(dNaRuTo))
+                if (!string.IsNullOrEmpty(dNaRuFrom) || !string.IsNullOrEmpty(dNaRuTo))
                 {
                     strSql.AppendLine($"      AND dNaRuYuDing BETWEEN '{dNaRuFrom}' and '{dNaRuTo}'");
                 }
@@ -149,7 +149,7 @@ namespace DataAccess
             }
         }
 
-     
+
         #endregion
 
         #region 保存

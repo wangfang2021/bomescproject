@@ -461,7 +461,7 @@ namespace SPPSApi.Controllers.G07
                 string[] head = headData;
                 string[] fields = fieldsData;
 
-                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "周度内饰导出", ref resMsg);
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "周度内示导出", ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

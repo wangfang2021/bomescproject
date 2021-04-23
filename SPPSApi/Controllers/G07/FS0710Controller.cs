@@ -233,7 +233,7 @@ namespace SPPSApi.Controllers.G07
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
+           
             try
             {
                 string resMsg = "";
@@ -248,7 +248,7 @@ namespace SPPSApi.Controllers.G07
                 string[] head = { "供应商", "供应商名称", "GPS品番", "品名", "规格", "数量", "单位", "备注", "费用负担" };
                 string[] fields = { "vcSupplieCode", "vcSupplieName", "vcPackGPSNo", "vcParstName", "vcFormat", "isjNum", "vcUnit", "Memo", "vcCostID" };
 
-                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "纳入统计", ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -356,10 +356,10 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-                string[] head = { "供应商", "订单号", "GPS品番", "包材品番", "到货预定日", "到货预订数", "到货日", "到货数" };
+                string[] head = { "供应商", "订单号", "GPS品番", "包材品番", "到货预定时间", "到货预订数", "到货时间", "到货数" };
                 string[] fields = { "vcSupplieCode", "vcOrderNo", "vcPackGPSNo", "vcPackNo", "dNaRuYuDing", "iOrderNumber", "dNaRuShiJi", "iSJNumber" };
 
-                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "订单统计", ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

@@ -515,6 +515,7 @@ namespace BatchProcess
                         sql.Append("            ,[vcSupplierID]   \n");
                         sql.Append("            ,[iLiLun]   \n");
                         sql.Append("            ,[iAnQuan]   \n");
+                        sql.Append("            ,[dChange]   \n");
                         sql.Append("            ,[vcOperatorID]   \n");
                         sql.Append("            ,[dOperatorTime])   \n");
                         sql.Append("  VALUES  \n");
@@ -525,6 +526,7 @@ namespace BatchProcess
                         sql.Append("   '" + dr1[0]["vcSupplierCode"].ToString() + "', \n");
                         sql.Append("   '" + dtb.Rows[j]["iSJNum"].ToString() + "', \n");
                         sql.Append("   '" + SaveZK + "', \n");
+                        sql.Append("   0.00, \n");
                         sql.Append("   '" + strUserId + "', \n");
                         sql.Append("   getdate() \n");
                         sql.Append("   ) \n");

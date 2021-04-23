@@ -88,7 +88,7 @@ namespace SPPSApi.Controllers.G07
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string PackSpot = dataForm.PackSpot;
-            string PackNo = dataForm.PackNo;
+            string PackNo = dataForm.PackNO;
             string BeginTime = dataForm.dtKaishiBegin;
             string EndTime = dataForm.dtJieshuBegin;
 
@@ -129,7 +129,7 @@ namespace SPPSApi.Controllers.G07
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string PackSpot = dataForm.PackSpot;
-            string PackNo = dataForm.PackNo;
+            string PackNo = dataForm.PackNO;
             string BeginTime = dataForm.dtKaishiBegin;
             string EndTime = dataForm.dtJieshuBegin;
 
@@ -137,11 +137,11 @@ namespace SPPSApi.Controllers.G07
             {
                 DataTable dt = FS0711_Logic.Search_Sub(PackSpot, PackNo, BeginTime, EndTime);
                 string resMsg = "";
-                string[] head = { "包装场", "包装材品番","起始在库","入库数量","消耗数量","在库数量"};
+                string[] head = { "包装场", "包装材品番","起始在库","入库数量","消耗数量","在库数量","调整数量"};
 
-                string[] fields = {"vcPackSpot","vcPackNo","ibeginNum","iRKNum","iConsume","iLiLun"
+                string[] fields = {"vcPackSpot","vcPackNo","ibeginNum","iRKNum","iConsume","iLiLun","dChange"
                 };
-                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "在库履历导出", ref resMsg);
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "在库履历导出"+ BeginTime+'-'+ EndTime, ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

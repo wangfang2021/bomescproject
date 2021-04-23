@@ -353,7 +353,7 @@ namespace DataAccess
                 cmd.CommandText += "   vcPro1Zhi, vcPro2Day, vcPro2Zhi, vcPro3Day, vcPro3Zhi, vcPro4Day, vcPro4Zhi, UpdateFlag,t3.vcPorType, ";
                 cmd.CommandText += "   t3.vcProName0,t3.vcProName1,t3.vcProName2,t3.vcProName3,t3.vcProName4 ";
                 cmd.CommandText += "  FROM EDMonthPlanTMP t1";
-                cmd.CommandText += "  left join (select * from tPlanPartInfo where vcmonth='" + mon + "'  and vcEDFlag='E') t2 ";
+                cmd.CommandText += "  left join (select * from tPlanPartInfo where vcmonth='" + mon + "' and vcEDFlag='E') t2 ";
                 cmd.CommandText += "  on t1.vcPartsno=t2.vcPartsNo and t1.vcCarType=t2.vcCarType and t1.vcDock=t2.vcDock ";
                 cmd.CommandText += "  left join ProRuleMst t3 ";
                 cmd.CommandText += "  on t3.vcPorType=t2.vcProType and t3.vcZB=t2.vcZB";
@@ -538,10 +538,10 @@ namespace DataAccess
                     dv.Sort = "vcProject01";//按工位排序
                     dt = dv.ToTable();
                     //找到打印表中的紧急订单，相同订单号相同部署相同打印日期生产日期的最大连番
-                    string tmpsql = "select MAX(vcKBSerial) as serial from tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock  = t2.vcDock where vcEDflag ='E' and  ";
-                    tmpsql += " vcKBorderno ='" + dt.Rows[0]["vcKBorderno"].ToString() + "' and vcPorType ='" + dt.Rows[0]["bushu"].ToString() + "'";
-                    tmpsql += " and vcComDate00 ='" + dt.Rows[0]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[0]["vcBanZhi00"].ToString() + "'";
-                    tmpsql += " and vcComDate01 ='" + dt.Rows[0]["vcComDate01"].ToString() + "' and vcBanZhi01 ='" + dt.Rows[0]["vcBanZhi01"].ToString() + "'";
+                    string tmpsql = "select MAX(vcKBSerial) as serial from tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo=t2.vcPartsNo and t1.vcDock=t2.vcDock where vcEDflag='E' and  ";
+                    tmpsql += " vcKBorderno='" + dt.Rows[0]["vcKBorderno"].ToString() + "' and vcPorType='" + dt.Rows[0]["bushu"].ToString() + "'";
+                    tmpsql += " and vcComDate00='" + dt.Rows[0]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[0]["vcBanZhi00"].ToString() + "'";
+                    tmpsql += " and vcComDate01='" + dt.Rows[0]["vcComDate01"].ToString() + "' and vcBanZhi01='" + dt.Rows[0]["vcBanZhi01"].ToString() + "'";
                     cmd.CommandText = tmpsql;
                     cmd.CommandType = CommandType.Text;
                     DataTable dt_serial = new DataTable();
@@ -612,10 +612,10 @@ namespace DataAccess
 
                 //将更新后的条目的updateFlag 设置成1
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = " update EDMonthPlanTMP set UpdateFlag ='1' , vcUpdateID='" + user + "' , dUpdateTime =getdate() where vcMonth='" + mon + "' ";
-                cmd.CommandText += " and (select COUNT(1) from tPlanPartInfo where tPlanPartInfo.vcMonth ='" + mon + "' and tPlanPartInfo.vcPartsno = EDMonthPlanTMP.vcPartsno  and tPlanPartInfo.vcDock = EDMonthPlanTMP.vcDock ";
+                cmd.CommandText = " update EDMonthPlanTMP set UpdateFlag='1', vcUpdateID='" + user + "', dUpdateTime=getdate() where vcMonth='" + mon + "' ";
+                cmd.CommandText += " and (select COUNT(1) from tPlanPartInfo where tPlanPartInfo.vcMonth='" + mon + "' and tPlanPartInfo.vcPartsno=EDMonthPlanTMP.vcPartsno and tPlanPartInfo.vcDock=EDMonthPlanTMP.vcDock ";
                 //cmd.CommandText += " and tPlanPartInfo.vcCarType = EDMonthPlanTMP.vcCarType and vcPlant ='" + plant + "' ) >0 ";
-                cmd.CommandText += " and tPlanPartInfo.vcCarType = EDMonthPlanTMP.vcCarType ) >0 ";
+                cmd.CommandText += " and tPlanPartInfo.vcCarType=EDMonthPlanTMP.vcCarType)>0 ";
                 cmd.ExecuteNonQuery();
                 cmd.Transaction.Commit();
                 cmd.Connection.Close();
@@ -641,7 +641,7 @@ namespace DataAccess
             cmd.Connection.Open();
             cmd.Transaction = cmd.Connection.BeginTransaction();
             DataTable dt = new DataTable();
-            string strSQL = "SELECT [vcPartPlant] FROM [tPartInfoMaster] where [vcPartsNo] = '" + strPartsNo + "' and [vcDock] = '" + strDock + "' and [dTimeFrom] <= '" + strMonth + "-01' and [dTimeTo] >= '" + strMonth + "-01'";
+            string strSQL = "SELECT vcPartPlant FROM tPartInfoMaster where vcPartsNo='" + strPartsNo + "' and vcDock='" + strDock + "' and dTimeFrom<='" + strMonth + "-01' and dTimeTo>='" + strMonth + "-01'";
             cmd.CommandText = strSQL;
             SqlDataAdapter apt = new SqlDataAdapter(cmd);
             apt.Fill(dt);
@@ -725,11 +725,11 @@ namespace DataAccess
                     int tmp = Convert.ToInt32(dr[0][col].ToString().Length == 0 ? "0" : dr[0][col].ToString());
                     if (montouch.ToString().Length > 0)
                     {
-                        ssql = " update " + TableName + " set " + col + "='" + (tmp + num) + "' , DUPDTIME =getdate() , CUPDUSER ='" + user + "' where vcMonth ='" + month + "' and  vcDock ='" + dock + "' and vcCarType ='" + CarType + "' and vcPartsno ='" + partsno + "' and montouch = '" + montouch + "'  ";
+                        ssql = " update " + TableName + " set " + col + "='" + (tmp + num) + "' , DUPDTIME =getdate(), CUPDUSER ='" + user + "' where vcMonth ='" + month + "' and  vcDock ='" + dock + "' and vcCarType ='" + CarType + "' and vcPartsno ='" + partsno + "' and montouch = '" + montouch + "'  ";
                     }
                     else
                     {
-                        ssql = " update " + TableName + " set " + col + "='" + (tmp + num) + "' , DUPDTIME =getdate() , CUPDUSER ='" + user + "' where vcMonth ='" + month + "' and  vcDock ='" + dock + "' and vcCarType ='" + CarType + "' and vcPartsno ='" + partsno + "' and montouch is null ";
+                        ssql = " update " + TableName + " set " + col + "='" + (tmp + num) + "' , DUPDTIME =getdate(), CUPDUSER ='" + user + "' where vcMonth ='" + month + "' and  vcDock ='" + dock + "' and vcCarType ='" + CarType + "' and vcPartsno ='" + partsno + "' and montouch is null ";
                     }
                 }
                 else

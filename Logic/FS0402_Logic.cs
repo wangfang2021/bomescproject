@@ -161,9 +161,10 @@ namespace Logic
             {
                 fs = new FileStream(FileFullName, FileMode.Open, FileAccess.Read);
 
-                if (FileFullName.IndexOf(".xlsx") > 0 || FileFullName.IndexOf(".xlsm") > 0) // 2007版本
+                if (FileFullName.IndexOf(".xlsx") > 0 || FileFullName.IndexOf(".xlsm") > 0 || 
+                    FileFullName.IndexOf(".XLSX") > 0 || FileFullName.IndexOf(".XLSM") > 0) // 2007版本
                     workbook = new XSSFWorkbook(fs);
-                else if (FileFullName.IndexOf(".xls") > 0) // 2003版本
+                else if (FileFullName.IndexOf(".xls") > 0 || FileFullName.IndexOf(".XLS") > 0) // 2003版本
                     workbook = new HSSFWorkbook(fs);
 
                 if (sheetName != null)

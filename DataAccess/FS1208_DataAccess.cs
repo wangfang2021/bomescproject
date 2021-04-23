@@ -351,10 +351,10 @@ namespace DataAccess
                 cmd.CommandText = "   ";
                 cmd.CommandText += "   SELECT t1.vcMonth, t1.vcPartsno, t1.vcDock, t1.vcCarType,t2.vcSRS as iQuantityPerContainer, vcNum,vcOrderNo, vcPro0Day, vcPro0Zhi, vcPro1Day,";
                 cmd.CommandText += "   vcPro1Zhi, vcPro2Day, vcPro2Zhi, vcPro3Day, vcPro3Zhi, vcPro4Day, vcPro4Zhi, UpdateFlag,t3.vcPorType, ";
-                cmd.CommandText += "   t3.vcProName0 ,t3.vcProName1,t3.vcProName2 ,t3.vcProName3,t3.vcProName4  ";
+                cmd.CommandText += "   t3.vcProName0,t3.vcProName1,t3.vcProName2,t3.vcProName3,t3.vcProName4 ";
                 cmd.CommandText += "  FROM EDMonthPlanTMP t1";
-                cmd.CommandText += "  left join (select * from tPlanPartInfo where vcmonth='" + mon + "'  and vcEDFlag='E' ) t2 ";
-                cmd.CommandText += "  on t1.vcPartsno=t2.vcPartsNo and t1.vcCarType=t2.vcCarType and t1.vcDock = t2.vcDock ";
+                cmd.CommandText += "  left join (select * from tPlanPartInfo where vcmonth='" + mon + "'  and vcEDFlag='E') t2 ";
+                cmd.CommandText += "  on t1.vcPartsno=t2.vcPartsNo and t1.vcCarType=t2.vcCarType and t1.vcDock=t2.vcDock ";
                 cmd.CommandText += "  left join ProRuleMst t3 ";
                 cmd.CommandText += "  on t3.vcPorType=t2.vcProType and t3.vcZB=t2.vcZB";
                 cmd.CommandText += "  where (UpdateFlag is null or UpdateFlag<>'1') and t1.vcMonth='" + mon + "'";

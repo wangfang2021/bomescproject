@@ -301,12 +301,12 @@ namespace SPPSApi.Controllers.G06
 
             try
             {
-                string realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                string realPath = _webHostEnvironment.ContentRootPath + "Doc" +
                                   Path.DirectorySeparatorChar + "orders";
                 string filepath = fs0614_logic.getPath(fileName);
                 if (!string.IsNullOrWhiteSpace(filepath))
                 {
-                    string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                    string fileSavePath = _webHostEnvironment.ContentRootPath + "Doc" +
                                           Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar +
                                           "Order"; //文件临时目录，导入完成后 删除
                     string tmp = fileSavePath + Path.DirectorySeparatorChar;

@@ -2549,7 +2549,7 @@ namespace DataAccess
                     else
                     {
                         DataRow dradd = dt.NewRow();
-                        string ssql = " select * from  dbo.tPartInfoMaster t1 left join ProRuleMst t2 on t1.vcPorType = t2.vcPorType and t1.vcZB = t2.vcZB where t1.vcPartsNo='" + dttmp.Rows[i]["vcPartsno"].ToString().Replace("-", "") + "' and t1.vcDock ='" + dttmp.Rows[i]["vcDock"].ToString() + "' and t1.vcCarFamilyCode = '" + dttmp.Rows[i]["vcCartype"].ToString() + "'  and t1.dTimeFrom <='" + mon + "-01' and t1.dTimeTo>= '" + mon + "-01' ";
+                        string ssql = " select * from tPartInfoMaster t1 left join ProRuleMst t2 on t1.vcPorType = t2.vcPorType and t1.vcZB = t2.vcZB where t1.vcPartsNo='" + dttmp.Rows[i]["vcPartsno"].ToString().Replace("-", "") + "' and t1.vcDock ='" + dttmp.Rows[i]["vcDock"].ToString() + "' and t1.vcCarFamilyCode = '" + dttmp.Rows[i]["vcCartype"].ToString() + "'  and t1.dTimeFrom <='" + mon + "-01' and t1.dTimeTo>= '" + mon + "-01' ";
                         DataTable Infotmp = excute.ExcuteSqlWithSelectToDT(ssql);
                         dradd["vcMonth"] = mon;
                         dradd["vcPartsno"] = dttmp.Rows[i]["vcPartsno"].ToString().Replace("-", "").Insert(5, "-").Insert(11, "-");
@@ -2787,7 +2787,7 @@ namespace DataAccess
             sb.AppendLine("     )) P ) t2 ");
             sb.AppendLine("     on t1.allTotal = t2.dayN");
             sb.AppendLine("    ) Tall ");
-            sb.AppendLine("  left join dbo.tPartInfoMaster Tinfo on Tall.vcPartsno = Tinfo.vcPartsNo and Tall.vcDock = Tinfo.vcDock and Tall.vcCarType = Tinfo.vcCarFamilyCode  and   Tinfo.dTimeFrom<= '" + mon + "-01" + "' and Tinfo.dTimeTo >= '" + mon + "-01" + "' ");
+            sb.AppendLine("  left join tPartInfoMaster Tinfo on Tall.vcPartsno = Tinfo.vcPartsNo and Tall.vcDock = Tinfo.vcDock and Tall.vcCarType = Tinfo.vcCarFamilyCode  and   Tinfo.dTimeFrom<= '" + mon + "-01" + "' and Tinfo.dTimeTo >= '" + mon + "-01" + "' ");
             sb.AppendFormat("  where Tinfo.vcPartPlant ='{0}'", plant);
             sb.AppendLine(" order by vcMonth ,daysig,vcPartsno,vcDock,vcCartype");
             return sb.ToString();

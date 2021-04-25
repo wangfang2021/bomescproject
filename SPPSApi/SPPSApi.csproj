@@ -74,7 +74,11 @@
     <None Remove="Doc\Template\FS0503.xlsx" />
     <None Remove="Doc\Template\FS0602_Export.xlsx" />
     <None Remove="Doc\Template\FS0603.xlsx" />
+    <None Remove="Doc\Template\FS0603_Child_gq.xlsx" />
+    <None Remove="Doc\Template\FS0603_Child_hz.xlsx" />
+    <None Remove="Doc\Template\FS0603_Child_sr.xlsx" />
     <None Remove="Doc\Template\FS0603_Export.xlsx" />
+    <None Remove="Doc\Template\FS0603_OperHistory.xlsx" />
     <None Remove="Doc\Template\FS0603_Template.xlsx" />
     <None Remove="Doc\Template\FS0604.xlsx" />
     <None Remove="Doc\Template\FS0605.xlsx" />
@@ -143,15 +147,20 @@
     <None Remove="Doc\Template\FS1211_PartList.xlsx" />
     <None Remove="Doc\Template\FS1212_Export.xlsx" />
     <None Remove="Doc\Template\FS1212_Import.xlsx" />
+    <None Remove="Doc\Template\FS1301_Template.xlsx" />
     <None Remove="Doc\Template\FS1310_Export.xlsx" />
+    <None Remove="Doc\Template\FS1401_Export.xlsx" />
     <None Remove="Doc\Template\FS1402_Export.xlsx" />
+    <None Remove="Doc\Template\FS1404_Export.xlsx" />
     <None Remove="Doc\Template\FS1501.xlsx" />
     <None Remove="Doc\Template\FS1502_Export.xlsx" />
     <None Remove="Doc\Template\FS1502_Report.xls" />
     <None Remove="Doc\Template\FS1701.xlsx" />
     <None Remove="Doc\Template\FS1704.xlsx" />
+    <None Remove="Doc\Template\FTMS内示总结.xlsx" />
     <None Remove="Doc\Template\MessageList.xlsx" />
     <None Remove="Doc\Template\SPIS_Template.xlsx" />
+    <None Remove="Doc\Template\Sync_Info.xlsx" />
     <None Remove="Doc\Template\年计导出报表.xls" />
     <None Remove="Doc\upload\预留.txt" />
   </ItemGroup>
@@ -170,6 +179,18 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Doc\Template\FS0405.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0603_Child_gq.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0603_Child_hz.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0603_Child_sr.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0603_OperHistory.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Doc\Template\FS0705.xlsx">
@@ -194,7 +215,22 @@
     <Content Include="Doc\Template\FS0716.xlsx" />
     <Content Include="Doc\Template\FS0716_Export.xlsx" />
     <Content Include="Doc\Template\FS0719.xlsx" />
+    <Content Include="Doc\Template\FS1301_Template.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1401_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1404_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FTMS内示总结.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Doc\Template\SPIS_Template.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\Sync_Info.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

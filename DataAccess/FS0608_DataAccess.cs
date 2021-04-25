@@ -231,12 +231,7 @@ namespace DataAccess
                 #endregion
 
 
-                #region 重新分配
-
-                #region 判断周数是否4周
-
-                #endregion
-
+                #region 重新分配1
                 DataTable ckdt = excute.ExcuteSqlWithSelectToDT("select * from TCalendar_PingZhun_Wai where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "'");
                 double totals = 0;
                 double avg_int = 0;
@@ -451,9 +446,37 @@ namespace DataAccess
                     excute.ExecuteSQLNoQuery(sql);
                 }
                 #endregion
-
-
                 #endregion
+
+                //#region 重新分配2（上半月与下半月不能大于2值）
+                //DataTable dt2 = excute.ExcuteSqlWithSelectToDT("select * from TCalendar_PingZhun_Wai where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "'");
+
+                //int mon_up = 0; //上半月
+                //int mon_down = 0; //下半月
+                //for (int i = 0; i < 31; i++)
+                //{
+                //    if (dt2.Rows[0][i + 3].ToString() == "1*" || dt2.Rows[0][i + 3].ToString() == "2*")
+                //    {
+                //        mon_up = mon_up + 1;
+                //    }
+                //    else if (dt2.Rows[0][i + 3].ToString() == "1" || dt2.Rows[0][i + 3].ToString() == "2")
+                //    {
+                //        mon_up = mon_up + 2;
+                //    }
+                //    else if (dt2.Rows[0][i + 3].ToString() == "3*" || dt2.Rows[0][i + 3].ToString() == "4*")
+                //    {
+                //        mon_down = mon_down + 1;
+                //    }
+                //    else if (dt2.Rows[0][i + 3].ToString() == "3" || dt2.Rows[0][i + 3].ToString() == "4")
+                //    {
+                //        mon_down = mon_down + 2;
+                //    }
+                //}
+                //if (mon_down - mon_up > 2)
+                //{
+
+                //}
+                //#endregion
 
                 return msg;
             }

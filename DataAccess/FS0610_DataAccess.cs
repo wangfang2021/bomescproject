@@ -216,7 +216,7 @@ namespace DataAccess
                     "and vcInOutFlag='0')t1    \n");
                 sql.Append("left join(    \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
-                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='"+ vcReceiver + "' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
+                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
                 sql.Append("left join(    \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
@@ -397,7 +397,7 @@ namespace DataAccess
             sql.Append("           ,nullif(" + arr[2] + ",'')    \n");//收容数
             sql.Append("           ,nullif(" + arr[3] + ",'')    \n");//箱数
             sql.Append("           ,nullif(" + arr[1] + ",'')    \n");//订单数
-            sql.Append("           ,nullif(" + arr[4] + "*"+ arr[2] + ",'')    \n");//D1
+            sql.Append("           ,nullif(" + arr[4] + "*" + arr[2] + ",'')    \n");//D1
             sql.Append("           ,nullif(" + arr[5] + "*" + arr[2] + ",'')    \n");//D2
             sql.Append("           ,nullif(" + arr[6] + "*" + arr[2] + ",'')    \n");//D3
             sql.Append("           ,nullif(" + arr[7] + "*" + arr[2] + ",'')    \n");//D4
@@ -1324,6 +1324,11 @@ namespace DataAccess
                 SqlDataAdapter apt = new SqlDataAdapter(cmd);//20180929实测没用，是为了把变量apt引出 - 李兴旺
                 apt.Fill(dt2);//20180929实测没用，是为了把变量apt引出 - 李兴旺
                 cmd.CommandText = "delete from " + TableName + " where (vcMonth='" + lbltime + "' or montouch='" + lbltime + "') and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant='" + plant + "' and vcPartsNo=" + TableName + ".vcPartsno and dTimeFrom<='" + lbltime + "-01" + "' and dTimeTo>='" + lbltime + "-01" + "') ";
+
+                #region 修改2021-4-25
+                string lbltime_preMonth = Convert.ToDateTime(lbltime + "-01").AddMonths(-1).ToString("yyyy-MM");
+                cmd.CommandText += "delete from " + TableName + " where (vcMonth='" + lbltime_preMonth + "') and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant='" + plant + "' and vcPartsNo=" + TableName + ".vcPartsno and dTimeFrom<='" + lbltime_preMonth + "-01" + "' and dTimeTo>='" + lbltime_preMonth + "-01" + "') ";
+                #endregion
                 cmd.ExecuteNonQuery();
                 for (int i = 0; i < partsInfo.Rows.Count; i++)
                 {
@@ -2544,7 +2549,7 @@ namespace DataAccess
                     else
                     {
                         DataRow dradd = dt.NewRow();
-                        string ssql = " select * from  dbo.tPartInfoMaster t1 left join ProRuleMst t2 on t1.vcPorType = t2.vcPorType and t1.vcZB = t2.vcZB where t1.vcPartsNo='" + dttmp.Rows[i]["vcPartsno"].ToString().Replace("-", "") + "' and t1.vcDock ='" + dttmp.Rows[i]["vcDock"].ToString() + "' and t1.vcCarFamilyCode = '" + dttmp.Rows[i]["vcCartype"].ToString() + "'  and t1.dTimeFrom <='" + mon + "-01' and t1.dTimeTo>= '" + mon + "-01' ";
+                        string ssql = " select * from tPartInfoMaster t1 left join ProRuleMst t2 on t1.vcPorType = t2.vcPorType and t1.vcZB = t2.vcZB where t1.vcPartsNo='" + dttmp.Rows[i]["vcPartsno"].ToString().Replace("-", "") + "' and t1.vcDock ='" + dttmp.Rows[i]["vcDock"].ToString() + "' and t1.vcCarFamilyCode = '" + dttmp.Rows[i]["vcCartype"].ToString() + "'  and t1.dTimeFrom <='" + mon + "-01' and t1.dTimeTo>= '" + mon + "-01' ";
                         DataTable Infotmp = excute.ExcuteSqlWithSelectToDT(ssql);
                         dradd["vcMonth"] = mon;
                         dradd["vcPartsno"] = dttmp.Rows[i]["vcPartsno"].ToString().Replace("-", "").Insert(5, "-").Insert(11, "-");
@@ -2782,7 +2787,7 @@ namespace DataAccess
             sb.AppendLine("     )) P ) t2 ");
             sb.AppendLine("     on t1.allTotal = t2.dayN");
             sb.AppendLine("    ) Tall ");
-            sb.AppendLine("  left join dbo.tPartInfoMaster Tinfo on Tall.vcPartsno = Tinfo.vcPartsNo and Tall.vcDock = Tinfo.vcDock and Tall.vcCarType = Tinfo.vcCarFamilyCode  and   Tinfo.dTimeFrom<= '" + mon + "-01" + "' and Tinfo.dTimeTo >= '" + mon + "-01" + "' ");
+            sb.AppendLine("  left join tPartInfoMaster Tinfo on Tall.vcPartsno = Tinfo.vcPartsNo and Tall.vcDock = Tinfo.vcDock and Tall.vcCarType = Tinfo.vcCarFamilyCode  and   Tinfo.dTimeFrom<= '" + mon + "-01" + "' and Tinfo.dTimeTo >= '" + mon + "-01" + "' ");
             sb.AppendFormat("  where Tinfo.vcPartPlant ='{0}'", plant);
             sb.AppendLine(" order by vcMonth ,daysig,vcPartsno,vcDock,vcCartype");
             return sb.ToString();

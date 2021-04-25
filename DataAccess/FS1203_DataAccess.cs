@@ -246,11 +246,11 @@ namespace DataAccess
             sb.AppendLine("    on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
             sb.AppendFormat("     where (t1.montouch = '{0}' or t2.vcMonth ='{1}')", mon, mon);
             sb.AppendLine("    ) tt1");
-            sb.AppendLine("   left join (select distinct vcMonth,vcPartsNo,vcDock,vcCarType,vcZB,vcProType,vcEDFlag,vcPlant,vcHJ,vcPartNameCN from dbo.tPlanPartInfo) t3");
+            sb.AppendLine("   left join (select distinct vcMonth,vcPartsNo,vcDock,vcCarType,vcZB,vcProType,vcEDFlag,vcPlant,vcHJ,vcPartNameCN from tPlanPartInfo) t3");
             sb.AppendLine("     on t3.vcPartsNo=tt1.vcPartsNo and t3.vcDock = tt1.vcDock and t3.vcCarType = tt1.vcCarType and  t3.vcMonth = '" + mon + "' ");
-            sb.AppendLine("     left join dbo.ProRuleMst t4");
+            sb.AppendLine("     left join ProRuleMst t4");
             sb.AppendLine("   on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
-            sb.AppendLine(" left join (select vcData1 ,vcData2  from dbo.ConstMst where vcDataId ='kbplant') t5");
+            sb.AppendLine(" left join (select vcData1 ,vcData2 from ConstMst where vcDataId ='kbplant') t5");
             sb.AppendLine(" on t3.vcPlant = t5.vcData1 ");
             sb.AppendFormat("   where t3.vcPlant ='{0}' and vcEDFlag ='E' ", plant);
             try
@@ -812,35 +812,35 @@ namespace DataAccess
                 //P0计划
                 if (P0date.Length > 0 && P0zhi.Length > 0)
                 {
-                    string sql0 = cutPlanE("dbo.EDMonthKanBanPlanTbl", mon, P0date, P0zhi, Parts, dock, srs);
+                    string sql0 = cutPlanE("EDMonthKanBanPlanTbl", mon, P0date, P0zhi, Parts, dock, srs);
                     cmd.CommandText = sql0;
                     cmd.ExecuteNonQuery();
                 }
                 //P1计划
                 if (P1date.Length > 0 && P1zhi.Length > 0)
                 {
-                    string sql1 = cutPlanE("dbo.EDMonthProdPlanTbl", mon, P1date, P1zhi, Parts, dock, srs);
+                    string sql1 = cutPlanE("EDMonthProdPlanTbl", mon, P1date, P1zhi, Parts, dock, srs);
                     cmd.CommandText = sql1;
                     cmd.ExecuteNonQuery();
                 }
                 //P2计划
                 if (P2date.Length > 0 && P2zhi.Length > 0)
                 {
-                    string sql2 = cutPlanE("dbo.EDMonthTZPlanTbl", mon, P2date, P2zhi, Parts, dock, srs);
+                    string sql2 = cutPlanE("EDMonthTZPlanTbl", mon, P2date, P2zhi, Parts, dock, srs);
                     cmd.CommandText = sql2;
                     cmd.ExecuteNonQuery();
                 }
                 //P3计划
                 if (P3date.Length > 0 && P3zhi.Length > 0)
                 {
-                    string sql3 = cutPlanE("dbo.EDMonthP3PlanTbl", mon, P3date, P3zhi, Parts, dock, srs);
+                    string sql3 = cutPlanE("EDMonthP3PlanTbl", mon, P3date, P3zhi, Parts, dock, srs);
                     cmd.CommandText = sql3;
                     cmd.ExecuteNonQuery();
                 }
                 //P4计划
                 if (P4date.Length > 0 && P4zhi.Length > 0)
                 {
-                    string sql4 = cutPlanE("dbo.EDMonthPackPlanTbl", mon, P4date, P4zhi, Parts, dock, srs);
+                    string sql4 = cutPlanE("EDMonthPackPlanTbl", mon, P4date, P4zhi, Parts, dock, srs);
                     cmd.CommandText = sql4;
                     cmd.ExecuteNonQuery();
                 }

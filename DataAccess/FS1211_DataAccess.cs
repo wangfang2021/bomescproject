@@ -151,17 +151,17 @@ namespace DataAccess
             for (int i = 1; i < 31 + 1; i++)
             {
                 if (i == 31)
-                    tmpE += "t2.vcD" + i + "b  as	ED" + i + "b,	t2.	vcD" + i + "y 	as	ED" + i + "y";
+                    tmpE += "t2.vcD" + i + "b as ED" + i + "b,t2.vcD" + i + "y as ED" + i + "y";
                 else
-                    tmpE += "t2.vcD" + i + "b 	as	ED" + i + "b,	t2.vcD" + i + "y 	as	ED" + i + "y,";
+                    tmpE += "t2.vcD" + i + "b as ED" + i + "b,t2.vcD" + i + "y as ED" + i + "y,";
             }
             double daynum2 = (tim - tim.AddMonths(-1)).TotalDays;
             for (int i = 1; i < 31 + 1; i++)
             {
                 if (i == 31)
-                    tmpT += "t1.vcD" + i + "b  	as	TD" + i + "b,	t1.vcD" + i + "y 	as	TD" + i + "y";
+                    tmpT += "t1.vcD" + i + "b as TD" + i + "b,t1.vcD" + i + "y as TD" + i + "y";
                 else
-                    tmpT += "t1.vcD" + i + "b  	as	TD" + i + "b,	t1.vcD" + i + "y 	as	TD" + i + "y,";
+                    tmpT += "t1.vcD" + i + "b as TD" + i + "b,t1.vcD" + i + "y as TD" + i + "y,";
             }
             string tmpT2 = "";
             string tmpE2 = "";
@@ -169,7 +169,7 @@ namespace DataAccess
             {
                 if (i == 31)
                 {
-                    tmpT2 += "TD" + i + "b,	TD" + i + "y";
+                    tmpT2 += "TD" + i + "b, TD" + i + "y";
                     tmpE2 += "ED" + i + "b,	ED" + i + "y";
                 }
                 else
@@ -180,15 +180,15 @@ namespace DataAccess
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("   select t2.vcMonth ,t2.vcPartsno,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
-            sb.AppendLine("   t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal as vcMonTotal ,t3.vcProType as bushu,'S' as EDflag ,");
+            sb.AppendLine("   select t2.vcMonth,t2.vcPartsno,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
+            sb.AppendLine("   t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal as vcMonTotal,t3.vcProType as bushu,'S' as EDflag,");
 
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("  from ( select * from {0} where montouch is not null) t1 ", tablename);
+            sb.AppendFormat("  from (select * from {0} where montouch is not null) t1 ", tablename);
             sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
             sb.AppendLine("  on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendFormat("  left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPlant,vcQFflag,vcPartsNo,vcDock,vcCarType from tPlanPartInfo where vcMonth='{0}' and vcEDflag ='S' ) t3", mon);
+            sb.AppendFormat("  left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPlant,vcQFflag,vcPartsNo,vcDock,vcCarType from tPlanPartInfo where vcMonth='{0}' and vcEDflag='S') t3", mon);
             sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock=t2.vcDock and t3.vcCarType=t2.vcCarType");
             sb.AppendLine("  left join ProRuleMst t4");
             sb.AppendLine("  on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
@@ -202,11 +202,11 @@ namespace DataAccess
             }
             sb.AppendLine(" union all");
             sb.AppendLine("   select t2.vcMonth,t2.vcPartsno,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4");
-            sb.AppendLine("  ,t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal,t3.vcProType as bushu,'S' as EDflag ,");
+            sb.AppendLine("  ,t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal,t3.vcProType as bushu,'S' as EDflag,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendLine(" from ( select * from MonthPackPlanTbl where montouch is not null) t1  full join (select * from MonthPackPlanTbl where montouch is null) t2  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType ");
-            sb.AppendFormat("  left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPlant,vcQFflag,vcPartsNo,vcDock,vcCarType from tPlanPartInfo where vcMonth ='{0}' and vcEDflag ='S' ) t3", mon);
+            sb.AppendLine(" from ( select * from MonthPackPlanTbl where montouch is not null) t1 full join (select * from MonthPackPlanTbl where montouch is null) t2 on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType ");
+            sb.AppendFormat("  left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPlant,vcQFflag,vcPartsNo,vcDock,vcCarType from tPlanPartInfo where vcMonth='{0}' and vcEDflag='S') t3", mon);
             sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock=t2.vcDock and t3.vcCarType=t2.vcCarType");
             sb.AppendLine("  left join ProRuleMst t4");
             sb.AppendLine("  on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
@@ -220,33 +220,33 @@ namespace DataAccess
             }
             sb.AppendLine("union all");
             sb.AppendLine(" select tS.vcMonth,tQF.vcPartsNo,tQF.vcDock,tQF.vcCarFamilyCode as vcCarType,tS.vcCalendar1,tS.vcCalendar2, ");
-            sb.AppendLine(" tS.vcCalendar3 ,tS.vcCalendar4,tS.vcPartsNameCHN,tS.vcCurrentPastCode,tS.vcMonTotal as vcMonTotal ,tS.bushu,tS.EDflag , ");
+            sb.AppendLine(" tS.vcCalendar3,tS.vcCalendar4,tS.vcPartsNameCHN,tS.vcCurrentPastCode,tS.vcMonTotal as vcMonTotal,tS.bushu,tS.EDflag, ");
 
             sb.AppendFormat(" {0}, ", tmpT2);
             sb.AppendFormat(" {0} ", tmpE2);
             sb.AppendLine(" from ( ");
-            sb.AppendLine("    select t2.vcMonth ,t2.vcPartsno,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,t3.vcSRS as iQuantityPerContainer,");
-            sb.AppendLine("   t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal ,t3.vcProType as bushu,'S' as EDflag ,");
+            sb.AppendLine("    select t2.vcMonth,t2.vcPartsno,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,t3.vcSRS as iQuantityPerContainer,");
+            sb.AppendLine("   t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal,t3.vcProType as bushu,'S' as EDflag,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("  from ( select  * from  {0} where montouch is not null) t1 ", tablename);
+            sb.AppendFormat("  from ( select * from {0} where montouch is not null) t1 ", tablename);
             sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
-            sb.AppendLine("  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendFormat("  left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPlant,vcQFflag,vcPartsNo,vcDock,vcCarType,vcSRS from tPlanPartInfo where vcMonth ='{0}' and vcEDflag ='S' ) t3", mon);
-            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarType = t2.vcCarType");
+            sb.AppendLine("  on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
+            sb.AppendFormat(" left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPlant,vcQFflag,vcPartsNo,vcDock,vcCarType,vcSRS from tPlanPartInfo where vcMonth='{0}' and vcEDflag='S') t3", mon);
+            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock=t2.vcDock and t3.vcCarType=t2.vcCarType");
             sb.AppendLine("  left join ProRuleMst t4");
-            sb.AppendLine("  on t4.vcPorType=t3.vcProType and t4.vcZB = t3.vcZB");
+            sb.AppendLine("  on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
             if (plant.Trim().Length > 0)
             {
-                sb.AppendFormat("  where t2.vcMonth ='{0}' and t3.vcQFflag ='1' and t3.vcPlant ='{1}' ", mon, plant);
+                sb.AppendFormat("  where t2.vcMonth='{0}' and t3.vcQFflag='1' and t3.vcPlant='{1}' ", mon, plant);
             }
             else
             {
-                sb.AppendFormat("  where t2.vcMonth ='{0}' and t3.vcQFflag ='1' ", mon);
+                sb.AppendFormat("  where t2.vcMonth='{0}' and t3.vcQFflag='1' ", mon);
             }
             sb.AppendLine(" ) tS ");
-            sb.AppendLine(" left join (select * from tPartInfoMaster where dTimeFrom <='" + mon + "-01' and dTimeTo>= '" + mon + "-01' and vcInOutFlag ='1') tQF ");
-            sb.AppendLine(" on SUBSTRING (tS.vcPartsno,0,10) = SUBSTRING(tQF.vcPartsNo,0,10) ");
+            sb.AppendLine(" left join (select * from tPartInfoMaster where dTimeFrom<='" + mon + "-01' and dTimeTo>='" + mon + "-01' and vcInOutFlag='1') tQF ");
+            sb.AppendLine(" on SUBSTRING (tS.vcPartsno,0,10)=SUBSTRING(tQF.vcPartsNo,0,10) ");
             try
             {
                 cmd.CommandText = sb.ToString();
@@ -266,9 +266,9 @@ namespace DataAccess
             StringBuilder sb = new StringBuilder();
 
             //紧急订单
-            string ssql = "select * from EDMonthPlanTMP where UpdateFlag ='1' "; //内制品
+            string ssql = "select * from EDMonthPlanTMP where UpdateFlag='1' "; //内制品
             if (vcMon.Length > 0)
-                ssql += " and vcMonth ='" + vcMon + "'";
+                ssql += " and vcMonth='" + vcMon + "'";
             DataTable dtEDorder = SearchData(ssql);
             string tmpsql = " select vcPart_id,vcSHF,vcSR,vcInputNo,iQuantity,vcKBOrderNo,vcKBLFNo,";
             tmpsql += " case when packingcondition='1' then '未包装' else '已包装' end as packingcondition,";
@@ -278,18 +278,18 @@ namespace DataAccess
             for (int i = 0; i < dtEDorder.Rows.Count; i++)
             {
                 if (i == dtEDorder.Rows.Count - 1)
-                    tmpsql += " (vcKBOrderNo = '" + dtEDorder.Rows[i]["vcOrderNo"].ToString() + "' and vcPart_id = '" + dtEDorder.Rows[i]["vcPartsno"].ToString() + "' and vcSR ='" + dtEDorder.Rows[i]["vcDock"].ToString() + "' )";
+                    tmpsql += " (vcKBOrderNo='" + dtEDorder.Rows[i]["vcOrderNo"].ToString() + "' and vcPart_id='" + dtEDorder.Rows[i]["vcPartsno"].ToString() + "' and vcSR ='" + dtEDorder.Rows[i]["vcDock"].ToString() + "' )";
                 else
-                    tmpsql += " (vcKBOrderNo = '" + dtEDorder.Rows[i]["vcOrderNo"].ToString() + "' and vcPart_id = '" + dtEDorder.Rows[i]["vcPartsno"].ToString() + "' and vcSR ='" + dtEDorder.Rows[i]["vcDock"].ToString() + "' ) or";
+                    tmpsql += " (vcKBOrderNo='" + dtEDorder.Rows[i]["vcOrderNo"].ToString() + "' and vcPart_id='" + dtEDorder.Rows[i]["vcPartsno"].ToString() + "' and vcSR ='" + dtEDorder.Rows[i]["vcDock"].ToString() + "' ) or";
             }
-            tmpsql += " ) ";
+            tmpsql += ") ";
             if (vcPartsno.Length > 0)
             {
                 tmpsql += " and vcPart_id like '%" + vcPartsno + "%'";
             }
             if (vcDock.Length > 0)
             {
-                tmpsql += " and vcSR ='" + vcDock + "'";
+                tmpsql += " and vcSR='" + vcDock + "'";
             }
             if (vcTF.Length > 0)
             {
@@ -309,31 +309,31 @@ namespace DataAccess
             }
 
             ssql = " select t2.vcPartsNo,t2.vcDock,t1.vcOrderNo from EDMonthPlanTMP t1 "; //外制品
-            ssql += " left join tPartInfoMaster t2 on SUBSTRING(t1.vcPartsno,0,11)= SUBSTRING(t2.vcPartsNo ,0,11) and t2.dTimeFrom <='" + vcMon + "-01" + "' and t2.dTimeTo>= '" + vcMon + "-01" + "'";
+            ssql += " left join tPartInfoMaster t2 on SUBSTRING(t1.vcPartsno,0,11)=SUBSTRING(t2.vcPartsNo ,0,11) and t2.dTimeFrom<='" + vcMon + "-01" + "' and t2.dTimeTo>= '" + vcMon + "-01" + "'";
             ssql += " where t1.UpdateFlag='1' and t2.vcInOutFlag='1' ";
             if (vcMon.Length > 0)
                 ssql += " and vcMonth='" + vcMon + "'";
             DataTable dtEDorder2 = SearchData(ssql);
             string tmpsql2 = " select vcPart_id,vcSHF,vcSR,vcInputNo,iQuantity,vcKBOrderNo,vcKBLFNo,";
             tmpsql2 += " case when packingcondition='1' then '未包装' else '已包装' end as packingcondition,";
-            tmpsql2 += " vcBZPlant,dStart,vcOperatorID,vcSheBeiNo,dOperatorTime,'T1' as otype ,'紧急' as vcEDflag ";
+            tmpsql2 += " vcBZPlant,dStart,vcOperatorID,vcSheBeiNo,dOperatorTime,'T1' as otype,'紧急' as vcEDflag ";
             tmpsql2 += " from TOperateSJ t where vcZYType='S0' ";
             tmpsql2 += "  and ( ";
             for (int i = 0; i < dtEDorder2.Rows.Count; i++)
             {
                 if (i == dtEDorder2.Rows.Count - 1)
-                    tmpsql2 += " (vcKBOrderNo = '" + dtEDorder2.Rows[i]["vcOrderNo"].ToString() + "' and vcPart_id = '" + dtEDorder2.Rows[i]["vcPartsno"].ToString() + "' and vcSR ='" + dtEDorder2.Rows[i]["vcDock"].ToString() + "' )";
+                    tmpsql2 += " (vcKBOrderNo='" + dtEDorder2.Rows[i]["vcOrderNo"].ToString() + "' and vcPart_id='" + dtEDorder2.Rows[i]["vcPartsno"].ToString() + "' and vcSR='" + dtEDorder2.Rows[i]["vcDock"].ToString() + "')";
                 else
-                    tmpsql2 += " (vcKBOrderNo = '" + dtEDorder2.Rows[i]["vcOrderNo"].ToString() + "' and vcPart_id = '" + dtEDorder2.Rows[i]["vcPartsno"].ToString() + "' and vcSR ='" + dtEDorder2.Rows[i]["vcDock"].ToString() + "' ) or";
+                    tmpsql2 += " (vcKBOrderNo='" + dtEDorder2.Rows[i]["vcOrderNo"].ToString() + "' and vcPart_id='" + dtEDorder2.Rows[i]["vcPartsno"].ToString() + "' and vcSR='" + dtEDorder2.Rows[i]["vcDock"].ToString() + "') or";
             }
-            tmpsql2 += " ) ";
+            tmpsql2 += ") ";
             if (vcPartsno.Length > 0)
             {
                 tmpsql2 += " and vcPart_id like '%" + vcPartsno + "%'";
             }
             if (vcDock.Length > 0)
             {
-                tmpsql2 += " and vcSR ='" + vcDock + "'";
+                tmpsql2 += " and vcSR='" + vcDock + "'";
             }
             if (vcTF.Length > 0)
             {
@@ -407,7 +407,7 @@ namespace DataAccess
             }
             if (vcDock.Length > 0)
             {
-                sb.AppendFormat("   and t1.vcSR ='{0}'", vcDock);
+                sb.AppendFormat("   and t1.vcSR='{0}'", vcDock);
             }
             if (vcTF.Length > 0)
             {
@@ -466,28 +466,28 @@ namespace DataAccess
                 if (otype == "T1")
                 {
                     ssql = "   select top(1) vcPlanMonth from tKanbanPrintTbl t1";
-                    ssql += "  left join (select * from tPartInfoMaster where vcInOutFlag ='1' and dTimeFrom<='" + vcMon + "-01' and dTimeTo>='" + vcMon + "-01' ) t2";
+                    ssql += "  left join (select * from tPartInfoMaster where vcInOutFlag='1' and dTimeFrom<='" + vcMon + "-01' and dTimeTo>='" + vcMon + "-01') t2";
                     ssql += "  on SUBSTRING(t1.vcPartsNo,0,11) = SUBSTRING(t2.vcPartsNo,0,11)";
-                    ssql += "  where t2.vcPartsNo='" + partsno + "' and t2.vcDock ='" + dock + "' and  t1.vcKBorderno ='" + kborder + "' and t1.vcPlanMonth='" + vcMon + "' and t1.vcKBSerial='" + kbserial + "' ";
+                    ssql += "  where t2.vcPartsNo='" + partsno + "' and t2.vcDock='" + dock + "' and  t1.vcKBorderno='" + kborder + "' and t1.vcPlanMonth='" + vcMon + "' and t1.vcKBSerial='" + kbserial + "' ";
                     if (vcProType.Length > 0)
                     {
-                        ssql += " and t2.vcPorType ='" + vcProType + "' ";
+                        ssql += " and t2.vcPorType='" + vcProType + "' ";
                     }
                     if (plant.Trim().Length > 0)
                     {
-                        ssql += " and t2.vcPartPlant ='" + plant + "'";
+                        ssql += " and t2.vcPartPlant='" + plant + "'";
                     }
                 }
                 else if (otype == "T0")
                 {
-                    ssql = " select top(1) vcPlanMonth from tKanbanPrintTbl t1 left join tPlanPartInfo t2 on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock = t2.vcDock where t1.vcKBorderno= '" + kborder + "' and t1.vcKBSerial='" + kbserial + "' and t1.vcPartsNo='" + partsno + "' and t1.vcDock ='" + dock + "' and t1.vcPlanMonth='" + vcMon + "' ";
+                    ssql = " select top(1) vcPlanMonth from tKanbanPrintTbl t1 left join tPlanPartInfo t2 on t1.vcPartsNo=t2.vcPartsNo and t1.vcDock=t2.vcDock where t1.vcKBorderno='" + kborder + "' and t1.vcKBSerial='" + kbserial + "' and t1.vcPartsNo='" + partsno + "' and t1.vcDock='" + dock + "' and t1.vcPlanMonth='" + vcMon + "' ";
                     if (vcProType.Length > 0)
                     {
-                        ssql += " and t2.vcProType ='" + vcProType + "'";
+                        ssql += " and t2.vcProType='" + vcProType + "'";
                     }
                     if (plant.Trim().Length > 0)
                     {
-                        ssql += " and t2.vcPlant ='" + plant + "'";
+                        ssql += " and t2.vcPlant='" + plant + "'";
                     }
                 }
                 DataTable tmp = new DataTable();
@@ -504,7 +504,7 @@ namespace DataAccess
 
             if (ed.Trim().Length > 0)
             {
-                dt = dt.Select("vcEDflag ='" + ed.Trim() + "'").Length > 0 ? dt.Select("vcEDflag ='" + ed.Trim() + "'").CopyToDataTable() : dt.Clone();
+                dt = dt.Select("vcEDflag='" + ed.Trim() + "'").Length > 0 ? dt.Select("vcEDflag='" + ed.Trim() + "'").CopyToDataTable() : dt.Clone();
             }
             return dt;
         }
@@ -542,14 +542,14 @@ namespace DataAccess
                 DataTable tmp = new DataTable();
                 StringBuilder sbSQL = new StringBuilder();
                 sbSQL.AppendLine("SELECT count(*) count");
-                sbSQL.AppendLine("  FROM [tKanbanPrintTbl] t1");
+                sbSQL.AppendLine("  FROM tKanbanPrintTbl t1");
                 sbSQL.AppendLine("  left join tPartInfoMaster t2  ");
-                sbSQL.AppendLine("    on t1.[vcPartsNo] = t2.[vcPartsNo] and t1.[vcDock] = t2.[vcDock]");
-                sbSQL.AppendLine("   and t2.[dTimeFrom] <= t1.[vcPlanMonth] + '-01' and t2.dTimeTo >=  t1.[vcPlanMonth] + '-01' ");//01改为-01
+                sbSQL.AppendLine("  on t1.vcPartsNo=t2.vcPartsNo and t1.vcDock=t2.vcDock");
+                sbSQL.AppendLine("  and t2.dTimeFrom<=t1.vcPlanMonth + '-01' and t2.dTimeTo>=t1.[vcPlanMonth] + '-01' ");//01改为-01
                 sbSQL.AppendLine(" where 1=1 ");
                 if (mon != null && mon.Trim() != "")
                 {
-                    sbSQL.AppendLine(" and t1.vcPlanMonth = '" + mon + "' ");
+                    sbSQL.AppendLine(" and t1.vcPlanMonth='" + mon + "' ");
                 }
                 if (partNo != null && partNo.Trim() != "")
                 {
@@ -557,11 +557,11 @@ namespace DataAccess
                 }
                 if (plant != null && plant.Trim() != "")
                 {
-                    sbSQL.AppendLine(" and t2.vcPartPlant = '" + plant + "' ");
+                    sbSQL.AppendLine(" and t2.vcPartPlant='" + plant + "' ");
                 }
                 if (GC != null && GC.Trim() != "")
                 {
-                    sbSQL.AppendLine(" and t2.vcPorType = '" + GC + "' ");
+                    sbSQL.AppendLine(" and t2.vcPorType='" + GC + "' ");
                 }
                 if (KbOrderId != null && KbOrderId.Trim() != "")
                 {
@@ -657,13 +657,13 @@ namespace DataAccess
                 sbSQL.AppendLine("       t1.vcAB04 as vcPlanProcAB, ");//包装班值(A/B) - 刘刚
                 sbSQL.AppendLine("       '' as vcRealProcTime ");//实际包装时间
                 sbSQL.AppendLine("  FROM tKanbanPrintTbl t1 ");
-                sbSQL.AppendLine("  left join tPartInfoMaster t2  ");
-                sbSQL.AppendLine("   on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock = t2.vcDock ");
-                sbSQL.AppendLine("   and t2.dTimeFrom <= t1.vcPlanMonth + '-01' and t2.dTimeTo >= t1.vcPlanMonth + '-01' ");//01改为-01
-                sbSQL.AppendLine(" where 1=1  ");
+                sbSQL.AppendLine("  left join tPartInfoMaster t2 ");
+                sbSQL.AppendLine("   on t1.vcPartsNo=t2.vcPartsNo and t1.vcDock=t2.vcDock ");
+                sbSQL.AppendLine("   and t2.dTimeFrom<=t1.vcPlanMonth + '-01' and t2.dTimeTo>=t1.vcPlanMonth + '-01' ");//01改为-01
+                sbSQL.AppendLine(" where 1=1 ");
                 if (mon != null && mon.Trim() != "")
                 {
-                    sbSQL.AppendLine(" and t1.vcPlanMonth = '" + mon + "' ");
+                    sbSQL.AppendLine(" and t1.vcPlanMonth='" + mon + "' ");
                 }
                 if (partNo != null && partNo.Trim() != "")
                 {
@@ -671,11 +671,11 @@ namespace DataAccess
                 }
                 if (plant != null && plant.Trim() != "")
                 {
-                    sbSQL.AppendLine(" and t2.vcPartPlant = '" + plant + "' ");
+                    sbSQL.AppendLine(" and t2.vcPartPlant='" + plant + "' ");
                 }
                 if (GC != null && GC.Trim() != "")
                 {
-                    sbSQL.AppendLine(" and t2.vcPorType = '" + GC + "' ");
+                    sbSQL.AppendLine(" and t2.vcPorType='" + GC + "' ");
                 }
                 if (KbOrderId != null && KbOrderId.Trim() != "")
                 {
@@ -695,11 +695,11 @@ namespace DataAccess
                 //}
                 if (PlanProductionDateFrom != null && PlanProductionDateFrom.Trim() != "")
                 {
-                    sbSQL.AppendLine(" and vcComDate01+vcBanZhi01 >= '" + PlanProductionDateFrom + PlanProductionBZFrom + "' ");//20181007 李兴旺
+                    sbSQL.AppendLine(" and vcComDate01+vcBanZhi01>='" + PlanProductionDateFrom + PlanProductionBZFrom + "' ");//20181007 李兴旺
                 }
                 if (PlanProductionDateTo != null && PlanProductionDateTo.Trim() != "")
                 {
-                    sbSQL.AppendLine(" and vcComDate01+vcBanZhi01 <= '" + PlanProductionDateTo + PlanProductionBZTo + "' ");//20181007 李兴旺
+                    sbSQL.AppendLine(" and vcComDate01+vcBanZhi01<='" + PlanProductionDateTo + PlanProductionBZTo + "' ");//20181007 李兴旺
                 }
                 //if (PlanPackDateFrom.Trim() != "")
                 //{
@@ -711,11 +711,11 @@ namespace DataAccess
                 //}
                 if (PlanPackDateFrom != null && PlanPackDateFrom.Trim() != "")
                 {
-                    sbSQL.AppendLine(" and vcComDate04+vcBanZhi04 >= '" + PlanPackDateFrom + PlanPackBZFrom + "' ");//20181007 李兴旺
+                    sbSQL.AppendLine(" and vcComDate04+vcBanZhi04>='" + PlanPackDateFrom + PlanPackBZFrom + "' ");//20181007 李兴旺
                 }
                 if (PlanPackDateTo != null && PlanPackDateTo.Trim() != "")
                 {
-                    sbSQL.AppendLine(" and vcComDate04+vcBanZhi04 <= '" + PlanPackDateTo + PlanPackBZTo + "' ");//20181007 李兴旺
+                    sbSQL.AppendLine(" and vcComDate04+vcBanZhi04<='" + PlanPackDateTo + PlanPackBZTo + "' ");//20181007 李兴旺
                 }
                 //（作废）增加计划打印班直 - 刘刚
                 //if (PlanPrintAB != "")//计划打印班直
@@ -730,12 +730,12 @@ namespace DataAccess
                 //20180911增加计划生产班直 - 李兴旺
                 if (PlanProductionAB != null && PlanProductionAB != "")//计划生产班直
                 {
-                    sbSQL.AppendLine(" and vcAB01 = '" + PlanProductionAB + "' ");
+                    sbSQL.AppendLine(" and vcAB01='" + PlanProductionAB + "' ");
                 }
                 //增加计划包装班直 - 刘刚
                 if (PlanPackAB != null && PlanPackAB != "")//计划包装班直
                 {
-                    sbSQL.AppendLine(" and vcAB04 = '" + PlanPackAB + "' ");
+                    sbSQL.AppendLine(" and vcAB04='" + PlanPackAB + "' ");
                 }
                 sbSQL.AppendLine(" order by vcMonth, vcPlant, vcPartNo ");
                 tmp = SearchData(sbSQL.ToString());
@@ -757,7 +757,7 @@ namespace DataAccess
                 {
                     string monfrom = Convert.ToDateTime(mon + "-01").AddMonths(-1).ToString("yyyyMM");
                     string monTo = Convert.ToDateTime(mon + "-01").ToString("yyyyMM");
-                    sbSQL.AppendLine(" and substring(vcKBOrderNo, 0, 6)>= '" + monfrom + "' and substring(vcKBOrderNo, 0, 6)<= '" + monTo + "' ");
+                    sbSQL.AppendLine(" and substring(vcKBOrderNo, 0, 6)>='" + monfrom + "' and substring(vcKBOrderNo, 0, 6)<='" + monTo + "' ");
                 }
                 if (partNo != null && partNo.Trim() != "")
                 {
@@ -883,17 +883,17 @@ namespace DataAccess
             for (int i = 1; i < 31 + 1; i++)
             {
                 if (i == 31)
-                    tmpE += "t2.vcD" + i + "b  as	ED" + i + "b,	t2.	vcD" + i + "y 	as	ED" + i + "y";
+                    tmpE += "t2.vcD" + i + "b as ED" + i + "b, t2.vcD" + i + "y as ED" + i + "y";
                 else
-                    tmpE += "t2.vcD" + i + "b 	as	ED" + i + "b,	t2.vcD" + i + "y  	as	ED" + i + "y,";
+                    tmpE += "t2.vcD" + i + "b as ED" + i + "b, t2.vcD" + i + "y as ED" + i + "y,";
             }
             double daynum2 = (tim - tim.AddMonths(-1)).TotalDays;
             for (int i = 1; i < 31 + 1; i++)
             {
                 if (i == 31)
-                    tmpT += "t1.vcD" + i + "b 	as	TD" + i + "b,	t1.vcD" + i + "y 	as	TD" + i + "y";
+                    tmpT += "t1.vcD" + i + "b as TD" + i + "b, t1.vcD" + i + "y as TD" + i + "y";
                 else
-                    tmpT += "t1.vcD" + i + "b 	as	TD" + i + "b,	t1.vcD" + i + "y 	as	TD" + i + "y,";
+                    tmpT += "t1.vcD" + i + "b as TD" + i + "b, t1.vcD" + i + "y as TD" + i + "y,";
             }
             string tmpT2 = "";
             string tmpE2 = "";
@@ -912,87 +912,87 @@ namespace DataAccess
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat(" select '{0}' as vcMonth , case when t2.vcPartsno is null then t1.vcPartsno else t2.vcPartsno end as vcPartsno", mon);
+            sb.AppendFormat(" select '{0}' as vcMonth, case when t2.vcPartsno is null then t1.vcPartsno else t2.vcPartsno end as vcPartsno", mon);
             sb.AppendLine(" ,case when t2.vcDock is null then t1.vcDock else t2.vcDock end as vcDock");
             sb.AppendLine(" ,case when t2.vcCarType is null then t1.vcCarType else t2.vcCarType end as vcCarType");
             sb.AppendLine("  ,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
             sb.AppendLine(" ");
-            sb.AppendLine("  t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode ,'0' as vcMonTotal,t3.vcProType as bushu,'E' as EDflag,");
+            sb.AppendLine("  t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,'0' as vcMonTotal,t3.vcProType as bushu,'E' as EDflag,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("   from (select * from  {0} where montouch is not null ) t1  ", TblName);
-            sb.AppendFormat("    full join (select * from  {0} where montouch is null ) t2", TblName);
-            sb.AppendLine("     on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendFormat("   left join (select  distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPartsNo,vcDock,vcCarType,vcQFflag,vcEDFlag,vcPlant from  tPlanPartInfo where vcMonth ='{0}' and vcEDflag ='E' ) t3", mon);
-            sb.AppendLine("   on (t3.vcPartsNo=t2.vcPartsNo or t3.vcPartsNo = t1.vcPartsno)and (t3.vcDock = t2.vcDock or t3.vcDock = t1.vcDock) and (t3.vcCarType = t2.vcCarType or t3.vcCarType = t1.vcCarType)");
+            sb.AppendFormat("   from (select * from {0} where montouch is not null) t1 ", TblName);
+            sb.AppendFormat("    full join (select * from {0} where montouch is null) t2", TblName);
+            sb.AppendLine("     on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
+            sb.AppendFormat("   left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPartsNo,vcDock,vcCarType,vcQFflag,vcEDFlag,vcPlant from tPlanPartInfo where vcMonth='{0}' and vcEDflag='E') t3", mon);
+            sb.AppendLine("   on (t3.vcPartsNo=t2.vcPartsNo or t3.vcPartsNo=t1.vcPartsno)and (t3.vcDock=t2.vcDock or t3.vcDock=t1.vcDock) and (t3.vcCarType=t2.vcCarType or t3.vcCarType=t1.vcCarType)");
             sb.AppendLine("   left join ProRuleMst t4");
-            sb.AppendLine(" on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
+            sb.AppendLine(" on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
             if (plant.Trim().Length == 0)
             {
-                sb.AppendFormat("where ((t1.montouch = '{0}' or (t2.vcMonth ='{1}' and t1.montouch is null)) and t3.vcQFflag ='2' and t3.vcEDFlag ='E') ", mon, mon);
+                sb.AppendFormat("where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='2' and t3.vcEDFlag='E') ", mon, mon);
             }
             else
             {
-                sb.AppendFormat(" where ((t1.montouch = '{0}' or (t2.vcMonth ='{1}' and t1.montouch is null)) and t3.vcQFflag ='2' and t3.vcPlant ='{2}' and t3.vcEDFlag ='E') ", mon, mon, plant);
+                sb.AppendFormat(" where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='2' and t3.vcPlant='{2}' and t3.vcEDFlag='E') ", mon, mon, plant);
             }
 
             sb.AppendLine(" union all ");
-            sb.AppendFormat(" select '{0}' as vcMonth , case when t2.vcPartsno is null then t1.vcPartsno else t2.vcPartsno end as vcPartsno", mon);
+            sb.AppendFormat(" select '{0}' as vcMonth, case when t2.vcPartsno is null then t1.vcPartsno else t2.vcPartsno end as vcPartsno", mon);
             sb.AppendLine(" ,case when t2.vcDock is null then t1.vcDock else t2.vcDock end as vcDock");
             sb.AppendLine(" ,case when t2.vcCarType is null then t1.vcCarType else t2.vcCarType end as vcCarType");
-            sb.AppendLine("  ,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
+            sb.AppendLine(" ,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
             sb.AppendLine(" ");
-            sb.AppendLine("  t3.vcPartNameCN AS vcPartsNameCHN, t3.vcHJ AS vcCurrentPastCode ,'0' as vcMonTotal,t3.vcProType as bushu,'E' as EDflag,");
+            sb.AppendLine("  t3.vcPartNameCN AS vcPartsNameCHN, t3.vcHJ AS vcCurrentPastCode,'0' as vcMonTotal,t3.vcProType as bushu,'E' as EDflag,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("   from (select * from {0} where montouch is not null ) t1  ", TblName);
-            sb.AppendFormat("    full join (select * from  {0} where montouch is null ) t2", TblName);
-            sb.AppendLine("     on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendFormat("   left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPartsNo,vcDock,vcCarType,vcQFflag,vcEDFlag,vcPlant from  tPlanPartInfo where vcMonth ='{0}' and vcEDflag ='E' )t3", mon);
-            sb.AppendLine("   on (t3.vcPartsNo=t2.vcPartsNo or t3.vcPartsNo = t1.vcPartsno)and (t3.vcDock = t2.vcDock or t3.vcDock = t1.vcDock) and (t3.vcCarType = t2.vcCarType or t3.vcCarType = t1.vcCarType)");
+            sb.AppendFormat("   from (select * from {0} where montouch is not null) t1 ", TblName);
+            sb.AppendFormat("    full join (select * from {0} where montouch is null) t2", TblName);
+            sb.AppendLine("     on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
+            sb.AppendFormat("   left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPartsNo,vcDock,vcCarType,vcQFflag,vcEDFlag,vcPlant from tPlanPartInfo where vcMonth='{0}' and vcEDflag='E') t3", mon);
+            sb.AppendLine("   on (t3.vcPartsNo=t2.vcPartsNo or t3.vcPartsNo=t1.vcPartsno)and (t3.vcDock=t2.vcDock or t3.vcDock=t1.vcDock) and (t3.vcCarType=t2.vcCarType or t3.vcCarType=t1.vcCarType)");
             sb.AppendLine("   left join ProRuleMst t4");
-            sb.AppendLine(" on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
+            sb.AppendLine(" on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
             if (plant.Trim().Length == 0)
             {
-                sb.AppendFormat(" where ((t1.montouch = '{0}' or (t2.vcMonth ='{1}' and t1.montouch is null)) and t3.vcQFflag ='1')", mon, mon);
+                sb.AppendFormat(" where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='1')", mon, mon);
             }
             else
             {
-                sb.AppendFormat(" where ((t1.montouch = '{0}' or (t2.vcMonth ='{1}' and t1.montouch is null)) and t3.vcQFflag ='1' and t3.vcPlant ='{2}')", mon, mon, plant);
+                sb.AppendFormat(" where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='1' and t3.vcPlant='{2}')", mon, mon, plant);
             }
             sb.AppendLine("  ");
             sb.AppendLine(" union all ");
 
-            sb.AppendLine(" select tS.vcMonth , tQF.vcPartsNo,tQF.vcDock,tQF.vcCarFamilyCode as vcCarType,tS.vcCalendar1,tS.vcCalendar2,tS.vcCalendar3,  ");
-            sb.AppendLine("  tS.vcCalendar4,tS.vcPartsNameCHN ,tS.vcCurrentPastCode,tS.vcMonTotal ,tS.bushu,tS.EDflag, ");
+            sb.AppendLine(" select tS.vcMonth, tQF.vcPartsNo,tQF.vcDock,tQF.vcCarFamilyCode as vcCarType,tS.vcCalendar1,tS.vcCalendar2,tS.vcCalendar3, ");
+            sb.AppendLine("  tS.vcCalendar4,tS.vcPartsNameCHN,tS.vcCurrentPastCode,tS.vcMonTotal,tS.bushu,tS.EDflag, ");
             sb.AppendFormat(" {0},", tmpT2);
             sb.AppendFormat(" {0}", tmpE2);
             sb.AppendLine("   from ( ");
-            sb.AppendFormat(" select '{0}' as vcMonth , case when t2.vcPartsno is null then t1.vcPartsno else t2.vcPartsno end as vcPartsno", mon);
+            sb.AppendFormat(" select '{0}' as vcMonth, case when t2.vcPartsno is null then t1.vcPartsno else t2.vcPartsno end as vcPartsno", mon);
             sb.AppendLine(" ,case when t2.vcDock is null then t1.vcDock else t2.vcDock end as vcDock");
             sb.AppendLine(" ,case when t2.vcCarType is null then t1.vcCarType else t2.vcCarType end as vcCarType");
             sb.AppendLine("  ,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
             sb.AppendLine(" ");
-            sb.AppendLine("  t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode ,'0' as vcMonTotal,t3.vcProType as bushu,'E' as EDflag,");
+            sb.AppendLine("  t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,'0' as vcMonTotal,t3.vcProType as bushu,'E' as EDflag,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("   from (select * from {0} where montouch is not null ) t1  ", TblName);
-            sb.AppendFormat("    full join (select * from {0} where montouch is null ) t2", TblName);
-            sb.AppendLine("     on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendFormat("   left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPartsNo,vcDock,vcCarType,vcQFflag,vcEDFlag,vcPlant from  tPlanPartInfo where  vcMonth ='{0}' and vcEDflag ='E' ) t3", mon);
-            sb.AppendLine("   on (t3.vcPartsNo=t2.vcPartsNo or t3.vcPartsNo = t1.vcPartsno)and (t3.vcDock = t2.vcDock or t3.vcDock = t1.vcDock) and (t3.vcCarType = t2.vcCarType or t3.vcCarType = t1.vcCarType)");
+            sb.AppendFormat("   from (select * from {0} where montouch is not null) t1 ", TblName);
+            sb.AppendFormat("    full join (select * from {0} where montouch is null) t2", TblName);
+            sb.AppendLine("     on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
+            sb.AppendFormat("   left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPartsNo,vcDock,vcCarType,vcQFflag,vcEDFlag,vcPlant from  tPlanPartInfo where vcMonth='{0}' and vcEDflag='E' ) t3", mon);
+            sb.AppendLine("   on (t3.vcPartsNo=t2.vcPartsNo or t3.vcPartsNo=t1.vcPartsno)and (t3.vcDock=t2.vcDock or t3.vcDock=t1.vcDock) and (t3.vcCarType=t2.vcCarType or t3.vcCarType=t1.vcCarType)");
             sb.AppendLine("   left join ProRuleMst t4");
-            sb.AppendLine(" on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
+            sb.AppendLine(" on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
             if (plant.Trim().Length == 0)
             {
-                sb.AppendFormat(" where ((t1.montouch = '{0}' or (t2.vcMonth ='{1}' and t1.montouch is null)) and t3.vcQFflag ='1')", mon, mon);
+                sb.AppendFormat(" where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='1')", mon, mon);
             }
             else
             {
-                sb.AppendFormat(" where ((t1.montouch = '{0}' or (t2.vcMonth ='{1}' and t1.montouch is null)) and t3.vcQFflag ='1' and t3.vcPlant ='{2}')", mon, mon, plant);
+                sb.AppendFormat(" where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='1' and t3.vcPlant='{2}')", mon, mon, plant);
             }
             sb.AppendLine("  ) tS ");
-            sb.AppendFormat("  left join  (select * from tPartInfoMaster where dTimeFrom <='{0}' and dTimeTo>= '{1}' and vcInOutFlag ='1') tQF  on SUBSTRING (tS.vcPartsno,0,10) = SUBSTRING(tQF.vcPartsNo,0,10) ", mon + "-01", mon + "-01");
+            sb.AppendFormat("  left join (select * from tPartInfoMaster where dTimeFrom<='{0}' and dTimeTo>='{1}' and vcInOutFlag='1') tQF  on SUBSTRING (tS.vcPartsno,0,10)=SUBSTRING(tQF.vcPartsNo,0,10) ", mon + "-01", mon + "-01");
 
             try
             {

@@ -947,7 +947,7 @@ namespace DataAccess
             sb.AppendFormat(" {0}", tmpE);
             sb.AppendFormat("   from (select * from {0} where montouch is not null) t1 ", TblName);
             sb.AppendFormat("    full join (select * from {0} where montouch is null) t2", TblName);
-            sb.AppendLine("     on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
+            sb.AppendLine("     on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
             sb.AppendFormat("   left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPartsNo,vcDock,vcCarType,vcQFflag,vcEDFlag,vcPlant from tPlanPartInfo where vcMonth='{0}' and vcEDflag='E') t3", mon);
             sb.AppendLine("   on (t3.vcPartsNo=t2.vcPartsNo or t3.vcPartsNo=t1.vcPartsno)and (t3.vcDock=t2.vcDock or t3.vcDock=t1.vcDock) and (t3.vcCarType=t2.vcCarType or t3.vcCarType=t1.vcCarType)");
             sb.AppendLine("   left join ProRuleMst t4");

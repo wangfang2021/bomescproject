@@ -778,7 +778,7 @@ namespace DataAccess
                 //        sbSQL.AppendLine(" and t2.vcSupplierPlant='8' ");
                 //    }
                 //}
-                if (KbOrderId!=null&& KbOrderId.Trim() != "")
+                if (KbOrderId != null && KbOrderId.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t.vcKBOrderNo like '" + KbOrderId + "%' ");
                 }
@@ -916,7 +916,6 @@ namespace DataAccess
             sb.AppendLine(" ,case when t2.vcDock is null then t1.vcDock else t2.vcDock end as vcDock");
             sb.AppendLine(" ,case when t2.vcCarType is null then t1.vcCarType else t2.vcCarType end as vcCarType");
             sb.AppendLine("  ,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
-            sb.AppendLine(" ");
             sb.AppendLine("  t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,'0' as vcMonTotal,t3.vcProType as bushu,'E' as EDflag,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
@@ -924,7 +923,7 @@ namespace DataAccess
             sb.AppendFormat("    full join (select * from {0} where montouch is null) t2", TblName);
             sb.AppendLine("     on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
             sb.AppendFormat("   left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPartsNo,vcDock,vcCarType,vcQFflag,vcEDFlag,vcPlant from tPlanPartInfo where vcMonth='{0}' and vcEDflag='E') t3", mon);
-            sb.AppendLine("   on (t3.vcPartsNo=t2.vcPartsNo or t3.vcPartsNo=t1.vcPartsno)and (t3.vcDock=t2.vcDock or t3.vcDock=t1.vcDock) and (t3.vcCarType=t2.vcCarType or t3.vcCarType=t1.vcCarType)");
+            sb.AppendLine("   on (t3.vcPartsNo=t2.vcPartsNo or t3.vcPartsNo=t1.vcPartsno) and (t3.vcDock=t2.vcDock or t3.vcDock=t1.vcDock) and (t3.vcCarType=t2.vcCarType or t3.vcCarType=t1.vcCarType)");
             sb.AppendLine("   left join ProRuleMst t4");
             sb.AppendLine(" on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
             if (plant.Trim().Length == 0)
@@ -935,14 +934,40 @@ namespace DataAccess
             {
                 sb.AppendFormat(" where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='2' and t3.vcPlant='{2}' and t3.vcEDFlag='E') ", mon, mon, plant);
             }
-
             sb.AppendLine(" union all ");
             sb.AppendFormat(" select '{0}' as vcMonth, case when t2.vcPartsno is null then t1.vcPartsno else t2.vcPartsno end as vcPartsno", mon);
             sb.AppendLine(" ,case when t2.vcDock is null then t1.vcDock else t2.vcDock end as vcDock");
             sb.AppendLine(" ,case when t2.vcCarType is null then t1.vcCarType else t2.vcCarType end as vcCarType");
             sb.AppendLine(" ,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
-            sb.AppendLine(" ");
             sb.AppendLine("  t3.vcPartNameCN AS vcPartsNameCHN, t3.vcHJ AS vcCurrentPastCode,'0' as vcMonTotal,t3.vcProType as bushu,'E' as EDflag,");
+            sb.AppendFormat(" {0},", tmpT);
+            sb.AppendFormat(" {0}", tmpE);
+            sb.AppendFormat("   from (select * from {0} where montouch is not null) t1 ", TblName);
+            sb.AppendFormat("    full join (select * from {0} where montouch is null) t2", TblName);
+            sb.AppendLine("     on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
+            sb.AppendFormat("   left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPartsNo,vcDock,vcCarType,vcQFflag,vcEDFlag,vcPlant from tPlanPartInfo where vcMonth='{0}' and vcEDflag='E') t3", mon);
+            sb.AppendLine("   on (t3.vcPartsNo=t2.vcPartsNo or t3.vcPartsNo=t1.vcPartsno) and (t3.vcDock=t2.vcDock or t3.vcDock=t1.vcDock) and (t3.vcCarType=t2.vcCarType or t3.vcCarType=t1.vcCarType)");
+            sb.AppendLine("   left join ProRuleMst t4");
+            sb.AppendLine(" on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
+            if (plant.Trim().Length == 0)
+            {
+                sb.AppendFormat(" where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='1')", mon, mon);
+            }
+            else
+            {
+                sb.AppendFormat(" where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='1' and t3.vcPlant='{2}')", mon, mon, plant);
+            }
+            sb.AppendLine(" union all ");
+            sb.AppendLine(" select tS.vcMonth, tQF.vcPartsNo,tQF.vcDock,tQF.vcCarFamilyCode as vcCarType,tS.vcCalendar1,tS.vcCalendar2,tS.vcCalendar3, ");
+            sb.AppendLine("  tS.vcCalendar4,tS.vcPartsNameCHN,tS.vcCurrentPastCode,tS.vcMonTotal,tS.bushu,tS.EDflag, ");
+            sb.AppendFormat(" {0},", tmpT2);
+            sb.AppendFormat(" {0}", tmpE2);
+            sb.AppendLine("   from (");
+            sb.AppendFormat(" select '{0}' as vcMonth, case when t2.vcPartsno is null then t1.vcPartsno else t2.vcPartsno end as vcPartsno", mon);
+            sb.AppendLine(" ,case when t2.vcDock is null then t1.vcDock else t2.vcDock end as vcDock");
+            sb.AppendLine(" ,case when t2.vcCarType is null then t1.vcCarType else t2.vcCarType end as vcCarType");
+            sb.AppendLine(" ,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4");
+            sb.AppendLine(" ,t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,'0' as vcMonTotal,t3.vcProType as bushu,'E' as EDflag,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
             sb.AppendFormat("   from (select * from {0} where montouch is not null) t1 ", TblName);
@@ -960,49 +985,10 @@ namespace DataAccess
             {
                 sb.AppendFormat(" where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='1' and t3.vcPlant='{2}')", mon, mon, plant);
             }
-            sb.AppendLine("  ");
-            sb.AppendLine(" union all ");
-
-            sb.AppendLine(" select tS.vcMonth, tQF.vcPartsNo,tQF.vcDock,tQF.vcCarFamilyCode as vcCarType,tS.vcCalendar1,tS.vcCalendar2,tS.vcCalendar3, ");
-            sb.AppendLine("  tS.vcCalendar4,tS.vcPartsNameCHN,tS.vcCurrentPastCode,tS.vcMonTotal,tS.bushu,tS.EDflag, ");
-            sb.AppendFormat(" {0},", tmpT2);
-            sb.AppendFormat(" {0}", tmpE2);
-            sb.AppendLine("   from ( ");
-            sb.AppendFormat(" select '{0}' as vcMonth, case when t2.vcPartsno is null then t1.vcPartsno else t2.vcPartsno end as vcPartsno", mon);
-            sb.AppendLine(" ,case when t2.vcDock is null then t1.vcDock else t2.vcDock end as vcDock");
-            sb.AppendLine(" ,case when t2.vcCarType is null then t1.vcCarType else t2.vcCarType end as vcCarType");
-            sb.AppendLine("  ,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
-            sb.AppendLine(" ");
-            sb.AppendLine("  t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,'0' as vcMonTotal,t3.vcProType as bushu,'E' as EDflag,");
-            sb.AppendFormat(" {0},", tmpT);
-            sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("   from (select * from {0} where montouch is not null) t1 ", TblName);
-            sb.AppendFormat("    full join (select * from {0} where montouch is null) t2", TblName);
-            sb.AppendLine("     on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendFormat("   left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPartsNo,vcDock,vcCarType,vcQFflag,vcEDFlag,vcPlant from  tPlanPartInfo where vcMonth='{0}' and vcEDflag='E' ) t3", mon);
-            sb.AppendLine("   on (t3.vcPartsNo=t2.vcPartsNo or t3.vcPartsNo=t1.vcPartsno)and (t3.vcDock=t2.vcDock or t3.vcDock=t1.vcDock) and (t3.vcCarType=t2.vcCarType or t3.vcCarType=t1.vcCarType)");
-            sb.AppendLine("   left join ProRuleMst t4");
-            sb.AppendLine(" on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
-            if (plant.Trim().Length == 0)
-            {
-                sb.AppendFormat(" where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='1')", mon, mon);
-            }
-            else
-            {
-                sb.AppendFormat(" where ((t1.montouch='{0}' or (t2.vcMonth='{1}' and t1.montouch is null)) and t3.vcQFflag='1' and t3.vcPlant='{2}')", mon, mon, plant);
-            }
-            sb.AppendLine("  ) tS ");
-            sb.AppendFormat("  left join (select * from tPartInfoMaster where dTimeFrom<='{0}' and dTimeTo>='{1}' and vcInOutFlag='1') tQF  on SUBSTRING (tS.vcPartsno,0,10)=SUBSTRING(tQF.vcPartsNo,0,10) ", mon + "-01", mon + "-01");
-
-            try
-            {
-                cmd.CommandText = sb.ToString();
-                apt.Fill(dt);
-            }
-            catch
-            {
-
-            }
+            sb.AppendLine(") tS ");
+            sb.AppendFormat("  left join (select * from tPartInfoMaster where dTimeFrom<='{0}' and dTimeTo>='{1}' and vcInOutFlag='1') tQF on SUBSTRING (tS.vcPartsno,0,10)=SUBSTRING(tQF.vcPartsNo,0,10) ", mon + "-01", mon + "-01");
+            cmd.CommandText = sb.ToString();
+            apt.Fill(dt);
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 int a = 0;

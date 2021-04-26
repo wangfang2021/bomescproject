@@ -213,6 +213,8 @@ namespace SPPSApi.Controllers.G06
                     FS0603_Logic fS0603_Logic = new FS0603_Logic();
                     DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("标签", "");
 
+                    //标签生成
+                    /**
                     StringBuilder labelBuilder = new StringBuilder();
                     foreach (FS0614_DataAccess.DownNode node in nodeList)
                     {
@@ -267,7 +269,7 @@ namespace SPPSApi.Controllers.G06
                     }
 
                     excute.ExcuteSqlWithStringOper(labelBuilder.ToString());
-
+                    **/
                     #endregion
 
                 }

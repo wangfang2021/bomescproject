@@ -85,7 +85,7 @@ namespace DataAccess
         #endregion
 
         #region 生成
-        public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage)
+        public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage, ref List<DownNode> DownList)
         {
             try
             {
@@ -103,7 +103,6 @@ namespace DataAccess
                     }
                 }
 
-                List<string> supplierList = new List<string>();
 
                 string url = "https://wxsite.ftms.com.cn/carowner/part?tabindex=3&tracingcode=";
 
@@ -440,9 +439,20 @@ namespace DataAccess
 
                                     string partNameEN = ObjToString(hashtable["vcPartENName"]);
 
-                                    if (!supplierList.Contains(vcSupplierId))
+                                    bool isExist = true;
+                                    DownNode node = new DownNode(vcOrderNo, vcSupplierId);
+                                    for (int n = 0; n < DownList.Count; n++)
                                     {
-                                        supplierList.Add(vcSupplierId);
+                                        if (DownList[n].isExist(node))
+                                        {
+                                            isExist = false;
+                                            break;
+                                        }
+                                    }
+
+                                    if (isExist)
+                                    {
+                                        DownList.Add(node);
                                     }
 
                                     while (qty - BZUnit >= 0)
@@ -948,9 +958,20 @@ namespace DataAccess
 
                                     string partNameEN = ObjToString(hashtable["vcPartENName"]);
 
-                                    if (!supplierList.Contains(vcSupplierId))
+                                    bool isExist = true;
+                                    DownNode node = new DownNode(vcOrderNo, vcSupplierId);
+                                    for (int n = 0; n < DownList.Count; n++)
                                     {
-                                        supplierList.Add(vcSupplierId);
+                                        if (DownList[n].isExist(node))
+                                        {
+                                            isExist = false;
+                                            break;
+                                        }
+                                    }
+
+                                    if (isExist)
+                                    {
+                                        DownList.Add(node);
                                     }
 
                                     while (qty - BZUnit >= 0)
@@ -1259,9 +1280,20 @@ namespace DataAccess
 
                                     string partNameEN = ObjToString(hashtable["vcPartENName"]);
 
-                                    if (!supplierList.Contains(vcSupplierId))
+                                    bool isExist = true;
+                                    DownNode node = new DownNode(vcOrderNo, vcSupplierId);
+                                    for (int n = 0; n < DownList.Count; n++)
                                     {
-                                        supplierList.Add(vcSupplierId);
+                                        if (DownList[n].isExist(node))
+                                        {
+                                            isExist = false;
+                                            break;
+                                        }
+                                    }
+
+                                    if (isExist)
+                                    {
+                                        DownList.Add(node);
                                     }
 
                                     while (qty - BZUnit >= 0)
@@ -1378,15 +1410,6 @@ namespace DataAccess
 
                     sqlTransaction.Commit();
                     sqlConnection.Close();
-
-                    #endregion
-
-                    #region 生成标签
-
-                    foreach (string supplierId in supplierList)
-                    {
-
-                    }
 
                     #endregion
 
@@ -2298,7 +2321,28 @@ namespace DataAccess
                 this.id30 = this.id30 + node.id30;
                 this.id31 = this.id31 + node.id31;
             }
-        }
 
+        }
+        public class DownNode
+        {
+            public string orderNo;
+            public string supplier;
+
+            public DownNode(string orderNo, string supplier)
+            {
+                this.orderNo = orderNo;
+                this.supplier = supplier;
+            }
+
+            public bool isExist(DownNode node)
+            {
+                if (node.orderNo != this.orderNo)
+                    return false;
+                if (node.supplier != this.supplier)
+                    return false;
+                return true;
+            }
+
+        }
     }
 }

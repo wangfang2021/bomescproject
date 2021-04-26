@@ -1476,6 +1476,7 @@ namespace DataAccess
 
                     if (dtMessage.Rows.Count > 0)
                     {
+                        sqlConnection.Close();
                         return false;
                     }
 
@@ -1517,6 +1518,7 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
+                sqlTransaction.Rollback();
                 sqlConnection.Close();
                 throw ex;
             }

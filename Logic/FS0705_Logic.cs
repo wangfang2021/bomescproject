@@ -116,11 +116,15 @@ namespace Logic
                         for (int j = 0; j < dtStandard.Rows.Count; j++)
                         {
                             string strX_WorkType = "";//发注时间白or夜
-                            string strY_WorkType = "";//入荷时间白or夜
+                            string strY_WorkType = "";//入荷起时间白or夜
+                            string strY_To_WorkType = "";//入荷止时间白or夜
                             bool isOver12 = false;//入荷时间是否夜班，且是12点以后
 
                             DateTime dX = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd ") + dtStandard.Rows[j]["dFaZhuFromTime"].ToString());//发注起始时间
                             DateTime dY = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd ") + dtStandard.Rows[j]["dRuHeFromTime"].ToString());//入荷起始时间
+                            DateTime dY_To = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd ") + dtStandard.Rows[j]["dRuHeToTime"].ToString());//入荷结束时间
+
+                            
                             if (dX > DateTime.Now)
                                 continue;//如果发注作业时间超过系统当前时间，则跳过
                             
@@ -129,14 +133,20 @@ namespace Logic
 
                             isJiaDong(strPackSpot, dY, ref strY_WorkType);//入荷起白夜班获取
 
+                            isJiaDong(strPackSpot, dY_To, ref strY_To_WorkType);//入荷止白夜班获取
+                            
+
                             //if (strX_WorkType == "夜" && dY.Hour < 12)//如果发注作业是夜班，且入荷时间是12点之前，证明是夜班的第二天凌晨
                             //    isOver12 = true;
 
 
                             int iRuHeFromDay = Convert.ToInt32(dtStandard.Rows[j]["vcRuHeFromDay"].ToString());//部品入荷起加减数
+                            int iRuHeToDay = Convert.ToInt32(dtStandard.Rows[j]["vcRuHeToDay"].ToString());//部品入荷止加减数
                             string strBianCi = dtStandard.Rows[j]["vcBianCi"].ToString();//便次名后缀
                             string strRuHeFromTime = dtStandard.Rows[j]["dRuHeFromTime"].ToString(); //入荷起时间
+                            string strRuHeToTime = dtStandard.Rows[j]["dRuHeToTime"].ToString(); //入荷止时间
                             int iNaQiFromDay = Convert.ToInt32(dtStandard.Rows[j]["vcNaQiFromDay"].ToString());//纳期起加减数
+                            string strNaQiFromTime = dtStandard.Rows[j]["dNaQiFromTime"].ToString(); //包材纳期起时间
                             
 
                             if (strX_WorkType == "白")
@@ -145,6 +155,12 @@ namespace Logic
                                     dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay);
                                 else//入荷是夜班
                                     dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay+1);
+
+                                if (strY_To_WorkType == "白")
+                                    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay);
+                                else//入荷止是夜班
+                                    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay + 1);
+
                             }
                             else
                             { //夜班
@@ -160,28 +176,67 @@ namespace Logic
                                 {
                                     dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay);
                                 }
+
+                                if (dX.Hour >= 12 && dX.Hour < 24)
+                                {
+                                    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay);
+                                }
+                                else if (dX.Hour >= 0 && dX.Hour < 12 && dY_To.Hour >= 12 && dY_To.Hour < 24)
+                                {
+                                    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay - 1);
+                                }
+                                else if (dX.Hour >= 0 && dX.Hour < 12 && dY_To.Hour >= 0 && dY_To.Hour < 12)
+                                {
+                                    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay);
+                                }
                             }
 
                             DateTime dTempRuhe = Convert.ToDateTime(dY.ToString("yyyy-MM-dd") + " " + strRuHeFromTime);
+                            dY_To = Convert.ToDateTime(dY_To.ToString("yyyy-MM-dd") + " " + strRuHeToTime);
                             if (dTempRuhe > dEnd&& dTempRuhe < DateTime.Now)//如果得到的入荷时间起大于最后获取入库时间，且小于当前时间，那么证明需要获取
                             {
+                                dEnd = dY_To;
                                 BcTask task = new BcTask();
+                                task.dRuheToDate = dY_To;
+                                DateTime dTimeTemp = new DateTime();
                                 if (strX_WorkType == "白")
                                 {
-                                    task.strBCName = dEnd_Index.AddDays(iNaQiFromDay).ToString("yyyy-MM-dd") + " " + strBianCi;
+                                    dTimeTemp = dEnd_Index.AddDays(iNaQiFromDay);
+                                    //task.strBCName = dEnd_Index.AddDays(iNaQiFromDay).ToString("yyyy-MM-dd") + " " + strBianCi;
                                 }
                                 else
                                 { //夜班
                                     if (dX.Hour>12)//当天的夜班
                                     {
-                                        task.strBCName = dEnd_Index.AddDays(iNaQiFromDay).ToString("yyyy-MM-dd") + " " + strBianCi;
+                                        dTimeTemp = dEnd_Index.AddDays(iNaQiFromDay);
+                                        //task.strBCName = dEnd_Index.AddDays(iNaQiFromDay).ToString("yyyy-MM-dd") + " " + strBianCi;
                                     }
                                     else //昨天的夜班
                                     {
-                                        task.strBCName = dEnd_Index.AddDays(iNaQiFromDay - 1).ToString("yyyy-MM-dd") + " " + strBianCi;
+                                        dTimeTemp = dEnd_Index.AddDays(iNaQiFromDay - 1);
+                                        //task.strBCName = dEnd_Index.AddDays(iNaQiFromDay - 1).ToString("yyyy-MM-dd") + " " + strBianCi;
                                     }
                                 }
-                                
+                                dTimeTemp = Convert.ToDateTime(dTimeTemp.ToString("yyyy-MM-dd") + " " + strNaQiFromTime);
+
+                                int findIndex = 0;
+                                int MAX_FIND = 30;//最多向后找30天
+                                while (true)
+                                {
+                                    if (findIndex > MAX_FIND)//向后找，也没找到维护的稼动日，则报错
+                                        throw new Exception("包材纳期在向后找稼动日时，向后找超过"+ MAX_FIND+"天都没找到稼动日");
+                                    string strWorkType = "";
+                                    if (!isJiaDong(strPackSpot, dTimeTemp, ref strWorkType))//如果不是稼动日，则加1天去找
+                                    {
+                                        dTimeTemp = dTimeTemp.AddDays(1);
+                                        findIndex++;
+                                    }
+                                    else
+                                        break;
+                                }
+
+
+                                task.strBCName = dTimeTemp.ToString("yyyy-MM-dd") + " " + strBianCi;
                                 task.strFaZhuID = strFaZhuID;
                                 result.Add(task);
                             }
@@ -509,6 +564,7 @@ namespace Logic
         public string strFaZhuID;//发注逻辑
         public string strBCName;//便次名称
         public DateTime dDate;//便次对应的稼动日，注意不是自然日，比如2021-3-24 2:00:00的夜班，dDate算2021-3-23
+        public DateTime dRuheToDate;
     }
 
     public class BZTime

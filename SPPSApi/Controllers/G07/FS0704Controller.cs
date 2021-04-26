@@ -291,7 +291,13 @@ namespace SPPSApi.Controllers.G07
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
 
+                    if (dNaQiFromDay < dRuHeFromDay || dNaQiFromDay < dFaZhuFromDay)
+                    {
 
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "包材纳期时间不能小于部品入荷时间和发注作业时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
 
 
 
@@ -322,7 +328,7 @@ namespace SPPSApi.Controllers.G07
                         if (dNaQiFromDay <= dNaQiToDay1 && dNaQiToDay >= dNaQiFromDay1)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "部品入荷时间有重叠";
+                            apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "包材纳期时间有重叠";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                     }

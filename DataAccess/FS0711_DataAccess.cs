@@ -79,13 +79,13 @@ namespace DataAccess
             {
                 if (string.IsNullOrEmpty(BeginTime))
                 {
-                    BeginTime = "1990-01-01 0:00:00";
+                    BeginTime = "1990-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(EndTime))
                 {
-                    EndTime = "9999-12-31 0:00:00";
+                    EndTime = "9999-12-31 00:00:00";
 
                 }
 

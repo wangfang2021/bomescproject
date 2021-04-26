@@ -141,7 +141,7 @@ namespace SPPSApi.Controllers.G07
 
                 string[] fields = {"vcPackSpot","vcPackNo","ibeginNum","iRKNum","iConsume","iLiLun","dChange"
                 };
-                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "在库履历导出"+ BeginTime+'-'+ EndTime, ref resMsg);
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "在库履历导出"+ Convert.ToDateTime(BeginTime).ToString("yyyyMMddHHmmss") + '~'+ Convert.ToDateTime(EndTime).ToString("yyyyMMddHHmmss"), ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

@@ -217,7 +217,7 @@ namespace SPPSApi.Controllers.G06
                     foreach (FS0614_DataAccess.DownNode node in nodeList)
                     {
 
-                        string printsql = "SELECT * FROM dbo.tPrintTemp_tag_FS1103 WHERE vcSupplierid = '" + node.supplier + "' AND vcOperatorID = '" + loginInfo.UserId + "'  ORDER BY LinId";
+                        string printsql = "SELECT * FROM dbo.tPrintTemp_tag_FS1103 WHERE vcSupplierid = '" + node.supplier + "' AND vcOperatorID = '" + loginInfo.UserId + "'  ORDER BY iAutoId";
                         #region 调用webApiPDF导出
                         //创建 HTTP 绑定对象
                         var binding = new BasicHttpBinding();

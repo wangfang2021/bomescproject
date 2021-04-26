@@ -87,6 +87,9 @@ namespace DataAccess
         #region 生成
         public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage, ref List<DownNode> DownList)
         {
+            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+            sqlConnection.Open();
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
             try
             {
                 FS0403_DataAccess fs0403_dataAccess = new FS0403_DataAccess();
@@ -143,9 +146,7 @@ namespace DataAccess
                 //获取ED信息
                 DataTable EDPart = getEDPart();
 
-                SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
-                sqlConnection.Open();
-                SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+
 
                 SqlCommand sqlCommand_deleteinfo = sqlConnection.CreateCommand();
                 sqlCommand_deleteinfo.Transaction = sqlTransaction;
@@ -469,10 +470,12 @@ namespace DataAccess
                                         byte[] iCodemage1 = GenerateQRCode(qr1);//二维码信息
 
                                         StringBuilder tagsbr = new StringBuilder();
-                                        tagsbr.AppendLine("INSERT INTO dbo.tPrintTemp_tag_FS1103(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcGetnum,iQrcode,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcSupplierId,vcOperatorID,dOperatorTime) VALUES (");
+                                        tagsbr.AppendLine("INSERT INTO dbo.tPrintTemp_tag_FS1103(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcGetnum,iQrcode,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcSupplierId,vcOperatorID,dOperatorTime) VALUES (");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
                                         tagsbr.AppendLine("@iQrcode,");
@@ -485,10 +488,12 @@ namespace DataAccess
                                         tagsbr.AppendLine("'" + userId + "',GETDATE())");
 
 
-                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime)VALUES(");
+                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime)VALUES(");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(sf + "B", false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
@@ -573,37 +578,37 @@ namespace DataAccess
                                     node.vcSupplierId = vcSupplierId;
                                     node.vcSupplierPlant = vcSupplierPlant;
 
-                                    node.id1 = Convert.ToInt32(rows[0]["iD1"]);
-                                    node.id2 = Convert.ToInt32(rows[0]["iD2"]);
-                                    node.id3 = Convert.ToInt32(rows[0]["iD3"]);
-                                    node.id4 = Convert.ToInt32(rows[0]["iD4"]);
-                                    node.id5 = Convert.ToInt32(rows[0]["iD5"]);
-                                    node.id6 = Convert.ToInt32(rows[0]["iD6"]);
-                                    node.id7 = Convert.ToInt32(rows[0]["iD7"]);
-                                    node.id8 = Convert.ToInt32(rows[0]["iD8"]);
-                                    node.id9 = Convert.ToInt32(rows[0]["iD9"]);
-                                    node.id10 = Convert.ToInt32(rows[0]["iD10"]);
-                                    node.id11 = Convert.ToInt32(rows[0]["iD11"]);
-                                    node.id12 = Convert.ToInt32(rows[0]["iD12"]);
-                                    node.id13 = Convert.ToInt32(rows[0]["iD13"]);
-                                    node.id14 = Convert.ToInt32(rows[0]["iD14"]);
-                                    node.id15 = Convert.ToInt32(rows[0]["iD15"]);
-                                    node.id16 = Convert.ToInt32(rows[0]["iD16"]);
-                                    node.id17 = Convert.ToInt32(rows[0]["iD17"]);
-                                    node.id18 = Convert.ToInt32(rows[0]["iD18"]);
-                                    node.id19 = Convert.ToInt32(rows[0]["iD19"]);
-                                    node.id20 = Convert.ToInt32(rows[0]["iD20"]);
-                                    node.id21 = Convert.ToInt32(rows[0]["iD21"]);
-                                    node.id22 = Convert.ToInt32(rows[0]["iD22"]);
-                                    node.id23 = Convert.ToInt32(rows[0]["iD23"]);
-                                    node.id24 = Convert.ToInt32(rows[0]["iD24"]);
-                                    node.id25 = Convert.ToInt32(rows[0]["iD25"]);
-                                    node.id26 = Convert.ToInt32(rows[0]["iD26"]);
-                                    node.id27 = Convert.ToInt32(rows[0]["iD27"]);
-                                    node.id28 = Convert.ToInt32(rows[0]["iD28"]);
-                                    node.id29 = Convert.ToInt32(rows[0]["iD29"]);
-                                    node.id30 = Convert.ToInt32(rows[0]["iD30"]);
-                                    node.id31 = Convert.ToInt32(rows[0]["iD31"]);
+                                    node.id1 = Convert.ToInt32(rows[0]["iD1"].ToString() == "" ? "0" : rows[0]["iD1"].ToString());
+                                    node.id2 = Convert.ToInt32(rows[0]["iD2"].ToString() == "" ? "0" : rows[0]["iD2"].ToString());
+                                    node.id3 = Convert.ToInt32(rows[0]["iD3"].ToString() == "" ? "0" : rows[0]["iD3"].ToString());
+                                    node.id4 = Convert.ToInt32(rows[0]["iD4"].ToString() == "" ? "0" : rows[0]["iD4"].ToString());
+                                    node.id5 = Convert.ToInt32(rows[0]["iD5"].ToString() == "" ? "0" : rows[0]["iD5"].ToString());
+                                    node.id6 = Convert.ToInt32(rows[0]["iD6"].ToString() == "" ? "0" : rows[0]["iD6"].ToString());
+                                    node.id7 = Convert.ToInt32(rows[0]["iD7"].ToString() == "" ? "0" : rows[0]["iD7"].ToString());
+                                    node.id8 = Convert.ToInt32(rows[0]["iD8"].ToString() == "" ? "0" : rows[0]["iD8"].ToString());
+                                    node.id9 = Convert.ToInt32(rows[0]["iD9"].ToString() == "" ? "0" : rows[0]["iD9"].ToString());
+                                    node.id10 = Convert.ToInt32(rows[0]["iD10"].ToString() == "" ? "0" : rows[0]["iD10"].ToString());
+                                    node.id11 = Convert.ToInt32(rows[0]["iD11"].ToString() == "" ? "0" : rows[0]["iD11"].ToString());
+                                    node.id12 = Convert.ToInt32(rows[0]["iD12"].ToString() == "" ? "0" : rows[0]["iD12"].ToString());
+                                    node.id13 = Convert.ToInt32(rows[0]["iD13"].ToString() == "" ? "0" : rows[0]["iD13"].ToString());
+                                    node.id14 = Convert.ToInt32(rows[0]["iD14"].ToString() == "" ? "0" : rows[0]["iD14"].ToString());
+                                    node.id15 = Convert.ToInt32(rows[0]["iD15"].ToString() == "" ? "0" : rows[0]["iD15"].ToString());
+                                    node.id16 = Convert.ToInt32(rows[0]["iD16"].ToString() == "" ? "0" : rows[0]["iD16"].ToString());
+                                    node.id17 = Convert.ToInt32(rows[0]["iD17"].ToString() == "" ? "0" : rows[0]["iD17"].ToString());
+                                    node.id18 = Convert.ToInt32(rows[0]["iD18"].ToString() == "" ? "0" : rows[0]["iD18"].ToString());
+                                    node.id19 = Convert.ToInt32(rows[0]["iD19"].ToString() == "" ? "0" : rows[0]["iD19"].ToString());
+                                    node.id20 = Convert.ToInt32(rows[0]["iD20"].ToString() == "" ? "0" : rows[0]["iD20"].ToString());
+                                    node.id21 = Convert.ToInt32(rows[0]["iD21"].ToString() == "" ? "0" : rows[0]["iD21"].ToString());
+                                    node.id22 = Convert.ToInt32(rows[0]["iD22"].ToString() == "" ? "0" : rows[0]["iD22"].ToString());
+                                    node.id23 = Convert.ToInt32(rows[0]["iD23"].ToString() == "" ? "0" : rows[0]["iD23"].ToString());
+                                    node.id24 = Convert.ToInt32(rows[0]["iD24"].ToString() == "" ? "0" : rows[0]["iD24"].ToString());
+                                    node.id25 = Convert.ToInt32(rows[0]["iD25"].ToString() == "" ? "0" : rows[0]["iD25"].ToString());
+                                    node.id26 = Convert.ToInt32(rows[0]["iD26"].ToString() == "" ? "0" : rows[0]["iD26"].ToString());
+                                    node.id27 = Convert.ToInt32(rows[0]["iD27"].ToString() == "" ? "0" : rows[0]["iD27"].ToString());
+                                    node.id28 = Convert.ToInt32(rows[0]["iD28"].ToString() == "" ? "0" : rows[0]["iD28"].ToString());
+                                    node.id29 = Convert.ToInt32(rows[0]["iD29"].ToString() == "" ? "0" : rows[0]["iD29"].ToString());
+                                    node.id30 = Convert.ToInt32(rows[0]["iD30"].ToString() == "" ? "0" : rows[0]["iD30"].ToString());
+                                    node.id31 = Convert.ToInt32(rows[0]["iD31"].ToString() == "" ? "0" : rows[0]["iD31"].ToString());
 
                                     bool flag = true;
                                     for (int m = 0; m < EDList.Count; m++)
@@ -1418,6 +1423,7 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
+                sqlConnection.Close();
                 throw ex;
             }
         }

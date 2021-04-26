@@ -27,7 +27,7 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1003", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1003", ex, strUserId);
                 throw ex;
             }
         }

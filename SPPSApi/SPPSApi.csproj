@@ -60,8 +60,11 @@
     <None Remove="Doc\Template\FS0308.xlsx" />
     <None Remove="Doc\Template\FS0309.xlsx" />
     <None Remove="Doc\Template\FS0309_DiaoDa.xlsx" />
+    <None Remove="Doc\Template\FS0309_DiaoDa_Nei.xlsx" />
+    <None Remove="Doc\Template\FS0309_DiaoDa_Wai.xlsx" />
     <None Remove="Doc\Template\FS0309_Export.xlsx" />
     <None Remove="Doc\Template\FS0309_XiaoShou - 复制.xlsx" />
+    <None Remove="Doc\Template\FS0309_XiaoShou.xlsx" />
     <None Remove="Doc\Template\FS0312.xlsx" />
     <None Remove="Doc\Template\FS0312_Export.xlsx" />
     <None Remove="Doc\Template\FS0401.xlsx" />
@@ -176,6 +179,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Doc\Template\FS0101.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0309_DiaoDa_Nei.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0309_DiaoDa_Wai.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0309_XiaoShou.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Doc\Template\FS0405.xlsx">

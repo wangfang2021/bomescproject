@@ -722,6 +722,9 @@ namespace DataAccess
                     }
                     else if (Type.Equals("H") || Type.Equals("F") || Type.Equals("C"))
                     {
+                        string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6);
+
+
                         #region 紧急检测
                         string vcOrderNoOld = getOrderNo(OrderNo, vcOrderNo);
                         string TargetTmp = ObjToString(listInfoData[i]["vcTargetYM"]);
@@ -993,10 +996,12 @@ namespace DataAccess
                                         byte[] iCodemage1 = GenerateQRCode(qr1);//二维码信息
 
                                         StringBuilder tagsbr = new StringBuilder();
-                                        tagsbr.AppendLine("INSERT INTO dbo.tPrintTemp_tag_FS1103(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcGetnum,iQrcode,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcSupplierId,vcOperatorID,dOperatorTime) VALUES (");
+                                        tagsbr.AppendLine("INSERT INTO dbo.tPrintTemp_tag_FS1103(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcGetnum,iQrcode,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcSupplierId,vcOperatorID,dOperatorTime) VALUES (");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
                                         tagsbr.AppendLine("@iQrcode,");
@@ -1009,10 +1014,12 @@ namespace DataAccess
                                         tagsbr.AppendLine("'" + userId + "',GETDATE())");
 
 
-                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime)VALUES(");
+                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime)VALUES(");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(sf + "B", false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
@@ -1042,6 +1049,10 @@ namespace DataAccess
 
                                 }
                                 #endregion
+
+
+
+
                             }
 
                             #region 修改订单状态
@@ -1315,10 +1326,12 @@ namespace DataAccess
                                         byte[] iCodemage1 = GenerateQRCode(qr1);//二维码信息
 
                                         StringBuilder tagsbr = new StringBuilder();
-                                        tagsbr.AppendLine("INSERT INTO dbo.tPrintTemp_tag_FS1103(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcGetnum,iQrcode,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcSupplierId,vcOperatorID,dOperatorTime) VALUES (");
+                                        tagsbr.AppendLine("INSERT INTO dbo.tPrintTemp_tag_FS1103(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcGetnum,iQrcode,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcSupplierId,vcOperatorID,dOperatorTime) VALUES (");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
                                         tagsbr.AppendLine("@iQrcode,");
@@ -1331,10 +1344,12 @@ namespace DataAccess
                                         tagsbr.AppendLine("'" + userId + "',GETDATE())");
 
 
-                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime)VALUES(");
+                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime)VALUES(");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(sf + "B", false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
@@ -1411,14 +1426,16 @@ namespace DataAccess
                     sqlCommandSeqNo.ExecuteNonQuery();
                     #endregion
 
-                    #region 提交事务
-
-                    sqlTransaction.Commit();
-                    sqlConnection.Close();
-
-                    #endregion
-
                 }
+
+                #region 提交事务
+
+                sqlTransaction.Commit();
+                sqlConnection.Close();
+
+                #endregion
+
+
                 return true;
             }
             catch (Exception ex)

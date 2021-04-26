@@ -75,7 +75,7 @@ namespace SPPSApi.Controllers.G13
                 string strPackingPlant = dtPackingPlant.Rows[0]["vcValue"].ToString();
                 string strOverTime_plan = "0.00";
                 string strOverTime_now = "0.00";
-                //fS1306_Logic.getOperEfficacyInfo("H2", "000000", "20");
+                fS1306_Logic.getOperEfficacyInfo("H2", "000000", "10");
                 DataTable dtDataInfo = fS1306_Logic.getDataInfo(strPackingPlant, ref strOverTime_plan, ref strOverTime_now, ref dtMessage);
                 DtConverter dtConverter = new DtConverter();
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dtDataInfo, dtConverter);

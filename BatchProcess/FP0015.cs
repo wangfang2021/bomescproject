@@ -22,9 +22,9 @@ namespace BatchProcess
                 //批处理开始
                 ComMessage.GetInstance().ProcessMessage(PageId, "批处理开始", null, strUserId);
                 //取最后一次更新时间
-                DataTable dtTime = this.GetEndData();
+                DataTable dtTime = this.GetEndData(strUserId);
                 //取待更新订单号
-                DataTable dtOrder = this.GetOrder();
+                DataTable dtOrder = this.GetOrder(strUserId);
                 string date = "";
                 if (dtTime.Rows.Count > 0)
                 {
@@ -37,11 +37,11 @@ namespace BatchProcess
                 }
 
                 //去资材取从更新时间需要入库数据
-                DataTable dtData = this.GetParkWorkData_MAPS(date, dtOrder);
+                DataTable dtData = this.GetParkWorkData_MAPS(date, dtOrder, strUserId);
                 List<Object> strSupplierCode = new List<object>();
-                DataTable dtBase = this.Search("", "", "", strSupplierCode, "", "", "", "");
+                DataTable dtBase = this.Search("", "", "", strSupplierCode, "", "", "", "", strUserId);
                 DataTable dtisrkf = this.SearchRKFrist();
-                DataTable dtSave = this.SearchSaveDT();
+                DataTable dtSave = this.SearchSaveDT(strUserId);
                 //更新入库表
                 bool isokRK = this.InsertDate(strUserId, dtData, dtBase, dtisrkf, dtSave);
                 if (isokRK)
@@ -51,21 +51,21 @@ namespace BatchProcess
                 }
                 else
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行失败", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1501", null, strUserId);
                     return false;
                 }
             }
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, ex.ToString(), null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1501", ex, strUserId);
                 throw ex;
             }
         }
         #endregion
 
         #region 取包材入库验收时间（最后时间）
-        public DataTable GetEndData()
+        public DataTable GetEndData(string strUserId)
         {
             try
             {
@@ -76,13 +76,14 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
+                //ComMessage.GetInstance().ProcessMessage("FP0015", "M00PE1501", ex, strUserId);
                 throw ex;
             }
         }
         #endregion
 
         #region 取待更新订单号
-        public DataTable GetOrder()
+        public DataTable GetOrder(string strUserId)
         {
             try
             {
@@ -93,6 +94,7 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
+               // ComMessage.GetInstance().ProcessMessage("FP0015", "M00PE1501", ex, strUserId);
                 throw ex;
             }
         }
@@ -100,7 +102,7 @@ namespace BatchProcess
 
         #region 去资材取需要入库数据
 
-        public DataTable GetParkWorkData_MAPS(string strDate, DataTable dtOrder)
+        public DataTable GetParkWorkData_MAPS(string strDate, DataTable dtOrder,string strUserId)
         {
             try
             {
@@ -147,6 +149,7 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
+                //ComMessage.GetInstance().ProcessMessage("FP0015", "M00PE1501", ex, strUserId);
                 throw ex;
             }
         }
@@ -185,10 +188,10 @@ namespace BatchProcess
             {
                 DataTable dt = new DataTable();
                 StringBuilder sql = new StringBuilder();
-                DataTable dtOrder = this.SearchOrderFazhu();
+                DataTable dtOrder = this.SearchOrderFazhu(strUserId);
                 #region 更新入库表
 
-                DataTable dtINFO_1 = this.SearchINFO_1();
+                DataTable dtINFO_1 = this.SearchINFO_1(strUserId);
 
                 for (int i = 0; i < dtNewItem.Rows.Count; i++)
                 {
@@ -321,11 +324,11 @@ namespace BatchProcess
                 sql = new StringBuilder();
                 #endregion
 
-                DataTable dtINFO = this.SearchINFO();
+                DataTable dtINFO = this.SearchINFO(strUserId);
 
                 DateTime dtNow = DateTime.Now;
 
-                DataTable dtdeleteOrder = this.SearchDeleteMapsOrder();
+                DataTable dtdeleteOrder = this.SearchDeleteMapsOrder(strUserId);
 
 
                 for (int r = 0; r < dtINFO.Rows.Count; r++)
@@ -609,7 +612,7 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
-
+               // ComMessage.GetInstance().ProcessMessage("FP0015", "M00PE1501", ex, strUserId);
                 //批处理异常结束
                 //ComMessage.GetInstance().ProcessMessage("FP0018", ex.ToString(), null, strUserId);
                 throw ex;
@@ -620,7 +623,7 @@ namespace BatchProcess
         #endregion
 
         #region 更新GPS品番
-        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, List<Object> strSupplierCode, string dFromB, string dFromE, string dToB, string dToE)
+        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, List<Object> strSupplierCode, string dFromB, string dFromE, string dToB, string dToE,string strUserId)
         {
             try
             {
@@ -680,6 +683,7 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
+                ComMessage.GetInstance().ProcessMessage("FP0015", "M00PE1501", ex, strUserId);
                 throw ex;
             }
         }
@@ -698,6 +702,7 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
+               // ComMessage.GetInstance().ProcessMessage("FP0015", "M00PE1501", ex, "");
                 throw ex;
             }
         }
@@ -706,7 +711,7 @@ namespace BatchProcess
 
         #region 更新订单状态准备
 
-        public DataTable SearchINFO()
+        public DataTable SearchINFO(string strUserId)
         {
             try
             {
@@ -729,10 +734,11 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
+                //ComMessage.GetInstance().ProcessMessage("FP0015", "M00PE1501", ex, strUserId);
                 throw ex;
             }
         }
-        public DataTable SearchINFO_1()
+        public DataTable SearchINFO_1(string strUserId)
         {
             try
             {
@@ -755,6 +761,7 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
+                //ComMessage.GetInstance().ProcessMessage("FP0015", "M00PE1501", ex, strUserId);
                 throw ex;
             }
         }
@@ -766,7 +773,7 @@ namespace BatchProcess
 
         #region 查找资材删除订单
 
-        public DataTable SearchDeleteMapsOrder()
+        public DataTable SearchDeleteMapsOrder(string strUserId)
         {
             try
             {
@@ -779,6 +786,7 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
+                //ComMessage.GetInstance().ProcessMessage("FP0015", "M00PE1501", ex, strUserId);
                 throw ex;
             }
         }
@@ -789,7 +797,7 @@ namespace BatchProcess
 
         #region 获取安全在库数据
 
-        public DataTable SearchSaveDT()
+        public DataTable SearchSaveDT(string strUserId)
         {
             try
             {
@@ -800,6 +808,7 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
+                //ComMessage.GetInstance().ProcessMessage("FP0015", "M00PE1501", ex, strUserId);
                 throw ex;
             }
         }
@@ -807,7 +816,7 @@ namespace BatchProcess
         #endregion
         #region 获取发注订单
 
-        public DataTable SearchOrderFazhu()
+        public DataTable SearchOrderFazhu(string strUserId)
         {
             try
             {
@@ -818,6 +827,7 @@ namespace BatchProcess
             }
             catch (Exception ex)
             {
+                //ComMessage.GetInstance().ProcessMessage("FP0015", "M00PE1501", ex, strUserId);
                 throw ex;
             }
         }

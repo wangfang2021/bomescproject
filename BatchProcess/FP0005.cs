@@ -20,13 +20,13 @@ namespace BatchProcess
             try
             {
                 //批处理开始
-                ComMessage.GetInstance().ProcessMessage(PageId, "批处理开始", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE0500", null, strUserId);
                 string strAllGPSNO = "";
                 //获取所有待更新GPS品番
                 DataTable dtPack = this.GetGPSNO();
                 if (dtPack.Rows.Count == 0)
                 {//没有要请求的数据
-                    ComMessage.GetInstance().ProcessMessage(PageId, "没有要请求的数据", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE0501", null, strUserId);
                     return true;
                 }
                 //从资材数据库获取对应品番的属性
@@ -34,7 +34,7 @@ namespace BatchProcess
                 DataTable dtMAPS = this.GetGPSNOData_MAPS(strAllGPSNO, dtPack);
                 if (dtMAPS.Rows.Count == 0)
                 {//没有要结果的数据
-                    ComMessage.GetInstance().ProcessMessage(PageId, "没有要结果的数据", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE0502", null, strUserId);
                     return true;
                 }
                 //更新
@@ -46,7 +46,7 @@ namespace BatchProcess
                 }
                 else
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行失败", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE0503", null, strUserId);
                     return false;
                 }
 
@@ -54,7 +54,7 @@ namespace BatchProcess
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, ex.ToString(), null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE0503", null, strUserId);
                 throw ex;
             }
         }

@@ -220,13 +220,13 @@ namespace DataAccess
             }
             sb.AppendLine("union all");
             sb.AppendLine(" select tS.vcMonth,tQF.vcPartsNo,tQF.vcDock,tQF.vcCarFamilyCode as vcCarType,tS.vcCalendar1,tS.vcCalendar2, ");
-            sb.AppendLine(" tS.vcCalendar3 ,tS.vcCalendar4,tS.vcPartsNameCHN,tS.vcCurrentPastCode,tS.vcMonTotal as vcMonTotal,tS.bushu,tS.EDflag, ");
+            sb.AppendLine(" tS.vcCalendar3,tS.vcCalendar4,tS.vcPartsNameCHN,tS.vcCurrentPastCode,tS.vcMonTotal as vcMonTotal,tS.bushu,tS.EDflag, ");
 
             sb.AppendFormat(" {0}, ", tmpT2);
             sb.AppendFormat(" {0} ", tmpE2);
             sb.AppendLine(" from ( ");
-            sb.AppendLine("    select t2.vcMonth ,t2.vcPartsno,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,t3.vcSRS as iQuantityPerContainer,");
-            sb.AppendLine("   t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal ,t3.vcProType as bushu,'S' as EDflag,");
+            sb.AppendLine("    select t2.vcMonth,t2.vcPartsno,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,t3.vcSRS as iQuantityPerContainer,");
+            sb.AppendLine("   t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal,t3.vcProType as bushu,'S' as EDflag,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
             sb.AppendFormat("  from ( select * from {0} where montouch is not null) t1 ", tablename);
@@ -245,7 +245,7 @@ namespace DataAccess
                 sb.AppendFormat("  where t2.vcMonth='{0}' and t3.vcQFflag='1' ", mon);
             }
             sb.AppendLine(" ) tS ");
-            sb.AppendLine(" left join (select * from tPartInfoMaster where dTimeFrom<='" + mon + "-01' and dTimeTo>= '" + mon + "-01' and vcInOutFlag='1') tQF ");
+            sb.AppendLine(" left join (select * from tPartInfoMaster where dTimeFrom<='" + mon + "-01' and dTimeTo>='" + mon + "-01' and vcInOutFlag='1') tQF ");
             sb.AppendLine(" on SUBSTRING (tS.vcPartsno,0,10)=SUBSTRING(tQF.vcPartsNo,0,10) ");
             try
             {
@@ -289,7 +289,7 @@ namespace DataAccess
             }
             if (vcDock.Length > 0)
             {
-                tmpsql += " and vcSR ='" + vcDock + "'";
+                tmpsql += " and vcSR='" + vcDock + "'";
             }
             if (vcTF.Length > 0)
             {
@@ -316,7 +316,7 @@ namespace DataAccess
             DataTable dtEDorder2 = SearchData(ssql);
             string tmpsql2 = " select vcPart_id,vcSHF,vcSR,vcInputNo,iQuantity,vcKBOrderNo,vcKBLFNo,";
             tmpsql2 += " case when packingcondition='1' then '未包装' else '已包装' end as packingcondition,";
-            tmpsql2 += " vcBZPlant,dStart,vcOperatorID,vcSheBeiNo,dOperatorTime,'T1' as otype ,'紧急' as vcEDflag ";
+            tmpsql2 += " vcBZPlant,dStart,vcOperatorID,vcSheBeiNo,dOperatorTime,'T1' as otype,'紧急' as vcEDflag ";
             tmpsql2 += " from TOperateSJ t where vcZYType='S0' ";
             tmpsql2 += "  and ( ";
             for (int i = 0; i < dtEDorder2.Rows.Count; i++)

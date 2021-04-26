@@ -12,7 +12,7 @@ namespace DataAccess
     public class FS1306_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public DataTable getDataInfo(string strPackingPlant, string strHosDate, string strBanZhi, string strBZFromTime, ref DataTable dtMessage)
+        public DataTable getDataInfo(string strPackingPlant, string strHosDate, string strBanZhi, decimal decRest_screen, decimal decRest_point, string strBZFromTime, ref DataTable dtMessage)
         {
             try
             {
@@ -21,7 +21,9 @@ namespace DataAccess
                     new SqlParameter("@PackingPlant", strPackingPlant),
                     new SqlParameter("@HosDate",strHosDate),
                     new SqlParameter("@BanZhi",strBanZhi),
-                    new SqlParameter("@BZFromTime",strBZFromTime)
+                    new SqlParameter("@BZFromTime",strBZFromTime),
+                    new SqlParameter("@Rest_screen",decRest_screen),
+                    new SqlParameter("@Rest_point",decRest_point)
                 };
                 string cmdText = "BSP1306_DataInfo";
                 SqlDataAdapter sa = new SqlDataAdapter(cmdText, sqlConnection);

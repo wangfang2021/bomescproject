@@ -29,7 +29,8 @@ namespace Logic
                 DateTime dFromTime = Convert.ToDateTime(System.DateTime.Now.Year.ToString() + "-" + System.DateTime.Now.Month.ToString() + "-" + System.DateTime.Now.AddDays(1).Day.ToString() + " 00:00:00");
                 DateTime dToTime = Convert.ToDateTime(System.DateTime.Now.Year.ToString() + "-" + System.DateTime.Now.Month.ToString() + "-" + System.DateTime.Now.AddDays(1).Day.ToString() + " 00:00:00");
                 string strBZFromTime = "";
-                decimal decRest = 0;
+                decimal decRest_screen = 0;
+                decimal decRest_point = 0;
 
                 DataTable dtTime = fs0811_DataAccess.getBanZhiTime(strPackingPlant, "2");
                 if (dtTime.Rows.Count != 0)
@@ -38,7 +39,8 @@ namespace Logic
                     strBanZhi = dtTime.Rows[0]["vcBanZhi"].ToString();
                     dFromTime = Convert.ToDateTime(dtTime.Rows[0]["tFromTime_nw"].ToString());
                     dToTime = Convert.ToDateTime(dtTime.Rows[0]["tToTime_nw"].ToString());
-                    decRest = Convert.ToDecimal(dtTime.Rows[0]["iRest"].ToString());
+                    decRest_screen = Convert.ToDecimal(dtTime.Rows[0]["iRest_screen"].ToString());
+                    decRest_point = Convert.ToDecimal(dtTime.Rows[0]["iRest_point"].ToString());
                     strBZFromTime = dFromTime.ToString();
                 }
                 #endregion
@@ -48,7 +50,7 @@ namespace Logic
                 DataTable dtList = fS0603_Logic.createTable("KanBan1306");
                 #endregion
                 #region //获取值别人员统计和Web共用
-                DataTable dtDataInfo = fs1306_DataAccess.getDataInfo(strPackingPlant, strHosDate, strBanZhi, decRest, strBZFromTime, ref dtMessage);
+                DataTable dtDataInfo = fs1306_DataAccess.getDataInfo(strPackingPlant, strHosDate, strBanZhi, decRest_screen, decRest_point, strBZFromTime, ref dtMessage);
                 if (dtDataInfo == null || dtDataInfo.Rows.Count == 0)
                 {
                     DataRow dataRow = dtMessage.NewRow();

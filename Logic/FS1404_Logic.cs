@@ -120,7 +120,7 @@ namespace Logic
                 string strMessage = "";
                 //foreach (FileInfo info in theFolder.GetFiles())
                 //{
-                if (info.FullName.IndexOf(".xlsx") > 0 || info.FullName.IndexOf(".xls") > 0)
+                if (info.FullName.ToLower().IndexOf(".xlsx") > 0 || info.FullName.ToLower().IndexOf(".xls") > 0)
                 {
                     DataTable dt = ComFunction.ExcelToDataTable(info.FullName, sheetName, headers, ref strMessage);
                     if (strMessage != "")
@@ -208,6 +208,9 @@ namespace Logic
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcMessage"] = "Excel文件第" + (i + 1) + "行SPIS为空";
                             dtMessage.Rows.Add(dataRow);
+                        }else
+                        {
+                            dataTable.Rows[i]["vcPicUrl"] = dataTable.Rows[i]["vcPicUrl"].ToString() + ".jpg";
                         }
                     }
                 }

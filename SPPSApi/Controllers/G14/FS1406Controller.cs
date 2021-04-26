@@ -357,7 +357,7 @@ namespace SPPSApi.Controllers.G14
                         if (response.Body.setCRVToIMGResult != "导出成功")
                         {
                             DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                            dataRow["vcMessage"] = "生成失败，请联系管理员进行打印接口故障检查。";
                             dtMessage.Rows.Add(dataRow);
                         }
                         if (dtMessage != null && dtMessage.Rows.Count != 0)

@@ -219,42 +219,107 @@ namespace SPPSApi.Controllers.G07
                         hasFind = true;
                     }
 
+
+                    if (string.IsNullOrEmpty(listInfoData[i]["vcFaZhuID"].ToString()) ||
+                        string.IsNullOrEmpty(listInfoData[i]["dRuHeFromTime"].ToString()) ||
+                        string.IsNullOrEmpty(listInfoData[i]["druHeToTime"].ToString()) ||
+                        string.IsNullOrEmpty(listInfoData[i]["dFaZhuFromTime"].ToString()) ||
+                        string.IsNullOrEmpty(listInfoData[i]["dFaZhuToTime"].ToString()) ||
+                        string.IsNullOrEmpty(listInfoData[i]["dNaQiFromTime"].ToString()) ||
+                        string.IsNullOrEmpty(listInfoData[i]["dNaQiToTime"].ToString()) ||
+                        string.IsNullOrEmpty(listInfoData[i]["dFrom"].ToString()) || 
+                        string.IsNullOrEmpty(listInfoData[i]["dTo"].ToString())||
+                        string.IsNullOrEmpty(listInfoData[i]["vcPackSpot"].ToString())
+                        )
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "保存内容有为空项！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
+
+
                     //判断对应逻辑下是否有重叠时间
                     #region 判断对应逻辑下是否有重叠时间
                     DataTable dtLJtime = FS0704_Logic.SearchLJTime(listInfoData[i]["vcFaZhuID"].ToString(), listInfoData[i]["iAutoId"].ToString());
 
 
-                    DateTime dRuHeFromDay = DateTime.Parse(listInfoData[i]["dRuHeFromTime"].ToString());
-                    DateTime dRuHeToDay = DateTime.Parse(listInfoData[i]["druHeToTime"].ToString());
-                    DateTime dFaZhuFromDay = DateTime.Parse(listInfoData[i]["dFaZhuFromTime"].ToString());
-                    DateTime dFaZhuToDay = DateTime.Parse(listInfoData[i]["dFaZhuToTime"].ToString());
-                    DateTime dNaQiFromDay = DateTime.Parse(listInfoData[i]["dNaQiFromTime"].ToString());
-                    DateTime dNaQiToDay = DateTime.Parse(listInfoData[i]["dNaQiToTime"].ToString());
-                   
+                    DateTime dRuHeFromDay = DateTime.Parse(listInfoData[i]["dRuHeFromTime"].ToString()).AddDays(Convert.ToInt32( listInfoData[i]["vcRuHeFromDay"].ToString()));
+                    DateTime dRuHeToDay = DateTime.Parse(listInfoData[i]["druHeToTime"].ToString()).AddDays(Convert.ToInt32(listInfoData[i]["vcRuHeToDay"].ToString()));
+                    DateTime dFaZhuFromDay = DateTime.Parse(listInfoData[i]["dFaZhuFromTime"].ToString()).AddDays(Convert.ToInt32(listInfoData[i]["vcFaZhuFromDay"].ToString()));
+                    DateTime dFaZhuToDay = DateTime.Parse(listInfoData[i]["dFaZhuToTime"].ToString()).AddDays(Convert.ToInt32(listInfoData[i]["vcFaZhuToDay"].ToString()));
+                    DateTime dNaQiFromDay = DateTime.Parse(listInfoData[i]["dNaQiFromTime"].ToString()).AddDays(Convert.ToInt32(listInfoData[i]["vcNaQiFromDay"].ToString()));
+                    DateTime dNaQiToDay = DateTime.Parse(listInfoData[i]["dNaQiToTime"].ToString()).AddDays(Convert.ToInt32(listInfoData[i]["vcNaQiToDay"].ToString()));
+
+                    DateTime dFrom = DateTime.Parse(listInfoData[i]["dFrom"].ToString());
+                    DateTime dTo = DateTime.Parse(listInfoData[i]["dTo"].ToString());
+                    if (dFrom > dTo)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "TC(FROM)大于TC(TO)！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
+
+                    //判断入荷早于发注早于纳期
+                    if (dRuHeToDay < dRuHeFromDay)
+                    {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "部品入荷起始时间不能大于终止时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (dFaZhuToDay < dFaZhuFromDay)
+                    {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "发注作业起始时间不能大于终止时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (dNaQiToDay < dNaQiFromDay)
+                    {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "包材纳期起始时间不能大于终止时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (dRuHeToDay > dFaZhuFromDay || dRuHeToDay > dNaQiFromDay)
+                    {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "部品入荷时间不能大于发注作业时间和纳期时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
+
+
+
+
+
                     for (int j = 0; j < dtLJtime.Rows.Count; j++)
                     {
-                        
-                        DateTime dRuHeFromDay1 = DateTime.Parse(dtLJtime.Rows[j]["dRuHeFromTime"].ToString());
-                        DateTime dRuHeToDay1 = DateTime.Parse(dtLJtime.Rows[j]["druHeToTime"].ToString());
-                        DateTime dFaZhuFromDay1 = DateTime.Parse(dtLJtime.Rows[j]["dFaZhuFromTime"].ToString());
-                        DateTime dFaZhuToDay1 = DateTime.Parse(dtLJtime.Rows[j]["dFaZhuToTime"].ToString());
-                        DateTime dNaQiFromDay1 = DateTime.Parse(dtLJtime.Rows[j]["dNaQiFromTime"].ToString());
-                        DateTime dNaQiToDay1 = DateTime.Parse(dtLJtime.Rows[j]["dNaQiToTime"].ToString());
-                      
 
-                        if (dRuHeFromDay<= dRuHeToDay1&& dRuHeToDay>= dRuHeFromDay1)
+                        DateTime dRuHeFromDay1 = DateTime.Parse(dtLJtime.Rows[j]["dRuHeFromTime"].ToString()).AddDays(Convert.ToInt32(dtLJtime.Rows[j]["vcRuHeFromDay"].ToString()));
+                        DateTime dRuHeToDay1 = DateTime.Parse(dtLJtime.Rows[j]["druHeToTime"].ToString()).AddDays(Convert.ToInt32(dtLJtime.Rows[j]["vcRuHeToDay"].ToString()));
+                        DateTime dFaZhuFromDay1 = DateTime.Parse(dtLJtime.Rows[j]["dFaZhuFromTime"].ToString()).AddDays(Convert.ToInt32(dtLJtime.Rows[j]["vcFaZhuFromDay"].ToString()));
+                        DateTime dFaZhuToDay1 = DateTime.Parse(dtLJtime.Rows[j]["dFaZhuToTime"].ToString()).AddDays(Convert.ToInt32(dtLJtime.Rows[j]["vcFaZhuToDay"].ToString()));
+                        DateTime dNaQiFromDay1 = DateTime.Parse(dtLJtime.Rows[j]["dNaQiFromTime"].ToString()).AddDays(Convert.ToInt32(dtLJtime.Rows[j]["vcNaQiFromDay"].ToString()));
+                        DateTime dNaQiToDay1 = DateTime.Parse(dtLJtime.Rows[j]["dNaQiToTime"].ToString()).AddDays(Convert.ToInt32(dtLJtime.Rows[j]["vcNaQiToDay"].ToString()));
+
+
+                        if (dRuHeFromDay <= dRuHeToDay1 && dRuHeToDay >= dRuHeFromDay1)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = listInfoData[i]["vcFaZhuID"].ToString()+"部品入荷时间有重叠";
+                            apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "部品入荷时间有重叠";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        if (dFaZhuFromDay<= dFaZhuToDay1&& dFaZhuToDay>= dFaZhuFromDay1)
+                        if (dFaZhuFromDay <= dFaZhuToDay1 && dFaZhuToDay >= dFaZhuFromDay1)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "发注作业时间有重叠";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        if (dNaQiFromDay<= dNaQiToDay1&& dNaQiToDay>= dNaQiFromDay1)
+                        if (dNaQiFromDay <= dNaQiToDay1 && dNaQiToDay >= dNaQiFromDay1)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "部品入荷时间有重叠";

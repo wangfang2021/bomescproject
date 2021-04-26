@@ -188,8 +188,12 @@ namespace SPPSApi.Controllers.G07
                             }
                             else
                             {
-                                
-                                strErrorPartId = "没有接口信息，请联系管理员维护。";
+                                if (reason == "纳入统计计算成功")
+                                {
+
+                                    strErrorPartId = "生成PDF失败,没有接口信息，请联系管理员维护,纳入统计计算成功";
+                                    break;
+                                }
                             }
                             #endregion
                         }

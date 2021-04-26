@@ -24,7 +24,7 @@ namespace BatchProcess
                 DataTable dtNewItem = this.SearchNewTPackItem(strUserId);
                 if (dtNewItem.Rows.Count == 0)
                 {//没有要请求的数据
-                    ComMessage.GetInstance().ProcessMessage(PageId, "没有要请求的数据", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1801", null, strUserId);
                     return true;
                 }
                 bool isok = this.UpDate(strUserId, dtNewItem);
@@ -36,14 +36,14 @@ namespace BatchProcess
                 }
                 else
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行失败", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1802", null, strUserId);
                     return false;
                 }
             }
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, ex.ToString(), null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1802", ex, strUserId);
                 throw ex;
             }
         }

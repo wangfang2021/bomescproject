@@ -63,7 +63,7 @@ namespace BatchProcess
                 strSQL.Append("isnull(c.vcSufferIn,'') as vcDock,a.vcCarFamilyCode,a.vcPartENName,  \n");
                 strSQL.Append("b.iPackingQty as iQuantityPerContainer, \n");
                 strSQL.Append("a.vcValue as vcOrderingMethod, a.vcReceiver, a.vcSupplierId, d.vcSupplierPlant, a.vcHaoJiu, a.vcPartImage, a.vcPassProject  \n");
-                strSQL.Append("from    \n");
+                strSQL.Append("from  \n");
                 strSQL.Append(" (select TSPMaster.*, TCode.vcValue  \n");
                 strSQL.Append("  from TSPMaster  \n");
                 strSQL.Append("  left join TCode on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and vcInOut='0') a  \n");
@@ -75,24 +75,24 @@ namespace BatchProcess
                 strSQL.Append("  on a.vcPartId=d.vcPartId and a.vcPackingPlant=d.vcPackingPlant and a.vcReceiver=d.vcReceiver and a.vcSupplierId=d.vcSupplierId) t \n");
                 strSQL.Append("where TPartInfoMaster.vcPartsNo=t.vcPartId  \n");
                 strSQL.Append("and TPartInfoMaster.vcCpdCompany=t.vcReceiver \n");
-                strSQL.Append("and TPartInfoMaster.vcSupplierCode=t.vcSupplierId and TPartInfoMaster.vcInOutFlag='0'; \n");
+                strSQL.Append("and TPartInfoMaster.vcSupplierCode=t.vcSupplierId; \n");
 
-                strSQL.Append("update TPartInfoMaster \n");
-                strSQL.Append("set TPartInfoMaster.vcCarFamilyCode=t.vcCarType,  \n");
-                strSQL.Append("TPartInfoMaster.iQuantityPerContainer=t.iContainerQuantity,  \n");
-                strSQL.Append("TPartInfoMaster.vcPartsNameEN=t.vcPartNameEn, \n");
-                strSQL.Append("TPartInfoMaster.vcDock=t.vcSR, \n");
-                strSQL.Append("TPartInfoMaster.vcCurrentPastCode='', \n");
-                strSQL.Append("TPartInfoMaster.vcPhotoPath=t.vcPhotoPath,  \n");
-                strSQL.Append("TPartInfoMaster.vcLogisticRoute='1'  \n");
-                strSQL.Append("from ( \n");
-                strSQL.Append("    select vcPart_id, convert(varchar,dTimeFrom,23) as dFromTime, convert(varchar,dTimeTo,23) as dToTime, vcSR, \n");
-                strSQL.Append("    vcCarType, vcPartNameEn, iContainerQuantity, vcSHF,   \n");
-                strSQL.Append("    vcSupplier_id, vcPhotoPath, dOperatorTime   \n");
-                strSQL.Append("    from TEDTZPartsNoMaster) t   \n");
-                strSQL.Append("where TPartInfoMaster.vcPartsNo=t.vcPart_id  \n");
-                strSQL.Append("and TPartInfoMaster.vcCpdCompany=t.vcSHF  \n");
-                strSQL.Append("and TPartInfoMaster.vcSupplierCode=t.vcSupplier_id and TPartInfoMaster.vcInOutFlag='1'; \n");
+                //strSQL.Append("update TPartInfoMaster \n");
+                //strSQL.Append("set TPartInfoMaster.vcCarFamilyCode=t.vcCarType,  \n");
+                //strSQL.Append("TPartInfoMaster.iQuantityPerContainer=t.iContainerQuantity,  \n");
+                //strSQL.Append("TPartInfoMaster.vcPartsNameEN=t.vcPartNameEn, \n");
+                //strSQL.Append("TPartInfoMaster.vcDock=t.vcSR, \n");
+                //strSQL.Append("TPartInfoMaster.vcCurrentPastCode='', \n");
+                //strSQL.Append("TPartInfoMaster.vcPhotoPath=t.vcPhotoPath,  \n");
+                //strSQL.Append("TPartInfoMaster.vcLogisticRoute='1'  \n");
+                //strSQL.Append("from ( \n");
+                //strSQL.Append("    select vcPart_id, convert(varchar,dTimeFrom,23) as dFromTime, convert(varchar,dTimeTo,23) as dToTime, vcSR, \n");
+                //strSQL.Append("    vcCarType, vcPartNameEn, iContainerQuantity, vcSHF,   \n");
+                //strSQL.Append("    vcSupplier_id, vcPhotoPath, dOperatorTime   \n");
+                //strSQL.Append("    from TEDTZPartsNoMaster) t   \n");
+                //strSQL.Append("where TPartInfoMaster.vcPartsNo=t.vcPart_id  \n");
+                //strSQL.Append("and TPartInfoMaster.vcCpdCompany=t.vcSHF  \n");
+                //strSQL.Append("and TPartInfoMaster.vcSupplierCode=t.vcSupplier_id and TPartInfoMaster.vcInOutFlag='1'; \n");
 
                 int i = excute.ExecuteSQLNoQuery(strSQL.ToString());
                 if (i > 0)
@@ -116,7 +116,7 @@ namespace BatchProcess
                 StringBuilder sql = new StringBuilder();
                 sql.Append("select * from ( \n");
                 sql.Append(" select a.vcPartId, CONVERT(char(10),a.dFromTime,120) as dFromTime, CONVERT(char(10),a.dToTime,120) as dToTime, c.vcSufferIn as vcDock, a.vcCarFamilyCode, a.vcPartENName,  \n");
-                sql.Append(" b.iPackingQty as iQuantityPerContainer,a.vcValue as vcOrderingMethod, a.vcReceiver, a.vcSupplierId, d.vcSupplierPlant, a.vcPartImage, a.vcPassProject, a.vcHaoJiu, '0' as vcInOutFlag, a.dOperatorTime   \n");
+                sql.Append(" b.iPackingQty as iQuantityPerContainer,a.vcValue as vcOrderingMethod, a.vcReceiver, a.vcSupplierId, d.vcSupplierPlant, a.vcPartImage, a.vcPassProject, a.vcHaoJiu, case SUBSTRING(a.vcPartId,11,2) when 'ED' then '1' else '0' end as vcInOutFlag, a.dOperatorTime   \n");
                 sql.Append(" from (  \n");
                 sql.Append("    select TSPMaster.*, TCode.vcValue from TSPMaster  \n");
                 sql.Append("    left join TCode  \n");

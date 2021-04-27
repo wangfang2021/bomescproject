@@ -1220,7 +1220,8 @@ namespace DataAccess
                     {
                         #region 日度订单校验
                         FS0403_DataAccess fs0403DataAccess = new FS0403_DataAccess();
-                        DataTable dtRiDuCheck = fs0403DataAccess.getModify(Convert.ToDateTime(listInfoData[i]["vcTargetYM"].ToString().Substring(0, 8)));
+                        string tm = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 4) + "-" + listInfoData[i]["vcTargetYM"].ToString().Substring(4, 2) + "-" + listInfoData[i]["vcTargetYM"].ToString().Substring(6, 2);
+                        DataTable dtRiDuCheck = fs0403DataAccess.getModify(Convert.ToDateTime(tm));
                         if (dtRiDuCheck.Rows.Count == 0)
                         {
                             DataRow dataRow = dtMessage.NewRow();
@@ -1245,8 +1246,10 @@ namespace DataAccess
                                 string vcOrderNum = detail.QTY;
                                 string vcOrderingMethod = "";
                                 string isTag = "";
-                                Hashtable hashtable = getDock(detail.PartsNo, detail.CPD, vcPackingFactory, (DataTable)dockTmp[ObjToString(listInfoData[i]["vcTargetYM"])]);
+                                Hashtable hashtable = getDock(detail.PartsNo, detail.CPD, vcPackingFactory, (DataTable)dockTmp[ObjToString(listInfoData[i]["vcTargetYM"]).Substring(0, 6)]);
                                 isTag = ObjToString(hashtable["vcSupplierPacking"]);
+                                vcSupplierId = ObjToString(hashtable["vcSupplierId"]);
+
                                 if (isTag.Equals("1"))
                                 {
                                     //检索包装工厂
@@ -1345,7 +1348,7 @@ namespace DataAccess
                                 string vcPart_id = detail.PartsNo.Trim();
                                 string CPD = detail.CPD.Trim();
                                 string vcSeqno = detail.ItemNo.Trim();
-                                string QTY = detail.QTY;
+                                string QTY = Convert.ToInt32(detail.QTY).ToString();
                                 string vcDock = "";
                                 string vcSupplierId = "";
                                 string vcCarType = "";

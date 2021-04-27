@@ -534,6 +534,34 @@ namespace SPPSApi.Controllers.G04
                     string msg1 = string.Empty;
                     Order order =  GetPartFromFile(realPath + filePath, fileName, ref msg1);
                     string fileNameOrder = order.Head.No;
+                    if (vcOrderType == "D")
+                    {
+                        //追加判断月日
+                        string strMonth = string.Empty;
+                        string strDay = string.Empty;
+                        string splitMonth = fileNameOrder.Substring(2, 1);
+                        if (splitMonth == "A") {
+                            strMonth = "10";
+                        } else if (splitMonth=="B") {
+                            strMonth = "11";
+                        }
+                        else if (splitMonth == "C") {
+                            strMonth = "12";
+                        }
+                        else
+                        {
+                            strMonth = "0"+splitMonth;
+                        }
+                        strDay = fileNameOrder.Substring(3, 2);
+                        string strMD = strMonth + strDay;
+                        if (dTargetDate.Replace("-", "").Replace("/", "").Substring(4)!= strMD)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "对象年月日与订单日期不一致，请确认!";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+
                     if (!dicOrderNo.ContainsKey(fileNameOrder))
                     {
                         dicOrderNo.Add(fileNameOrder, fileNameOrder);
@@ -559,6 +587,7 @@ namespace SPPSApi.Controllers.G04
                         apiResult.data = "文件名不匹配订单类型命名规则，请以订单类型的首字母开始命名 '";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+
                 }
                 if ( vcOrderType == "D") //验证王继伟那是否存在
                 {

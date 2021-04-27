@@ -207,6 +207,7 @@ namespace SPPSApi.Controllers.G06
                     }
 
                     #region 生成标签
+                    
                     MultiExcute excute = new MultiExcute();
                     string strPath_pdf = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "PDF" + Path.DirectorySeparatorChar + "Order" + Path.DirectorySeparatorChar;
                     string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
@@ -214,7 +215,7 @@ namespace SPPSApi.Controllers.G06
                     DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("标签", "");
 
                     //标签生成
-                    /**
+                    
                     StringBuilder labelBuilder = new StringBuilder();
                     foreach (FS0614_DataAccess.DownNode node in nodeList)
                     {
@@ -237,7 +238,6 @@ namespace SPPSApi.Controllers.G06
                         Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();
                         Body.sqlCatalog = dtPrinterInfo.Rows[0]["vcSqlCatalog"].ToString();
                         Body.sqlSource = dtPrinterInfo.Rows[0]["vcSqlSource"].ToString();
-                        Console.WriteLine("web参数完备");
                         //调用具体的方法，这里是 HelloWorldAsync 方法
                         Task<setCRVToPDFResponse> responseTask = callClient.setCRVToPDFAsync(new setCRVToPDFRequest(Body));
                         //获取结果
@@ -269,7 +269,7 @@ namespace SPPSApi.Controllers.G06
                     }
 
                     excute.ExcuteSqlWithStringOper(labelBuilder.ToString());
-                    **/
+                    
                     #endregion
 
                 }

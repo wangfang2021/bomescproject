@@ -18,6 +18,8 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
+                strSql.Append("     select * from    \n");
+                strSql.Append("     (    \n");
                 strSql.Append("     select a.*    \n");
                 strSql.Append("     	,b1.vcName as 'vcJD_Name'    \n");
                 strSql.Append("     	,b2.vcName as 'vcChange_Name'    \n");
@@ -99,6 +101,7 @@ namespace DataAccess
                 strSql.Append("     	select COUNT(*) as iNum,[GUID] from TSQJD_THlist    \n");
                 strSql.Append("     	group by GUID    \n");
                 strSql.Append("     )b10 on a.GUID = b10.[GUID]    \n");
+                strSql.Append("     )a    \n");
                 strSql.Append("     where 1=1    \n");
                 strSql.Append("     and vcSupplier_id = '" + strUserID + "'    \n");
                 if (!string.IsNullOrEmpty(strJD))
@@ -122,7 +125,7 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrEmpty(strCarType))
                 {
-                    strSql.Append("      and b6.vcName like '" + strCarType + "%'   ");
+                    strSql.Append("      and vcCarType like '" + strCarType + "%'   ");
                 }
                 if (!string.IsNullOrEmpty(strPart_id))
                 {

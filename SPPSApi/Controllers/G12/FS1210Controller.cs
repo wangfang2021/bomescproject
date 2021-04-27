@@ -1164,7 +1164,7 @@ namespace SPPSApi.Controllers.G12
                 {
                     msg = print.printCr(reportPath, dtPorType.Rows[z]["vcPorType"].ToString(), "", "", "", "", "", strLoginId, strPrinterName);//打印水晶报表
                     //删除看板打印的临时文件
-                    logic_09.DeleteprinterCREX1(dtPorType.Rows[z]["vcPorType"].ToString(), dtPorType.Rows[z]["vcorderno"].ToString(), dtPorType.Rows[z]["vcComDate01"].ToString(), dtPorType.Rows[z]["vcBanZhi01"].ToString());
+                    logic_09.DeleteprinterCREX(dtPorType.Rows[z]["vcPorType"].ToString(), dtPorType.Rows[z]["vcorderno"].ToString(), dtPorType.Rows[z]["vcComDate01"].ToString(), dtPorType.Rows[z]["vcBanZhi01"].ToString());
                 }
                 if (!(check))
                 {

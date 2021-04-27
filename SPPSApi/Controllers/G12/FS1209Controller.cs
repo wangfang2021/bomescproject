@@ -1046,7 +1046,8 @@ namespace SPPSApi.Controllers.G12
             ////strSQL.AppendLine(" A.vcComDate00=CONVERT(varchar(10),GETDATE(),121) and");
             if (vcPrintPartNo.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcPrintflagED='" + vcPrintPartNo.Replace("-", "") + "'");
+                //strSQL.AppendLine(" and A.vcPrintflagED='" + vcPrintPartNo.Replace("-", "") + "'");
+                strSQL.AppendLine(" and A.vcPartsNo='" + vcPrintPartNo.Replace("-", "") + "'");
             }
             if (vcKbOrderId.Length != 0)
             {
@@ -1079,7 +1080,7 @@ namespace SPPSApi.Controllers.G12
                         }
                     }
                 }
-                strSQL.AppendLine(" and B.vcPorType in( " + flag + ")");
+                strSQL.AppendLine(" and B.vcPorType in ( " + flag + ")");
             }
             if (vcPlant != "")
             {
@@ -1191,7 +1192,7 @@ namespace SPPSApi.Controllers.G12
             strSQL.AppendLine("       group by vcpartsNo,vcCarFamlyCode,vcPartsNameCHN,vcPCB01");
             strSQL.AppendLine("       )a order by vcKBSerial");
 
-            strSQL.AppendLine("select B.vcPCB01,B.meishu AS meishu, B.minal+'-'+B.maxal AS vcKBSerial,ROW_NUMBER() over(order by  minal) as aaa  FROM ");
+            strSQL.AppendLine("select B.vcPCB01,B.meishu AS meishu, B.minal+'-'+B.maxal AS vcKBSerial,ROW_NUMBER() over(order by minal) as aaa FROM ");
             strSQL.AppendLine("       (select vcPCB01, ");
             strSQL.AppendLine("              COUNT(iQuantityPerContainer) as meishu, ");
             strSQL.AppendLine("              MAX(vcKBSerial) as maxal, ");
@@ -1205,7 +1206,7 @@ namespace SPPSApi.Controllers.G12
             strSQL.AppendLine("              COUNT(iQuantityPerContainer) as meishu, ");
             strSQL.AppendLine("              MAX(vcKBSerial) as maxal, ");
             strSQL.AppendLine("              MIN(vcKBSerial) as minal  ");
-            strSQL.AppendLine("         from [testprinterExcel]  where vcKBorderno='" + vcorderno + "' and vcPorType='" + vcPorType + "' and vcPCB02='" + vcComDate01 + "' and vcPCB03='" + vcBanZhi01 + "'");
+            strSQL.AppendLine("         from [testprinterExcel] where vcKBorderno='" + vcorderno + "' and vcPorType='" + vcPorType + "' and vcPCB02='" + vcComDate01 + "' and vcPCB03='" + vcBanZhi01 + "'");
             strSQL.AppendLine("              )B  )");
 
             return excute.ExcuteSqlWithSelectToDS(strSQL.ToString());
@@ -1236,7 +1237,7 @@ namespace SPPSApi.Controllers.G12
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("select top(1)* from testprinterCR");
+            strSQL.AppendLine("select top(1) * from testprinterCR");
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
 

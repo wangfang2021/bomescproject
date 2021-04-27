@@ -290,9 +290,9 @@ namespace Logic
         #endregion
 
         #region 发注数量计算
-        public void computer(string strFaZhuID, string strUserID, string strPackSpot)
+        public void computer(string strFaZhuID, string strUserID, string strPackSpot,string strRuHeToTime)
         {
-            fs0705_DataAccess.computer(strFaZhuID, strUserID, strPackSpot);
+            fs0705_DataAccess.computer(strFaZhuID, strUserID, strPackSpot,strRuHeToTime);
         }
         #endregion
 

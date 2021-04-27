@@ -40,39 +40,7 @@ namespace DataAccess
                 strSql.Append("     			      ,vcSupplier_id,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6    \n");
                 strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
                 strSql.Append("     				  ,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff    \n");
-                strSql.Append("     				  ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate,GUID from     \n");
-                strSql.Append("     				  (    \n");
-                strSql.Append("     						select * from TSQJD    \n");
-                strSql.Append("     						where 1=1    \n");
-                strSql.Append("     						and vcSupplier_id = '" + strUserID + "'    \n");
-                if (!string.IsNullOrEmpty(strJD))
-                {
-                    if (strJD == "4")
-                    {
-                        strSql.Append("      and vcJD in ('1','3')  ");
-                    }
-                    else
-                    {
-                        strSql.Append("      and vcJD = '" + strJD + "'  ");
-                    }
-                }
-                if (!string.IsNullOrEmpty(strInOutFlag))
-                {
-                    strSql.Append("      and vcInOutflag = '" + strInOutFlag + "'   ");
-                }
-                if (!string.IsNullOrEmpty(strSupplier_id))
-                {
-                    strSql.Append("      and vcSupplier_id like '" + strSupplier_id + "%'   ");
-                }
-                if (!string.IsNullOrEmpty(strCarType))
-                {
-                    strSql.Append("      and b6.vcName like '" + strCarType + "%'   ");
-                }
-                if (!string.IsNullOrEmpty(strPart_id))
-                {
-                    strSql.Append("      and vcPart_id like '" + strPart_id + "%'       ");
-                }
-                strSql.Append("     				  )a    \n");
+                strSql.Append("     				  ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate,GUID from TSQJD    \n");
                 strSql.Append("     		) a    \n");
                 strSql.Append("     		left join     \n");
                 strSql.Append("     		(    \n");
@@ -87,39 +55,7 @@ namespace DataAccess
                 strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
                 strSql.Append("     				  ,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff    \n");
                 strSql.Append("     				  ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate,GUID     \n");
-                strSql.Append("     			from     \n");
-                strSql.Append("     			(    \n");
-                strSql.Append("     				select * from TSQJD_Supplier    \n");
-                strSql.Append("     				where 1=1    \n");
-                strSql.Append("     				and vcSupplier_id = '" + strUserID + "'    \n");
-                if (!string.IsNullOrEmpty(strJD))
-                {
-                    if (strJD == "4")
-                    {
-                        strSql.Append("      and vcJD in ('1','3')  ");
-                    }
-                    else
-                    {
-                        strSql.Append("      and vcJD = '" + strJD + "'  ");
-                    }
-                }
-                if (!string.IsNullOrEmpty(strInOutFlag))
-                {
-                    strSql.Append("      and vcInOutflag = '" + strInOutFlag + "'   ");
-                }
-                if (!string.IsNullOrEmpty(strSupplier_id))
-                {
-                    strSql.Append("      and vcSupplier_id like '" + strSupplier_id + "%'   ");
-                }
-                if (!string.IsNullOrEmpty(strCarType))
-                {
-                    strSql.Append("      and b6.vcName like '" + strCarType + "%'   ");
-                }
-                if (!string.IsNullOrEmpty(strPart_id))
-                {
-                    strSql.Append("      and vcPart_id like '" + strPart_id + "%'       ");
-                }
-                strSql.Append("     			)a    \n");
+                strSql.Append("     			from TSQJD_Supplier    \n");
                 strSql.Append("     		)    \n");
                 strSql.Append("     )a    \n");
                 strSql.Append("     left join     \n");
@@ -163,6 +99,35 @@ namespace DataAccess
                 strSql.Append("     	select COUNT(*) as iNum,[GUID] from TSQJD_THlist    \n");
                 strSql.Append("     	group by GUID    \n");
                 strSql.Append("     )b10 on a.GUID = b10.[GUID]    \n");
+                strSql.Append("     where 1=1    \n");
+                strSql.Append("     and vcSupplier_id = '" + strUserID + "'    \n");
+                if (!string.IsNullOrEmpty(strJD))
+                {
+                    if (strJD == "4")
+                    {
+                        strSql.Append("      and vcJD in ('1','3')  ");
+                    }
+                    else
+                    {
+                        strSql.Append("      and vcJD = '" + strJD + "'  ");
+                    }
+                }
+                if (!string.IsNullOrEmpty(strInOutFlag))
+                {
+                    strSql.Append("      and vcInOutflag = '" + strInOutFlag + "'   ");
+                }
+                if (!string.IsNullOrEmpty(strSupplier_id))
+                {
+                    strSql.Append("      and vcSupplier_id like '" + strSupplier_id + "%'   ");
+                }
+                if (!string.IsNullOrEmpty(strCarType))
+                {
+                    strSql.Append("      and b6.vcName like '" + strCarType + "%'   ");
+                }
+                if (!string.IsNullOrEmpty(strPart_id))
+                {
+                    strSql.Append("      and vcPart_id like '" + strPart_id + "%'       ");
+                }
                 strSql.Append("         \n");
                 strSql.Append("     order by vcPart_id,iAutoId asc    \n");
 
@@ -401,8 +366,8 @@ namespace DataAccess
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + "         \n");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "         \n");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dNqDate"], true) + "         \n");
-                    sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcOperatorId"], false) + "         \n");
-                    sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dOperatorTime"], true) + "         \n");
+                    sqlStr.Append("        ," + strUserId + "         \n");
+                    sqlStr.Append("        ,GETDATE()         \n");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dHFDate"], true) + "         \n");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["GUID"], false) + "         \n");
                     sqlStr.Append("        )         \n");

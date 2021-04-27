@@ -165,7 +165,7 @@ namespace DataAccess
         #endregion
 
         #region 发注数量计算
-        public void computer(string strFaZhuID, string strUserID, string strPackSpot)
+        public void computer(string strFaZhuID, string strUserID, string strPackSpot,string strRuHeToTime)
         {
             StringBuilder strSql = new StringBuilder();
             string strFlag = DateTime.Now.ToString("yyyyMMddhhmmss");
@@ -196,13 +196,9 @@ namespace DataAccess
             strSql.Append("            group by  vcPackSpot,vcFaZhuID                \r\n");
             strSql.Append("            )b on   a.vcPackSpot=b.vcPackSpot and a.vcFaZhuID=b.vcFaZhuID      \r\n");
             strSql.Append("       );          \r\n");
-            strSql.Append("       set @dEnd = (select MAX(cast(convert(varchar(10),getdate(),120)+' '+convert(varchar(50),druHeToTime) as datetime)) from TPackFaZhuTime where  vcPackSpot = '" + strPackSpot + "'and vcFaZhuID = '"+strFaZhuID+"' and dFaZhuFromTime<=CONVERT(char(8),GETDATE(),108) and CONVERT(char(8),GETDATE(),108)<=dFaZhuToTime);     \r\n");
+            strSql.Append("       set @dEnd = '"+strRuHeToTime+"'     \r\n");
             strSql.Append("       set @dNaQi = (select MAX(cast(convert(varchar(10),getdate(),120)+' '+convert(varchar(50),dNaQiFromTime) as datetime)) from TPackFaZhuTime where vcPackSpot = '" + strPackSpot + "'and vcFaZhuID = '"+strFaZhuID+"' and dFaZhuFromTime<=CONVERT(char(8),GETDATE(),108) and CONVERT(char(8),GETDATE(),108)<=dFaZhuToTime)     \r\n");
             strSql.Append("       set @vcBianCi =  (select vcBianCi from TPackFaZhuTime where vcPackSpot = '" + strPackSpot + "'and vcFaZhuID = '"+strFaZhuID+"' and dFaZhuFromTime<=CONVERT(char(8),GETDATE(),108) and CONVERT(char(8),GETDATE(),108)<=dFaZhuToTime)     \r\n");
-            strSql.Append("       IF @dEnd is NULL     \r\n");
-            strSql.Append("       BEGIN     \r\n");
-            strSql.Append("       set @dEnd = (select  top 1 convert(varchar(10),getdate(),120)+' '+convert(varchar(50),druHeToTime) from TPackFaZhuTime where vcPackSpot = '"+strPackSpot+"' and vcFaZhuID = '"+strFaZhuID+"' and dFaZhuToTime < CONVERT(char(8),GETDATE(),108)   order by dFaZhuToTime DESC);     \r\n");
-            strSql.Append("       END     \r\n");
             strSql.Append("       IF @dNaQi is NULL     \r\n");
             strSql.Append("       BEGIN     \r\n");
             strSql.Append("       SET @dNaQi = (select  top 1 convert(varchar(10),getdate(),120)+' '+convert(varchar(50),dNaQiFromTime) from TPackFaZhuTime where vcPackSpot = '"+strPackSpot+"' and vcFaZhuID = '"+strFaZhuID+"' and dFaZhuToTime > CONVERT(char(8),GETDATE(),108)   order by dFaZhuToTime asc)     \r\n");
@@ -237,8 +233,8 @@ namespace DataAccess
             strSql.Append("              				    (                  \r\n");
             strSql.Append("              					    select b.vcPackNo,b.iBiYao*a.iQuantity as 'iBiYao' from                  \r\n");
             strSql.Append("              					    (                  \r\n");
-            strSql.Append("              						    select vcPart_id,SUM(iQuantity) as 'iQuantity' from TOperateSJ where vcBZPlant = '"+strPackSpot+"' and vcZYType='S0' and @dBegin<=dEnd and dEnd<=@dEnd                  \r\n");
-            strSql.Append("              						    group by vcPart_id                  \r\n");
+            strSql.Append("              						    select vcPart_id,SUM(iQuantity) as 'iQuantity',dEnd from TOperateSJ where vcBZPlant = '" + strPackSpot+"' and vcZYType='S0' and @dBegin<=dEnd and dEnd<=@dEnd                  \r\n");
+            strSql.Append("              						    group by vcPart_id,dEnd                  \r\n");
             strSql.Append("              					    ) a                  \r\n");
             strSql.Append("              					    left join                  \r\n");
             strSql.Append("              					    (                  \r\n");
@@ -251,6 +247,10 @@ namespace DataAccess
             strSql.Append("              					        select * from TPackageMaster where vcBZPlant = '"+strPackSpot+"'              \r\n");
             strSql.Append("              					        )b on a.vcPartsNo= b.vcPart_id              \r\n");
             strSql.Append("              					    ) b on a.vcPart_id = b.vcPartsNo                  \r\n");
+            strSql.Append("              					   inner join                   \r\n");
+            strSql.Append("              					   (                  \r\n");
+            strSql.Append("              					   	select vcPackNo,dPackFrom,dPackTo from TPackBase                  \r\n");
+            strSql.Append("              					   )c on b.vcPackNo =c.vcPackNo and ( c.dPackFrom<a.dEnd and a.dEnd<c.dPackTo )                  \r\n");
             strSql.Append("              				    ) a group by vcPackNo                  \r\n");
             strSql.Append("              			    ) c on a.vcPackNo = c.vcPackNo                  \r\n");
             strSql.Append("              			    left join                  \r\n");

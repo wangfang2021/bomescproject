@@ -625,7 +625,7 @@ namespace DataAccess
 
                 #region 将不可对应的/延期的数据插入履历表
                 sqlStr.Append("      insert into TSQJD_THlist([GUID],vcPart_id,vcNGText,vcYQText,dTHTime,vcOperatorID,dOperatorTime)       \n");
-                sqlStr.Append("      select [GUID],vcPart_id,vcNotDY,vcYQorNG,GETDATE(),'"+strUserId+ "',GETDATE()  from #TSQJD_Supplier_temp where vcIsDYJG = 2 or (vcYQorNG is not null or vcYQorNG <> '')       \n");
+                sqlStr.Append("      select [GUID],vcPart_id,vcNotDY,vcYQorNG,GETDATE(),'"+strUserId+ "',GETDATE()  from #TSQJD_Supplier_temp where vcIsDYJG = '2' or vcIsDYFX = '2'       \n");
                 #endregion
 
                 excute.ExcuteSqlWithStringOper(sqlStr.ToString(), "TK");

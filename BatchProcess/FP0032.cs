@@ -15,11 +15,11 @@ namespace BatchProcess
 
         public bool main(string strUserId, int flag)
         {
-            string PageId = "FP0302";
+            string PageId = "FP0032";
             try
             {
                 //批处理开始
-                ComMessage.GetInstance().ProcessMessage(PageId, "批处理开始", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI3201", null, strUserId);
                 //获取发邮件需求
                 bool isExist = false;
                 string subject = "";
@@ -34,7 +34,7 @@ namespace BatchProcess
                 }
                 if (!isExist)
                 {//没有要请求的数据
-                    ComMessage.GetInstance().ProcessMessage(PageId, "没有要发送的数据", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PI3202", null, strUserId);
                     return true;
                 }
 
@@ -42,7 +42,7 @@ namespace BatchProcess
                 if (list.Count == 0)
                 {
                     FailsendMail("buji@tftm.com.cn", "System", "邮件发送失败", "未找到邮件体，请进行邮件体常量维护");
-                    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行失败", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE3203", null, strUserId);
                     return false;
                 }
                 //发送邮件
@@ -51,13 +51,13 @@ namespace BatchProcess
 
                 if (res)
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行成功", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PI3204", null, strUserId);
                     return true;
                 }
                 else
                 {
                     FailsendMail("buji@tftm.com.cn", "System", "邮件发送失败", FailEmailBody(flag));
-                    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行失败", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE3205", null, strUserId);
                     return false;
                 }
 
@@ -65,7 +65,7 @@ namespace BatchProcess
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, ex.ToString(), null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE3206", ex, strUserId);
                 throw ex;
             }
         }

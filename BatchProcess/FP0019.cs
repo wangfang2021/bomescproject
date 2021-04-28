@@ -266,7 +266,7 @@ namespace BatchProcess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append(" select vcValue3 from TOutCode where vcCodeId = 'C016' and vcValue1 = 'FP0019'    \n");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString(),"TK");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();

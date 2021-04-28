@@ -555,8 +555,8 @@ namespace DataAccess
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + "         ");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "         ");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dNqDate"], true) + "         ");
-                    sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcOperatorId"], false) + "         ");
-                    sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dOperatorTime"], true) + "         ");
+                    sqlStr.Append("        ,'" + strUserId + "'         ");
+                    sqlStr.Append("        ,GETDATE()         ");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dHFDate"], true) + "         ");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["GUID"], false) + "         ");
                     sqlStr.Append("        )         ");
@@ -624,8 +624,8 @@ namespace DataAccess
                 #endregion
 
                 #region 将不可对应的/延期的数据插入履历表
-                sqlStr.Append("      insert into TSQJD_THlist([GUID],vcPart_id,vcNGText,vcYQText,dTHTime)       \n");
-                sqlStr.Append("      select [GUID],vcPart_id,vcNotDY,vcYQorNG,GETDATE() from #TSQJD_Supplier_temp where vcIsDYJG = 2 or (vcYQorNG is not null or vcYQorNG <> '')       \n");
+                sqlStr.Append("      insert into TSQJD_THlist([GUID],vcPart_id,vcNGText,vcYQText,dTHTime,vcOperatorID,dOperatorTime)       \n");
+                sqlStr.Append("      select [GUID],vcPart_id,vcNotDY,vcYQorNG,GETDATE(),'"+strUserId+ "',GETDATE()  from #TSQJD_Supplier_temp where vcIsDYJG = 2 or (vcYQorNG is not null or vcYQorNG <> '')       \n");
                 #endregion
 
                 excute.ExcuteSqlWithStringOper(sqlStr.ToString(), "TK");
@@ -713,8 +713,8 @@ namespace DataAccess
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + "         ");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "         ");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dNqDate"], true) + "         ");
-                    sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcOperatorId"], false) + "         ");
-                    sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dOperatorTime"], true) + "         ");
+                    sqlStr.Append("        ," + strUserId + "         ");
+                    sqlStr.Append("        ,GETDATE()         ");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dHFDate"], true) + "         ");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["GUID"], false) + "         ");
                     sqlStr.Append("        )         ");
@@ -903,7 +903,7 @@ namespace DataAccess
                     sql.Append("        ,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcTH        \n");
                     sql.Append("        ,vcSCPlace_City,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode        \n");
                     sql.Append("        ,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff        \n");
-                    sql.Append("        ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,GUID        \n");
+                    sql.Append("        ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate,GUID        \n");
                     sql.Append("        )        \n");
                     sql.Append("        values        \n");
                     sql.Append("        (        \n");
@@ -950,6 +950,7 @@ namespace DataAccess
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dNqDate"], true) + "        \n");
                     sql.Append("        ,'" + strUserId + "'        \n");
                     sql.Append("        ,GETDATE()        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dHFDate"], true) + "         ");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["GUID"], false) + "        \n");
                     sql.Append("        )        \n");
                 }

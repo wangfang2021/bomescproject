@@ -120,7 +120,7 @@ namespace Logic
                     dtPageInfo, ref strPeopleNum, ref strCycleTime, ref strWorkOverTime);
             }
             //2.查询查询实行计划
-            DataSet dsPackingPlan_summary = fs0811_DataAccess.getPackingPlan_summary(strPackPlant, strHosDate, strBanZhi, iCycleTime_mi);
+            DataSet dsPackingPlan_summary = fs0811_DataAccess.getPackingPlan_summary(strPackPlant, strHosDate, strBanZhi, string.Empty, iCycleTime_mi);
             if (dsPackingPlan_summary != null && dsPackingPlan_summary.Tables[1].Rows.Count != 0)
             {
                 return setPackingPlanInfo(strPackPlant, strHosDate, strBanZhi, dsPackingPlan_summary,
@@ -168,12 +168,19 @@ namespace Logic
                     dtPageInfo.Rows[i]["vcBanZhi"] = strBanZhi;
                     if (drBody.Length != 0)
                     {
-                        dtPageInfo.Rows[i]["decPackNum"] = Convert.ToDecimal(drBody[0]["iPackNum_summary"].ToString()) < 0 ? "0" : drBody[0]["iPackNum_summary"].ToString();
-                        dtPageInfo.Rows[i]["decPlannedTime"] = Convert.ToDecimal(drBody[0]["decPlannedTime_summary"].ToString()) < 0 ? "0" : drBody[0]["decPlannedTime_summary"].ToString();
-                        dtPageInfo.Rows[i]["decPlannedPerson"] = Convert.ToDecimal(drBody[0]["decPlannedPerson_summary"].ToString()) < 0 ? "0" : drBody[0]["decPlannedPerson_summary"].ToString();
-                        dtPageInfo.Rows[i]["decInputPerson"] = Convert.ToDecimal(drBody[0]["decInputPerson_summary"].ToString()) < 0 ? "" : drBody[0]["decInputPerson_summary"].ToString();
-                        dtPageInfo.Rows[i]["decInputTime"] = Convert.ToDecimal(drBody[0]["decInputTime"].ToString()) < 0 ? "0.00" : drBody[0]["decInputTime"].ToString();
-                        dtPageInfo.Rows[i]["decOverFlowTime"] = Convert.ToDecimal(drBody[0]["decOverFlowTime"].ToString()) < 0 ? "0.00" : drBody[0]["decOverFlowTime"].ToString();
+                        //dtPageInfo.Rows[i]["decPackNum"] = Convert.ToDecimal(drBody[0]["iPackNum_summary"].ToString()) < 0 ? "0" : drBody[0]["iPackNum_summary"].ToString();
+                        //dtPageInfo.Rows[i]["decPlannedTime"] = Convert.ToDecimal(drBody[0]["decPlannedTime_summary"].ToString()) < 0 ? "0" : drBody[0]["decPlannedTime_summary"].ToString();
+                        //dtPageInfo.Rows[i]["decPlannedPerson"] = Convert.ToDecimal(drBody[0]["decPlannedPerson_summary"].ToString()) < 0 ? "0" : drBody[0]["decPlannedPerson_summary"].ToString();
+                        //dtPageInfo.Rows[i]["decInputPerson"] = Convert.ToDecimal(drBody[0]["decInputPerson_summary"].ToString()) < 0 ? "" : drBody[0]["decInputPerson_summary"].ToString();
+                        //dtPageInfo.Rows[i]["decInputTime"] = Convert.ToDecimal(drBody[0]["decInputTime"].ToString()) < 0 ? "0.00" : drBody[0]["decInputTime"].ToString();
+                        //dtPageInfo.Rows[i]["decOverFlowTime"] = Convert.ToDecimal(drBody[0]["decOverFlowTime"].ToString()) < 0 ? "0.00" : drBody[0]["decOverFlowTime"].ToString();
+
+                        dtPageInfo.Rows[i]["decPackNum"] = drBody[0]["iPackNum_summary"].ToString();
+                        dtPageInfo.Rows[i]["decPlannedTime"] = drBody[0]["decPlannedTime_summary"].ToString();
+                        dtPageInfo.Rows[i]["decPlannedPerson"] = drBody[0]["decPlannedPerson_summary"].ToString();
+                        dtPageInfo.Rows[i]["decInputPerson"] = drBody[0]["decInputPerson_summary"].ToString();
+                        dtPageInfo.Rows[i]["decInputTime"] = drBody[0]["decInputTime"].ToString();
+                        dtPageInfo.Rows[i]["decOverFlowTime"] = drBody[0]["decOverFlowTime"].ToString();
                     }
                 }
                 //计算登录人信息
@@ -200,7 +207,7 @@ namespace Logic
                         dtPageInfo.Rows[i]["decInputTime"] = decInputTime.ToString("#0.00");
                         dtPageInfo.Rows[i]["decOverFlowTime"] = decOverFlowTime.ToString("#0.00");
                     }
-                    decimal decWorkOverTime = Convert.ToDecimal(((decPlannedPerson_sum - decInputPerson_sum) * (Convert.ToDecimal(strCycleTime) / 60)).ToString("#0.00"));
+                    strWorkOverTime = ((decPlannedPerson_sum - decInputPerson_sum) * (Convert.ToDecimal(strCycleTime) / 60)).ToString("#0.00");
                 }
                 return dtPageInfo;
             }
@@ -257,8 +264,8 @@ namespace Logic
                         foreach (DataRow dr in dtBody_clone.Rows)
                         {
                             dr["iPackNum_summary"] = iPackNum_summary;
-                            dr["decPlannedTime_summary"] = decPlannedTime_summary.ToString("#0.00");
-                            dr["decPlannedPerson_summary"] = decPlannedPerson_summary.ToString("#0.00");
+                            dr["decPlannedTime_summary"] = decPlannedTime_summary;
+                            dr["decPlannedPerson_summary"] = decPlannedPerson_summary;
                         }
                         if (dtImport != null)
                         {
@@ -275,7 +282,10 @@ namespace Logic
                     {
                         decimal decPlannedPerson_pro = Convert.ToDecimal(dtBody_clone.Rows[j]["decPlannedPerson"].ToString());
                         decimal decPlannedPerson_summary_pro = Convert.ToDecimal(dtBody_clone.Rows[j]["decPlannedPerson_summary"].ToString());
-                        decimal decPlannedPerson_ratio = Convert.ToDecimal(Convert.ToDecimal(decPlannedPerson_pro / decPlannedPerson_summary_pro).ToString("#0.0000"));
+                        decimal decPlannedPerson_ratio = Convert.ToDecimal(Convert.ToDecimal("0").ToString("#0.0000"));
+                        if (decPlannedPerson_summary_pro != 0)
+                        { decPlannedPerson_ratio = Convert.ToDecimal(Convert.ToDecimal(decPlannedPerson_pro / decPlannedPerson_summary_pro).ToString("#0.0000")); }
+
 
                         decimal decInputPerson_summary_pro = Convert.ToDecimal(dtBody_clone.Rows[j]["decInputPerson_summary"].ToString() == "" ? "0" : dtBody_clone.Rows[j]["decInputPerson_summary"].ToString());
                         decimal decInputPerson_pro = Convert.ToDecimal(dtBody_clone.Rows[j]["decInputPerson"].ToString() == "" ? "0" : dtBody_clone.Rows[j]["decInputPerson"].ToString());
@@ -311,10 +321,10 @@ namespace Logic
                             if (dtBody.Rows[jj]["vcBigPM"].ToString() == strBigPM_check && dtBody.Rows[jj]["vcSmallPM"].ToString() == strSmallPM_check)
                             {
                                 dtBody.Rows[jj]["iPackNum_summary"] = dtBody_clone.Rows[j]["iPackNum_summary"];
-                                dtBody.Rows[jj]["decPlannedTime_summary"] = dtBody_clone.Rows[j]["decPlannedTime_summary"];
-                                dtBody.Rows[jj]["decPlannedPerson_summary"] = dtBody_clone.Rows[j]["decPlannedPerson_summary"];
+                                dtBody.Rows[jj]["decPlannedTime_summary"] = Convert.ToDecimal(dtBody_clone.Rows[j]["decPlannedTime_summary"]).ToString("#0.00");
+                                dtBody.Rows[jj]["decPlannedPerson_summary"] = Convert.ToDecimal(dtBody_clone.Rows[j]["decPlannedPerson_summary"]).ToString("#0.00");
                                 dtBody.Rows[jj]["decPlannedPerson_ratio"] = dtBody_clone.Rows[j]["decPlannedPerson_ratio"];
-                                dtBody.Rows[jj]["decInputPerson_summary"] = dtBody_clone.Rows[j]["decInputPerson_summary"];
+                                dtBody.Rows[jj]["decInputPerson_summary"] = Convert.ToDecimal(dtBody_clone.Rows[j]["decInputPerson_summary"]).ToString("#0.00");
                                 dtBody.Rows[jj]["decInputPerson"] = dtBody_clone.Rows[j]["decInputPerson"];
                             }
                         }
@@ -402,7 +412,7 @@ namespace Logic
                 //读取小品目别信息并用于计算
                 int iCycleTime_mi = Convert.ToInt32(Math.Ceiling(Convert.ToDecimal(strCycleTime)).ToString());
                 DataTable dtPageInfo = fs0811_DataAccess.getPageDataInfo();
-                DataSet dsPackingPlan_summary = fs0811_DataAccess.getPackingPlan_summary(strPackPlant, strHosDate, strBanZhi, iCycleTime_mi);
+                DataSet dsPackingPlan_summary = fs0811_DataAccess.getPackingPlan_summary(strPackPlant, strHosDate, strBanZhi, strPeopleNum, iCycleTime_mi);
                 if (dsPackingPlan_summary != null && dsPackingPlan_summary.Tables[1].Rows.Count != 0)
                 {
                     //创建页面大品目别绑定datatable

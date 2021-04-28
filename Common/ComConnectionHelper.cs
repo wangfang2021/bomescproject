@@ -49,14 +49,14 @@ namespace Common
             switch (strUnitCode)
             {
                 case "TFTM":
-                    return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb; Data Source =172.23.180.116";
+                    return "Persist Security Info = False; User ID = fqm; Password = SPPS_Server2019; Initial Catalog = SPPSdb_Trail_wjw; Data Source =172.23.180.116";
                 case "SFTM":
                     return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = xxx; Data Source =xxx";
                 case "SFTMCF":
                     return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = xxx; Data Source =xxx";
                 case "TK":
                     //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TK; Data Source =172.23.140.169";
-                    return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb_TK; Data Source =172.23.180.115";
+                    return "Persist Security Info = False; User ID = fqm; Password = SPPS_Server2019; Initial Catalog = SPPSdb_TK_Trial; Data Source =172.23.180.115";
                 default:
                     return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = xxx; Data Source =xxx";
             }

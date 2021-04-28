@@ -23,7 +23,7 @@ namespace FP0302_EXE
             catch (Exception ex)
             {
                 iRet = Common.ComConstant.NG_CODE;
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PE0200", ex, "system");
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE3200", ex, "system");
             }
             finally
             {

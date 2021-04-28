@@ -65,7 +65,7 @@ namespace DataAccess
             sql.Append("  End    \n ");
             sql.Append("  select * into #tempSoqReplay from         \n ");
             sql.Append("  (        \n ");
-            sql.Append("    select * from TSoq where vcYearMonth='" + strYearMonth + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='1'  and a.vcHyState='2'   \n ");
+            sql.Append("    select * from TSoq where vcYearMonth='" + strYearMonth + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='1'  and vcHyState='2'   \n ");
             sql.Append("  ) a ;  \n ");
 
             sql.Append("    select vcPart_id, " + strhycolumn + " as iHyNum,iQuantityPercontainer,    \n");

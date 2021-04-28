@@ -98,7 +98,12 @@ namespace DataAccess
                     if (vcState=="5"|| vcState=="6")
                     {
                         strSql.AppendLine("  and  d.vcState = '" + vcState + "' ");
-                    } else
+                    }
+                    else if(vcState == "4")
+                    {
+                        strSql.AppendLine("  and  a.vcState in ('4','5') ");
+                    }
+                    else
                     {
                         strSql.AppendLine("  and  a.vcState = '" + vcState + "' ");
                     }

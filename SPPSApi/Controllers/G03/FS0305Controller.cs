@@ -294,7 +294,7 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dNqDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dHFDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dHFDate", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
 
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);

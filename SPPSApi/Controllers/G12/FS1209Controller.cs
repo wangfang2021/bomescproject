@@ -1033,18 +1033,20 @@ namespace SPPSApi.Controllers.G12
             }
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("SELECT A.vcPrintflagED as vcPartsNo,A.vcDockED as vcDock,A.vcCarType AS vcCarFamilyCode,vcPorType,A.vcEDflag,vcKBorderno,");
+            //strSQL.AppendLine("SELECT A.vcPrintflagED as vcPartsNo,A.vcDockED as vcDock,A.vcCarType AS vcCarFamilyCode,vcPorType,A.vcEDflag,vcKBorderno,");
+            strSQL.AppendLine("SELECT A.vcPartsNo,A.vcDock,A.vcCarType AS vcCarFamilyCode,vcPorType,A.vcEDflag,vcKBorderno,");
             strSQL.AppendLine("       B.vcPhotoPath as [image],A.vcKBSerial,vcTips,vcPlanMonth,A.iNo");
             strSQL.AppendLine(" FROM ( ");
             strSQL.AppendLine(" tKanbanPrintTbl A");
             strSQL.AppendLine(" left join ");
             strSQL.AppendLine(" tPartInfoMaster B");
             strSQL.AppendLine(" on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock)");
-            strSQL.AppendLine(" where A.vcPrintflag='1' and A.vcPrintflagED is not null and (a.vcPartsNo+a.vcDock+A.vcKBorderno+a.vcKBSerial) in (" + KBorderno + ")");
-            //strSQL.AppendLine(" A.vcComDate00=CONVERT(varchar(10),GETDATE(),121) and");
+            strSQL.AppendLine(" where A.vcPrintflag='1' and A.vcPrintflagED is not null and (a.vcPrintflagED+a.vcDockED+A.vcKBorderno+a.vcKBSerial) in (" + KBorderno + ")");
+            //strSQL.AppendLine(" where A.vcPrintflag='1' and A.vcPrintflagED is not null and (a.vcPartsNo+a.vcDock+A.vcKBorderno+a.vcKBSerial) in (" + KBorderno + ")");
+            ////strSQL.AppendLine(" A.vcComDate00=CONVERT(varchar(10),GETDATE(),121) and");
             if (vcPrintPartNo.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcPrintflagED='" + vcPrintPartNo.Replace("-", "") + "'");
+                strSQL.AppendLine(" and A.vcPartsNo='" + vcPrintPartNo.Replace("-", "") + "'");
             }
             if (vcKbOrderId.Length != 0)
             {
@@ -1560,7 +1562,7 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 string strplsql = "select t1.vcPart_id as PARTSNO, t1.vcSR as DOCK, t1.vcKBOrderNo as KANBANORDERNO, t1.vcKBLFNo as KANBANSERIAL from ";
-                strplsql += " (select vcPart_id,vcSR,vcKBOrderNo,vcKBLFNo from TOperateSJ where vcZYType='S0' and substring(vcPart_id,-2,2)='ED' and vcKBOrderNo is not null) t1 ";
+                strplsql += " (select vcPart_id,vcSR,vcKBOrderNo,vcKBLFNo from TOperateSJ where vcZYType='S0' and substring(vcPart_id,11,2)='ED' and vcKBOrderNo is not null) t1 ";
                 strplsql += " left join ";
                 strplsql += " (select PARTSNO,DOCK,KBORDERNO,KBSERIAL from TNZ_M_INV)t2 ";
                 strplsql += " on t1.vcPart_id=t2.PARTSNO and t1.vcSR=t2.DOCK and t1.vcKBOrderNo=t2.KBORDERNO and t1.vcKBLFNo=t2.KBSERIAL ";

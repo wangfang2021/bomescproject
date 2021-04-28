@@ -316,7 +316,7 @@ namespace SPPSApi.Controllers.G05
                     }
                 }
                 string vcImageRoutes = dataForm.vcImageRoutes;
-                if (vcImageRoutes.Length>0)
+                if (vcImageRoutes.Length > 0)
                 {
                     //Console.WriteLine("开始保存照片");
                     //Console.WriteLine(vcImageRoutes);
@@ -325,7 +325,16 @@ namespace SPPSApi.Controllers.G05
                     string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
                     //string filePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
                     //Console.WriteLine(fileSavePath);
-                    SaveFile(fileSavePath);
+                    try
+                    {
+                        //Console.WriteLine("开始拉去照片");
+                        SaveFile(fileSavePath);
+                        //Console.WriteLine("开始结束拉起照片");
+                    }
+                    catch (Exception ex)
+                    {
+                        //Console.WriteLine("结束拉起照片"+ex);
+                    }
                 }
                 if (fs0503_Logic.editOk(dataForm, loginInfo.UserId))
                 {

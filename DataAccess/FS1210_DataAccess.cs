@@ -168,10 +168,10 @@ namespace DataAccess
             StringBuilder strSQL1 = new StringBuilder();
             strSQL.AppendLine("select iNo,vcPartsNo,vcDock,vcCarType,vcKBorderno,vcKBSerial,vcTips,vcPrintflag,vcPrintTime,vcKBType,vcProject00,vcProject01,vcProject02");
             strSQL.AppendLine("      ,vcProject03,vcProject04,vcComDate00,vcComDate01,vcComDate02,vcComDate03,vcComDate04,vcBanZhi00,vcBanZhi01,vcBanZhi02,vcBanZhi03,vcBanZhi04");
-            strSQL.AppendLine("      ,dCreatTime,vcCreater,dUpdateTime,vcUpdater,vcPlanMonth,vcPrintSpec],vcPrintflagED,vcDockED,vcPrintTimeED,vcQuantityPerContainer,iBaiJianFlag");
+            strSQL.AppendLine("      ,dCreatTime,vcCreater,dUpdateTime,vcUpdater,vcPlanMonth,vcPrintSpec,vcPrintflagED,vcDockED,vcPrintTimeED,vcQuantityPerContainer,iBaiJianFlag");
             strSQL.AppendLine("      ,'' as vcPorType,vcEDflag,case when vcEDflag='S' then '通常' when vcEDflag='E' then '紧急' else vcEDflag end as vcEDflagShow");
             strSQL.AppendLine("  from tKanbanPrintTbl");
-            strSQL.AppendLine("  where ((vcPartsNo='" + vcPartsNo + "' and vcDock='" + vcDock + "') or (vcPrintflagED='" + vcPartsNo + "' and vcDockED='" + vcDock + "')) and [vcKBorderno]='" + vcKBorderno + "' and [vcKBSerial]='" + vcKBSerial + "'");
+            strSQL.AppendLine("  where ((vcPartsNo='" + vcPartsNo + "' and vcDock='" + vcDock + "') or (vcPrintflagED='" + vcPartsNo + "' and vcDockED='" + vcDock + "')) and vcKBorderno='" + vcKBorderno + "' and vcKBSerial='" + vcKBSerial + "'");
 
             dt = getDataTableBySql(strSQL.ToString());
             if (dt.Rows.Count != 0)
@@ -801,7 +801,8 @@ namespace DataAccess
         private string BreakSupplPlant(string vcPartsNo, string vcDock, string vcPlanMonth)
         {
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine(" select vcPartsNo,vcDock from tKanbanPrintTbl  where vcPrintflagED='" + vcPartsNo + "' and vcDockED='" + vcDock + "' and vcPlanMonth='" + vcPlanMonth + "'");
+            //strSQL.AppendLine(" select vcPartsNo,vcDock from tKanbanPrintTbl  where vcPrintflagED='" + vcPartsNo + "' and vcDockED='" + vcDock + "' and vcPlanMonth='" + vcPlanMonth + "'");
+            strSQL.AppendLine(" select vcPrintflagED as vcPartsNo,vcDockED as vcDock from tKanbanPrintTbl where vcPartsNo='" + vcPartsNo + "' and vcDock='" + vcDock + "' and vcPlanMonth='" + vcPlanMonth + "'");
             DataTable dt = getDataTableBySql(strSQL.ToString());
             StringBuilder strSQL1 = new StringBuilder();
             strSQL1.AppendLine("select vcSupplierPlant from tPartInfoMaster where vcPartsNo='" + dt.Rows[0]["vcPartsNo"] + "' and vcDock='" + dt.Rows[0]["vcDock"] + "' and (Convert(varchar(6),(CONVERT(datetime,dTimeFrom,101)),112)<='" + vcPlanMonth.Replace("-", "") + "' and Convert(varchar(6),(CONVERT(datetime,dTimeTo,101)),112)>='" + vcPlanMonth.Replace("-", "") + "')");

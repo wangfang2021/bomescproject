@@ -1046,7 +1046,7 @@ namespace SPPSApi.Controllers.G12
             ////strSQL.AppendLine(" A.vcComDate00=CONVERT(varchar(10),GETDATE(),121) and");
             if (vcPrintPartNo.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcPartsNo='" + vcPrintPartNo.Replace("-", "") + "'");
+                strSQL.AppendLine(" and A.vcPrintflagED='" + vcPrintPartNo.Replace("-", "") + "'");
             }
             if (vcKbOrderId.Length != 0)
             {
@@ -1145,7 +1145,7 @@ namespace SPPSApi.Controllers.G12
             }
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("select vcPartsNo,vcDock,vcKBorderno,vcKBSerial from tKanbanPrintTbl where (vcPrintflagED+vcDockED+vcKBorderno+vcKBSerial) in (" + KBorderno + ")");
+            strSQL.AppendLine("select vcPrintflagED as vcPartsNo,vcDockED as vcDock,vcKBorderno,vcKBSerial from tKanbanPrintTbl where (vcPartsNo+vcDock+vcKBorderno+vcKBSerial) in (" + KBorderno + ")");
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
 
@@ -1650,7 +1650,7 @@ namespace SPPSApi.Controllers.G12
                 {
                     string vcKBorderno = dt.Rows[i]["vcKBorderno"].ToString();
                     string vcKBSerial = dt.Rows[i]["vcKBSerial"].ToString();
-                    string vcPartsNo = dt.Rows[i]["vcPartsNo"].ToString().Substring(0, 10) + "ED"; ;
+                    string vcPartsNo = dt.Rows[i]["vcPartsNo"].ToString().Substring(0, 10) + "ED";
                     string vcDock = dt.Rows[i]["vcDock"].ToString();
                     string StrOrl = "insert into TNZ_M_INV(partsno,dock,kborderno,kbserial,printflag) values ('" + vcPartsNo + "','" + vcDock + "','" + vcKBorderno + "','" + vcKBSerial + "','1')";
                     ExecuteNonQuery(trans, CommandType.Text, StrOrl, null);
@@ -1879,32 +1879,34 @@ namespace SPPSApi.Controllers.G12
         #region 二维码数据整理
         public string reCode(string vcSupplierCode, string vcSupplierPlant, string vcDock, string vcPartsNo, string iQuantityPerContainer, string vcKBSerial, string vcEDflag, string vcKBorderno)
         {
-            StringBuilder strcode = new StringBuilder();
-            strcode.Append(" ");
-            strcode.Append(vcSupplierCode != "" ? vcSupplierCode : "    ");
-            strcode.Append(vcSupplierPlant != "" ? vcSupplierPlant : " ");
-            strcode.Append("        ");
-            strcode.Append(vcDock != "" ? vcDock : "  ");
-            strcode.Append(vcPartsNo != "" ? vcPartsNo : "            ");
-            strcode.Append(iQuantityPerContainer != "" ? iQuantityPerContainer.PadLeft(5, '0').ToString() : "     ");
-            strcode.Append("                        ");
-            strcode.Append(vcKBSerial != "" ? vcKBSerial : "    ");
-            strcode.Append("                                                           ");
-            strcode.Append("NZ");
-            strcode.Append("                                                        ");
-            strcode.Append(vcEDflag != "" ? vcEDflag : " ");
-            strcode.Append("                                        ");
+            string strcode = "";
+            strcode += " ";
+            strcode += vcSupplierCode != "" ? vcSupplierCode : "    ";
+            strcode += vcSupplierPlant != "" ? vcSupplierPlant : " ";
+            strcode += "        ";
+            strcode += vcDock != "" ? vcDock : "  ";
+            strcode += vcPartsNo != "" ? vcPartsNo : "            ";
+            strcode += iQuantityPerContainer != "" ? iQuantityPerContainer.PadLeft(5, '0').ToString() : "     ";
+            strcode += "                        ";
+            strcode += vcKBSerial != "" ? vcKBSerial : "    ";
+            strcode += "                                                           ";
+            strcode += "NZ";
+            strcode += "                                                        ";
+            strcode += vcEDflag != "" ? vcEDflag : " ";
+            strcode += "                                        ";
             if (vcKBorderno.Length < 12)
             {
                 int kblen = vcKBorderno.Length;
                 for (int i = 0; i < 12 - kblen; i++)
                 {
-                    strcode.Append(vcKBorderno);
-                    strcode.Append(" ");
+                    vcKBorderno = vcKBorderno + " ";
                 }
             }
-            strcode.Append("  ");
-            return strcode.ToString();
+            strcode += vcKBorderno;
+
+            strcode += "  ";
+            int qq = strcode.Length;
+            return strcode;
         }
         #endregion
 
@@ -2075,7 +2077,7 @@ namespace SPPSApi.Controllers.G12
                 string vcCarType = dt.Rows[i]["vcCarFamilyCode"].ToString().Trim();
                 //获取白件相应黑件在Master中的车型信息
                 //string vcCarType = BreakCarType(vcPartsNo, vcDock, vcplantMonth);
-                strSQL.AppendLine("SELECT A.vcPrintflagED AS vcPartsNo,A.vcDockED AS vcDock, ");
+                strSQL.AppendLine("SELECT A.vcPartsNo,A.vcDock, ");
                 strSQL.AppendLine("        B.vcSupplierCode,'vcSupplierPlant' as vcSupplierPlant, B.vcCpdCompany,A.vcCarType AS vcCarFamilyCode,A.vcKBorderno, ");
                 strSQL.AppendLine("        A.vcEDflag,B.vcPartsNameEN,B.vcPartsNameCHN,B.vcLogisticRoute,  ");
                 strSQL.AppendLine("        A.vcQuantityPerContainer as iQuantityPerContainer, ");
@@ -2122,7 +2124,8 @@ namespace SPPSApi.Controllers.G12
         private string BreakSupplPlant(string vcPartsNo, string vcDock, string vcPlanMonth)
         {
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine(" select vcPartsNo,vcDock from tKanbanPrintTbl  where vcPrintflagED='" + vcPartsNo + "' and vcDockED='" + vcDock + "' and vcPlanMonth='" + vcPlanMonth + "'");
+            //strSQL.AppendLine(" select vcPartsNo,vcDock from tKanbanPrintTbl where vcPrintflagED='" + vcPartsNo + "' and vcDockED='" + vcDock + "' and vcPlanMonth='" + vcPlanMonth + "'");
+            strSQL.AppendLine(" select vcPrintflagED as vcPartsNo,vcDockED as vcDock from tKanbanPrintTbl where vcPartsNo='" + vcPartsNo + "' and vcDock='" + vcDock + "' and vcPlanMonth='" + vcPlanMonth + "'");
             DataTable dt = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
             StringBuilder strSQL1 = new StringBuilder();
             strSQL1.AppendLine("select vcSupplierPlant from tPartInfoMaster where vcPartsNo='" + dt.Rows[0]["vcPartsNo"] + "' and vcDock='" + dt.Rows[0]["vcDock"] + "' and ( CONVERT(varchar(7),dTimeFrom,120)<='" + vcPlanMonth + "' and CONVERT(varchar(7),dTimeTo,120)>='" + vcPlanMonth + "')");
@@ -2617,7 +2620,7 @@ namespace SPPSApi.Controllers.G12
                             {
                                 vcKBSerial = up;
                             }
-                            strSql = "UPDATE tKanbanPrintTbl SET iBaiJianFlag='1' where vcKBorderno='" + vcKBorderno + "' and vcKBSerial='" + vcKBSerial + "' and vcPrintflagED='" + vcPartsNo + "' and vcDockED='" + vcDock + "'";
+                            strSql = "UPDATE tKanbanPrintTbl SET iBaiJianFlag='1' where vcKBorderno='" + vcKBorderno + "' and vcKBSerial='" + vcKBSerial + "' and vcPartsNo='" + vcPartsNo + "' and vcDock='" + vcDock + "'";
                         }
                         if (strSql != "")
                         {

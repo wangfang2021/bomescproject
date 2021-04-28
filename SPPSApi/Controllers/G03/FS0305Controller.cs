@@ -392,6 +392,7 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
+
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (listInfoData[i]["vcYQorNG"] != null)
@@ -512,7 +513,7 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = "未选择任何行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                
                 #region 数据校验
                 //开始数据验证
                 string[,] strField = new string[,] {{"对应可否确认结果","防锈对应可否","执行标准区分"},
@@ -577,7 +578,7 @@ namespace SPPSApi.Controllers.G03
                             }
                         }
                     }
-                    else if (listInfoData[i]["vcIsDYJG"].ToString() == "2" || listInfoData[i]["vcIsDYFX"].ToString() == "2")
+                    if (listInfoData[i]["vcIsDYJG"].ToString() == "2" || listInfoData[i]["vcIsDYFX"].ToString() == "2")
                     {
                         if (listInfoData[i]["vcNotDY"] == null || listInfoData[i]["vcNotDY"].ToString() == "")
                         {

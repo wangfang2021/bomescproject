@@ -238,7 +238,7 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id);
-                string[] fields = { "dSSDate", "vcJD_Name", "vcPart_id", "vcSPINo",
+                string[] fields = { "dSSDate","dNqDate", "vcJD_Name", "vcPart_id", "vcSPINo",
                                     "vcChange_Name", "vcCarType_Name","vcInOutflag_Name","vcPartName",
                                     "vcOE_Name","vcSupplier_id","vcFXDiff_Name","vcFXNo",
                                     "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcYQorNG",

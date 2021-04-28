@@ -136,12 +136,10 @@ namespace SPPSApi.Controllers.G07
                 }
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
-                List<string> lists = new List<string>();
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    lists.Add(listInfoData[i]["strFaZhuID"].ToString());
-                }
-                string strFaZhuID = lists.Distinct().ToList()[0];
+
+                string strRuHeToTime = listInfoData[listInfoData.Count - 1]["dRuheToDate"].ToString();
+                string strFaZhuID = listInfoData[listInfoData.Count - 1]["strFaZhuID"].ToString();
+
 
 
                 /*
@@ -182,7 +180,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 #endregion
 
-                fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace);
+                fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace,strRuHeToTime);
 
                 #region 计算完毕检索计算结果
                 DataTable computeJGDT = fs0705_Logic.searchComputeJG(loginInfo.BaoZhuangPlace);

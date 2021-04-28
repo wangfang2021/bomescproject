@@ -52,8 +52,6 @@
     <None Remove="Doc\Template\FS0302.xlsx" />
     <None Remove="Doc\Template\FS0303.xlsx" />
     <None Remove="Doc\Template\FS0303_Export.xlsx" />
-    <None Remove="Doc\Template\fs0304_Export.xlsx" />
-    <None Remove="Doc\Template\fs0305_Export.xlsx" />
     <None Remove="Doc\Template\FS0307 - 复制.xlsx" />
     <None Remove="Doc\Template\FS0307.xlsx" />
     <None Remove="Doc\Template\FS0307_template.xlsx" />
@@ -304,12 +302,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Doc\Template\FS0303_Export.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Doc\Template\FS0304_Export.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Doc\Template\FS0305_Export.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Doc\Template\FS0307.xlsx">

@@ -24,11 +24,11 @@ namespace BatchProcess
                 bool isExist = false;
                 string subject = "";
 
-                if (flag == 0)
+                if (flag == 1)
                 {
                     isExist = partNameFlag();
                 }
-                else if (flag == 1)
+                else if (flag == 0)
                 {
                     isExist = tenYearOld();
                 }

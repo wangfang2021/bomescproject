@@ -653,11 +653,11 @@ namespace PrintCR
         {
             if ((endpointConfiguration == EndpointConfiguration.PrintTableSoap))
             {
-                return new System.ServiceModel.EndpointAddress("http://localhost:8089/PrintTable.asmx");
+                return new System.ServiceModel.EndpointAddress("http://localhost:63480/PrintTable.asmx");
             }
             if ((endpointConfiguration == EndpointConfiguration.PrintTableSoap12))
             {
-                return new System.ServiceModel.EndpointAddress("http://localhost:8089/PrintTable.asmx");
+                return new System.ServiceModel.EndpointAddress("http://localhost:63480/PrintTable.asmx");
             }
             throw new System.InvalidOperationException(string.Format("找不到名称为“{0}”的终结点。", endpointConfiguration));
         }

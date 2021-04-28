@@ -624,7 +624,7 @@ namespace SPPSApi.Controllers.G12
                                                     binding.OpenTimeout = TimeSpan.MaxValue;
                                                     binding.ReceiveTimeout = TimeSpan.MaxValue;
                                                     binding.SendTimeout = TimeSpan.MaxValue;
-                                                    EndpointAddress address = new EndpointAddress("http://localhost:8089/PrintTable.asmx");
+                                                    EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
                                                     PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                                     msg = client.PrintExcel_Confirmation(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                                 }
@@ -679,7 +679,7 @@ namespace SPPSApi.Controllers.G12
                                             binding.OpenTimeout = TimeSpan.MaxValue;
                                             binding.ReceiveTimeout = TimeSpan.MaxValue;
                                             binding.SendTimeout = TimeSpan.MaxValue;
-                                            EndpointAddress address = new EndpointAddress("http://localhost:8089/PrintTable.asmx");
+                                            EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
                                             PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                             exdthj_msg = client.PrintExcel_Confirmation(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                         }
@@ -908,6 +908,10 @@ namespace SPPSApi.Controllers.G12
                 strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock and A.vcPlanMonth=B.vcMonth and A.vcCarType=B.vcCarType) ");
                 strSQL.AppendLine("where A.vcComDate00=CONVERT(varchar(10),@vcComDate,121) and A.vcPrintflag is null and A.vcPrintflagED is null ");
                 strSQL.AppendLine(" and A.vcBanZhi00=@banzhi and vcQFflag<>'1'");
+                if (vcPrintPartNo.Length != 0)
+                {
+                    strSQL.AppendLine(" and A.vcPartsNo like '%" + vcPrintPartNo.Replace("-", "") + "%'");
+                }
             }
             if (vcType == "2") //秦丰ED
             {
@@ -929,11 +933,12 @@ namespace SPPSApi.Controllers.G12
                 strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock and A.vcPlanMonth=B.vcMonth and A.vcCarType=B.vcCarType) ");
                 strSQL.AppendLine("where A.vcComDate00=CONVERT(varchar(10),@vcComDate,121) and A.vcPrintflag is null and A.vcPrintflagED is not null ");
                 strSQL.AppendLine(" and A.vcBanZhi00=@banzhi and vcQFflag='1'");
+                if (vcPrintPartNo.Length != 0)
+                {
+                    strSQL.AppendLine(" and A.vcPrintflagED like '%" + vcPrintPartNo.Replace("-", "") + "%'");
+                }
             }
-            if (vcPrintPartNo.Length != 0)
-            {
-                strSQL.AppendLine(" and A.vcPartsNo like '%" + vcPrintPartNo.Replace("-", "") + "%'");
-            }
+
             if (vcKbOrderId.Length != 0)
             {
                 strSQL.AppendLine(" and A.vcKBorderno='" + vcKbOrderId + "'");
@@ -1930,9 +1935,9 @@ namespace SPPSApi.Controllers.G12
                         binding.OpenTimeout = TimeSpan.MaxValue;
                         binding.ReceiveTimeout = TimeSpan.MaxValue;
                         binding.SendTimeout = TimeSpan.MaxValue;
-                        EndpointAddress address = new EndpointAddress("http://localhost:8089/PrintTable.asmx");
+                        EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
                         PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
-                        msg = client.PrintCR(tempTb, "vcNo1,vcNo2,vcNo3", strPrinterName, reportName, "172.23.180.116", "SPPSdb", "sa", "SPPS_Server2019");
+                        msg = client.PrintCR(tempTb, "vcNo1,vcNo2,vcNo3", strPrinterName, reportName, "172.23.238.178", "SPPSdb", "sa", "Sa123456");
                     }
                 }
                 else
@@ -2587,7 +2592,7 @@ namespace SPPSApi.Controllers.G12
                         {
                             vcPartsNo = dt.Rows[i]["vcPartsNo"].ToString();
                             vcDock = dt.Rows[i]["vcDock"].ToString();
-                            strSql = "UPDATE [tKanbanPrintTbl] SET [vcPrintflag] ='1',[vcPrintTime] = GETDATE() where [vcKBorderno]='" + vcKBorderno + "' and [vcKBSerial]='" + vcKBSerial + "' and [vcPartsNo]='" + vcPartsNo + "' and [vcDock]='" + vcDock + "'";
+                            strSql = "UPDATE tKanbanPrintTbl SET vcPrintflag='1',vcPrintTime=GETDATE() where vcKBorderno='" + vcKBorderno + "' and vcKBSerial='" + vcKBSerial + "' and [vcPartsNo]='" + vcPartsNo + "' and [vcDock]='" + vcDock + "'";
                         }
                         else if (type == "2")
                         {
@@ -2596,7 +2601,8 @@ namespace SPPSApi.Controllers.G12
                             vcDock = dt.Rows[i]["vcDock"].ToString();
                             vcPlanMonth = dt.Rows[i]["vcplanMoth"].ToString();
                             DataTable dts = serachMaster(vcPartsNo, vcDock, vcPlanMonth);
-                            strSql = "UPDATE [tKanbanPrintTbl] SET [vcPrintflag] ='1',vcKBType='1',[vcPrintTime] = GETDATE(),vcPrintflagED='" + dts.Rows[0]["vcPartsNo"].ToString() + "',vcDockED='" + dts.Rows[0]["vcDock"].ToString() + "',vcPrintTimeED=getdate() where [vcKBorderno]='" + vcKBorderno + "' and [vcKBSerial]='" + vcKBSerial + "' and [vcPartsNo]='" + vcPartsNo + "' and [vcDock]='" + vcDock + "'";
+                            //strSql = "UPDATE [tKanbanPrintTbl] SET [vcPrintflag] ='1',vcKBType='1',[vcPrintTime] = GETDATE(),vcPrintflagED='" + dts.Rows[0]["vcPartsNo"].ToString() + "',vcDockED='" + dts.Rows[0]["vcDock"].ToString() + "',vcPrintTimeED=getdate() where [vcKBorderno]='" + vcKBorderno + "' and [vcKBSerial]='" + vcKBSerial + "' and [vcPartsNo]='" + vcPartsNo + "' and [vcDock]='" + vcDock + "'";
+                            strSql = "UPDATE tKanbanPrintTbl SET vcPrintflag='1',vcKBType='1',[vcPrintTime]=GETDATE(),vcPrintTimeED=getdate() where [vcKBorderno]='" + vcKBorderno + "' and vcKBSerial='" + vcKBSerial + "' and vcPrintflagED='" + vcPartsNo + "' and vcDockED='" + vcDock + "'";
                         }
                         else if (type == "3")
                         {
@@ -2609,7 +2615,7 @@ namespace SPPSApi.Controllers.G12
                             {
                                 vcKBSerial = up;
                             }
-                            strSql = "UPDATE [tKanbanPrintTbl] SET [iBaiJianFlag] ='1' where [vcKBorderno]='" + vcKBorderno + "' and [vcKBSerial]='" + vcKBSerial + "' and [vcPrintflagED]='" + vcPartsNo + "' and [vcDockED]='" + vcDock + "'";
+                            strSql = "UPDATE tKanbanPrintTbl SET iBaiJianFlag='1' where vcKBorderno='" + vcKBorderno + "' and vcKBSerial='" + vcKBSerial + "' and vcPrintflagED='" + vcPartsNo + "' and vcDockED='" + vcDock + "'";
                         }
                         if (strSql != "")
                         {

@@ -198,6 +198,7 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("dSupplier_HK", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dTFTM_BJ", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dNqDate", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dHFDate", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 dtConverter.addField("vcZXBZNo", FS0305_Logic.ConvertFieldType.string2list, null);
 
                 List<Object> dataList = fs0305_Logic.convertAllToResultByConverter(dt, dtConverter);
@@ -293,6 +294,8 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dNqDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dHFDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 

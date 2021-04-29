@@ -20,8 +20,8 @@ namespace BatchProcess
             {
                 //批处理开始
                 ComMessage.GetInstance().ProcessMessage(PageId, "批处理开始", null, strUserId);
-                bool b1 = updatePartInfo(strUserId);
-                bool b2 = addPartInfo(strUserId, getNewData());
+                bool b1 = addPartInfo(strUserId, getNewData());
+                bool b2 = updatePartInfo(strUserId);
                 if (b1 && b2)
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行成功", null, strUserId);
@@ -67,36 +67,41 @@ namespace BatchProcess
                 strSQL.Append(" (select TSPMaster.*, TCode.vcValue  \n");
                 strSQL.Append("  from TSPMaster  \n");
                 strSQL.Append("  left join TCode on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and vcInOut='0') a  \n");
-                strSQL.Append("  left join (select * from TSPMaster_Box where vcOperatorType='1' and dToTime>=getdate()) b  \n");
-                strSQL.Append("  on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId  \n");
-                strSQL.Append("  left join (select * from TSPMaster_SufferIn where vcOperatorType='1' and dToTime>=getdate()) c  \n");
-                strSQL.Append("  on a.vcPartId=c.vcPartId and a.vcPackingPlant=c.vcPackingPlant and a.vcReceiver=c.vcReceiver and a.vcSupplierId=c.vcSupplierId  \n");
-                strSQL.Append("  left join (select * from TSPMaster_SupplierPlant where vcOperatorType='1' and dToTime>=getdate()) d \n");
-                strSQL.Append("  on a.vcPartId=d.vcPartId and a.vcPackingPlant=d.vcPackingPlant and a.vcReceiver=d.vcReceiver and a.vcSupplierId=d.vcSupplierId) t \n");
+                strSQL.Append("  left join (select * from TSPMaster_Box where vcOperatorType='1') b  \n");
+                strSQL.Append("  on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId and a.dFromTime=b.dFromTime and a.dToTime=b.dToTime  \n");
+                strSQL.Append("  left join (select * from TSPMaster_SufferIn where vcOperatorType='1') c  \n");
+                strSQL.Append("  on a.vcPartId=c.vcPartId and a.vcPackingPlant=c.vcPackingPlant and a.vcReceiver=c.vcReceiver and a.vcSupplierId=c.vcSupplierId and a.dFromTime=b.dFromTime and a.dToTime=b.dToTime  \n");
+                strSQL.Append("  left join (select * from TSPMaster_SupplierPlant where vcOperatorType='1') d \n");
+                strSQL.Append("  on a.vcPartId=d.vcPartId and a.vcPackingPlant=d.vcPackingPlant and a.vcReceiver=d.vcReceiver and a.vcSupplierId=d.vcSupplierId and a.dFromTime=b.dFromTime and a.dToTime=b.dToTime) t  \n");
                 strSQL.Append("where TPartInfoMaster.vcPartsNo=t.vcPartId  \n");
                 strSQL.Append("and TPartInfoMaster.vcCpdCompany=t.vcReceiver \n");
-                strSQL.Append("and TPartInfoMaster.vcSupplierCode=t.vcSupplierId; \n");
-
-                //strSQL.Append("update TPartInfoMaster \n");
-                //strSQL.Append("set TPartInfoMaster.vcCarFamilyCode=t.vcCarType,  \n");
-                //strSQL.Append("TPartInfoMaster.iQuantityPerContainer=t.iContainerQuantity,  \n");
-                //strSQL.Append("TPartInfoMaster.vcPartsNameEN=t.vcPartNameEn, \n");
-                //strSQL.Append("TPartInfoMaster.vcDock=t.vcSR, \n");
-                //strSQL.Append("TPartInfoMaster.vcCurrentPastCode='', \n");
-                //strSQL.Append("TPartInfoMaster.vcPhotoPath=t.vcPhotoPath,  \n");
-                //strSQL.Append("TPartInfoMaster.vcLogisticRoute='1'  \n");
-                //strSQL.Append("from ( \n");
-                //strSQL.Append("    select vcPart_id, convert(varchar,dTimeFrom,23) as dFromTime, convert(varchar,dTimeTo,23) as dToTime, vcSR, \n");
-                //strSQL.Append("    vcCarType, vcPartNameEn, iContainerQuantity, vcSHF,   \n");
-                //strSQL.Append("    vcSupplier_id, vcPhotoPath, dOperatorTime   \n");
-                //strSQL.Append("    from TEDTZPartsNoMaster) t   \n");
-                //strSQL.Append("where TPartInfoMaster.vcPartsNo=t.vcPart_id  \n");
-                //strSQL.Append("and TPartInfoMaster.vcCpdCompany=t.vcSHF  \n");
-                //strSQL.Append("and TPartInfoMaster.vcSupplierCode=t.vcSupplier_id and TPartInfoMaster.vcInOutFlag='1'; \n");
-
-                int i = excute.ExecuteSQLNoQuery(strSQL.ToString());
-                if (i > 0)
+                strSQL.Append("and TPartInfoMaster.vcSupplierCode=t.vcSupplierId \n");
+                strSQL.Append("and TPartInfoMaster.dTimeFrom=t.dFromTime \n");
+                strSQL.Append("and TPartInfoMaster.dTimeTo=t.dToTime; \n");
+                if (excute.ExecuteSQLNoQuery(strSQL.ToString()) > 0)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    DataTable dt = excute.ExcuteSqlWithSelectToDT("select substring(vcPartsNo,1,10)+'00' as vcPartsNo,dTimeFrom from TPartInfoMaster where dTimeTo>=convert(char(10),getdate(),120) and substring(vcPartsNo, 11, 2)='ED'");
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                        StringBuilder s2 = new StringBuilder();
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            s2.Append("update TPartInfoMaster set vcInOutFlag='0' where vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "' ");
+                            s2.Append("and dTimeFrom!='" + dt.Rows[i]["dTimeFrom"].ToString() + "' and dTimeTo>=convert(char(10),getdate(),120);");
+                            s2.Append("update TPartInfoMaster set vcInOutFlag='1' where vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "' ");
+                            s2.Append("and dTimeFrom='" + dt.Rows[i]["dTimeFrom"].ToString() + "' and dTimeTo>=convert(char(10),getdate(),120);");
+                        }
+                        excute.ExecuteSQLNoQuery(s2.ToString());
+                    }
+                    //else
+                    //{
+                    //    StringBuilder s2 = new StringBuilder();
+                    //    s2.Append("update TPartInfoMaster set vcInOutFlag='1' where vcInOutFlag='1' and dTimeTo<=convert(char(10),dTimeTo,120); \n");
+                    //    excute.ExecuteSQLNoQuery(s2.ToString());
+                    //}
                     return true;
+                }
                 return false;
             }
             catch (Exception ex)
@@ -115,20 +120,21 @@ namespace BatchProcess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append("select * from ( \n");
-                sql.Append(" select a.vcPartId, CONVERT(char(10),a.dFromTime,120) as dFromTime, CONVERT(char(10),a.dToTime,120) as dToTime, c.vcSufferIn as vcDock, a.vcCarFamilyCode, a.vcPartENName,  \n");
-                sql.Append(" b.iPackingQty as iQuantityPerContainer,a.vcValue as vcOrderingMethod, a.vcReceiver, a.vcSupplierId, d.vcSupplierPlant, a.vcPartImage, a.vcPassProject, a.vcHaoJiu, case SUBSTRING(a.vcPartId,11,2) when 'ED' then '1' else '0' end as vcInOutFlag, a.dOperatorTime   \n");
+                sql.Append(" select a.vcPartId, convert(char(10),a.dFromTime,120) as dFromTime,convert(char(10),a.dToTime,120) as dToTime,c.vcSufferIn as vcDock,a.vcCarFamilyCode,a.vcPartENName,  \n");
+                sql.Append(" b.iPackingQty as iQuantityPerContainer,a.vcValue as vcOrderingMethod,a.vcReceiver,a.vcSupplierId,d.vcSupplierPlant,a.vcPartImage,a.vcPassProject,a.vcHaoJiu,'0' as vcInOutFlag,a.dOperatorTime \n");
                 sql.Append(" from (  \n");
                 sql.Append("    select TSPMaster.*, TCode.vcValue from TSPMaster  \n");
                 sql.Append("    left join TCode  \n");
-                sql.Append("	on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and vcInOut='0') a   \n");
-                sql.Append("	left join (select * from TSPMaster_Box where vcOperatorType='1') b   \n");
-                sql.Append("	on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId  \n");
-                sql.Append("	left join (select * from TSPMaster_SufferIn where vcOperatorType='1') c   \n");
-                sql.Append("	on a.vcPartId=c.vcPartId and a.vcPackingPlant=c.vcPackingPlant and a.vcReceiver=c.vcReceiver and a.vcSupplierId=c.vcSupplierId  \n");
-                sql.Append("	left join (select * from TSPMaster_SupplierPlant where vcOperatorType='1') d   \n");
-                sql.Append("	on a.vcPartId=d.vcPartId and a.vcPackingPlant=d.vcPackingPlant and a.vcReceiver=d.vcReceiver and a.vcSupplierId=d.vcSupplierId) t  \n");
-                sql.Append("where not EXISTS (select vcPartId,vcReceiver,vcSupplierId  \n");
-                sql.Append("from TPartInfoMaster b where t.vcPartId=b.vcPartsNo and b.vcCpdCompany=t.vcReceiver and b.vcSupplierCode=t.vcSupplierId)  \n");
+                sql.Append("	on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and vcInOut='0') a  \n");
+                sql.Append("	left join (select * from TSPMaster_Box where vcOperatorType='1' and dToTime>=getdate()) b   \n");
+                sql.Append("	on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId and a.dFromTime=b.dFromTime and a.dToTime=b.dToTime \n");
+                sql.Append("	left join (select * from TSPMaster_SufferIn where vcOperatorType='1' and dToTime>=getdate()) c   \n");
+                sql.Append("	on a.vcPartId=c.vcPartId and a.vcPackingPlant=c.vcPackingPlant and a.vcReceiver=c.vcReceiver and a.vcSupplierId=c.vcSupplierId and a.dFromTime=b.dFromTime and a.dToTime=b.dToTime \n");
+                sql.Append("	left join (select * from TSPMaster_SupplierPlant where vcOperatorType='1' and dToTime>=getdate()) d  \n");
+                sql.Append("	on a.vcPartId=d.vcPartId and a.vcPackingPlant=d.vcPackingPlant and a.vcReceiver=d.vcReceiver and a.vcSupplierId=d.vcSupplierId and a.dFromTime=b.dFromTime and a.dToTime=b.dToTime) t  \n");
+                sql.Append(" where not exists (select vcPartId,vcReceiver,vcSupplierId,vcInOutFlag,dTimeFrom,dTimeTo  \n");
+                sql.Append(" from TPartInfoMaster b where t.vcPartId=b.vcPartsNo and b.vcCpdCompany=t.vcReceiver and b.vcSupplierCode=t.vcSupplierId  \n");
+                sql.Append(" and b.dTimeFrom=convert(char(10),t.dFromTime,120) and b.dTimeTo=convert(char(10),t.dToTime,120))  \n");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 return dt;
             }
@@ -146,6 +152,12 @@ namespace BatchProcess
                 DataTable tb = excute.ExcuteSqlWithSelectToDT("select * from TPartInfoMaster");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("update TPartInfoMaster ");
+                    sb.Append("set dTimeTo='" + Convert.ToDateTime(dt.Rows[i]["dFromTime"].ToString()).AddDays(-1).ToString("yyyy-MM-dd") + "' ");
+                    sb.Append("where iAutoId in (" + getMaxFromTime(dt.Rows[i]["vcPartId"].ToString()) + ");");
+                    excute.ExecuteSQLNoQuery(sb.ToString());
+
                     DataRow r = tb.NewRow();
                     r["vcPartsNo"] = dt.Rows[i]["vcPartId"].ToString();
                     r["dTimeFrom"] = dt.Rows[i]["dFromTime"].ToString();
@@ -160,7 +172,7 @@ namespace BatchProcess
                     r["vcSupplierPlant"] = dt.Rows[i]["vcSupplierPlant"].ToString();
                     r["vcPhotoPath"] = dt.Rows[i]["vcPartImage"].ToString();
                     r["vcLogisticRoute"] = dt.Rows[i]["vcPassProject"].ToString();
-                    r["vcCurrentPastCode"] = dt.Rows[i]["vcHaoJiu"].ToString();           
+                    r["vcCurrentPastCode"] = dt.Rows[i]["vcHaoJiu"].ToString();
                     r["vcInOutFlag"] = dt.Rows[i]["vcInOutFlag"].ToString();
                     r["dDateTime"] = dt.Rows[i]["dOperatorTime"].ToString();
                     r["dUpdataTime"] = DateTime.Now;
@@ -192,7 +204,7 @@ namespace BatchProcess
                         da.InsertCommand.Parameters.Add(new SqlParameter("@vcCpdCompany", SqlDbType.VarChar, 100, "vcCpdCompany"));
                         da.InsertCommand.Parameters.Add(new SqlParameter("@vcSupplierCode", SqlDbType.VarChar, 100, "vcSupplierCode"));
                         da.InsertCommand.Parameters.Add(new SqlParameter("@vcSupplierPlant", SqlDbType.VarChar, 20, "vcSupplierPlant"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcPhotoPath", SqlDbType.VarChar, 20, "vcPhotoPath"));                   
+                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcPhotoPath", SqlDbType.VarChar, 20, "vcPhotoPath"));
                         da.InsertCommand.Parameters.Add(new SqlParameter("@vcLogisticRoute", SqlDbType.VarChar, 20, "vcLogisticRoute"));
                         da.InsertCommand.Parameters.Add(new SqlParameter("@vcCurrentPastCode", SqlDbType.VarChar, 20, "vcCurrentPastCode"));
                         da.InsertCommand.Parameters.Add(new SqlParameter("@vcInOutFlag", SqlDbType.VarChar, 10, "vcInOutFlag"));
@@ -217,6 +229,25 @@ namespace BatchProcess
                 //ComMessage.GetInstance().ProcessMessage("FP0018", ex.ToString(), null, strUserId);
                 throw ex;
             }
+        }
+
+        public string getMaxFromTime(string vcPartsNo)
+        {
+            string sql = "select * from TPartInfoMaster where vcPartsNo='" + vcPartsNo + "' ";
+            sql += "and dTimeFrom=(select max(dTimeFrom) as dTimeFrom from TPartInfoMaster ";
+            sql += "where vcPartsNo='" + vcPartsNo + "')";
+            DataTable dt = excute.ExcuteSqlWithSelectToDT(sql);
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                string id = "";
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    id += dt.Rows[i]["iAutoId"].ToString() + ",";
+                }
+                id = id.TrimEnd(',');
+                return id;
+            }
+            return "0";
         }
         #endregion
     }

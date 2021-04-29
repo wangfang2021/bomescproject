@@ -306,8 +306,7 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataSet dsSaveInfo = fS0811_Logic.getTempData(strPackingPlant, strbz.Substring(0, 10), strbz.Substring(11, 1));
-                if (dsSaveInfo == null)
+                if (fS0811_Logic.checkTempData(strPackingPlant, strbz.Substring(0, 10), strbz.Substring(11, 1)))
                 {
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = "没有可供保存的数据，请先进行计算";

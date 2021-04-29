@@ -317,9 +317,9 @@ namespace SPPSApi.Controllers.G14
                 }
                 //处理图像
                 //1.插入并打印
-                        Console.WriteLine("sql调用开始");
+                        //Console.WriteLine("sql调用开始");
                 DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("SPIS生成", "");
-                        Console.WriteLine("sql调用结束");
+                        //Console.WriteLine("sql调用结束");
                 if (dtPrinterInfo.Rows.Count != 0)
                 {
                     for (int i = 0; i < dtPDF_temp.Rows.Count; i++)
@@ -334,7 +334,7 @@ namespace SPPSApi.Controllers.G14
                         var binding = new BasicHttpBinding();
                         //根据 WebService 的 URL 构建终端点对象
                         var endpoint = new EndpointAddress(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
-                        Console.WriteLine(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
+                        //Console.WriteLine(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
                         //创建调用接口的工厂，注意这里泛型只能传入接口
                         var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
                         //从工厂获取具体的调用实例
@@ -348,10 +348,10 @@ namespace SPPSApi.Controllers.G14
                         Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();
                         Body.sqlCatalog = dtPrinterInfo.Rows[0]["vcSqlCatalog"].ToString();
                         Body.sqlSource = dtPrinterInfo.Rows[0]["vcSqlSource"].ToString();
-                        Console.WriteLine("web参数完备");
+                        //Console.WriteLine("web参数完备");
                         //调用具体的方法，这里是 HelloWorldAsync 方法
                         Task<setCRVToIMGResponse> responseTask = callClient.setCRVToIMGAsync(new setCRVToIMGRequest(Body));
-                        Console.WriteLine("调用web");
+                        //Console.WriteLine("调用web");
                         //获取结果
                         setCRVToIMGResponse response = responseTask.Result;
                         if (response.Body.setCRVToIMGResult != "导出成功")

@@ -232,6 +232,8 @@ namespace DataAccess
                         sql.Append("  where iAutoId="+ iAutoId + "  and vcPart_id='" + strPart_id + "' ; \r\n");
                         sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcLastTimeFlag='" + strLastTimeFlag + "' and vcPriceState<>'4' \r\n");//PIC=4，PIC状态不再发生变化
                         sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where isnull(vcChange,'')<>'' and decPriceOrigin is not null and decPriceTNPWithTax is null  and vcLastTimeFlag='" + strLastTimeFlag + "'  and vcPriceState<>'4'   \r\n");
+                        //sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where isnull(vcChange,'')='' and vcLastTimeFlag='" + strLastTimeFlag + "'  and vcPriceState='0'   \r\n");//是待处理且变更事项为空的，自动变成已登录
+
                     }
                 }
  

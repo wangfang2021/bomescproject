@@ -1082,7 +1082,7 @@ namespace DataAccess
                 #endregion
                 cmd.Transaction.Commit();
                 cmd.Connection.Close();
-
+                updateEDParts();
             }
             catch (Exception ex)
             {
@@ -1699,7 +1699,6 @@ namespace DataAccess
                             drInsert["vcPrintSpec"] = DBNull.Value;
                             drInsert["vcPrintflagED"] = DBNull.Value;
                             drInsert["vcPrintTimeED"] = DBNull.Value;
-
                             drInsert["vcQuantityPerContainer"] = srs;
                             drInsert["vcPartsNo"] = dr[j]["vcPartsno"].ToString();
                             drInsert["vcDock"] = dr[j]["vcDock"].ToString();
@@ -1910,9 +1909,10 @@ namespace DataAccess
             string tmpmon = mon + "-01";
             StringBuilder sb = new StringBuilder();
             sb.Length = 0;
+            sb.AppendLine("delete from tPlanPartInfo where vcMonth='" + mon + "' and vcPartNameCN='m' ");
             sb.AppendLine(" insert into tPlanPartInfo ");
             sb.AppendFormat(" select '{0}' as vcMonth, t1.*,'S' as vcEDFlag,t2.vcPartPlant , ", mon);
-            sb.AppendLine(" t2.vcPartsNameCHN,t2.vcCurrentPastCode,t2.vcPorType , t2.vcZB,t2.iQuantityPerContainer,t2.vcQFflag from (");
+            sb.AppendLine(" 'm' as vcPartsNameCHN,t2.vcCurrentPastCode,t2.vcPorType , t2.vcZB,t2.iQuantityPerContainer,t2.vcQFflag from (");
             sb.AppendLine(" select distinct vcPartsno ,vcCarType,vcDock from MonthPackPlanTbl ");
             sb.AppendFormat(" where montouch ='{0}' or (vcMonth ='{1}' and montouch is null)", mon, mon);
             sb.AppendLine(" ) t1");
@@ -2876,5 +2876,13 @@ namespace DataAccess
         }
         #endregion
         #endregion
+
+        public void updateEDParts()
+        {
+            string sql = "update TKanbanPrintTbl set TKanbanPrintTbl.vcPrintflagED=a.vcPartsED,TKanbanPrintTbl.vcDockED=a.vcDockED ";
+            sql += "from (select substring(vcPartsNo,1,10)+'00' as vcPartsNo,vcPartsNo as vcPartsED,vcDock as vcDockED from tPartInfoMaster ";
+            sql += "where substring(vcPartsNo,11,2)='ED') a where TKanbanPrintTbl.vcPartsNo=a.vcPartsNo ";
+            excute.ExecuteSQLNoQuery(sql);
+        }
     }
 }

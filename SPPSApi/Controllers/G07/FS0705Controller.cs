@@ -139,8 +139,7 @@ namespace SPPSApi.Controllers.G07
 
                 string strRuHeToTime = listInfoData[listInfoData.Count - 1]["dRuheToDate"].ToString();
                 string strFaZhuID = listInfoData[listInfoData.Count - 1]["strFaZhuID"].ToString();
-
-
+                string strBianCi = listInfoData[listInfoData.Count - 1]["strBCName"].ToString();
 
                 /*
                  * 添加校验此次补给品番是否维护包材构成
@@ -149,7 +148,7 @@ namespace SPPSApi.Controllers.G07
                  * 包材构成表：TPackItem
                  */
                 #region 验证补给品番是否存在有效的包材构成
-                string[] strArray = fs0705_Logic.getPackCheckDT(strFaZhuID,loginInfo.BaoZhuangPlace);
+                string[] strArray = fs0705_Logic.getPackCheckDT(strFaZhuID,loginInfo.BaoZhuangPlace,strRuHeToTime);
 
                 string strErr1 = "";
                 string strErr2 = "";
@@ -180,7 +179,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 #endregion
 
-                fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace,strRuHeToTime);
+                fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace,strRuHeToTime,strBianCi);
 
                 #region 计算完毕检索计算结果
                 DataTable computeJGDT = fs0705_Logic.searchComputeJG(loginInfo.BaoZhuangPlace);

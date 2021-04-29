@@ -44,9 +44,9 @@ namespace Logic
         #endregion
 
         #region 获取所有当前时间段内所有品番的包材信息和有效信息
-        public string[] getPackCheckDT(string strFaZhuID,string strPackSpot)
+        public string[] getPackCheckDT(string strFaZhuID,string strPackSpot,string strRuHeToTime)
         {
-            DataTable packCheckDT = fs0705_DataAccess.getPackCheckDT(strFaZhuID, strPackSpot);
+            DataTable packCheckDT = fs0705_DataAccess.getPackCheckDT(strFaZhuID, strPackSpot,strRuHeToTime);
             string[] strArray = new string[2];
             //记录无包材构成的品番
             string strErr1 = "";
@@ -290,9 +290,9 @@ namespace Logic
         #endregion
 
         #region 发注数量计算
-        public void computer(string strFaZhuID, string strUserID, string strPackSpot,string strRuHeToTime)
+        public void computer(string strFaZhuID, string strUserID, string strPackSpot,string strRuHeToTime,string strBianCi)
         {
-            fs0705_DataAccess.computer(strFaZhuID, strUserID, strPackSpot,strRuHeToTime);
+            fs0705_DataAccess.computer(strFaZhuID, strUserID, strPackSpot,strRuHeToTime,strBianCi);
         }
         #endregion
 

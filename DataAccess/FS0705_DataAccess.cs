@@ -144,7 +144,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("    select a.vcPackSpot,a.vcFaZhuID,isnull(b.dEnd ,a.dFrom) as dEnd  from           \n");
                 strSql.AppendLine("    (           \n");
-                strSql.AppendLine("       select distinct vcPackSpot,vcFaZhuID,dFrom from TPackFaZhuTime  where vcPackSpot='" + strPackSpot + "'        \n");
+                strSql.AppendLine("       select distinct vcPackSpot,vcFaZhuID,dFrom from TPackFaZhuTime  where vcPackSpot='" + strPackSpot + "' and (dFrom<GETDATE() and dTo>GETDATE() )        \n");
                 strSql.AppendLine("    )a           \n");
                 strSql.AppendLine("    left join           \n");
                 strSql.AppendLine("    (           \n");
@@ -165,7 +165,7 @@ namespace DataAccess
         #endregion
 
         #region 发注数量计算
-        public void computer(string strFaZhuID, string strUserID, string strPackSpot,string strRuHeToTime)
+        public void computer(string strFaZhuID, string strUserID, string strPackSpot,string strRuHeToTime,string strBianCi)
         {
             StringBuilder strSql = new StringBuilder();
             string strFlag = DateTime.Now.ToString("yyyyMMddhhmmss");
@@ -184,7 +184,8 @@ namespace DataAccess
             strSql.Append("       set @dBegin=(     \r\n");
             strSql.Append("           select isnull(b.dEnd ,a.dFrom) as dEnd from                \r\n");
             strSql.Append("            (                \r\n");
-            strSql.Append("                select distinct vcPackSpot,vcFaZhuID,dFrom from TPackFaZhuTime  where vcFaZhuID = '"+strFaZhuID+"' and vcPackSpot='"+strPackSpot+"' and (dFrom<GETDATE() and dTo>GETDATE() )    \r\n");
+            strSql.Append("                select distinct vcPackSpot,vcFaZhuID,MIN(dFrom) as 'dFrom' from TPackFaZhuTime  where vcFaZhuID = '" + strFaZhuID+"' and vcPackSpot='"+strPackSpot+"' and (dFrom<GETDATE() and dTo>GETDATE() )    \r\n");
+            strSql.Append("                group by vcPackSpot,vcFaZhuID            \r\n");
             strSql.Append("            )a                \r\n");
             strSql.Append("            left join                \r\n");
             strSql.Append("            (                \r\n");
@@ -196,16 +197,12 @@ namespace DataAccess
             strSql.Append("            group by  vcPackSpot,vcFaZhuID                \r\n");
             strSql.Append("            )b on   a.vcPackSpot=b.vcPackSpot and a.vcFaZhuID=b.vcFaZhuID      \r\n");
             strSql.Append("       );          \r\n");
-            strSql.Append("       set @dEnd = '"+strRuHeToTime+"'     \r\n");
+            strSql.Append("       set @dEnd = '"+strRuHeToTime+"';     \r\n");
             strSql.Append("       set @dNaQi = (select MAX(cast(convert(varchar(10),getdate(),120)+' '+convert(varchar(50),dNaQiFromTime) as datetime)) from TPackFaZhuTime where vcPackSpot = '" + strPackSpot + "'and vcFaZhuID = '"+strFaZhuID+"' and dFaZhuFromTime<=CONVERT(char(8),GETDATE(),108) and CONVERT(char(8),GETDATE(),108)<=dFaZhuToTime)     \r\n");
-            strSql.Append("       set @vcBianCi =  (select vcBianCi from TPackFaZhuTime where vcPackSpot = '" + strPackSpot + "'and vcFaZhuID = '"+strFaZhuID+"' and dFaZhuFromTime<=CONVERT(char(8),GETDATE(),108) and CONVERT(char(8),GETDATE(),108)<=dFaZhuToTime)     \r\n");
+            strSql.Append("       set @vcBianCi =  '"+strBianCi+"'     \r\n");
             strSql.Append("       IF @dNaQi is NULL     \r\n");
             strSql.Append("       BEGIN     \r\n");
             strSql.Append("       SET @dNaQi = (select  top 1 convert(varchar(10),getdate(),120)+' '+convert(varchar(50),dNaQiFromTime) from TPackFaZhuTime where vcPackSpot = '"+strPackSpot+"' and vcFaZhuID = '"+strFaZhuID+"' and dFaZhuToTime > CONVERT(char(8),GETDATE(),108)   order by dFaZhuToTime asc)     \r\n");
-            strSql.Append("       END     \r\n");
-            strSql.Append("       IF @vcBianCi is NULL     \r\n");
-            strSql.Append("       BEGIN     \r\n");
-            strSql.Append("       SET @vcBianCi = (select top 1 vcBianCi from TPackFaZhuTime where dFaZhuToTime > CONVERT(char(8),GETDATE(),108) order by dFaZhuToTime )     \r\n");
             strSql.Append("       END     \r\n");
             
             strSql.Append("       insert into TPackCompute(vcFaZhuID,dTimeStr,vcPackNo,vcPackGPSNo,iA_SRS,iB_LastShengYu,iC_LiLun,iD_TiaoZheng,iE_JinJi,iF_DingGou,iG_ShengYu,vcOperatorID,dOperatorTime,vcFlag,dNaQiTime,vcBianCi,vcPackSpot)      \r\n");
@@ -281,7 +278,7 @@ namespace DataAccess
         #endregion
 
         #region 获取所有当前时间段内所有品番的包材信息和有效信息
-        public DataTable getPackCheckDT(string strFaZhuID,string strPackSpot) 
+        public DataTable getPackCheckDT(string strFaZhuID,string strPackSpot,string strRuHeToTime) 
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("       declare @dBegin datetime            \r\n");
@@ -301,11 +298,7 @@ namespace DataAccess
             strSql.Append("            group by  vcPackSpot,vcFaZhuID                \r\n");
             strSql.Append("            )b on   a.vcPackSpot=b.vcPackSpot and a.vcFaZhuID=b.vcFaZhuID      \r\n");
             strSql.Append("       );          \r\n");
-            strSql.Append("       set @dEnd = (select MAX(cast(convert(varchar(10),getdate(),120)+' '+convert(varchar(50),druHeToTime) as datetime)) from TPackFaZhuTime where  vcPackSpot = '" + strPackSpot + "'and vcFaZhuID = '" + strFaZhuID + "' and dFaZhuFromTime<=CONVERT(char(8),GETDATE(),108) and CONVERT(char(8),GETDATE(),108)<=dFaZhuToTime);            \r\n");
-            strSql.Append("       if @dEnd is NULL      \r\n");
-            strSql.Append("       BEGIN      \r\n");
-            strSql.Append("       set @dEnd = (select  top 1 convert(varchar(10),getdate(),120)+' '+convert(varchar(50),druHeToTime) from TPackFaZhuTime where vcPackSpot = '" + strPackSpot + "' and vcFaZhuID = '" + strFaZhuID + "' and dFaZhuToTime < CONVERT(char(8),GETDATE(),108)   order by dFaZhuToTime DESC);      \r\n");
-            strSql.Append("       END      \r\n");
+            strSql.Append("       set @dEnd = '"+ strRuHeToTime + "';            \r\n");
 
             strSql.Append("       --获取所有当前时间段内所有品番的包材信息和有效信息      \r\n");
             strSql.Append("       select a.vcPart_id,b.vcPartsNo,b.vcPackNo,b.dUsedFrom,dUsedTo,b.vcBZPlant from       \r\n");
@@ -650,7 +643,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                // strSql.AppendLine("  select * from TPackFaZhuTime where vcFaZhuID='" + strFaZhuID + "' and vcPackSpot='" + strPackSpot + "' order by charindex(vcBianCi,'白'),vcBianCi   \n");
-                strSql.AppendLine("  select * from TPackFaZhuTime where vcFaZhuID='" + strFaZhuID + "' and vcPackSpot='" + strPackSpot + "' order by dFaZhuFromTime   \n");
+                strSql.AppendLine("  select * from TPackFaZhuTime where vcFaZhuID='" + strFaZhuID + "' and vcPackSpot='" + strPackSpot + "' and (dFrom<GETDATE() and dTo>GETDATE() ) order by dFaZhuFromTime   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

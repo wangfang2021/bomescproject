@@ -2740,7 +2740,8 @@ namespace DataAccess
         public DataTable searchOperHistory(string strFromTime, string strToFrom, string strOperId)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendLine(" select * from TSPMaster_OperHistory where Convert(varchar(10),dOperatorTime,111)>='" + strFromTime + "' and Convert(varchar(10),dOperatorTime,111)<='" + strToFrom + "' and vcOperatorID='" + strOperId + "' order by dOperatorTime");
+            strSql.AppendLine(" select * from TSPMaster_OperHistory where Convert(varchar(10),dOperatorTime,111)>='" + strFromTime + "' and Convert(varchar(10),dOperatorTime,111)<='" + strToFrom + "' order by dOperatorTime");
+            //strSql.AppendLine(" select * from TSPMaster_OperHistory where Convert(varchar(10),dOperatorTime,111)>='" + strFromTime + "' and Convert(varchar(10),dOperatorTime,111)<='" + strToFrom + "' and vcOperatorID='" + strOperId + "' order by dOperatorTime");
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
         public DataTable getEditLoadInfo(string strEditType, string strPackingPlant, string strPartId, string strReceiver, string strSupplierId, string strSupplierPlant)

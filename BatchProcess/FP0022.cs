@@ -89,7 +89,7 @@ namespace BatchProcess
                         {
                             s2.Append("update TPartInfoMaster set vcInOutFlag='0' where vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "' ");
                             s2.Append("and dTimeFrom!='" + dt.Rows[i]["dTimeFrom"].ToString() + "' and dTimeTo>=convert(char(10),getdate(),120);");
-                            s2.Append("update TPartInfoMaster set vcInOutFlag='1' where vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "' ");
+                            s2.Append("update TPartInfoMaster set vcInOutFlag='1',vcSupplierPlant='' where vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "' ");
                             s2.Append("and dTimeFrom='" + dt.Rows[i]["dTimeFrom"].ToString() + "' and dTimeTo>=convert(char(10),getdate(),120);");
                         }
                         excute.ExecuteSQLNoQuery(s2.ToString());

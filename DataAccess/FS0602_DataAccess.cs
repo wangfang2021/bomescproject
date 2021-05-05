@@ -1381,5 +1381,110 @@ namespace DataAccess
             }
 
         }
+
+        public DataTable checkDBInfo(string strYearMonth, string strPackingPlant, string strReceiver)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select vcYM,vcPart_id,vcSupplier_id,'工区' as vcItem,COUNT(*) AS iNum from     ");
+                strSql.AppendLine("(select vcYearMonth AS vcYM,cast(REPLACE(vcYearMonth,'-','') as int) as iMy,vcPart_id,vcSupplier_id ");
+                strSql.AppendLine("from TSoq ");
+                strSql.AppendLine("where vcYearMonth='" + strYearMonth + "')t1    ");
+                strSql.AppendLine("left join    ");
+                strSql.AppendLine("(select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId");
+                strSql.AppendLine(",cast(convert(varchar(6),dFromTime,112) as int) as iFYm");
+                strSql.AppendLine(",cast(convert(varchar(6),dToTime,112) as int) as iTYm");
+                strSql.AppendLine("from TSPMaster ");
+                strSql.AppendLine("where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime      ");
+                strSql.AppendLine(")t2 ");
+                strSql.AppendLine("on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.iMy>= t2.iFYm and t1.iMy<= t2.iTYm  ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant");
+                strSql.AppendLine(",cast(convert(varchar(6),dFromTime,112) as int) as iFYm");
+                strSql.AppendLine(",cast(convert(varchar(6),dToTime,112) as int) as iTYm");
+                strSql.AppendLine("from TSPMaster_SupplierPlant         ");
+                strSql.AppendLine("where vcOperatorType='1'         ");
+                strSql.AppendLine(")t3 ");
+                strSql.AppendLine("on t2.vcPartId=t3.vcPartId and t2.vcPackingPlant=t3.vcPackingPlant and t2.vcReceiver=t3.vcReceiver and t2.vcSupplierId=t3.vcSupplierId  and t1.iMy>= t3.iFYm and t1.iMy<= t3.iTYm  ");
+                strSql.AppendLine("group by t1.vcYM,t1.vcPart_id,t1.vcSupplier_id");
+                strSql.AppendLine("having COUNT(*)>1");
+                strSql.AppendLine("union ");
+                strSql.AppendLine("select vcYM,vcPart_id,vcSupplier_id,'荷姿' as vcItem,COUNT(*) AS iNum from     ");
+                strSql.AppendLine("(select vcYearMonth AS vcYM,cast(REPLACE(vcYearMonth,'-','') as int) as iMy,vcPart_id,vcSupplier_id ");
+                strSql.AppendLine("from TSoq ");
+                strSql.AppendLine("where vcYearMonth='" + strYearMonth + "')t1    ");
+                strSql.AppendLine("left join    ");
+                strSql.AppendLine("(select vcPartId,vcCarfamilyCode,vcReceiver,vcPackingPlant,vcSupplierId");
+                strSql.AppendLine(",cast(convert(varchar(6),dFromTime,112) as int) as iFYm");
+                strSql.AppendLine(",cast(convert(varchar(6),dToTime,112) as int) as iTYm");
+                strSql.AppendLine("from TSPMaster ");
+                strSql.AppendLine("where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime      ");
+                strSql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.iMy>= t2.iFYm and t1.iMy<= t2.iTYm    ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty,dFromTime,dToTime");
+                strSql.AppendLine(",cast(convert(varchar(6),dFromTime,112) as int) as iFYm");
+                strSql.AppendLine(",cast(convert(varchar(6),dToTime,112) as int) as iTYm");
+                strSql.AppendLine("from TSPMaster_Box         ");
+                strSql.AppendLine("where vcOperatorType='1'");
+                strSql.AppendLine(")t3 on t2.vcPartId=t3.vcPartId and t2.vcPackingPlant=t3.vcPackingPlant and t2.vcReceiver=t3.vcReceiver and t2.vcSupplierId=t3.vcSupplierId  and t1.iMy>= t3.iFYm and t1.iMy<= t3.iTYm  ");
+                strSql.AppendLine("group by t1.vcYM,t1.vcPart_id,t1.vcSupplier_id");
+                strSql.AppendLine("having COUNT(*)>1");
+                strSql.AppendLine("union ");
+                strSql.AppendLine("select vcYM,vcPart_id,vcSupplier_id,'受入' as vcItem,COUNT(*) AS iNum from     ");
+                strSql.AppendLine("(select vcYearMonth AS vcYM,cast(REPLACE(vcYearMonth,'-','') as int) as iMy,vcPart_id,vcSupplier_id ");
+                strSql.AppendLine("from TSoq ");
+                strSql.AppendLine("where vcYearMonth='" + strYearMonth + "')t1    ");
+                strSql.AppendLine("left join    ");
+                strSql.AppendLine("(select vcPartId,vcCarfamilyCode,vcReceiver,vcPackingPlant,vcSupplierId");
+                strSql.AppendLine(",cast(convert(varchar(6),dFromTime,112) as int) as iFYm");
+                strSql.AppendLine(",cast(convert(varchar(6),dToTime,112) as int) as iTYm");
+                strSql.AppendLine("from TSPMaster ");
+                strSql.AppendLine("where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime      ");
+                strSql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.iMy>= t2.iFYm and t1.iMy<= t2.iTYm ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn,dFromTime,dToTime  ");
+                strSql.AppendLine(",cast(convert(varchar(6),dFromTime,112) as int) as iFYm");
+                strSql.AppendLine(",cast(convert(varchar(6),dToTime,112) as int) as iTYm");
+                strSql.AppendLine("from TSPMaster_SufferIn        ");
+                strSql.AppendLine("where vcOperatorType='1'     ");
+                strSql.AppendLine(")t3 on t2.vcPartId=t3.vcPartId and t2.vcPackingPlant=t3.vcPackingPlant and t2.vcReceiver=t3.vcReceiver and t2.vcSupplierId=t3.vcSupplierId and t1.iMy>= t3.iFYm and t1.iMy<= t3.iTYm  ");
+                strSql.AppendLine("group by t1.vcYM,t1.vcPart_id,t1.vcSupplier_id");
+                strSql.AppendLine("having COUNT(*)>1");
+                strSql.AppendLine("union ");
+                strSql.AppendLine("select vcYM,vcPart_id,vcSupplier_id,'发注工厂' as vcItem,COUNT(*) AS iNum from     ");
+                strSql.AppendLine("(select vcYearMonth AS vcYM,cast(REPLACE(vcYearMonth,'-','') as int) as iMy,vcPart_id,vcSupplier_id ");
+                strSql.AppendLine("from TSoq ");
+                strSql.AppendLine("where vcYearMonth='" + strYearMonth + "')t1    ");
+                strSql.AppendLine("left join    ");
+                strSql.AppendLine("(select vcPartId,vcCarfamilyCode,vcReceiver,vcPackingPlant,vcSupplierId");
+                strSql.AppendLine(",cast(convert(varchar(6),dFromTime,112) as int) as iFYm");
+                strSql.AppendLine(",cast(convert(varchar(6),dToTime,112) as int) as iTYm");
+                strSql.AppendLine("from TSPMaster ");
+                strSql.AppendLine("where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime      ");
+                strSql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.iMy>= t2.iFYm and t1.iMy<= t2.iTYm ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant");
+                strSql.AppendLine(",cast(convert(varchar(6),dFromTime,112) as int) as iFYm");
+                strSql.AppendLine(",cast(convert(varchar(6),dToTime,112) as int) as iTYm");
+                strSql.AppendLine("from TSPMaster_SupplierPlant         ");
+                strSql.AppendLine("where vcOperatorType='1'    ");
+                strSql.AppendLine(")t3 on t2.vcPartId=t3.vcPartId and t2.vcPackingPlant=t3.vcPackingPlant and t2.vcReceiver=t3.vcReceiver and t2.vcSupplierId=t3.vcSupplierId and t1.iMy>= t3.iFYm and t1.iMy<= t3.iTYm  ");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue5 as [发注工厂]");
+                strSql.AppendLine(",cast(convert(varchar(6),cast(vcValue3 as datetime),112) as int) as iFYm");
+                strSql.AppendLine(",cast(convert(varchar(6),cast(vcValue4 as datetime),112) as int) as iTYm");
+                strSql.AppendLine("from TOutCode         ");
+                strSql.AppendLine("where vcCodeId='C010' and vcIsColum='0' )t4");
+                strSql.AppendLine("on t2.vcSupplierId=t4.供应商编号 and t3.vcSupplierPlant=t4.工区 and t1.iMy>= t4.iFYm and t1.iMy<= t4.iTYm");
+                strSql.AppendLine("group by t1.vcYM,t1.vcPart_id,t1.vcSupplier_id");
+                strSql.AppendLine("having COUNT(*)>1");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

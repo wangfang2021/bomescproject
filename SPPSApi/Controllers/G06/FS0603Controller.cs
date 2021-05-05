@@ -1203,7 +1203,7 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string[] fields = { "vcPackingPlant", "vcPartId", "vcReceiver", "vcSupplierId", "vcChangeItem", "vcAction", "vcActionTime", "dOperatorTime" };
+                string[] fields = { "vcPackingPlant", "vcPartId", "vcReceiver", "vcSupplierId", "vcChangeItem", "vcAction", "vcActionTime", "vcOperatorID", "dOperatorTime" };
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0603_OperHistory.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {

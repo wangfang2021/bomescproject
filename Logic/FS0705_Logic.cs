@@ -297,9 +297,9 @@ namespace Logic
         #endregion
 
         #region 检索计算结果
-        public DataTable searchComputeJG(string strPackSpot)
+        public DataTable searchComputeJG(string strPackSpot,string strBianCi)
         {
-            DataTable dt = fs0705_DataAccess.searchComputeJG(strPackSpot);
+            DataTable dt = fs0705_DataAccess.searchComputeJG(strPackSpot,strBianCi);
             DataTable returnDT = dt.Clone();
             DataRow[] drs = dt.Select("iF_DingGou > 0");
             for (int i = 0; i < drs.Length; i++)
@@ -310,31 +310,17 @@ namespace Logic
         }
         #endregion
 
-        #region 导出用检索计算结果
-        public DataTable exportSearchJG() 
+        #region 导出最后一次计算且有需要订购的计算数据
+        public DataTable exportSearchJG(string strPackSpot)
         {
-            return fs0705_DataAccess.searchComputeJGAll();
+            return fs0705_DataAccess.exportSearchJG(strPackSpot);
         }
         #endregion
 
         #region 生成发注数据的检索计算结果（舍弃订购数量为NULL或者为0的数据）
         public DataTable SCFZDataSearchComputeJG(string strPackSpot)
         {
-            DataTable dt = fs0705_DataAccess.searchComputeJG(strPackSpot);
-            DataTable returnDT = dt.Clone();
-            DataRow[] drs = dt.Select("iF_DingGou > 0");
-            for (int i = 0; i < drs.Length; i++)
-            {
-                returnDT.ImportRow(drs[i]);
-            }
-            return returnDT;
-        }
-        #endregion
-
-        #region 检索计算结果
-        public DataTable searchComputeJGAll()
-        {
-            return fs0705_DataAccess.searchComputeJGAll();
+            return fs0705_DataAccess.SCFZDataSearchComputeJG(strPackSpot);
         }
         #endregion
 

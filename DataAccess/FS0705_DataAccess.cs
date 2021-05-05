@@ -170,11 +170,24 @@ namespace DataAccess
             StringBuilder strSql = new StringBuilder();
             string strFlag = DateTime.Now.ToString("yyyyMMddhhmmss");
 
-            #region 删除未生成发注订单的数据
+            /*
+             * 修改时间：2021-5-5
+             * 修改人：董镇
+             * 修改描述：
+             * 如果上次计算结果中没有订购数量大于0的包材品番，则将上次计算结果的所有数据删除
+             * 例子1：本次计算结果中，有两个包材品番订购数量大于0，并且生成了发注数据，此时，这两个包材品番被赋值发注订单号，其余订购数量等于0的包材品番没有被赋值订单号
+             *        下次计算时，由于上次计算存在包材品番生成订单号的数据，所以不删除上次计算结果
+             * 例子2：本次计算结果中，没有包材品番订购数量大于0，生成发注数据时，没有包材品番被赋值订单号
+             *        下次计算时，由于上次计算结果中，没有生成订单号的数据，所以删除上次计算结果的所有数据
+             */
+            #region 清理上次计算结果
             strSql.AppendLine("        delete TPackCompute from TPackCompute a         ");
-            strSql.AppendLine("        left join TPackCompute_Time b on a.vcFlag = b.vcFlag         ");
+            strSql.AppendLine("        left join         ");
+            strSql.AppendLine("        (         ");
+            strSql.AppendLine("        	select distinct vcFlag from TPackCompute where vcOrderNo is not null         ");
+            strSql.AppendLine("        )b on a.vcFlag=b.vcFlag         ");
             strSql.AppendLine("        where a.vcOrderNo is null         ");
-            strSql.AppendLine("        delete TPackCompute where vcOrderNo is null         ");
+            strSql.AppendLine("        and b.vcFlag is null         ");
             #endregion
 
             strSql.Append("       declare @dBegin datetime            \r\n");
@@ -206,7 +219,7 @@ namespace DataAccess
             strSql.Append("       END     \r\n");
             
             strSql.Append("       insert into TPackCompute(vcFaZhuID,dTimeStr,vcPackNo,vcPackGPSNo,iA_SRS,iB_LastShengYu,iC_LiLun,iD_TiaoZheng,iE_JinJi,iF_DingGou,iG_ShengYu,vcOperatorID,dOperatorTime,vcFlag,dNaQiTime,vcBianCi,vcPackSpot)      \r\n");
-            strSql.Append("       select vcFaZhuID,vcTimeStr,vcPackNo,vcPackGPSNo,A,B,SUM(C),SUM(D),SUM(E),F,G,'000000',GETDATE(),'20210410034126',@dNaQi,@vcBianCi,'"+strPackSpot+"' from       \r\n");
+            strSql.Append("       select vcFaZhuID,vcTimeStr,vcPackNo,vcPackGPSNo,A,B,SUM(C),SUM(D),SUM(E),F,G,'000000',GETDATE(),'"+strFlag+"',@dNaQi,@vcBianCi,'"+strPackSpot+"' from       \r\n");
             strSql.Append("           (      \r\n");
             strSql.Append("               select a.*,(B+E+F-C-D) as 'G' from             \r\n");
             strSql.Append("               (            \r\n");
@@ -330,12 +343,12 @@ namespace DataAccess
 
 
         #region 检索计算结果
-        public DataTable searchComputeJG(string strPackSpot)
+        public DataTable searchComputeJG(string strPackSpot,string strBianCi)
         {
             StringBuilder strSql = new StringBuilder();
             try
             {
-                strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcOrderNo is null         ");
+                strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcBianCi = '"+strBianCi+"'         ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -345,19 +358,25 @@ namespace DataAccess
         }
         #endregion
 
-        #region 检索计算结果
-        public DataTable searchComputeJGAll()
+        #region 生成发注数据的检索,订购数量大于0
+        public DataTable SCFZDataSearchComputeJG(string strPackSpot)
         {
             StringBuilder strSql = new StringBuilder();
-            try
-            {
-                strSql.AppendLine("        select * from TPackCompute         ");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            strSql.AppendLine("            declare @vcBianCi varchar(100)          ");
+            strSql.AppendLine("            set @vcBianCi = (select top 1 vcBianCi from TPackCompute where vcPackSpot = '"+strPackSpot+"' group by vcBianCi order by vcBianCi desc )          ");
+            strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcBianCi = @vcBianCi and iF_DingGou >0         ");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+        }
+        #endregion
+
+        #region 检索计算结果
+        public DataTable exportSearchJG(string strPackSpot)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendLine("            declare @vcBianCi varchar(100)          ");
+            strSql.AppendLine("            set @vcBianCi = (select top 1 vcBianCi from TPackCompute where vcPackSpot = '" + strPackSpot + "' group by vcBianCi order by vcBianCi desc )          ");
+            strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcBianCi = @vcBianCi and iF_DingGou >0         ");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
         #endregion
 
@@ -1062,7 +1081,7 @@ namespace DataAccess
                 {
                     strSql.AppendLine("        and dTimeStr<='" + strTo + "'         ");
                 }
-                strSql.AppendLine("       order by vcPackNo      ");
+                strSql.AppendLine("       order by iAutoId      ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

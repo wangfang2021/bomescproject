@@ -381,20 +381,23 @@ namespace Logic
                     string strSupplierPlant = dtToList.Rows[i]["vcSupplierPlant"].ToString();
                     DataTable dtToInfo = fs0603_Logic.createTable("mailaddress");
                     DataRow[] drEmail = dtEmail.Select("vcSupplier_id = '" + strSupplierId + "' and vcSupplierPlant = '" + strSupplierPlant + "'");
-                    for (int j = 0; j < drEmail.Length; j++)
+                    if (drEmail.Length != 0)
                     {
-                        DataRow drToInfo = dtToInfo.NewRow();
-                        drToInfo["address"] = drEmail[j]["vcEmail1"].ToString();
-                        drToInfo["displayName"] = drEmail[j]["vcLXR1"].ToString();
-                        dtToInfo.Rows.Add(drToInfo);
-                    }
-                    DataTable dtCcInfo = null;
-                    string result = ComFunction.SendEmailInfo(strFRAddress, strFRName, strEmailBody, dtToInfo, dtCcInfo, strTheme, "", false);
-                    if (result != "Success")
-                    {
-                        DataRow dataRow = dtMessage.NewRow();
-                        dataRow["vcMessage"] = "供应商代码：" + strSupplierId + "工区：" + strSupplierPlant + "邮件发送失败，请采取其他形式联络。";
-                        dtMessage.Rows.Add(dataRow);
+                        for (int j = 0; j < drEmail.Length; j++)
+                        {
+                            DataRow drToInfo = dtToInfo.NewRow();
+                            drToInfo["address"] = drEmail[j]["vcEmail1"].ToString();
+                            drToInfo["displayName"] = drEmail[j]["vcLXR1"].ToString();
+                            dtToInfo.Rows.Add(drToInfo);
+                        }
+                        DataTable dtCcInfo = null;
+                        string result = ComFunction.SendEmailInfo(strFRAddress, strFRName, strEmailBody, dtToInfo, dtCcInfo, strTheme, "", false);
+                        if (result != "Success")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "供应商代码：" + strSupplierId + "工区：" + strSupplierPlant + "邮件发送失败，请采取其他形式联络。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
                     }
                 }
             }

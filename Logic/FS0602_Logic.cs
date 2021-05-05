@@ -280,7 +280,7 @@ namespace Logic
                         string strInputType = "company";
                         if ((strDyState == "0" || strDyState == "2" || strDyState == "3") &&
                             (strHyState == "0"))//0：未发送；2：有调整；3：无调整//0：待回复(TFTM)；3：退回
-                            //(strHyState == "0" || strHyState == "3"))//0：未发送；2：有调整；3：无调整//0：待回复(TFTM)；3：退回
+                                                //(strHyState == "0" || strHyState == "3"))//0：未发送；2：有调整；3：无调整//0：待回复(TFTM)；3：退回
                         {
                             DataRow drImport = dtImport.NewRow();
                             drImport["vcYearMonth"] = strYearMonth;
@@ -310,7 +310,7 @@ namespace Logic
                         string strDyState = dtImport.Rows[i]["vcDyState"].ToString();
                         string strHyState = dtImport.Rows[i]["vcHyState"].ToString();
                         if (!((strDyState == "0" || strDyState == "2" || strDyState == "3")
-                            && (strHyState == "0" )))
+                            && (strHyState == "0")))
                             //&& (strHyState == "0" || strHyState == "3")))
                             dtImport.Rows.RemoveAt(i);
                     }
@@ -802,5 +802,18 @@ namespace Logic
             }
         }
 
+        public void checkDBInfo(string strYearMonth, string strPackingPlant, string strReceiver, ref DataTable dtMessage)
+        {
+            DataTable dtCheckInfo = fs0602_DataAccess.checkDBInfo(strYearMonth, strPackingPlant, strReceiver);
+            if (dtCheckInfo.Rows.Count != 0)
+            {
+                for (int i = 0; i < dtCheckInfo.Rows.Count; i++)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "品番：" + dtCheckInfo.Rows[i]["vcPart_id"].ToString() + "，供应商：" + dtCheckInfo.Rows[i]["vcSupplier_id"].ToString() + "在对象月：" + dtCheckInfo.Rows[i]["vcYM"].ToString() + "存在多条有效的" + dtCheckInfo.Rows[i]["vcItem"].ToString() + "。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+            }
+        }
     }
 }

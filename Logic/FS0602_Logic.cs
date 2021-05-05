@@ -383,7 +383,7 @@ namespace Logic
                     DataRow[] drEmail = dtEmail.Select("vcSupplier_id = '" + strSupplierId + "' and vcSupplierPlant = '" + strSupplierPlant + "'");
                     if (drEmail.Length != 0)
                     {
-                        for (int j = 0; j < drEmail.Length; j++)
+                        for (int j = 0; j < drEmail.Length; j++) 
                         {
                             DataRow drToInfo = dtToInfo.NewRow();
                             drToInfo["address"] = drEmail[j]["vcEmail1"].ToString();

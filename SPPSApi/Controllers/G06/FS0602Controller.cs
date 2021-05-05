@@ -467,7 +467,7 @@ namespace SPPSApi.Controllers.G06
                 }
                 string strTheme = "月度内示展开确认";
                 DataTable dtToList = fs0602_Logic.getToList(dtImport, ref dtMessage);
-                fs0602_Logic.sendEmailInfo(loginInfo.UserId, loginInfo.UserName, loginInfo.Email, strTheme, strEmailBody, dtToList, ref dtMessage);
+                //fs0602_Logic.sendEmailInfo(loginInfo.UserId, loginInfo.UserName, loginInfo.Email, strTheme, strEmailBody, dtToList, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
                 {
                     DataRow dataRow = dtMessage.NewRow();

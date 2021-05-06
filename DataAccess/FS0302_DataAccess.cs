@@ -20,10 +20,39 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
+                //sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,a.vcOriginCompany AS vcUnit,a.vcCarType,ISNULL(f.num,'0') AS vcNum, \r\n");
+                //sbr.Append(" d.vcName AS THChange,c.vcName AS vcDD,a.vcRemark,a.vcChange,a.vcBJDiff, \r\n");
+                //sbr.Append(" CASE WHEN (ISNULL(a.vcDTDiff,'') = '' and ISNULL(a.vcPart_id_DT,'')= '') THEN ''  \r\n");
+                //sbr.Append(" WHEN (ISNULL(a.vcDTDiff,'') <> '' AND  ISNULL(a.vcPart_id_DT,'') <> '') THEN a.vcDTDiff+'/'+a.vcPart_id_DT  \r\n");
+                //sbr.Append(" WHEN ISNULL(a.vcDTDiff,'') <> '' THEN a.vcDTDiff WHEN ISNULL(a.vcPart_id_DT,'') <> '' THEN a.vcPart_id_DT END AS vcDT, \r\n");
+                //sbr.Append(" a.vcPartName,a.vcStartYearMonth,a.vcFXDiff,a.vcFXNo,a.vcOldProj,a.dOldProjTime,Convert(varchar(10),a.dOldProjTime,111) as dOldProjTime1,a.vcNewProj, \r\n");
+                //sbr.Append(" a.dNewProjTime,Convert(varchar(10),a.dNewProjTime,111) as dNewProjTime1,a.vcCZYD,a.dHandleTime,Convert(varchar(10),a.dHandleTime,111) as dHandleTime1,a.vcSheetName,a.vcFileName,'0' as vcModFlag,'0' as vcAddFlag,a.vcType,a.vcFileNameTJ  \r\n");
+                //sbr.Append(" FROM \r\n");
+                //sbr.Append(" ( \r\n");
+                //sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcOriginCompany,vcDiff,vcCarType,vcTHChange, \r\n");
+                //sbr.Append(" vcRemark,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff, \r\n");
+                //sbr.Append(" vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcType,vcFileNameTJ \r\n");
+                //sbr.Append(" FROM TSBManager WHERE vcFileNameTJ = '" + fileNameTJ + "' \r\n");
+                //sbr.Append(" ) a \r\n");
+                //sbr.Append(" LEFT JOIN  \r\n");
+                //sbr.Append(" ( \r\n");
+                //sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C014' \r\n");
+                //sbr.Append(" ) b ON a.vcFinishState = b.vcValue \r\n");
+                //sbr.Append(" LEFT JOIN  \r\n");
+                //sbr.Append(" ( \r\n");
+                //sbr.Append("   SELECT vcValue1 as vcValue,vcValue2 as vcName FROM SPPSdb_TFTM.SPPSdb.dbo.TOutCode WHERE vcCodeId = 'C009' AND vcIsColum = '0' \r\n");
+                //sbr.Append(" ) c ON a.vcCarType = c.vcValue \r\n");
+                //sbr.Append(" LEFT JOIN  \r\n");
+                //sbr.Append(" ( \r\n");
+                //sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C002' \r\n");
+                //sbr.Append(" ) d ON a.vcTHChange = d.vcValue \r\n");
+                //sbr.Append(" LEFT JOIN  \r\n");
+                //sbr.Append(" ( \r\n");
+                //sbr.Append(" SELECT vcPart_id,CAST(COUNT(*) AS VARCHAR(20)) AS num FROM TUnit WHERE ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
+
+                //sbr.Append(" ) f ON a.vcPart_Id_old = f.vcPart_id OR a.vcPart_Id_new = f.vcPart_id \r\n");
                 sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,a.vcOriginCompany AS vcUnit,a.vcCarType,ISNULL(f.num,'0') AS vcNum, \r\n");
-                //sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,a.vcCarType,ISNULL(f.num,'0') AS vcNum, \r\n");
-                //sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,f.vcDiff,a.vcCarType, \r\n");
-                sbr.Append(" d.vcName AS THChange,c.vcName AS vcDD,a.vcRemark,a.vcChange,a.vcBJDiff, \r\n");
+                sbr.Append(" d.vcName AS THChange,a.vcRemark,a.vcChange,a.vcBJDiff, \r\n");
                 sbr.Append(" CASE WHEN (ISNULL(a.vcDTDiff,'') = '' and ISNULL(a.vcPart_id_DT,'')= '') THEN ''  \r\n");
                 sbr.Append(" WHEN (ISNULL(a.vcDTDiff,'') <> '' AND  ISNULL(a.vcPart_id_DT,'') <> '') THEN a.vcDTDiff+'/'+a.vcPart_id_DT  \r\n");
                 sbr.Append(" WHEN ISNULL(a.vcDTDiff,'') <> '' THEN a.vcDTDiff WHEN ISNULL(a.vcPart_id_DT,'') <> '' THEN a.vcPart_id_DT END AS vcDT, \r\n");
@@ -42,71 +71,25 @@ namespace DataAccess
                 sbr.Append(" ) b ON a.vcFinishState = b.vcValue \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
-                //sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C009' \r\n");
-                //sbr.Append("   SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C009' AND vcIsColum = '0' \r\n");
-                sbr.Append("   SELECT vcValue1 as vcValue,vcValue2 as vcName FROM SPPSdb_TFTM.SPPSdb.dbo.TOutCode WHERE vcCodeId = 'C009' AND vcIsColum = '0' \r\n");
-                sbr.Append(" ) c ON a.vcCarType = c.vcValue \r\n");
-                sbr.Append(" LEFT JOIN  \r\n");
-                sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C002' \r\n");
                 sbr.Append(" ) d ON a.vcTHChange = d.vcValue \r\n");
-                //sbr.Append(" LEFT JOIN  \r\n");
-                //sbr.Append(" ( \r\n");
-                //sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006' \r\n");
-                //sbr.Append(" ) e ON a.vcOriginCompany = e.vcValue \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
-                //sbr.Append(" SELECT vcPart_id,COUNT(*) AS num FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE() AND ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
                 sbr.Append(" SELECT vcPart_id,CAST(COUNT(*) AS VARCHAR(20)) AS num FROM TUnit WHERE ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
-
                 sbr.Append(" ) f ON a.vcPart_Id_old = f.vcPart_id OR a.vcPart_Id_new = f.vcPart_id \r\n");
-                //sbr.Append(" LEFT JOIN  \r\n");
-                //sbr.Append(" (SELECT vcPart_id,MAX(vcDiff) AS vcDiff FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE() GROUP BY vcPart_id) f \r\n");
-                //sbr.Append(" ON (a.vcPart_Id_old = f.vcPart_id AND ISNULL(a.vcPart_Id_old,'')<> '') OR (a.vcPart_Id_new = f.vcPart_id AND ISNULL(a.vcPart_Id_new,'')<> '' ) \r\n");
+
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
 
+                dt.Columns.Add("vcDD");
                 dt.Columns.Add("vcDiff");
                 DataTable Diff = getDiff();
-                //DataTable origin = getOriginCompany();
-
-                //for (int i = 0; i < dt.Rows.Count; i++)
-                //{
-                //    string vcPart_Id_old = ObjToString(dt.Rows[i]["vcPart_Id_old"]);
-                //    string vcPart_Id_new = ObjToString(dt.Rows[i]["vcPart_Id_new"]);
-                //    if (!string.IsNullOrWhiteSpace(vcPart_Id_old))
-                //    {
-                //        DataRow[] tmp = dt.Select("vcPart_Id_old = '" + vcPart_Id_old + "'");
-                //        if (tmp.Length > 0)
-                //        {
-                //            dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
-                //        }
-                //        else
-                //        {
-                //            dt.Rows[i]["vcDiff"] = "";
-                //        }
-                //    }
-                //    else if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
-                //    {
-                //        DataRow[] tmp = dt.Select("vcPart_Id_new = '" + vcPart_Id_new + "'");
-                //        if (tmp.Length > 0)
-                //        {
-                //            dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
-                //        }
-                //        else
-                //        {
-                //            dt.Rows[i]["vcDiff"] = "";
-                //        }
-                //    }
-                //    else
-                //    {
-                //        dt.Rows[i]["vcDiff"] = "";
-                //    }
-                //}
+                DataTable DD = getDD();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     string vcPart_Id_old = ObjToString(dt.Rows[i]["vcPart_Id_old"]);
                     string vcPart_Id_new = ObjToString(dt.Rows[i]["vcPart_Id_new"]);
                     string vcUnit = ObjToString(dt.Rows[i]["vcUnit"]);
+                    string vcCarType = ObjToString(dt.Rows[i]["vcCarType"]);
                     if (!string.IsNullOrWhiteSpace(vcPart_Id_old))
                     {
                         if (!string.IsNullOrWhiteSpace(vcUnit))
@@ -167,7 +150,19 @@ namespace DataAccess
                     {
                         dt.Rows[i]["vcDiff"] = "";
                     }
+
+                    DataRow[] rows = DD.Select("vcValue = '" + vcCarType + "'");
+                    if (rows.Length > 0)
+                    {
+                        dt.Rows[i]["vcDD"] = rows[0]["vcName"];
+                    }
+                    else
+                    {
+                        dt.Rows[i]["vcDD"] = "";
+                    }
                 }
+
+
                 return dt;
             }
             catch (Exception ex)
@@ -1400,6 +1395,24 @@ namespace DataAccess
                 }
 
                 return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region 获取车型担当
+
+        public DataTable getDD()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT distinct vcValue1 as vcValue,vcValue2 as vcName FROM dbo.TOutCode WHERE vcCodeId = 'C009' AND vcIsColum = '0' ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
             {

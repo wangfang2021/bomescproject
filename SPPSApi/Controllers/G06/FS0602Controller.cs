@@ -146,6 +146,16 @@ namespace SPPSApi.Controllers.G06
                 res.Add("taskng", dtTask.Select("vcHyState='3'").Length);
                 res.Add("tempList", dataList);
                 res.Add("hejiList", dtHJ);
+                res.Add("message", "not");
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                string strReceiver = "APC06";
+                fs0602_Logic.checkDBInfo(strYearMonth, loginInfo.UnitCode, strReceiver, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    res.Remove("message");
+                    res.Add("message", "yes");
+                    res.Add("messagelist", ComFunction.convertAllToResult(dtMessage));
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

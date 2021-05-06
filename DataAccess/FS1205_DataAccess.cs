@@ -409,6 +409,8 @@ namespace DataAccess
                 {
                     cmd.ExecuteNonQuery();
                     trans.Commit();
+                    string sql2 = "update TOrderUploadManage set vcOrderState='1' where vcOrderNo='" + dt.Rows[0]["vcOrderNo"].ToString() + "' ";
+                    excute.ExecuteSQLNoQuery(sql2);
                     return "";
                 }
                 catch (Exception ex)

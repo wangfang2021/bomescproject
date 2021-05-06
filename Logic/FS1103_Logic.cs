@@ -133,7 +133,7 @@ namespace Logic
                                         if (drTagList.Length == 0)
                                         {
                                             DataRow dataRow = dtMessage.NewRow();
-                                            dataRow["vcMessage"] = "所选择的入库指令书" + strInPutOrderNo + "标签不属于该入库指令书已发行标签，不可打印";
+                                            dataRow["vcMessage"] = "所选标签ID"+ strTagNo+"超出入库指令书"+ strInPutOrderNo+"发行范围";
                                             dtMessage.Rows.Add(dataRow);
                                         }
                                         else

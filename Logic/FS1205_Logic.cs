@@ -2996,7 +2996,7 @@ namespace Logic
                 sb.Length = 0;
                 sb.AppendLine(" insert into tPlanPartInfo ");
                 sb.AppendFormat(" select '{0}' as vcMonth,t1.*,'S' as vcEDFlag,t2.vcPartPlant, ", mon);
-                sb.AppendLine(" t2.vcPartsNameCHN,t2.vcCurrentPastCode,t2.vcPorType,t2.vcZB,t2.iQuantityPerContainer,t2.vcQFflag from (");
+                sb.AppendLine(" 'w' as vcPartsNameCHN,t2.vcCurrentPastCode,t2.vcPorType,t2.vcZB,t2.iQuantityPerContainer,t2.vcQFflag from (");
                 sb.AppendLine(" select distinct vcPartsno,vcCarType,vcDock from WeekPackPlanTbl ");//周度包装计划
                 sb.AppendFormat(" where montouch='{0}' or (vcMonth='{1}' and montouch is null)", mon, mon);
                 sb.AppendLine(" ) t1");

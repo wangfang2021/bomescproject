@@ -64,14 +64,14 @@ namespace BatchProcess
                 strSQL.Append("b.iPackingQty as iQuantityPerContainer, \n");
                 strSQL.Append("a.vcValue as vcOrderingMethod, a.vcReceiver, a.vcSupplierId, d.vcSupplierPlant, a.vcHaoJiu, a.vcPartImage, a.vcPassProject  \n");
                 strSQL.Append("from  \n");
-                strSQL.Append(" (select TSPMaster.*, TCode.vcValue  \n");
-                strSQL.Append("  from TSPMaster  \n");
-                strSQL.Append("  left join TCode on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and vcInOut='0') a  \n");
-                strSQL.Append("  left join (select * from TSPMaster_Box where vcOperatorType='1') b  \n");
+                strSQL.Append(" (select TSPMaster.*, TCode.vcValue from TSPMaster \n");
+                strSQL.Append("  left join TCode \n");
+                strSQL.Append("  on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and TSPMaster.vcInOut='0') a  \n");
+                strSQL.Append("  left join (select * from TSPMaster_Box where vcOperatorType='1' and dToTime>=getdate()) b  \n");
                 strSQL.Append("  on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId and a.dFromTime=b.dFromTime and a.dToTime=b.dToTime  \n");
-                strSQL.Append("  left join (select * from TSPMaster_SufferIn where vcOperatorType='1') c  \n");
+                strSQL.Append("  left join (select * from TSPMaster_SufferIn where vcOperatorType='1' and dToTime>=getdate()) c  \n");
                 strSQL.Append("  on a.vcPartId=c.vcPartId and a.vcPackingPlant=c.vcPackingPlant and a.vcReceiver=c.vcReceiver and a.vcSupplierId=c.vcSupplierId and a.dFromTime=b.dFromTime and a.dToTime=b.dToTime  \n");
-                strSQL.Append("  left join (select * from TSPMaster_SupplierPlant where vcOperatorType='1') d \n");
+                strSQL.Append("  left join (select * from TSPMaster_SupplierPlant where vcOperatorType='1' and dToTime>=getdate()) d \n");
                 strSQL.Append("  on a.vcPartId=d.vcPartId and a.vcPackingPlant=d.vcPackingPlant and a.vcReceiver=d.vcReceiver and a.vcSupplierId=d.vcSupplierId and a.dFromTime=b.dFromTime and a.dToTime=b.dToTime) t  \n");
                 strSQL.Append("where TPartInfoMaster.vcPartsNo=t.vcPartId  \n");
                 strSQL.Append("and TPartInfoMaster.vcCpdCompany=t.vcReceiver \n");
@@ -81,25 +81,25 @@ namespace BatchProcess
                 if (excute.ExecuteSQLNoQuery(strSQL.ToString()) > 0)
                 {
                     StringBuilder sb = new StringBuilder();
-                    DataTable dt = excute.ExcuteSqlWithSelectToDT("select substring(vcPartsNo,1,10)+'00' as vcPartsNo,dTimeFrom from TPartInfoMaster where dTimeTo>=convert(char(10),getdate(),120) and substring(vcPartsNo, 11, 2)='ED'");
+                    DataTable dt = excute.ExcuteSqlWithSelectToDT("select vcPartsNo as vcPartsNoED, substring(vcPartsNo,1,10)+'00' as vcPartsNo00, dTimeFrom, dTimeTo from TPartInfoMaster where dTimeTo>=convert(char(10),getdate(),120) and substring(vcPartsNo,11,2)='ED'");
                     if (dt != null && dt.Rows.Count > 0)
                     {
-                        StringBuilder s2 = new StringBuilder();
                         for (int i = 0; i < dt.Rows.Count; i++)
                         {
-                            s2.Append("update TPartInfoMaster set vcInOutFlag='0' where vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "' ");
-                            s2.Append("and dTimeFrom!='" + dt.Rows[i]["dTimeFrom"].ToString() + "' and dTimeTo>=convert(char(10),getdate(),120);");
-                            s2.Append("update TPartInfoMaster set vcInOutFlag='1' where vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "' ");
-                            s2.Append("and dTimeFrom='" + dt.Rows[i]["dTimeFrom"].ToString() + "' and dTimeTo>=convert(char(10),getdate(),120);");
+                            //s2.Append("update TPartInfoMaster set vcInOutFlag='0' where vcPartsNo='" + dt.Rows[i]["vcPartsNo00"].ToString() + "' ");
+                            //s2.Append("and dTimeFrom!='" + dt.Rows[i]["dTimeFrom"].ToString() + "' and dTimeTo>=convert(char(10),getdate(),120);");
+                            //s2.Append("update TPartInfoMaster set vcInOutFlag='1',vcSupplierPlant='' where vcPartsNo='" + dt.Rows[i]["vcPartsNo00"].ToString() + "' ");
+                            //s2.Append("and dTimeFrom='" + dt.Rows[i]["dTimeFrom"].ToString() + "' and dTimeTo>=convert(char(10),getdate(),120);");
+                            sb.Append("update TPartInfoMaster set vcInOutFlag='1' ");
+                            sb.Append("where vcPartsNo='" + dt.Rows[i]["vcPartsNo00"].ToString() + "' and dTimeTo>=convert(char(10),getdate(),120);");
                         }
-                        excute.ExecuteSQLNoQuery(s2.ToString());
+                        excute.ExecuteSQLNoQuery(sb.ToString());
                     }
-                    //else
-                    //{
-                    //    StringBuilder s2 = new StringBuilder();
-                    //    s2.Append("update TPartInfoMaster set vcInOutFlag='1' where vcInOutFlag='1' and dTimeTo<=convert(char(10),dTimeTo,120); \n");
-                    //    excute.ExecuteSQLNoQuery(s2.ToString());
-                    //}
+                    else
+                    {
+                        sb.Append("update TPartInfoMaster set vcInOutFlag='0' where vcInOutFlag='1' and dTimeTo<=convert(char(10),dTimeTo,120); \n");
+                        excute.ExecuteSQLNoQuery(sb.ToString());
+                    }
                     return true;
                 }
                 return false;
@@ -125,7 +125,7 @@ namespace BatchProcess
                 sql.Append(" from (  \n");
                 sql.Append("    select TSPMaster.*, TCode.vcValue from TSPMaster  \n");
                 sql.Append("    left join TCode  \n");
-                sql.Append("	on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and vcInOut='0') a  \n");
+                sql.Append("	on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and TSPMaster.vcInOut='0') a  \n");
                 sql.Append("	left join (select * from TSPMaster_Box where vcOperatorType='1' and dToTime>=getdate()) b   \n");
                 sql.Append("	on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId and a.dFromTime=b.dFromTime and a.dToTime=b.dToTime \n");
                 sql.Append("	left join (select * from TSPMaster_SufferIn where vcOperatorType='1' and dToTime>=getdate()) c   \n");
@@ -152,11 +152,29 @@ namespace BatchProcess
                 DataTable tb = excute.ExcuteSqlWithSelectToDT("select * from TPartInfoMaster");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
+                    if (dt.Rows[i]["vcPartId"].ToString().Substring(10, 2) == "00")
+                    {
+                        StringBuilder s2 = new StringBuilder();
+                        s2.Append("substring(vcPartId,1,10)='" + dt.Rows[i]["vcPartId"].ToString().Substring(0, 10) + "' and substring(vcPartId,11,2)='ED' ");
+                        s2.Append("and dFromTime='" + dt.Rows[i]["dFromTime"].ToString() + "' and dToTime='" + dt.Rows[i]["dToTime"].ToString() + "' ");
+                        DataRow[] rs = dt.Select(s2.ToString());
+                        if (rs.Length <= 0)
+                        {
+                            StringBuilder s3 = new StringBuilder();
+                            s3.Append("update TPartInfoMaster ");
+                            s3.Append("set dTimeTo='" + Convert.ToDateTime(dt.Rows[i]["dFromTime"].ToString()).AddDays(-1).ToString("yyyy-MM-dd") + "' ");
+                            s3.Append("where iAutoId in (" + getMaxFromTime(dt.Rows[i]["vcPartId"].ToString().Substring(0, 10) + "ED") + ");");
+                            excute.ExecuteSQLNoQuery(s3.ToString());
+                        }
+                    }
+
+
                     StringBuilder sb = new StringBuilder();
                     sb.Append("update TPartInfoMaster ");
                     sb.Append("set dTimeTo='" + Convert.ToDateTime(dt.Rows[i]["dFromTime"].ToString()).AddDays(-1).ToString("yyyy-MM-dd") + "' ");
                     sb.Append("where iAutoId in (" + getMaxFromTime(dt.Rows[i]["vcPartId"].ToString()) + ");");
                     excute.ExecuteSQLNoQuery(sb.ToString());
+
 
                     DataRow r = tb.NewRow();
                     r["vcPartsNo"] = dt.Rows[i]["vcPartId"].ToString();
@@ -179,49 +197,53 @@ namespace BatchProcess
                     r["vcUpdataUser"] = strUserId;
                     tb.Rows.Add(r);
                 }
-                using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
+                if (dt != null && dt.Rows.Count > 0)
                 {
-                    if (conn.State != ConnectionState.Open)
-                        conn.Open();
-                    SqlTransaction trans = conn.BeginTransaction();
-                    try
+                    using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
                     {
-                        SqlDataAdapter da = new SqlDataAdapter();
-                        da.InsertCommand = new SqlCommand();
-                        da.InsertCommand.Connection = conn;
-                        da.InsertCommand.CommandText = "insert into TPartInfoMaster (vcPartsNo,dTimeFrom,dTimeTo,vcDock,vcCarFamilyCode,";
-                        da.InsertCommand.CommandText += "vcPartsNameEN,iQuantityPerContainer,vcPartFrequence,vcCpdCompany,vcSupplierCode,vcSupplierPlant,vcPhotoPath,vcLogisticRoute,vcCurrentPastCode,vcInOutFlag,dDateTime,vcUpdataUser,dUpdataTime) ";
-                        da.InsertCommand.CommandText += "values (@vcPartsNo,@dTimeFrom,@dTimeTo,@vcDock,@vcCarFamilyCode, ";
-                        da.InsertCommand.CommandText += "@vcPartsNameEN,@iQuantityPerContainer,@vcPartFrequence,@vcCpdCompany,@vcSupplierCode,@vcSupplierPlant,@vcPhotoPath,@vcLogisticRoute,@vcCurrentPastCode,@vcInOutFlag,@dDateTime,@vcUpdataUser,@dUpdataTime) ";
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcPartsNo", SqlDbType.VarChar, 20, "vcPartsNo"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@dTimeFrom", SqlDbType.VarChar, 20, "dTimeFrom"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@dTimeTo", SqlDbType.VarChar, 20, "dTimeTo"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcDock", SqlDbType.VarChar, 20, "vcDock"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcCarFamilyCode", SqlDbType.VarChar, 100, "vcCarFamilyCode"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcPartsNameEN", SqlDbType.VarChar, 100, "vcPartsNameEN"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@iQuantityPerContainer", SqlDbType.VarChar, 20, "iQuantityPerContainer"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcPartFrequence", SqlDbType.VarChar, 20, "vcPartFrequence"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcCpdCompany", SqlDbType.VarChar, 100, "vcCpdCompany"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcSupplierCode", SqlDbType.VarChar, 100, "vcSupplierCode"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcSupplierPlant", SqlDbType.VarChar, 20, "vcSupplierPlant"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcPhotoPath", SqlDbType.VarChar, 20, "vcPhotoPath"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcLogisticRoute", SqlDbType.VarChar, 20, "vcLogisticRoute"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcCurrentPastCode", SqlDbType.VarChar, 20, "vcCurrentPastCode"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcInOutFlag", SqlDbType.VarChar, 10, "vcInOutFlag"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@dDateTime", SqlDbType.DateTime, 20, "dDateTime"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@vcUpdataUser", SqlDbType.VarChar, 10, "vcUpdataUser"));
-                        da.InsertCommand.Parameters.Add(new SqlParameter("@dUpdataTime", SqlDbType.DateTime, 20, "dUpdataTime"));
-                        da.InsertCommand.Transaction = trans;
-                        da.Update(tb);
-                        trans.Commit();
-                        return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        trans.Rollback();
-                        throw ex;
+                        if (conn.State != ConnectionState.Open)
+                            conn.Open();
+                        SqlTransaction trans = conn.BeginTransaction();
+                        try
+                        {
+                            SqlDataAdapter da = new SqlDataAdapter();
+                            da.InsertCommand = new SqlCommand();
+                            da.InsertCommand.Connection = conn;
+                            da.InsertCommand.CommandText = "insert into TPartInfoMaster (vcPartsNo,dTimeFrom,dTimeTo,vcDock,vcCarFamilyCode,";
+                            da.InsertCommand.CommandText += "vcPartsNameEN,iQuantityPerContainer,vcPartFrequence,vcCpdCompany,vcSupplierCode,vcSupplierPlant,vcPhotoPath,vcLogisticRoute,vcCurrentPastCode,vcInOutFlag,dDateTime,vcUpdataUser,dUpdataTime) ";
+                            da.InsertCommand.CommandText += "values (@vcPartsNo,@dTimeFrom,@dTimeTo,@vcDock,@vcCarFamilyCode, ";
+                            da.InsertCommand.CommandText += "@vcPartsNameEN,@iQuantityPerContainer,@vcPartFrequence,@vcCpdCompany,@vcSupplierCode,@vcSupplierPlant,@vcPhotoPath,@vcLogisticRoute,@vcCurrentPastCode,@vcInOutFlag,@dDateTime,@vcUpdataUser,@dUpdataTime) ";
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcPartsNo", SqlDbType.VarChar, 20, "vcPartsNo"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@dTimeFrom", SqlDbType.VarChar, 20, "dTimeFrom"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@dTimeTo", SqlDbType.VarChar, 20, "dTimeTo"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcDock", SqlDbType.VarChar, 20, "vcDock"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcCarFamilyCode", SqlDbType.VarChar, 100, "vcCarFamilyCode"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcPartsNameEN", SqlDbType.VarChar, 100, "vcPartsNameEN"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@iQuantityPerContainer", SqlDbType.VarChar, 20, "iQuantityPerContainer"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcPartFrequence", SqlDbType.VarChar, 20, "vcPartFrequence"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcCpdCompany", SqlDbType.VarChar, 100, "vcCpdCompany"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcSupplierCode", SqlDbType.VarChar, 100, "vcSupplierCode"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcSupplierPlant", SqlDbType.VarChar, 20, "vcSupplierPlant"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcPhotoPath", SqlDbType.VarChar, 20, "vcPhotoPath"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcLogisticRoute", SqlDbType.VarChar, 20, "vcLogisticRoute"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcCurrentPastCode", SqlDbType.VarChar, 20, "vcCurrentPastCode"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcInOutFlag", SqlDbType.VarChar, 10, "vcInOutFlag"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@dDateTime", SqlDbType.DateTime, 20, "dDateTime"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@vcUpdataUser", SqlDbType.VarChar, 10, "vcUpdataUser"));
+                            da.InsertCommand.Parameters.Add(new SqlParameter("@dUpdataTime", SqlDbType.DateTime, 20, "dUpdataTime"));
+                            da.InsertCommand.Transaction = trans;
+                            da.Update(tb);
+                            trans.Commit();
+                            return true;
+                        }
+                        catch (Exception ex)
+                        {
+                            trans.Rollback();
+                            throw ex;
+                        }
                     }
                 }
+                return true;
             }
             catch (Exception ex)
             {

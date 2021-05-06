@@ -13,7 +13,7 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        public DataTable getBanZhiTime(string strPackPlant,string strFlag)
+        public DataTable getBanZhiTime(string strPackPlant, string strFlag)
         {
             try
             {
@@ -97,8 +97,8 @@ namespace DataAccess
                 strSql.AppendLine("		,iPackNum_summary");
                 strSql.AppendLine("		,decPlannedTime");
                 strSql.AppendLine("		,decPlannedTime_summary");
-                strSql.AppendLine("		,decInputPerson");
-                strSql.AppendLine("		,decInputPerson_summary");
+                strSql.AppendLine("		,decPlannedPerson");
+                strSql.AppendLine("		,decPlannedPerson_summary");
                 strSql.AppendLine("		,decPlannedPerson_ratio");
                 strSql.AppendLine("		,decInputPerson");
                 strSql.AppendLine("		,decInputPerson_summary");
@@ -140,8 +140,8 @@ namespace DataAccess
                 strSql.AppendLine("		,iPackNum_summary");
                 strSql.AppendLine("		,decPlannedTime");
                 strSql.AppendLine("		,decPlannedTime_summary");
-                strSql.AppendLine("		,decInputPerson");
-                strSql.AppendLine("		,decInputPerson_summary");
+                strSql.AppendLine("		,decPlannedPerson");
+                strSql.AppendLine("		,decPlannedPerson_summary");
                 strSql.AppendLine("		,decPlannedPerson_ratio");
                 strSql.AppendLine("		,decInputPerson");
                 strSql.AppendLine("		,decInputPerson_summary");
@@ -149,25 +149,26 @@ namespace DataAccess
                 strSql.AppendLine("		,decOverFlowTime");
                 strSql.AppendLine("from TInPutIntoOver_small_temp");
                 strSql.AppendLine("where vcPackPlant='" + strPackPlant + "' and Convert(varchar(10),dHosDate,23)='" + strHosDate + "' and vcBanZhi='" + strBanZhi + "'");
-                return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
+                DataSet dataSet = excute.ExcuteSqlWithSelectToDS(strSql.ToString());
+                return dataSet;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        public DataSet getPackingPlan_summary(string strPackPlant, string strHosDate, string strBanZhi,int iCycleTime_mi)
+        public DataSet getPackingPlan_summary(string strPackPlant, string strHosDate, string strBanZhi, string strPeopleNum, int iCycleTime_mi)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("declare @iCycleTime_mi int");
-                strSql.AppendLine("set @iCycleTime_mi="+ iCycleTime_mi + "");
+                strSql.AppendLine("set @iCycleTime_mi=" + iCycleTime_mi + "");
                 strSql.AppendLine("--头部信息");
                 strSql.AppendLine("SELECT '" + strPackPlant + "' AS vcPackPlant");
                 strSql.AppendLine("		,Convert(varchar(10),'" + strHosDate + "',111) AS dHosDate");
                 strSql.AppendLine("		,'" + strBanZhi + "' AS vcBanZhi");
-                strSql.AppendLine("		,'' AS decPeopleNum");
+                strSql.AppendLine("		,'" + strPeopleNum + "' AS decPeopleNum");
                 strSql.AppendLine("		,CAST(@iCycleTime_mi as decimal(16,2)) AS decCycleTime_mi");
                 strSql.AppendLine("		,cast(CAST(@iCycleTime_mi as decimal(16,2))/60.00 as decimal(16,2)) AS decCycleTime_hr");
                 strSql.AppendLine("		,'' AS decWorkOverTime");
@@ -180,22 +181,22 @@ namespace DataAccess
                 strSql.AppendLine("		,vcStandard");
                 strSql.AppendLine("		,iSSPlan");
                 strSql.AppendLine("		,CAST(iSSPlan as int) as iPackNum");
-                strSql.AppendLine("		,-1 as [iPackNum_summary]");
+                strSql.AppendLine("		,0 as [iPackNum_summary]");
                 strSql.AppendLine("		,CAST(((CAST(vcStandard as int)*CAST(iSSPlan as int))/3600.0000) as decimal(16,4)) as decPlannedTime");
-                strSql.AppendLine("		,-1.00 as [decPlannedTime_summary]");
+                strSql.AppendLine("		,0.00 as [decPlannedTime_summary]");
                 strSql.AppendLine("		,CAST(CAST(((CAST(vcStandard as int)*CAST(iSSPlan as int))/3600.0000) as decimal(16,4))/cast((@iCycleTime_mi/60.00) as decimal(16,4)) as decimal(16,4)) as decPlannedPerson");
-                strSql.AppendLine("		,-1.00 as [decPlannedPerson_summary]");
-                strSql.AppendLine("		,-1.0000 as [decPlannedPerson_ratio]");
-                strSql.AppendLine("		,-1.00 as [decInputPerson]");
-                strSql.AppendLine("		,-1.00 as [decInputPerson_summary]");
-                strSql.AppendLine("		,-1.00 as [decInputTime]");
-                strSql.AppendLine("		,-1.00 as [decOverFlowTime]");
+                strSql.AppendLine("		,0.00 as [decPlannedPerson_summary]");
+                strSql.AppendLine("		,0.0000 as [decPlannedPerson_ratio]");
+                strSql.AppendLine("		,0.00 as [decInputPerson]");
+                strSql.AppendLine("		,0.00 as [decInputPerson_summary]");
+                strSql.AppendLine("		,0.00 as [decInputTime]");
+                strSql.AppendLine("		,0.00 as [decOverFlowTime]");
                 strSql.AppendLine("from (select vcPlant as vcPackPlant");
                 strSql.AppendLine("				,dPackDate as dHosDate");
                 strSql.AppendLine("				,isnull(vcBigPM,'') as vcBigPM");
                 strSql.AppendLine("				,isnull(vcSmallPM,'') as vcSmallPM");
                 strSql.AppendLine("				,isnull(vcStandardTime,'') as vcStandard");
-                strSql.AppendLine("				,case when '" + strBanZhi + "'='白' then iSSPlan_Day else iSSPlan_Night end iSSPlan");
+                strSql.AppendLine("				,case when '" + strBanZhi + "'='白' then Cast(iSSPlan_Day as int) else  Cast(iSSPlan_Night as int) end iSSPlan");
                 strSql.AppendLine("		from TPackingPlan_Summary ");
                 strSql.AppendLine("		where dPackDate='" + strHosDate + "' and vcPlant='" + strPackPlant + "')t1");
                 strSql.AppendLine("order by vcBigPM,iSSPlan,vcSmallPM ");
@@ -216,7 +217,7 @@ namespace DataAccess
                 strSql.AppendLine("left join");
                 strSql.AppendLine("(select * from TPointInfo WHERE vcPlant='" + strPackPlant + "')b");
                 strSql.AppendLine("on a.vcPointNo=b.vcPointNo");
-                strSql.AppendLine("where b.vcPointWork='B'");
+                strSql.AppendLine("where b.vcPointWork='Boards'");
                 strSql.AppendLine("group by b.vcPointName");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -232,7 +233,7 @@ namespace DataAccess
 
             sqlConnection.Open();
             SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
-                string uuid = System.Guid.NewGuid().ToString();
+            string uuid = System.Guid.NewGuid().ToString();
             try
             {
                 #region sqlCommand_delinfo
@@ -240,7 +241,7 @@ namespace DataAccess
                 sqlCommand_delinfo.Transaction = sqlTransaction;
                 sqlCommand_delinfo.CommandType = CommandType.Text;
                 StringBuilder strSql_delinfo = new StringBuilder();
-                strSql_delinfo.AppendLine("DELETE FROM [TInPutIntoOver_small] WHERE [vcPackingPlant]='" + strPackPlant + "' and dHosDate='" + strHosDate + "' and vcBanZhi='" + strBanZhi + "'");
+                strSql_delinfo.AppendLine("DELETE FROM [TInPutIntoOver_small_temp] WHERE [vcPackPlant]='" + strPackPlant + "' and dHosDate='" + strHosDate + "' and vcBanZhi='" + strBanZhi + "'");
                 sqlCommand_delinfo.CommandText = strSql_delinfo.ToString();
                 sqlCommand_delinfo.Parameters.AddWithValue("@strPackPlant", "");
                 sqlCommand_delinfo.Parameters.AddWithValue("@strHosDate", "");

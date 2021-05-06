@@ -1116,7 +1116,7 @@ namespace DataAccess
             ssql += "  t3.vcProName4,t3.vcLT4, t3.vcCalendar4,  ";
             ssql += "  t1.vcSupplier_id  ";
             ssql += "  from (select * from TSoqReply where vcInOutFlag='0' and vcDXYM='" + mon + "' and vcCLYM='" + moncl + "') t1 ";
-            ssql += "  left join (select vcPartsNo, vcDock, vcCarFamilyCode, vcQJcontainer, iQuantityPerContainer,vcPorType, vcZB, vcQFflag,dTimeFrom,dTimeTo from tPartInfoMaster where dTimeFrom<='" + mon1 + "-01" + "' and dTimeTo>='" + mon1 + "-01" + "' and vcInOutFlag='0') t2 ";
+            ssql += "  left join (select vcPartsNo, vcDock, vcCarFamilyCode, vcQJcontainer, iQuantityPerContainer,vcPorType, vcZB, vcQFflag,dTimeFrom,dTimeTo from tPartInfoMaster where dTimeFrom<='" + mon1 + "-01" + "' and dTimeTo>='" + mon1 + "-01" + "') t2 ";
             ssql += "  on t1.vcPart_id=t2.vcPartsNo and t1.vcCarType=t2.vcCarFamilyCode ";
             ssql += "  left join ProRuleMst t3 ";
             ssql += "  on t3.vcPorType=t2.vcPorType and t3.vcZB=t2.vcZB ";
@@ -2786,29 +2786,29 @@ namespace DataAccess
 
             sb.AppendLine("    select Tall.vcMonth,Tall.vcPartsno,Tall.vcDock,Tall.vcCarType,Tall.sigTotal ,Tall.allTotal ,Tall.daysig ,ROW_NUMBER() over(partition by Tall.vcPartsno, Tall.vcDock,Tall.vcCartype order by Tall.vcMonth,Tall.daysig,Tall.vcPartsno,Tall.vcDock,Tall.vcCartype) as flag from (");
             sb.AppendLine("   select t1.*,t2.daysig from (");
-            sb.AppendFormat("   select vcMonth, vcPartsno,vcDock,vcCartype,sigTotal , allTotal from {0}", TableName);
+            sb.AppendFormat("   select vcMonth, vcPartsno,vcDock,vcCartype,sigTotal, allTotal from {0}", TableName);
             sb.AppendFormat("    unpivot( sigTotal for allTotal in( {0} ", tmp);
             sb.AppendFormat("  )) P where LEN(sigTotal)>0 and montouch ='{0}'", mon);
             sb.AppendLine("    union all ");
-            sb.AppendFormat("    select vcMonth,vcPartsno,vcDock,vcCartype,sigTotal , allTotal from {0}  ", TableName);
-            sb.AppendFormat("    unpivot( sigTotal for allTotal in( {0} ", tmp);
+            sb.AppendFormat("    select vcMonth,vcPartsno,vcDock,vcCartype,sigTotal, allTotal from {0}  ", TableName);
+            sb.AppendFormat("    unpivot(sigTotal for allTotal in( {0} ", tmp);
             sb.AppendFormat("  )) P where LEN(sigTotal)>0 and vcMonth ='{0}'", mon);
             sb.AppendLine("    ) t1");
             sb.AppendLine("    left join (");
-            sb.AppendFormat("    select daysig , dayN from sPlanConst unpivot ( daysig for dayN in( {0}", tmp);
+            sb.AppendFormat("    select daysig, dayN from sPlanConst unpivot (daysig for dayN in({0}", tmp);
             sb.AppendLine("     )) P ) t2 ");
             sb.AppendLine("     on t1.allTotal = t2.dayN");
             sb.AppendLine("    ) Tall ");
-            sb.AppendLine("  left join tPartInfoMaster Tinfo on Tall.vcPartsno = Tinfo.vcPartsNo and Tall.vcDock = Tinfo.vcDock and Tall.vcCarType = Tinfo.vcCarFamilyCode  and   Tinfo.dTimeFrom<= '" + mon + "-01" + "' and Tinfo.dTimeTo >= '" + mon + "-01" + "' ");
-            sb.AppendFormat("  where Tinfo.vcPartPlant ='{0}'", plant);
-            sb.AppendLine(" order by vcMonth ,daysig,vcPartsno,vcDock,vcCartype");
+            sb.AppendLine("  left join tPartInfoMaster Tinfo on Tall.vcPartsno=Tinfo.vcPartsNo and Tall.vcDock=Tinfo.vcDock and Tall.vcCarType=Tinfo.vcCarFamilyCode  and   Tinfo.dTimeFrom<= '" + mon + "-01" + "' and Tinfo.dTimeTo >= '" + mon + "-01" + "' ");
+            sb.AppendFormat("  where Tinfo.vcPartPlant='{0}'", plant);
+            sb.AppendLine(" order by vcMonth,daysig,vcPartsno,vcDock,vcCartype");
             return sb.ToString();
         }
 
         public DataTable getPartsno(string mon)
         {
             string tmpmon = mon + "-01";
-            string ssql = "select vcPartsNo,vcDock,vcInOutFlag,vcQFflag from tPartInfoMaster where dTimeFrom <='" + tmpmon + "' and dTimeTo>='" + tmpmon + "' ";
+            string ssql = "select vcPartsNo,vcDock,vcInOutFlag,vcQFflag from tPartInfoMaster where dTimeFrom<='" + tmpmon + "' and dTimeTo>='" + tmpmon + "' ";
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }
 
@@ -2881,7 +2881,7 @@ namespace DataAccess
         {
             string sql = "update TKanbanPrintTbl set TKanbanPrintTbl.vcPrintflagED=a.vcPartsED,TKanbanPrintTbl.vcDockED=a.vcDockED ";
             sql += "from (select substring(vcPartsNo,1,10)+'00' as vcPartsNo,vcPartsNo as vcPartsED,vcDock as vcDockED from tPartInfoMaster ";
-            sql += "where substring(vcPartsNo,11,2)='ED') a where TKanbanPrintTbl.vcPartsNo=a.vcPartsNo ";
+            sql += "where substring(vcPartsNo,11,2)='ED' and dTimeTo>=convert(varchar,getdate(),112)) a where TKanbanPrintTbl.vcPartsNo=a.vcPartsNo ";
             excute.ExecuteSQLNoQuery(sql);
         }
     }

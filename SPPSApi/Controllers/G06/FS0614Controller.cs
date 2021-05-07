@@ -207,7 +207,7 @@ namespace SPPSApi.Controllers.G06
                     }
 
                     #region 生成标签
-                    
+
                     MultiExcute excute = new MultiExcute();
                     string strPath_pdf = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "PDF" + Path.DirectorySeparatorChar + "Order" + Path.DirectorySeparatorChar;
                     string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
@@ -215,7 +215,7 @@ namespace SPPSApi.Controllers.G06
                     DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("标签", "");
 
                     //标签生成
-                    
+
                     StringBuilder labelBuilder = new StringBuilder();
                     foreach (FS0614_DataAccess.DownNode node in nodeList)
                     {
@@ -268,8 +268,11 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
 
-                    excute.ExcuteSqlWithStringOper(labelBuilder.ToString());
-                    
+                    if (labelBuilder.Length > 0)
+                    {
+                        excute.ExcuteSqlWithStringOper(labelBuilder.ToString());
+                    }
+
                     #endregion
 
                 }

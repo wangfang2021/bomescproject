@@ -30,7 +30,7 @@ namespace DataAccess
                 strSql.AppendLine("                    when '3' then '更正时间：'+convert(varchar, a.dOperatorTime,20) ");
                 strSql.AppendLine(" else a.vcMemo end as vcMemo, a.iAutoId from TOrderUploadManage a ");
                 strSql.AppendLine("left join (select * from TCode where vcCodeId='C044') b ");
-                strSql.AppendLine("on a.vcOrderState=b.vcValue where vcOrderType in ('H','W','F') ");
+                strSql.AppendLine("on a.vcOrderState=b.vcValue where vcOrderType in ('H','C','F') ");
                 if (vcOrderNo.Length > 0)
                 {
                     strSql.AppendLine(" and vcOrderNo like '%" + vcOrderNo + "%' ");

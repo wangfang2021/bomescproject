@@ -146,7 +146,27 @@ namespace DataAccess
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["dTimeTo"], true) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["dTimeFromSJ"], true) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcBJDiff"], false) + "       \r\n");
-                    strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcPartReplace"], false) + "       \r\n");
+
+
+                    #region 替代品番特殊处理
+                    string vcPartReplace = listInfoData[i]["vcPartReplace"].ToString();
+                    if (vcPartReplace.Length == 11)
+                    {
+                        vcPartReplace = vcPartReplace.Replace("-", "") + "00";
+                        strSql.Append("      ,'" + vcPartReplace + "'       \r\n");
+                    }
+                    else if (vcPartReplace.Length == 14)
+                    {
+                        vcPartReplace = vcPartReplace.Replace("-", "");
+                        strSql.Append("      ,'" + vcPartReplace + "'       \r\n");
+                    }
+                    else
+                    {
+                        vcPartReplace = vcPartReplace.Replace("-", "");
+                        strSql.Append("      ,'" + vcPartReplace + "'       \r\n");
+                    }
+                    #endregion
+                    
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcPartNameEn"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCn"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcHKGC"], false) + "       \r\n");
@@ -195,9 +215,9 @@ namespace DataAccess
                 }
                 #endregion
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
 
         }

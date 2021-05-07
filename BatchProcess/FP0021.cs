@@ -9,7 +9,7 @@ using Logic;
 using NPOI.OpenXmlFormats.Dml;
 
 /// <summary>
-/// NQC内外合状态获取_EKANBAN
+/// 日度送信
 /// </summary>
 namespace BatchProcess
 {

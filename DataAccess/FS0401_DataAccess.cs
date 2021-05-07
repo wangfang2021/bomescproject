@@ -27,6 +27,7 @@ namespace DataAccess
                 strSql.AppendLine("		Convert(varchar(10),T1.dFromTime,111) as dFromTime,");
                 strSql.AppendLine("		Convert(varchar(10),T1.dToTime,111) as dToTime,");
                 strSql.AppendLine("		T1.vcPartId_Replace,");
+                strSql.AppendLine("		CASE SUBSTRING(T1.vcPartId_Replace,11,2) WHEN '00' THEN SUBSTRING(T1.vcPartId_Replace,1,10) ELSE T1.vcPartId_Replace END AS vcPartId_ReplaceDC,");
                 strSql.AppendLine("		T1.vcInOut,T8.vcName as vcInOut_name,");
                 strSql.AppendLine("		T1.vcOESP,T9.vcName as vcOESP_name,");
                 strSql.AppendLine("		T1.vcHaoJiu,T10.vcName as vcHaoJiu_name,");

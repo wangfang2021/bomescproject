@@ -607,6 +607,9 @@
     <None Update="Doc\Template\FS0604_Template.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Doc\Template\FS0605_Data.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Doc\Template\FS0606_Data.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -90,13 +90,13 @@ namespace SPPSApi.Controllers.G11
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strReceiver = dataForm.Receiver == null ? "" : dataForm.Receiver;
-            string strSupplierId = "";
+            string strOrderNo = dataForm.OrderNo == null ? "" : dataForm.OrderNo;
             string strInPutOrderNo = dataForm.InPutOrderNo == null ? "" : dataForm.InPutOrderNo;
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
             string strLianFan = dataForm.LianFan == null ? "" : dataForm.LianFan;
             try
             {
-                DataTable dataTable = fS1103_Logic.getSearchInfo(strReceiver, strSupplierId, strInPutOrderNo, strPartId, strLianFan);
+                DataTable dataTable = fS1103_Logic.getSearchInfo(strReceiver, strOrderNo, strInPutOrderNo, strPartId, strLianFan);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bInPutOrder", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bTag", ConvertFieldType.BoolType, null);

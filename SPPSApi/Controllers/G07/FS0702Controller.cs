@@ -369,11 +369,16 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 DataTable dt = FS0702_Logic.SearchEXZ("", strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd, "0");
+                dt.Columns.Add("dFromNull");
+                dt.Columns.Add("dToNull");
                 string resMsg = "";
                 string[] head = { "导入状态(必填)", "对应标识(必填)", "变更事项", "包装场", "收货方(必填)", "品番(必填)", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番(必填)", "GPS品番", "开始时间(必填)", "结束时间(必填)", "包装材区分(必填)", "必要数(必填)" };
 
+                //string[] fields = {"vcIsorNo","iAutoId", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
+                //    "vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"
+                //};
                 string[] fields = {"vcIsorNo","iAutoId", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
-                    "vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"
+                    "vcPackGPSNo","dFromNull","dToNull","vcDistinguish","iBiYao"
                 };
                 // string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0702_Export.xlsx", 1, loginInfo.UserId, FunctionID);
 

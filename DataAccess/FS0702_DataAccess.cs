@@ -82,7 +82,7 @@ namespace DataAccess
 
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,a.varChangedItem,d.vcBZPlant as vcPackSpot,a.vcPartsNo,   ");
-                strSql.AppendLine("    c.vcName as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo, ");
+                strSql.AppendLine("    a.vcCar as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo, ");
                 strSql.AppendLine("     dFrom,  	");
                 strSql.AppendLine("    dTo,  	");
                 strSql.AppendLine("    b.vcValue as vcShouhuofangID from (       ");

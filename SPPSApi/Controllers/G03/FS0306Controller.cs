@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NPOI.OpenXmlFormats.Dml;
 
 namespace SPPSApi.Controllers.G03
 {
@@ -18,6 +20,8 @@ namespace SPPSApi.Controllers.G03
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly string FunctionID = "FS0306";
+        private MultiExcute excute = new MultiExcute();
+
         FS0306_Logic fs0306_logic = new FS0306_Logic();
 
         public FS0306Controller(IWebHostEnvironment webHostEnvironment)
@@ -27,7 +31,7 @@ namespace SPPSApi.Controllers.G03
 
         [HttpPost]
         [EnableCors("any")]
-        public string searchApi([FromBody]dynamic data)
+        public string searchApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -68,7 +72,7 @@ namespace SPPSApi.Controllers.G03
         #region 删除
         [HttpPost]
         [EnableCors("any")]
-        public string delApi([FromBody]dynamic data)
+        public string delApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -108,7 +112,7 @@ namespace SPPSApi.Controllers.G03
         #region 保存
         [HttpPost]
         [EnableCors("any")]
-        public string saveApi([FromBody]dynamic data)
+        public string saveApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -189,11 +193,56 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcValue1 FROM dbo.TOutCode WHERE vcCodeId = 'C056' AND vcIsColum = '0' ");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                List<string> list = new List<string>();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    list.Add(dt.Rows[i]["vcValue1"].ToString());
+                }
+
+                bool flag = true;
+                if (list.Contains(loginInfo.UserId))
+                    flag = false;
+
+                Dictionary<string, object> res = new Dictionary<string, object>();
+
+                res.Add("canAdd", flag);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
 
         #region 新增保存
         [HttpPost]
         [EnableCors("any")]
-        public string InsertsaveApi([FromBody]dynamic data)
+        public string InsertsaveApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];

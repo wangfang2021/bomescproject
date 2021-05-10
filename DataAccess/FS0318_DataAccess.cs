@@ -231,7 +231,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT distinct vcCarTypeDev FROM TUnit WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ");
+                sbr.AppendLine("SELECT distinct vcCarTypeDev FROM TUnit");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)

@@ -14,16 +14,17 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 检索
-        public DataTable Search(string strSellNo, string strStartTime, string strEndTime, string strYinQuType, string strSHF,string strLabelID)
+        public DataTable Search(string strSellNo, string strStartTime, string strEndTime, string strYinQuType, string strSHF,string strLabelID,
+            string vcBanZhi,string vcQianFen,string vcBianCi)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select distinct t1.vcYinQuType,t2.vcName as vcYinQuTypeName,t1.vcBianCi,t1.vcSellNo,t3.iToolQuantity,t1.vcTruckNo, \n");
-                strSql.Append("convert(varchar(16),t1.dOperatorTime,120) as dOperatorTime,isnull(t1.vcSender,'') as vcSender,'0' as vcModFlag,'0' as vcAddFlag      \n");
-                strSql.Append("from TSell t1   \n");
+                strSql.Append("select t1.vcYinQuType,t2.vcName as vcYinQuTypeName,t1.vcBianCi,t1.vcSellNo,t1.iToolQuantity,t1.vcTruckNo,t1.vcBanZhi,t1.vcQianFen, \n");
+                strSql.Append("convert(varchar(16),t1.dOperatorTime,120) as dOperatorTime,convert(varchar(10),t1.vcDate,120) as vcDate,isnull(t1.vcSender,'') as vcSender,'0' as vcModFlag,'0' as vcAddFlag      \n");
+                strSql.Append("from TSell_Sum t1   \n");
                 strSql.Append("left join (select * from tCode where vcCodeid='C058') t2 on t1.vcYinQuType=t2.vcValue   \n");
-                strSql.Append("left join (select vcSellNo,sum(iToolQuantity) as iToolQuantity from TSell_Tool group by vcSellNo)t3 on t1.vcSellNo=t3.vcSellNo  \n");
+                //strSql.Append("left join (select vcSellNo,sum(iToolQuantity) as iToolQuantity from TSell_Tool group by vcSellNo)t3 on t1.vcSellNo=t3.vcSellNo  \n");
                 strSql.Append("    \n");
                 strSql.Append("where 1=1 \n");
                 if (strSellNo != "" && strSellNo != null)
@@ -32,13 +33,19 @@ namespace DataAccess
                     strStartTime = "2001-01-01 00:00";
                 if (strEndTime == "" || strEndTime == null)
                     strEndTime = "2099-12-31 23:59";
-                strSql.Append("and isnull(t1.dOperatorTime,'2001-01-01 00:00') >= '" + strStartTime + "' and isnull(t1.dOperatorTime,'2099-12-31 23:59') <= '" + strEndTime + "'  \n");
+                strSql.Append("and isnull(t1.vcDate,'2001-01-01 00:00') >= '" + strStartTime + "' and isnull(t1.vcDate,'2099-12-31 23:59') <= '" + strEndTime + "'  \n");
                 if (strYinQuType != "" && strYinQuType != null)
                     strSql.Append("and isnull(t1.vcYinQuType,'') = '" + strYinQuType + "' \n");
                 if (strSHF != "" && strSHF != null)
                     strSql.Append("and isnull(t1.vcSHF,'')='" + strSHF + "'    \n");
                 if (strLabelID != "" && strLabelID != null)
                     strSql.Append("and '"+strLabelID+ "' between isnull(t1.vcLabelStart,'') and isnull(t1.vcLabelEnd,'')    \n");
+                if(vcBanZhi!="" && vcBanZhi!=null)
+                    strSql.Append("and isnull(t1.vcBanZhi,'') = '" + vcBanZhi + "' \n");
+                if (vcQianFen != "" && vcQianFen != null)
+                    strSql.Append("and isnull(t1.vcQianFen,'') = '" + vcQianFen + "' \n");
+                if (vcBianCi != "" && vcBianCi != null)
+                    strSql.Append("and isnull(t1.vcBianCi,'') = '" + vcBianCi + "' \n");
                 strSql.Append("order by t1.vcSellNo    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -106,8 +113,12 @@ namespace DataAccess
                         string vcSellNo = listInfoData[i]["vcSellNo"] == null ? "" : listInfoData[i]["vcSellNo"].ToString();
                         string vcBianCi = listInfoData[i]["vcBianCi"] == null ? "" : listInfoData[i]["vcBianCi"].ToString();
                         string vcTruckNo = listInfoData[i]["vcTruckNo"] == null ? "" : listInfoData[i]["vcTruckNo"].ToString();
+                        string vcDate= listInfoData[i]["vcDate"] == null ? "" : listInfoData[i]["vcDate"].ToString();
+                        string vcBanZhi= listInfoData[i]["vcBanZhi"] == null ? "" : listInfoData[i]["vcBanZhi"].ToString();
+                        string vcQianFen= listInfoData[i]["vcQianFen"] == null ? "" : listInfoData[i]["vcQianFen"].ToString();
 
                         sql.Append("update TSell set vcBianCi='" + vcBianCi + "',vcTruckNo='" + vcTruckNo + "' where vcSellNo='" + vcSellNo + "'   \n");
+                        sql.Append("update TSell_Sum set vcBianCi='" + vcBianCi + "',vcTruckNo='" + vcTruckNo + "',vcDate=nullif('"+vcDate+ "',''),vcBanZhi='"+vcBanZhi+ "',vcQianFen='"+vcQianFen+"' where vcSellNo='" + vcSellNo + "'   \n");
                         #endregion
                     }
                 }

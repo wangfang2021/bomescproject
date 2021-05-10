@@ -170,6 +170,21 @@ namespace Logic
             fs0807_DataAccess.importSave(dt, strUserId,ref strErrorName);
         }
         #endregion
+
+        public bool isExistSPMaster(string strPart_id)
+        {
+            DataTable dt = fs0807_DataAccess.isExistSPMaster(strPart_id);
+            if (dt.Rows.Count > 0)
+            {
+                string num = dt.Rows[0][0].ToString();
+                if (num == "2")
+                    return true;
+                else
+                    return false;
+            }
+            else
+                return false;
+        }
     }
 
 }

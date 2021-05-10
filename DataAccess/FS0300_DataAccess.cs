@@ -159,7 +159,7 @@ namespace DataAccess
                 //sbr.AppendLine("    LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C012') f ON a.vcOE=f.vcValue");
                 //sbr.AppendLine("    LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C004') g ON a.vcHaoJiu=g.vcValue");
                 //sbr.AppendLine(" WHERE a.vcPart_id LIKE '" + PartId + "%' AND a.vcSupplier_id LIKE '" + Supplier_id + "%';");
-
+                sbr.AppendLine("EXEC BSP0300_PackItem '" + PartId.Replace("-", "") + "%' ");
                 sbr.AppendLine("SELECT a.vcOriginCompany, a.vcPart_id, a.vcReceiver, a.vcPartNameEn, a.vcPartNameCn, a.vcCarTypeDesign, a.vcCarTypeDev, a.dTimeFrom, a.dTimeTo,Convert(varchar(10),a.dTimeFrom,111) as dTimeFrom1,Convert(varchar(10),a.dTimeTo,111) as dTimeTo1, ");
                 sbr.AppendLine("a.vcPartReplace, e.vcName AS vcInOutflag, f.vcName AS vcOE, a.vcHKPart_id, g.vcName AS vcHaoJiu, a.dJiuBegin, a.dJiuEnd,Convert(varchar(10),a.dJiuBegin,111) as dJiuBegin1,Convert(varchar(10),a.dJiuEnd,111) as dJiuEnd1, a.vcJiuYear, a.vcNXQF, a.dSSDate,Convert(varchar(10),a.dSSDate,111) as dSSDate1, a.vcSupplier_id,");
                 sbr.AppendLine("a.vcSCPlace, a.vcCHPlace, a.vcSYTCode, a.vcSCSName, a.vcSCSAdress, a.vcZXBZNo, a.vcCarTypeName, a.vcFXDiff, a.vcFXNo, a.decPriceOrigin, a.decPriceTNPWithTax,");
@@ -178,7 +178,8 @@ namespace DataAccess
                 sbr.AppendLine("                  LEFT JOIN(SELECT vcPart_id, vcReceiver, vcSupplierId, vcPackingPlant, vcBZPlant, vcBZUnit,vcSYTCode");
                 sbr.AppendLine("                            FROM VI_TPackageMaster");
                 sbr.AppendLine("                           ) e ON a.vcPackingPlant=e.vcPackingPlant AND a.vcReceiver=e.vcReceiver AND a.vcPartId=e.vcPart_id AND a.vcSupplierId=e.vcSupplierId AND A.vcSYTCode=e.vcSYTCode");
-                sbr.AppendLine("                  LEFT JOIN(SELECT vcPartsNo, vcPackNo, vcShouhuofangID,vcSYTCode FROM VI_PackItem");
+                //sbr.AppendLine("                  LEFT JOIN(SELECT vcPartsNo, vcPackNo, vcShouhuofangID,vcSYTCode FROM VI_PackItem");
+                sbr.AppendLine("                  LEFT JOIN( SELECT * FROM dbo.TPackItem_temp ");
                 sbr.AppendLine("                            ) f ON a.vcPartId=f.vcPartsNo AND a.vcReceiver=f.vcShouhuofangID and a.vcSYTCode=f.vcSYTCode");
                 sbr.AppendLine("	) b ON (CASE WHEN LEN(REPLACE(a.vcPart_id,'-','')) = 12 THEN REPLACE(a.vcPart_id,'-','') WHEN LEN(REPLACE(a.vcPart_id,'-','')) = 10 THEN REPLACE(a.vcPart_id,'-','')+'00' END)=b.vcPartId AND a.vcReceiver=b.vcReceiver AND a.vcSupplier_id=b.vcSupplierId");
                 sbr.AppendLine("    LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C003') e ON a.vcInOutflag=e.vcValue");

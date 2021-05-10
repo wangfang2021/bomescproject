@@ -65,6 +65,10 @@ namespace Logic
         {
             return fs0612_DataAccess.getPlant(strDXYM, strKind);
         }
+        public DataTable getPlantALL(string strDXYM)
+        {
+            return fs0612_DataAccess.getPlantALL(strDXYM);
+        }
         public bool isHaveSoqData(string strDXYM, string strPlant, string strKind)
         {
             try

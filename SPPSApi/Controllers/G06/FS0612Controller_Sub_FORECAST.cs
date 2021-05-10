@@ -166,6 +166,8 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
+                //获取soq全部发注工厂 --20210429
+                dtPlant = fs0612_Logic.getPlantALL(vcDXYM);
                 //判断最大次数合算能不能再次请求，如果请求了但是没有回复则不能再次请求
                 DataTable dtMaxCLResult = fs0612_Logic.GetMaxCLResult(vcCLYM);
                 for (int i = 0; i < dtPlant.Rows.Count; i++)

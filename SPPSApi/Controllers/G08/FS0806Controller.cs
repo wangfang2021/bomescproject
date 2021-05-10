@@ -470,6 +470,7 @@ namespace SPPSApi.Controllers.G08
                 string vcKBOrderNo = dataForm.vcKBOrderNo;
                 string vcKBLFNo = dataForm.vcKBLFNo;
                 string vcSR = dataForm.vcSR;
+                string iQuantity = dataForm.iQuantity;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -510,6 +511,19 @@ namespace SPPSApi.Controllers.G08
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
+                int iQuantity_main= Convert.ToInt32(iQuantity == "" ? "0" : iQuantity);
+                for (int i=0;i<listInfoData.Count;i++)
+                {
+                    int iNGQuantity = Convert.ToInt32(listInfoData[i]["iNGQuantity"].ToString() == "" ? "0" : listInfoData[i]["iNGQuantity"].ToString());
+                    if(iNGQuantity>iQuantity_main)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "不良数量不能超过"+iQuantity_main.ToString();
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
                 fs0806_Logic.Save_sub(listInfoData, loginInfo.UserId,vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

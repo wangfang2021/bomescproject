@@ -22,7 +22,7 @@ namespace BatchProcess
                 //批处理开始
                 ComMessage.GetInstance().ProcessMessage(PageId, "M00PI3301", null, strUserId);
 
-                Start();
+                 Start();
 
                 //批处理结束
                 ComMessage.GetInstance().ProcessMessage(PageId, "M00PI3302", null, strUserId);

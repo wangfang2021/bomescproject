@@ -945,7 +945,7 @@ namespace DataAccess
                 strSql.AppendLine("; \r\n ");
 
 
-                strSql.AppendLine("delete from TSoq_OperHistory where vcYearMonth='" + strYearMonth + "'          \r\n ");
+                strSql.AppendLine("delete from TSoq_OperHistory where vcYearMonth='" + strYearMonth + "' and vcInputType='company'         \r\n ");
                 //筛选条件：品番
                 if (!string.IsNullOrEmpty(strPart_id))
                 {
@@ -1009,7 +1009,7 @@ namespace DataAccess
                 strSql.Append(";  \n ");
                 strSql.Append("delete t1    \n ");
                 strSql.Append("from   \n ");
-                strSql.Append("(select * from TSoq_OperHistory where vcYearMonth='"+strYearMonth+"')t1   \n ");
+                strSql.Append("(select * from TSoq_OperHistory where vcYearMonth='"+strYearMonth+ "' and vcInputType='company' )t1   \n ");
                 strSql.Append("inner join (   \n ");
                 strSql.Append("  select vcPart_id from #TSoq_temp_back   \n ");
                 strSql.Append(")t2 on t1.vcPart_id=t2.vcPart_id   \n ");

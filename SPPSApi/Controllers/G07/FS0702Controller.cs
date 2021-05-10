@@ -757,12 +757,12 @@ namespace SPPSApi.Controllers.G07
                     }
                     if (i != 0)
                     {
-                        strPartNoAll = strPartNoAll + "'" + listInfoData[i]["vcPartsNo"].ToString();
+                        strPartNoAll = strPartNoAll + "'" + listInfoData[i]["vcPartsNo"].ToString() + "',";
                     }
                     else
                     {
 
-                        strPartNoAll = listInfoData[i]["vcPartsNo"].ToString() + "',";
+                        strPartNoAll = "'"+listInfoData[i]["vcPartsNo"].ToString() + "',";
                     }
                     //判断品番是否存在
 

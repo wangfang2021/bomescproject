@@ -124,8 +124,9 @@ namespace Logic
                             DateTime dY = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd ") + dtStandard.Rows[j]["dRuHeFromTime"].ToString());//入荷起始时间
                             DateTime dY_To = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd ") + dtStandard.Rows[j]["dRuHeToTime"].ToString());//入荷结束时间
                             DateTime dN = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd ") + dtStandard.Rows[j]["dNaQiFromTime"].ToString());//纳期起时间
+                            DateTime dN_To = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd ") + dtStandard.Rows[j]["dNaQiToTime"].ToString());//纳期止时间
 
-
+                            
                             if (dX > DateTime.Now)
                                 continue;//如果发注作业时间超过系统当前时间，则跳过
                             
@@ -145,7 +146,7 @@ namespace Logic
                             string strRuHeToTime = dtStandard.Rows[j]["dRuHeToTime"].ToString(); //入荷止时间
                             int iNaQiFromDay = Convert.ToInt32(dtStandard.Rows[j]["vcNaQiFromDay"].ToString());//纳期起加减数
                             string strNaQiFromTime = dtStandard.Rows[j]["dNaQiFromTime"].ToString(); //包材纳期起时间
-                            
+                            string strNaQiToTime = dtStandard.Rows[j]["dNaQiToTime"].ToString(); //包材纳期止时间
 
                             if (strX_WorkType == "白")
                             {
@@ -196,6 +197,7 @@ namespace Logic
                                 BcTask task = new BcTask();
                                 
                                 DateTime dTimeTemp_NaQi = new DateTime();//计算具体纳期时间
+                                
                                 int iAddDay = dN.Hour < dX.Hour ? 1 : 0;//如果纳期起比发注起要小，证明跨天了
                                 if (strX_WorkType == "白")
                                 {
@@ -284,7 +286,8 @@ namespace Logic
                                     dEnd = dY_To;
                                 else
                                     continue;
-
+                                DateTime dTimeTemp_NaQi_To = new DateTime();//计算具体纳期截至时间
+                                dTimeTemp_NaQi_To = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd") + " " + strNaQiToTime);
 
                                 task.strBCName = dTimeTemp_NaQi.ToString("yyyy-MM-dd") + " " + strBianCi;
                                 //if (task.strBCName == "2021-04-10 外注纸箱 白值1便")
@@ -292,7 +295,7 @@ namespace Logic
                                 //    int a = 0;
                                 //    a = 1;
                                 //}
-
+                                task.dNaqiToDate = dTimeTemp_NaQi_To;
                                 task.strFaZhuID = strFaZhuID;
                                 result.Add(task);
                             }
@@ -654,6 +657,7 @@ namespace Logic
         public string strBCName;//便次名称
         public DateTime dDate;//便次对应的稼动日，注意不是自然日，比如2021-3-24 2:00:00的夜班，dDate算2021-3-23
         public DateTime dRuheToDate;
+        public DateTime dNaqiToDate;
     }
 
     public class BZTime

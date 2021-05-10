@@ -38,24 +38,24 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dFromB))
                 {
-                    dFromB = "1900-01-01 0:00:00";
+                    dFromB = "1900-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dFromE))
                 {
-                    dFromE = "9999-12-31 0:00:00";
+                    dFromE = "9999-12-31 00:00:00";
 
                 }
                 if (string.IsNullOrEmpty(dToB))
                 {
-                    dToB = "1900-01-01 0:00:00";
+                    dToB = "1900-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dToE))
                 {
-                    dToE = "9999-12-31 0:00:00";
+                    dToE = "9999-12-31 00:00:00";
 
                 }
                 StringBuilder strSql = new StringBuilder();
@@ -63,7 +63,7 @@ namespace DataAccess
                 strSql.AppendLine("   vcFaZhuID,vcRuHeFromDay,dRuHeFromTime,vcRuHeToDay,druHeToTime,   ");
                 strSql.AppendLine("   vcFaZhuFromDay,dFaZhuFromTime,vcFaZhuToDay,dFaZhuToTime,   ");
                 strSql.AppendLine("   vcNaQiFromDay,dNaQiFromTime,vcNaQiToDay,dNaQiToTime,vcBianCi,   ");
-                strSql.AppendLine("   vcPackSpot,CONVERT(varchar(100),dFrom,21) as dFrom,CONVERT(varchar(100),dTo,21) as dTo   ");
+                strSql.AppendLine("   vcPackSpot,CONVERT(varchar(100),dFrom,20) as dFrom,CONVERT(varchar(100),dTo,20) as dTo   ");
                 strSql.AppendLine("      FROM");
                 strSql.AppendLine("      	TPackFaZhuTime");
                 strSql.AppendLine("      WHERE");

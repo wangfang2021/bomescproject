@@ -136,13 +136,10 @@ namespace SPPSApi.Controllers.G07
                 }
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
-                List<string> lists = new List<string>();
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    lists.Add(listInfoData[i]["strFaZhuID"].ToString());
-                }
-                string strFaZhuID = lists.Distinct().ToList()[0];
 
+                string strRuHeToTime = listInfoData[listInfoData.Count - 1]["dRuheToDate"].ToString();
+                string strFaZhuID = listInfoData[listInfoData.Count - 1]["strFaZhuID"].ToString();
+                string strBianCi = listInfoData[listInfoData.Count - 1]["strBCName"].ToString();
 
                 /*
                  * 添加校验此次补给品番是否维护包材构成
@@ -151,7 +148,7 @@ namespace SPPSApi.Controllers.G07
                  * 包材构成表：TPackItem
                  */
                 #region 验证补给品番是否存在有效的包材构成
-                string[] strArray = fs0705_Logic.getPackCheckDT(strFaZhuID,loginInfo.BaoZhuangPlace);
+                string[] strArray = fs0705_Logic.getPackCheckDT(strFaZhuID,loginInfo.BaoZhuangPlace,strRuHeToTime);
 
                 string strErr1 = "";
                 string strErr2 = "";
@@ -182,10 +179,10 @@ namespace SPPSApi.Controllers.G07
                 }
                 #endregion
 
-                fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace);
+                fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace,strRuHeToTime,strBianCi);
 
                 #region 计算完毕检索计算结果
-                DataTable computeJGDT = fs0705_Logic.searchComputeJG(loginInfo.BaoZhuangPlace);
+                DataTable computeJGDT = fs0705_Logic.searchComputeJG(loginInfo.BaoZhuangPlace, strBianCi);
 
                 if (computeJGDT.Rows.Count<=0)
                 {
@@ -232,13 +229,21 @@ namespace SPPSApi.Controllers.G07
             {
                 //获取最新的订单号
                 string strOrderNo = fs0705_Logic.getNewOrderNo();
-                //生成发注数据
+                
                 /*
-                 * 查询出计算结果中订单号为空的数据(订单号为空，说明没有生成发注数据),并且计算出的订购数量大于0(等于0不需要订购)
+                 * 查询出最后一次计算结果中订单号为空的数据(订单号为空，说明没有生成发注数据),并且计算出的订购数量大于0(等于0不需要订购)
                  */
                 DataTable JGDT = fs0705_Logic.SCFZDataSearchComputeJG(loginInfo.BaoZhuangPlace);
-                fs0705_Logic.SCFZData(JGDT, strOrderNo,loginInfo.UserId);
 
+                if (JGDT==null||JGDT.Rows.Count<=0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有找到需要订购的品番信息";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                //生成发注数据
+                fs0705_Logic.SCFZData(JGDT, strOrderNo,loginInfo.UserId);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "生成发注数据成功";
@@ -271,14 +276,14 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = fs0705_Logic.searchComputeJG(loginInfo.BaoZhuangPlace);
+                DataTable dt = fs0705_Logic.exportSearchJG(loginInfo.BaoZhuangPlace);
                 if (dt.Rows.Count<=0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "没有找到需要订购的品番信息";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string[] fields = { "vcFaZhuID","vcPackNo","vcPackGPSNo","iF_DingGou","vcBianCi","dTimeStr"};
+                string[] fields = { "vcBianCi", "vcFaZhuID","vcPackNo","vcPackGPSNo","iF_DingGou","vcBianCi","dTimeStr"};
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {

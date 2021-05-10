@@ -198,6 +198,7 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("dSupplier_HK", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dTFTM_BJ", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dNqDate", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dHFDate", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 dtConverter.addField("vcZXBZNo", FS0305_Logic.ConvertFieldType.string2list, null);
 
                 List<Object> dataList = fs0305_Logic.convertAllToResultByConverter(dt, dtConverter);
@@ -293,6 +294,8 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dNqDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dHFDate", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
+
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
@@ -391,6 +394,7 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -512,7 +516,7 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = "未选择任何行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                
                 #region 数据校验
                 //开始数据验证
                 string[,] strField = new string[,] {{"对应可否确认结果","防锈对应可否","执行标准区分"},
@@ -577,7 +581,7 @@ namespace SPPSApi.Controllers.G03
                             }
                         }
                     }
-                    else if (listInfoData[i]["vcIsDYJG"].ToString() == "2" || listInfoData[i]["vcIsDYFX"].ToString() == "2")
+                    if (listInfoData[i]["vcIsDYJG"].ToString() == "2" || listInfoData[i]["vcIsDYFX"].ToString() == "2")
                     {
                         if (listInfoData[i]["vcNotDY"] == null || listInfoData[i]["vcNotDY"].ToString() == "")
                         {

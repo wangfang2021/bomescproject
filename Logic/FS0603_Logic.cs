@@ -3926,6 +3926,9 @@ namespace Logic
             if (strSpSub == "Query811")
             {
                 dataTable.Columns.Add("uuid", typeof(string));
+                dataTable.Columns.Add("vcPackPlant", typeof(string));
+                dataTable.Columns.Add("dHosDate", typeof(string));
+                dataTable.Columns.Add("vcBanZhi", typeof(string));
                 dataTable.Columns.Add("vcBigPM", typeof(string));
                 dataTable.Columns.Add("vcSmallPM", typeof(string));
                 dataTable.Columns.Add("vcStandard", typeof(string));

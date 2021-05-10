@@ -570,7 +570,7 @@ namespace SPPSApi.Controllers.G03
                                     ,"vcNum9","vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
                                     
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0303_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0303.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

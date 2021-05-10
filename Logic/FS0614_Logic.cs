@@ -21,9 +21,9 @@ namespace Logic
         }
 
 
-        public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage)
+        public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage, ref List<FS0614_DataAccess.DownNode> node)
         {
-            return fs0614_DataAccess.CreateOrder(listInfoData, path, userId, uionCode, ref bReault, ref dtMessage);
+            return fs0614_DataAccess.CreateOrder(listInfoData, path, userId, uionCode, ref bReault, ref dtMessage, ref node);
         }
 
 

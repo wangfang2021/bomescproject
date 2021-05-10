@@ -21,6 +21,7 @@ namespace DataAccess
         {
             try
             {
+                #region 初次保存
                 string msg = "";
                 int days = 0;
                 SqlParameter[] parameters = {
@@ -109,124 +110,265 @@ namespace DataAccess
                 if (days < 3)
                     return "最少必须维护3天";
                 excute.ExcuteSqlWithStringOper(strSql.ToString(), parameters);
+                #endregion
 
-                #region 重新平准化
+                #region 重新分配
                 DataTable ckdt = excute.ExcuteSqlWithSelectToDT("select * from TCalendar_PingZhun_Nei where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "'");
-                #region 准备判断数据
-                double[] weeks = { 0, 0, 0, 0 };
+
+                double totalDays = 0; //总天数
                 for (int i = 0; i < 31; i++)
                 {
-                    if (ckdt.Rows[0][i + 3].ToString() == "1")
-                    {
-                        weeks[0] = weeks[0] + 1;
-                    }
-                    else if (ckdt.Rows[0][i + 3].ToString() == "1*")
-                    {
-                        weeks[0] = weeks[0] + 0.5;
-                    }
-                    else if (ckdt.Rows[0][i + 3].ToString() == "2")
-                    {
-                        weeks[1] = weeks[1] + 1;
-                    }
-                    else if (ckdt.Rows[0][i + 3].ToString() == "2*")
-                    {
-                        weeks[1] = weeks[1] + 0.5;
-                    }
-                    else if (ckdt.Rows[0][i + 3].ToString() == "3")
-                    {
-                        weeks[2] = weeks[2] + 1;
-                    }
-                    else if (ckdt.Rows[0][i].ToString() == "3*")
-                    {
-                        weeks[2] = weeks[2] + 0.5;
-                    }
-                    else if (ckdt.Rows[0][i + 3].ToString() == "4")
-                    {
-                        weeks[3] = weeks[3] + 1;
-                    }
-                    else if (ckdt.Rows[0][i + 3].ToString() == "4*")
-                    {
-                        weeks[3] = weeks[3] + 0.5;
-                    }
+                    if (ckdt.Rows[0][i + 3].ToString() != "0")
+                        totalDays = totalDays + 1;
                 }
-                #endregion
-                Array.Sort(weeks);
-                if (weeks[3] - weeks[0] > 1) //判断存在差值大于1的，则重新分配
+                if (totalDays == 3 || totalDays == 4)//3天和4天时，强制分
                 {
-                    double totals = 0;
-                    double avg_int = 0;
-                    double avg_left = 0;
-                    for (int i = 1; i <= 31; i++)
+                    List<string> re_fp = new List<string>();
+                    double iNum = 0;
+                    for (int i = 0; i < re.Count; i++)
                     {
-                        if (ckdt.Rows[0]["TARGETDAY" + i.ToString()].ToString().Contains('*'))
-                            totals = totals + 0.5;
-                        else if (!ckdt.Rows[0]["TARGETDAY" + i.ToString()].ToString().Contains('0'))
+                        if (re[i] != "0")
                         {
-                            if (i != 31)
+                            ++iNum;
+                            if (re[i].Contains("*"))
                             {
-                                totals = totals + 1;
-                            }
-                        }
-                    }
-                    avg_int = Math.Floor(totals / 4);
-                    avg_left = totals % 4;
-
-                    DataTable dt = new DataTable();
-                    dt.Columns.Add("c1");
-
-                    for (int i = 1; i < 5; i++)
-                    {
-                        for (int k = 0; k <= avg_int; k++)
-                        {
-                            DataRow r = dt.NewRow();
-                            if (k < avg_int)
-                                r[0] = i.ToString();
-                            else
-                            {
-                                if (avg_left == 0.5)
-                                {
-                                    r[0] = i.ToString() + "*";
-                                    avg_left = 0;
-                                }
-                                else if (avg_left > 0.5)
-                                {
-                                    r[0] = i.ToString();
-                                    avg_left--;
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                            dt.Rows.Add(r);
-                        }
-                    }
-
-                    for (int i = 1; i <= 31; i++)
-                    {
-                        if (!ckdt.Rows[0]["TARGETDAY" + i.ToString()].ToString().Contains('0'))
-                        {
-                            if (dt.Rows.Count > 0)
-                            {
-                                ckdt.Rows[0]["TARGETDAY" + i.ToString()] = dt.Rows[0][0];
-                                dt.Rows[0].Delete();
+                                re_fp.Add((iNum).ToString() + "*");
                             }
                             else
                             {
-                                ckdt.Rows[0]["TARGETDAY" + i.ToString()] = "0";
+                                re_fp.Add((iNum).ToString());
                             }
+                        }
+                        else
+                        {
+                            re_fp.Add("0");
                         }
                     }
                     string sql = "update TCalendar_PingZhun_Nei set ";
-                    for (int y = 1; y <= 31; y++)
+                    for (int i = 0; i < 31; i++)
                     {
-                        sql += "TARGETDAY" + y.ToString() + "='" + ckdt.Rows[0]["TARGETDAY" + y.ToString()].ToString() + "',";
+                        sql += "TARGETDAY" + (i + 1).ToString() + "='" + re_fp[i] + "',";
                     }
                     sql = sql.TrimEnd(',');
                     sql += " where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "'";
                     excute.ExecuteSQLNoQuery(sql);
                 }
+                else
+                {
+                    #region 准备判断数据
+                    double totals = 0;
+                    double avg_int = 0;
+                    double avg_left = 0;
+                    double[] weeks = { 0, 0, 0, 0 };
+                    double[] weeks_pre = { 0, 0, 0, 0 };
+                    for (int i = 0; i < 31; i++)
+                    {
+                        if (ckdt.Rows[0][i + 3].ToString() == "1")
+                            weeks[0] = weeks[0] + 2;
+                        else if (ckdt.Rows[0][i + 3].ToString() == "1*")
+                            weeks[0] = weeks[0] + 1;
+                        else if (ckdt.Rows[0][i + 3].ToString() == "2")
+                            weeks[1] = weeks[1] + 2;
+                        else if (ckdt.Rows[0][i + 3].ToString() == "2*")
+                            weeks[1] = weeks[1] + 1;
+                        else if (ckdt.Rows[0][i + 3].ToString() == "3")
+                            weeks[2] = weeks[2] + 2;
+                        else if (ckdt.Rows[0][i + 3].ToString() == "3*")
+                            weeks[2] = weeks[2] + 1;
+                        else if (ckdt.Rows[0][i + 3].ToString() == "4")
+                            weeks[3] = weeks[3] + 2;
+                        else if (ckdt.Rows[0][i + 3].ToString() == "4*")
+                            weeks[3] = weeks[3] + 1;
+                    }
+                    for (int i = 0; i < 4; i++)
+                    {
+                        weeks_pre[i] = weeks[i];
+                    }
+                    Array.Sort(weeks);
+                    if (weeks[3] - weeks[0] >= 2) //判断存在差值大于2值的，则重新分配
+                    {
+                        for (int i = 1; i <= 31; i++)
+                        {
+                            if (ckdt.Rows[0]["TARGETDAY" + i.ToString()].ToString().Contains('*'))
+                                totals = totals + 1;
+                            else if (!ckdt.Rows[0]["TARGETDAY" + i.ToString()].ToString().Contains('0'))
+                                totals = totals + 2;
+                        }
+                        avg_int = Math.Floor(totals / 4);
+                        avg_left = totals % 4;
+                        double[] avg_i = { 0, 0, 0, 0 };
+                        switch (avg_left)
+                        {
+                            case 0:
+                                avg_i[0] = avg_int;
+                                avg_i[1] = avg_int + avg_i[0];
+                                avg_i[2] = avg_int + avg_i[1];
+                                avg_i[3] = avg_int + avg_i[2];
+                                break;
+                            case 1:
+                                avg_i[0] = avg_int + 1;
+                                avg_i[1] = avg_int + avg_i[0];
+                                avg_i[2] = avg_int + avg_i[1];
+                                avg_i[3] = avg_int + avg_i[2];
+                                break;
+                            case 2:
+                                avg_i[0] = avg_int + 1;
+                                avg_i[1] = avg_int + avg_i[0];
+                                avg_i[2] = avg_int + avg_i[1] + 1;
+                                avg_i[3] = avg_int + avg_i[2];
+                                break;
+                            case 3:
+                                avg_i[0] = avg_int + 1;
+                                avg_i[1] = avg_int + avg_i[0] + 1;
+                                avg_i[2] = avg_int + avg_i[1] + 1;
+                                avg_i[3] = avg_int + avg_i[2];
+                                break;
+                        }
+                        List<int> re_tm = new List<int>();
+                        List<string> re_fp = new List<string>();
+                        for (int i = 0; i < re.Count; i++)
+                        {
+                            if (re[i] != "0")
+                            {
+                                re_tm.Add(1);
+                            }
+                            else
+                            {
+                                re_tm.Add(0);
+                            }
+                            re_fp.Add("0");
+                        }
+                        int flag = 0;
+                        for (int i = 0; i < re.Count; i++)
+                        {
+                            if (re[i] != "0")
+                            {
+                                if (!re[i].Contains("*"))
+                                {
+                                    flag = flag + re_tm[i] + 1;
+                                    if (flag <= avg_i[0])
+                                    {
+                                        re_fp[i] = "1";
+                                    }
+                                    else if (flag <= avg_i[1] && flag > avg_i[0])
+                                    {
+                                        if (weeks[0] != 0)
+                                        {
+                                            if (flag - avg_i[0] == 1 && flag - weeks[0] <= 2)
+                                            {
+                                                re_fp[i] = "1";
+                                            }
+                                            else
+                                            {
+                                                re_fp[i] = "2";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            re_fp[i] = re[i];
+                                        }
+                                    }
+                                    else if (flag <= avg_i[2] && flag > avg_i[1])
+                                    {
+                                        if (weeks[0] != 0)
+                                        {
+                                            if (flag - avg_i[1] == 1 && flag - (weeks[0] + avg_int) <= 2)
+                                            {
+                                                re_fp[i] = "2";
+                                            }
+                                            else
+                                            {
+                                                re_fp[i] = "3";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            re_fp[i] = re[i];
+                                        }
+                                    }
+                                    else if (flag <= avg_i[3] && flag > avg_i[2])
+                                    {
+                                        if (weeks[0] != 0)
+                                        {
+                                            if (flag - avg_i[2] == 1 && flag - (weeks[0] + avg_int * 2) <= 2)
+                                            {
+                                                re_fp[i] = "3";
+                                            }
+                                            else
+                                            {
+                                                re_fp[i] = "4";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            re_fp[i] = re[i];
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    flag = flag + re_tm[i];
+                                    if (flag <= avg_i[0])
+                                    {
+                                        if (weeks[0] != 0)
+                                        {
+                                            re_fp[i] = "1*";
+                                        }
+                                        else
+                                        {
+                                            re_fp[i] = re[i];
+                                        }
+                                    }
+                                    else if (flag <= avg_i[1] && flag > avg_i[0])
+                                    {
+                                        if (weeks[0] != 0)
+                                        {
+                                            re_fp[i] = "2*";
+                                        }
+                                        else
+                                        {
+                                            re_fp[i] = re[i];
+                                        }
+                                    }
+                                    else if (flag <= avg_i[2] && flag > avg_i[1])
+                                    {
+                                        if (weeks[0] != 0)
+                                        {
+                                            re_fp[i] = "3*";
+                                        }
+                                        else
+                                        {
+                                            re_fp[i] = re[i];
+                                        }
+                                    }
+                                    else if (flag <= avg_i[3] && flag > avg_i[2])
+                                    {
+                                        if (weeks[0] != 0)
+                                        {
+                                            re_fp[i] = "4*";
+                                        }
+                                        else
+                                        {
+                                            re_fp[i] = re[i];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        string sql = "update TCalendar_PingZhun_Nei set ";
+                        for (int i = 0; i < 31; i++)
+                        {
+                            sql += "TARGETDAY" + (i + 1).ToString() + "='" + re_fp[i] + "',";
+                        }
+                        sql = sql.TrimEnd(',');
+                        sql += " where vcFZGC='" + vcFZGC + "' and TARGETMONTH='" + varDxny + "'";
+                        excute.ExecuteSQLNoQuery(sql);
+                    }
+                    #endregion
+                }
+
                 #endregion
+
                 return msg;
             }
             catch (Exception ex)

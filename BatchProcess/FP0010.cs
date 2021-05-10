@@ -17,29 +17,23 @@ namespace BatchProcess
             string PageId = "FP0010";
             try
             {
-                ComMessage.GetInstance().ProcessMessage(PageId, "批处理开始执行", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1001", null, strUserId);
 
-                bool flag = syncSJ();
-
-                if (!flag)
-                {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行失败", null, strUserId);
-                    return false;
-                }
+                syncSJ();
 
                 //批处理
-                ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行结束", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1002", null, strUserId);
                 return true;
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行有误", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1003", ex, strUserId);
                 throw ex;
             }
         }
         #endregion
 
-        public bool syncSJ()
+        public void syncSJ()
         {
             try
             {
@@ -62,13 +56,12 @@ namespace BatchProcess
                 sbr.AppendLine("           AND (CASE WHEN LEN(REPLACE(a.vcPart_id,'-','')) = 12 THEN REPLACE(a.vcPart_id,'-','') WHEN LEN(REPLACE(a.vcPart_id,'-','')) = 10 THEN REPLACE(a.vcPart_id,'-','')+'00' END) = b.vcPartId");
                 sbr.AppendLine("           AND a.vcSYTCode = b.vcPackingPlant;");
 
-                excute.ExcuteSqlWithStringOper(sbr.ToString());
+                excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
 
-                return true;
             }
             catch (Exception ex)
             {
-                return false;
+                throw ex;
             }
         }
     }

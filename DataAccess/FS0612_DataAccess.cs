@@ -230,6 +230,21 @@ namespace DataAccess
                 throw ex;
             }
         }
+        #region  获取SOQ中全部发注工厂
+        public DataTable getPlantALL(string strDXYM)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select distinct vcFZGC from TSoq where vcYearMonth='" + strDXYM + "'    \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
         public int isHaveSoqData(string strDXYM, string strPlant, string strKind)
         {
             try

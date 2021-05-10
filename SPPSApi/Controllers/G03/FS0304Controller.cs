@@ -238,7 +238,7 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id);
-                string[] fields = { "dSSDate", "vcJD_Name", "vcPart_id", "vcSPINo",
+                string[] fields = { "dSSDate","dNqDate", "vcJD_Name", "vcPart_id", "vcSPINo",
                                     "vcChange_Name", "vcCarType_Name","vcInOutflag_Name","vcPartName",
                                     "vcOE_Name","vcSupplier_id","vcFXDiff_Name","vcFXNo",
                                     "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcYQorNG",
@@ -371,16 +371,16 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //只有已回复的才可以保存
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    string strJD = listInfoData[i]["vcJD"].ToString();
-                    if (strJD != "2")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "所选对象包含未回复品番";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
+                //for (int i = 0; i < listInfoData.Count; i++)
+                //{
+                //    string strJD = listInfoData[i]["vcJD"].ToString();
+                //    if (strJD != "2")
+                //    {
+                //        apiResult.code = ComConstant.ERROR_CODE;
+                //        apiResult.data = "所选对象包含未回复品番";
+                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //    }
+                //}
 
                 fs0304_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;

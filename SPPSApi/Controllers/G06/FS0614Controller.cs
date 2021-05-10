@@ -5,12 +5,17 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using System.ServiceModel;
+using System.Text;
+using System.Threading.Tasks;
+using DataAccess;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Logic;
+using WebServiceAPI;
 
 namespace SPPSApi.Controllers.G06
 {
@@ -188,8 +193,9 @@ namespace SPPSApi.Controllers.G06
                     dtMessage.Columns.Add("vcPartNo");
                     dtMessage.Columns.Add("vcMessage");
                     bool result = true;
-                    bool resflag = fs0614_logic.CreateOrder(listInfoData, realPath, loginInfo.UserId, loginInfo.UnitCode, ref result, ref dtMessage);
+                    List<FS0614_DataAccess.DownNode> nodeList = new List<FS0614_DataAccess.DownNode>();
 
+                    bool resflag = fs0614_logic.CreateOrder(listInfoData, realPath, loginInfo.UserId, loginInfo.UnitCode, ref result, ref dtMessage, ref nodeList);
 
                     if (dtMessage.Rows.Count > 0)
                     {
@@ -199,6 +205,75 @@ namespace SPPSApi.Controllers.G06
                         apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+
+                    #region 生成标签
+
+                    MultiExcute excute = new MultiExcute();
+                    string strPath_pdf = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "PDF" + Path.DirectorySeparatorChar + "Order" + Path.DirectorySeparatorChar;
+                    string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                    FS0603_Logic fS0603_Logic = new FS0603_Logic();
+                    DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("标签", "");
+
+                    //标签生成
+
+                    StringBuilder labelBuilder = new StringBuilder();
+                    foreach (FS0614_DataAccess.DownNode node in nodeList)
+                    {
+
+                        string printsql = "SELECT * FROM dbo.tPrintTemp_tag_FS1103 WHERE vcSupplierid = '" + node.supplier + "' AND vcOperatorID = '" + loginInfo.UserId + "'  ORDER BY iAutoId";
+                        #region 调用webApiPDF导出
+                        //创建 HTTP 绑定对象
+                        var binding = new BasicHttpBinding();
+                        //根据 WebService 的 URL 构建终端点对象
+                        var endpoint = new EndpointAddress(dtPrinterInfo.Rows[0]["vcWebAPI"].ToString());
+                        //创建调用接口的工厂，注意这里泛型只能传入接口
+                        var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                        //从工厂获取具体的调用实例
+                        var callClient = factory.CreateChannel();
+                        setCRVToPDFRequestBody Body = new setCRVToPDFRequestBody();
+                        Body.strScrpit = printsql;
+                        Body.strDiskFileName = strPath_pdf + node.orderNo + "_" + node.supplier + ".pdf";
+                        Body.strCRVName = file_crv + dtPrinterInfo.Rows[0]["vcReports"].ToString();
+                        Body.sqlUserID = dtPrinterInfo.Rows[0]["vcSqlUserID"].ToString();
+                        Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();
+                        Body.sqlCatalog = dtPrinterInfo.Rows[0]["vcSqlCatalog"].ToString();
+                        Body.sqlSource = dtPrinterInfo.Rows[0]["vcSqlSource"].ToString();
+                        //调用具体的方法，这里是 HelloWorldAsync 方法
+                        Task<setCRVToPDFResponse> responseTask = callClient.setCRVToPDFAsync(new setCRVToPDFRequest(Body));
+                        //获取结果
+                        setCRVToPDFResponse response = responseTask.Result;
+                        if (response.Body.setCRVToPDFResult != "导出成功")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        #endregion
+
+
+                        labelBuilder.AppendLine("INSERT INTO dbo.TTagDownLoadList(vcOrderNo,vcSupplierId,vcTagZIP,vcCreaterId,dCreateTime) VALUES (");
+                        labelBuilder.AppendLine(ComFunction.getSqlValue(node.orderNo, false) + ",");
+                        labelBuilder.AppendLine(ComFunction.getSqlValue(node.supplier, false) + ",");
+                        labelBuilder.AppendLine("'" + node.orderNo + "_" + node.supplier + ".pdf" + "',");
+                        labelBuilder.AppendLine("    '" + loginInfo.UserId + "',");
+                        labelBuilder.AppendLine("	GETDATE())");
+                    }
+
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
+                    if (labelBuilder.Length > 0)
+                    {
+                        excute.ExcuteSqlWithStringOper(labelBuilder.ToString());
+                    }
+
+                    #endregion
 
                 }
 
@@ -301,12 +376,12 @@ namespace SPPSApi.Controllers.G06
 
             try
             {
-                string realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                string realPath = _webHostEnvironment.ContentRootPath + "Doc" +
                                   Path.DirectorySeparatorChar + "orders";
                 string filepath = fs0614_logic.getPath(fileName);
                 if (!string.IsNullOrWhiteSpace(filepath))
                 {
-                    string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                    string fileSavePath = _webHostEnvironment.ContentRootPath + "Doc" +
                                           Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar +
                                           "Order"; //文件临时目录，导入完成后 删除
                     string tmp = fileSavePath + Path.DirectorySeparatorChar;

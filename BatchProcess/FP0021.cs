@@ -9,7 +9,7 @@ using Logic;
 using NPOI.OpenXmlFormats.Dml;
 
 /// <summary>
-/// NQC内外合状态获取_EKANBAN
+/// 日度送信
 /// </summary>
 namespace BatchProcess
 {
@@ -104,7 +104,7 @@ namespace BatchProcess
 
                     plantList.Add(plant);
 
-                    fs0612_Logic.CreateView2(vcCLYM, plantList, strUserId,"日度");
+                    fs0612_Logic.CreateView2(vcCLYM, plantList, strUserId, "日度");
                 }
 
 
@@ -115,7 +115,7 @@ namespace BatchProcess
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE2102", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE2102", ex, strUserId);
                 throw ex;
             }
         }

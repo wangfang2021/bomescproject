@@ -292,7 +292,7 @@ namespace DataAccess
 
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,a.varChangedItem,d.vcBZPlant as vcPackSpot,a.vcPartsNo,   ");
-                strSql.AppendLine("    c.vcName as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,a.dFrom,a.dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
+                strSql.AppendLine("    c.vcName as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,substring(CONVERT(varchar, a.dFrom,120),0,11) as dFrom,substring(CONVERT(varchar, a.dTo,120),0,11) as dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
                 strSql.AppendLine("    ,b.vcName as vcShouhuofangID,'' as vcIsorNo from (       ");
                 strSql.AppendLine("     select *,'0' as vcModFlag,'0' as vcAddFlag from TPackItem    ");
                 strSql.AppendLine("      WHERE");

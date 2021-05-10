@@ -260,7 +260,8 @@ namespace DataAccess
                             sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcDock"].ToString());
                             sb.AppendLine(" ,'E' ");
                             sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcPlant"].ToString());
-                            sb.AppendFormat(" ,'{0}' ", tmp["vcPartsNameCHN"].ToString());
+                            //sb.AppendFormat(" ,'{0}' ", tmp["vcPartsNameCHN"].ToString());
+                            sb.AppendFormat(" ,'s' ");
                             sb.AppendFormat(" ,'{0}' ", tmp["vcCurrentPastCode"].ToString());
                             sb.AppendFormat(" ,'{0}' ", tmp["vcPorType"].ToString());
                             sb.AppendFormat(" ,'{0}' ", tmp["vcZB"].ToString());

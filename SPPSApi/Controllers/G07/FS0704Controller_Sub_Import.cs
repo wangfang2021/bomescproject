@@ -117,20 +117,86 @@ namespace SPPSApi.Controllers.G07
                     int j = dr.Length - 1;
                     while (j > 0)
                     {
-                        DateTime dRuHeFromDay = DateTime.ParseExact(dr[j]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dRuHeToDay = DateTime.ParseExact(dr[j]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dFaZhuFromDay = DateTime.ParseExact(dr[j]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dFaZhuToDay = DateTime.ParseExact(dr[j]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dNaQiFromDay = DateTime.ParseExact(dr[j]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dNaQiToDay = DateTime.ParseExact(dr[j]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        //DateTime dRuHeFromDay = DateTime.ParseExact(dr[j]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        //DateTime dRuHeToDay = DateTime.ParseExact(dr[j]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        //DateTime dFaZhuFromDay = DateTime.ParseExact(dr[j]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        //DateTime dFaZhuToDay = DateTime.ParseExact(dr[j]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        //DateTime dNaQiFromDay = DateTime.ParseExact(dr[j]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        //DateTime dNaQiToDay = DateTime.ParseExact(dr[j]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+
+
+                        DateTime dRuHeFromDay = DateTime.Parse(dr[j]["dRuHeFromTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcRuHeFromDay"].ToString()));
+                        DateTime dRuHeToDay = DateTime.Parse(dr[j]["druHeToTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcRuHeToDay"].ToString()));
+                        DateTime dFaZhuFromDay = DateTime.Parse(dr[j]["dFaZhuFromTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcFaZhuFromDay"].ToString()));
+                        DateTime dFaZhuToDay = DateTime.Parse(dr[j]["dFaZhuToTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcFaZhuToDay"].ToString()));
+                        DateTime dNaQiFromDay = DateTime.Parse(dr[j]["dNaQiFromTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcNaQiFromDay"].ToString()));
+                        DateTime dNaQiToDay = DateTime.Parse(dr[j]["dNaQiToTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcNaQiToDay"].ToString()));
+
+
+
+                        DateTime dFrom = DateTime.Parse(dr[j]["dFrom"].ToString());
+                        DateTime dTo = DateTime.Parse(dr[j]["dTo"].ToString());
+                        if (dFrom > dTo)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = dr[j]["vcFaZhuID"].ToString() + "TC(FROM)大于TC(TO)！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+
+
+                        //判断入荷早于发注早于纳期
+                        if (dRuHeToDay < dRuHeFromDay)
+                        {
+
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = dr[j]["vcFaZhuID"].ToString() + "部品入荷起始时间不能大于终止时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (dFaZhuToDay < dFaZhuFromDay)
+                        {
+
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = dr[j]["vcFaZhuID"].ToString() + "发注作业起始时间不能大于终止时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (dNaQiToDay < dNaQiFromDay)
+                        {
+
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = dr[j]["vcFaZhuID"].ToString() + "包材纳期起始时间不能大于终止时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (dRuHeToDay > dFaZhuFromDay || dRuHeToDay > dNaQiFromDay)
+                        {
+
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = dr[j]["vcFaZhuID"].ToString() + "部品入荷时间不能大于发注作业时间和纳期时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (dNaQiFromDay < dRuHeFromDay || dNaQiFromDay < dFaZhuFromDay)
+                        {
+
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = dr[j]["vcFaZhuID"].ToString() + "包材纳期时间不能小于部品入荷时间和发注作业时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                         for (int z = 0; z <= j - 1; z++)
                         {
-                            DateTime dRuHeFromDay1 = DateTime.ParseExact(dr[z]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dRuHeToDay1 = DateTime.ParseExact(dr[z]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dFaZhuFromDay1 = DateTime.ParseExact(dr[z]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dFaZhuToDay1 = DateTime.ParseExact(dr[z]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dNaQiFromDay1 = DateTime.ParseExact(dr[z]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dNaQiToDay1 = DateTime.ParseExact(dr[z]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            //DateTime dRuHeFromDay1 = DateTime.ParseExact(dr[z]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            //DateTime dRuHeToDay1 = DateTime.ParseExact(dr[z]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            //DateTime dFaZhuFromDay1 = DateTime.ParseExact(dr[z]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            //DateTime dFaZhuToDay1 = DateTime.ParseExact(dr[z]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            //DateTime dNaQiFromDay1 = DateTime.ParseExact(dr[z]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            //DateTime dNaQiToDay1 = DateTime.ParseExact(dr[z]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+
+                            DateTime dRuHeFromDay1 = DateTime.Parse(dr[z]["dRuHeFromTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcRuHeFromDay"].ToString()));
+                            DateTime dRuHeToDay1 = DateTime.Parse(dr[z]["druHeToTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcRuHeToDay"].ToString()));
+                            DateTime dFaZhuFromDay1 = DateTime.Parse(dr[z]["dFaZhuFromTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcFaZhuFromDay"].ToString()));
+                            DateTime dFaZhuToDay1 = DateTime.Parse(dr[z]["dFaZhuToTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcFaZhuToDay"].ToString()));
+                            DateTime dNaQiFromDay1 = DateTime.Parse(dr[z]["dNaQiFromTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcNaQiFromDay"].ToString()));
+                            DateTime dNaQiToDay1 = DateTime.Parse(dr[z]["dNaQiToTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcNaQiToDay"].ToString()));
+
+
                             if ((dRuHeFromDay <= dRuHeFromDay1 && dRuHeFromDay1 <= dRuHeToDay) || (dRuHeFromDay <= dRuHeToDay1 && dRuHeToDay1 <= dRuHeToDay))
                             {
                                 apiResult.code = ComConstant.ERROR_CODE;
@@ -172,6 +238,11 @@ namespace SPPSApi.Controllers.G07
                         DateTime dFaZhuToDay = DateTime.ParseExact(importDt.Rows[a]["dFaZhuToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
                         DateTime dNaQiFromDay = DateTime.ParseExact(importDt.Rows[a]["dNaQiFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
                         DateTime dNaQiToDay = DateTime.ParseExact(importDt.Rows[a]["dNaQiToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                      
+                        
+                        
+                        
+                        
                         for (int z = 0; z <= count - 1; z++)
                         {
                             DateTime dRuHeFromDay1 = DateTime.ParseExact(dr[z]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);

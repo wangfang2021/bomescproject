@@ -12,7 +12,7 @@ namespace DataAccess
     public class FS1103_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public DataTable getSearchInfo(string strReceiver, string strSupplier, string strInPutOrderNo, string strPartId, string strLianFan)
+        public DataTable getSearchInfo(string strReceiver, string strOrderNo, string strInPutOrderNo, string strPartId, string strLianFan)
         {
             try
             {
@@ -25,10 +25,6 @@ namespace DataAccess
                 if (strReceiver != "")
                 {
                     strSql.AppendLine("AND vcCpdcompany='" + strReceiver + "'");
-                }
-                if (strSupplier != "")
-                {
-                    strSql.AppendLine("--AND 供应商");
                 }
                 if (strInPutOrderNo != "")
                 {
@@ -44,10 +40,17 @@ namespace DataAccess
                 strSql.AppendLine("(select vcInno,vcPart_id,vcGetnum,MIN((vcPrintcount)) AS vcTagLianFFrom ,MAX((vcPrintcount)) AS vcTagLianFTo from TLabelList");
                 strSql.AppendLine("GROUP BY vcInno,vcPart_id,vcGetnum)B");
                 strSql.AppendLine("ON A.vcInno=B.vcInno AND A.vcPart_Id=B.vcPart_id");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(select  * from TOperateSJ where vcZYType='S0')C");
+                strSql.AppendLine("on a.vcInno=c.vcInputNo and a.vcCpdcompany=c.vcSHF");
                 strSql.AppendLine("WHERE 1=1");
+                if (strOrderNo != "")
+                {
+                    strSql.AppendLine("AND C.vcKBOrderNo='" + strOrderNo + "'");
+                }
                 if (strLianFan != "")
                 {
-                    strSql.AppendLine("AND B.vcTagLianFFrom<='" + strLianFan + "' AND B.vcTagLianFTo>='" + strLianFan + "'");
+                    strSql.AppendLine("AND CAST(C.vcKBLFNo AS INT)=CAST('"+ strLianFan + "' AS INT)");
                 }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

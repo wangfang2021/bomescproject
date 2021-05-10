@@ -189,7 +189,8 @@ namespace SPPSApi.Controllers.G06
                         apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是未发送，才能进行荷姿展开操作！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (listInfoData[i]["vcExpectIntake"].ToString().Trim().Length == 0)
+                    string vcExpectIntake = listInfoData[i]["vcExpectIntake"] == null ? "" : listInfoData[i]["vcExpectIntake"].ToString().Trim();
+                    if (vcExpectIntake.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "请填写品番" + listInfoData[i]["vcPartNo"] + "的要望收容数，才能进行荷姿展开操作！";

@@ -98,7 +98,12 @@ namespace DataAccess
                     if (vcState=="5"|| vcState=="6")
                     {
                         strSql.AppendLine("  and  d.vcState = '" + vcState + "' ");
-                    } else
+                    }
+                    else if(vcState == "4")
+                    {
+                        strSql.AppendLine("  and  a.vcState in ('4','5') ");
+                    }
+                    else
                     {
                         strSql.AppendLine("  and  a.vcState = '" + vcState + "' ");
                     }
@@ -305,7 +310,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select vcCarType as vcValue,vcCarType as vcName from(    ");
-                strSql.AppendLine("    	select distinct isnull(vcCarType,'无') as vcCarType from [THeZiManage] where vcSupplier_id='" + userId + "'   ");
+                strSql.AppendLine("    	select distinct isnull(vcCarType,'无') as vcCarType from [THeZiManage] where vcSupplier_id='" + userId + "' and vcState<>0   ");
                 strSql.AppendLine("  ) t order by vcValue desc  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -323,7 +328,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select dExpectDeliveryDate as vcValue,dExpectDeliveryDate as vcName from(    ");
-                strSql.AppendLine("    	select  distinct convert(varchar(10), dExpectDeliveryDate,111) as dExpectDeliveryDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4 and  vcState<>5  ");
+                strSql.AppendLine("    	select  distinct convert(varchar(10), dExpectDeliveryDate,111) as dExpectDeliveryDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4 and  vcState<>5 and vcState<>0 ");
                 strSql.AppendLine("  ) t order by vcValue desc  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

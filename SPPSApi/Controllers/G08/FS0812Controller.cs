@@ -87,10 +87,13 @@ namespace SPPSApi.Controllers.G08
             string vcBox_id = dataForm.vcBoxNo;
             string vcLabelId = dataForm.vcLabelId;
             string vcFHF = dataForm.vcFHF;
+            string vcPart_id = dataForm.vcPart_id;
+            string vcLianFanNo = dataForm.vcLianFanNo;
+            string vcOrderNo = dataForm.vcOrderNo;
 
             try
             {
-                DataTable dt = fs0812_Logic.Search(vcBox_id, vcLabelId,vcFHF);
+                DataTable dt = fs0812_Logic.Search(vcBox_id, vcLabelId,vcFHF,vcPart_id,vcLianFanNo,vcOrderNo);
 
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -130,10 +133,13 @@ namespace SPPSApi.Controllers.G08
             string vcBox_id = dataForm.vcBoxNo == null ? "" : dataForm.vcBoxNo;
             string vcLabelId = dataForm.vcLabelId;
             string vcFHF = dataForm.vcFHF;
+            string vcPart_id = dataForm.vcPart_id;
+            string vcLianFanNo = dataForm.vcLianFanNo;
+            string vcOrderNo = dataForm.vcOrderNo;
 
             try
             {
-                DataTable dt = fs0812_Logic.Search(vcBox_id, vcLabelId, vcFHF);
+                DataTable dt = fs0812_Logic.Search(vcBox_id, vcLabelId, vcFHF,vcPart_id,vcLianFanNo,vcOrderNo);
                 string[] heads = { "状态", "箱号", "入库指示书号", "品番", "订单号", "连番号", "数量",
                 "包装时间","包装者","装箱时间","装箱者"};
                 string[] fields = { "vcStatus", "vcBoxNo", "vcInstructionNo", "vcPart_id", "vcOrderNo", "vcLianFanNo", "iQuantity",

@@ -13,7 +13,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 按检索条件返回dt
-        public DataTable Search(string strSSDate,string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id)
+        public DataTable Search(string strSSDate,string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id,string strUserOriginCompany,string strUserID)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace DataAccess
                 strSql.Append("   where 1=1  \n");
                 if (!string.IsNullOrEmpty(strSSDate))
                 {
-                    strSql.Append("      and dSSDate = '" + strSSDate + "'  ");
+                    strSql.Append("      and '" + strSSDate + "' <= dSSDate and dSSDate < '" + Convert.ToDateTime(strSSDate).AddDays(1).ToString("yyyy/MM/dd") + "'      \n");
                 }
                 if (!string.IsNullOrEmpty(strJD))
                 {
@@ -108,6 +108,48 @@ namespace DataAccess
                 {
                     strSql.Append("      and vcSupplier_id like '"+ strSupplier_id + "%'   ");
                 }
+                if (!string.IsNullOrEmpty(strUserOriginCompany))        //用户选择了某个所属原单位
+                {
+                    strSql.Append("      and vcOriginCompany = '"+strUserOriginCompany+"'   ");
+                }
+                else //用户没有选择任何所属原单位，默认检索用户所担当的所有原单位数据
+                {
+                    DataTable userOriginCompanyDT = getUserOriginCompany(strUserID);
+                    if (userOriginCompanyDT==null || userOriginCompanyDT.Rows.Count<=0 || userOriginCompanyDT.Rows[0][0]==null || userOriginCompanyDT.Rows[0][0].ToString() == "")
+                    {
+                        strSql.Append("      and 1=0   ");          //当前登陆用户没有担当的原单位，检索不出任何数据
+                    }
+                    else
+                    {
+                        strUserOriginCompany = userOriginCompanyDT.Rows[0][0].ToString();
+                        #region 格式化担当原单位字符串
+                        strUserOriginCompany = strUserOriginCompany.Replace("，", ",");             //如果字符串中存在中文逗号，则替换成英文逗号
+                        if (strUserOriginCompany.Substring(strUserOriginCompany.Length-1)==",")     //去掉末尾的逗号
+                        {
+                            strUserOriginCompany = strUserOriginCompany.Substring(0, strUserOriginCompany.Length - 1);
+                        }
+                        if (strUserOriginCompany.Substring(0,1) == ",")                             //去掉开头的逗号
+                        {
+                            strUserOriginCompany = strUserOriginCompany.Substring(1);
+                        }
+                        #endregion
+                        string[] userOriginCompanyArray = strUserOriginCompany.Split(",");
+                        strSql.Append("   and vcOriginCompany in (   \n");
+                        
+                        for (int i = 0; i < userOriginCompanyArray.Length; i++)
+                        {
+                            if (i == userOriginCompanyArray.Length - 1)
+                            {
+                                strSql.Append("   '" + userOriginCompanyArray[i] + "'   \n");
+                            }
+                            else
+                            {
+                                strSql.Append("   '" + userOriginCompanyArray[i] + "',   \n");
+                            }
+                        }
+                        strSql.Append("    )     \n");
+                    }
+                }
                 strSql.Append("     order by dSSDate desc,vcPart_id    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
@@ -122,9 +164,26 @@ namespace DataAccess
         /// <summary>
         /// 界面打开时执行的检索，检索处理中的数据。处理中：进度状态只要不是已织入的都是处理中
         /// </summary>
+        /// <param name="UserOriginCompany">担当原单位</param>
         /// <returns></returns>
-        public DataTable Search()
+        public DataTable Search(string UserOriginCompany)
         {
+
+            #region 格式化担当原单位字符串
+            UserOriginCompany = UserOriginCompany.Replace("，", ",");                //如果字符串中存在中文逗号，则替换成英文逗号
+
+            if (UserOriginCompany.Substring(UserOriginCompany.Length - 1) == ",")    //去掉末尾的逗号
+            {
+                UserOriginCompany = UserOriginCompany.Substring(0, UserOriginCompany.Length - 1);
+            }
+            if (UserOriginCompany.Substring(0,1) == ",")                            //去掉开头的逗号
+            {
+                UserOriginCompany = UserOriginCompany.Substring(1);
+            }
+            #endregion
+
+            string[] userOriginCompanyArray = UserOriginCompany.Split(",");
+
             try
             {
                 StringBuilder strSql = new StringBuilder();
@@ -184,6 +243,19 @@ namespace DataAccess
                 strSql.Append("     )b10 on a.GUID = b10.GUID    \n");
                 strSql.Append("   where 1=1  \n");
                 strSql.Append("   and vcJD <> 4  \n");
+                strSql.Append("   and vcOriginCompany in (   \n");
+                for (int i = 0; i < userOriginCompanyArray.Length; i++)
+                {
+                    if (i==userOriginCompanyArray.Length-1)
+                    {
+                        strSql.Append("   '" + userOriginCompanyArray[i] + "'   \n");
+                    }
+                    else
+                    {
+                        strSql.Append("   '" + userOriginCompanyArray[i] + "',   \n");
+                    }
+                }
+                strSql.Append("   )   \n");
                 strSql.Append("   order by vcPart_id ,dSSDate desc    \n");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
@@ -206,6 +278,7 @@ namespace DataAccess
                 #region 更新生确表中的数据
                 sql.Append("          update TSQJD set           \n");
                 sql.Append("           dTFTM_BJ = b.dTFTM_BJ          \n");
+                sql.Append("          ,vcHKPart_id = b.vcHKPart_id          \n");
                 sql.Append("          ,vcSYTCode = b.vcSYTCode          \n");
                 sql.Append("          ,vcOperatorId = '" + strUserId+"'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
@@ -217,6 +290,7 @@ namespace DataAccess
                 #region 更新供应商生确表的包装工场
                 sql.Append("          update TSQJD_Supplier set           \n");
                 sql.Append("           vcSYTCode = b.vcSYTCode          \n");
+                sql.Append("          ,vcHKPart_id = b.vcHKPart_id          \n");
                 sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
                 sql.Append("          from TSQJD_Supplier a           \n");
@@ -326,6 +400,25 @@ namespace DataAccess
                 #region 更新生确表中的数据
                 sql.Append("          update TSQJD set           \n");
                 sql.Append("           dTFTM_BJ = '"+dTFTM_BJ+"'          \n");
+                sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
+                sql.Append("          ,dOperatorTime = GETDATE()          \n");
+                sql.Append("          from TSQJD a           \n");
+                sql.Append("          inner join         \n");
+                sql.Append("          (        \n");
+                sql.Append("          	select * from #TSQJD_temp        \n");
+                sql.Append("          	where vcJD = '2'        \n");
+                sql.Append("          ) b        \n");
+                sql.Append("          on a.[GUID] = b.[GUID]        \n");
+                #endregion
+
+                /*
+                 * 修改时间：2020-5-6
+                 * 修改人：董镇
+                 * 修改内同：日期一括付与后，供应商生确的数据应该同步更改
+                 */
+                #region 更新供应商生确表中的数据
+                sql.Append("          update TSQJD_Supplier set           \n");
+                sql.Append("           dTFTM_BJ = '" + dTFTM_BJ + "'          \n");
                 sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
                 sql.Append("          from TSQJD a           \n");
@@ -669,6 +762,12 @@ namespace DataAccess
         #region 织入原单位
         public void sendUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
         {
+            /*
+             * 修改时间：2020-5-6
+             * 修改人：董镇
+             * 修改内容：在织入原单位时，添加所属原单位Key
+             * 修改理由：可能存在两个原单位有相同品番的情况，如果不加所属原单位Key的话，会造成织入一条而更改两个原单位的数据。
+             */
             try
             {
                 StringBuilder sql = new StringBuilder();
@@ -697,7 +796,7 @@ namespace DataAccess
                     sql.Append("        ,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcTH        \n");
                     sql.Append("        ,vcSCPlace_City,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode        \n");
                     sql.Append("        ,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff        \n");
-                    sql.Append("        ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,GUID        \n");
+                    sql.Append("        ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,GUID,vcOriginCompany        \n");
                     sql.Append("        )        \n");
                     sql.Append("        values        \n");
                     sql.Append("        (        \n");
@@ -745,6 +844,7 @@ namespace DataAccess
                     sql.Append("        ,'" + strUserId + "'        \n");
                     sql.Append("        ,GETDATE()        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["GUID"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcOriginCompany"], false) + "        \n");
                     sql.Append("        )        \n");
                 }
                 #endregion
@@ -758,8 +858,8 @@ namespace DataAccess
                  *           此时TFTM生确担当可以填写包装工场，供应商生确担当可以填写生产地、出荷地信息，
                  *           所以织入的时候需要将包装工场信息织回去。
                  */
-                #region 新设
-                #region 根据品番织入TFTM调整日期
+                #region 新车新设/设变新设
+                #region 根据品番和所属原单位织入TFTM调整日期
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dTimeFrom = b.dTFTM_BJ       \n");
                 sql.Append("        ,dTimeTo = '9999-12-31'       \n");
@@ -771,8 +871,9 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 #endregion
-                #region 根据品番和供应商代码织入生产地和出荷地
+                #region 根据品番、所属原单位和供应商代码织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dTimeFrom = b.dTFTM_BJ       \n");
                 sql.Append("        ,dGYSTimeFrom = b.dTFTM_BJ       \n");
@@ -793,12 +894,14 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'      \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
                 #endregion
 
                 #endregion
 
                 #region 复活
+                //根据品番和所属原单位更新原单位的生确状态
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");                
@@ -810,10 +913,11 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'      \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 #endregion
 
                 #region 旧型(打切旧型/设变旧型)
-                #region 根据品番织入TFTM调整日期
+                #region 根据品番和所属原单位织入TFTM调整日期
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dJiuBegin = b.dTFTM_BJ       \n");
                 sql.Append("        from TUnit a       \n");
@@ -824,8 +928,9 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 #endregion
-                #region 根据品番和供应商代码织入生产地和出荷地
+                #region 根据品番、所属原单位和供应商代码织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
@@ -842,12 +947,13 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
                 #endregion
                 #endregion
 
                 #region 旧型恢复现号
-                #region 根据品番织入TFTM调整日期
+                #region 根据品番和所属原单位织入TFTM调整日期
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dJiuEnd = b.dTFTM_BJ       \n");
                 sql.Append("        from TUnit a       \n");
@@ -858,8 +964,9 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 #endregion
-                #region 根据品番和供应商代码织入生产地和出荷地
+                #region 根据品番、所属原单位和供应商代码织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
@@ -876,12 +983,13 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
                 #endregion
                 #endregion
 
                 #region 废止(使用废止、设变废止)
-                #region 根据品番织入TFTM调整日期
+                #region 根据品番和所属原单位织入TFTM调整日期
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dTimeTo = b.dTFTM_BJ       \n");
                 sql.Append("        from TUnit a       \n");
@@ -892,8 +1000,9 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 #endregion
-                #region 根据品番和供应商代码织入生产地和出荷地
+                #region 根据品番、所属原单位和供应商代码织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
@@ -910,12 +1019,13 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
                 #endregion
                 #endregion
 
                 #region 工程变更-废止
-                #region 根据品番织入TFTM调整日期
+                #region 根据品番和所属原单位织入TFTM调整日期
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dGYSTimeTo = b.dTFTM_BJ       \n");
                 sql.Append("        from TUnit a       \n");
@@ -926,9 +1036,9 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
-                sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 #endregion
-                #region 根据品番和供应商代码织入生产地和出荷地
+                #region 根据品番、所属原单位和供应商代码织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
@@ -945,13 +1055,14 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
                 #endregion
 
                 #endregion
 
                 #region 工程变更-新设
-                #region 根据品番织入TFTM调整日期
+                #region 根据品番和所属原单位织入TFTM调整日期
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dGYSTimeFrom = b.dTFTM_BJ       \n");
                 sql.Append("        ,dGYSTimeTo = '9999/12/31'       \n");
@@ -963,9 +1074,9 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
-                sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 #endregion
-                #region 根据品番和供应商代码织入生产地和出荷地
+                #region 根据品番、所属原单位和供应商代码织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
@@ -982,12 +1093,13 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
                 #endregion
                 #endregion
 
                 #region 供应商变更-废止
-                #region 根据品番织入TFTM调整日期
+                #region 根据品番和所属原单位织入TFTM调整日期
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dGYSTimeTo = b.dTFTM_BJ       \n");
                 sql.Append("        from TUnit a       \n");
@@ -998,9 +1110,9 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
-                sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 #endregion
-                #region 根据品番和供应商代码织入生产地和出荷地
+                #region 根据品番、所属原单位和供应商代码织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
@@ -1017,12 +1129,13 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
                 #endregion
                 #endregion
 
                 #region 供应商变更-新设
-                #region 根据品番织入TFTM调整日期
+                #region 根据品番和所属原单位织入TFTM调整日期
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dGYSTimeFrom = b.dTFTM_BJ       \n");
                 sql.Append("        ,dGYSTimeTo = '9999/12/31'       \n");
@@ -1034,9 +1147,9 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
-                sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 #endregion
-                #region 根据品番和供应商代码织入生产地和出荷地
+                #region 根据品番、所属原单位和供应商代码织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
@@ -1053,40 +1166,44 @@ namespace DataAccess
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
                 #endregion
                 #endregion
 
                 #region 防锈变更
+                //根据品番、所属原单位和供应商代码更新原单位生确状态
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp       \n");
+                sql.Append("        	select vcPart_id,vcOriginCompany,vcSupplier_id from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange = '17'       \n");
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
                 #endregion
                 #endregion
 
-                #region 对应不可时，将生确状态改为NG
+                #region 对应不可时，根据品番和所属原单位将生确状态改为NG
                 sql.Append("        update TUnit set        \n");
                 sql.Append("        vcSQState = '3'       \n");
                 sql.Append("        ,vcSQContent = 'NG'       \n");
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join        \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select vcPart_id from #TSQJD_temp       \n");
+                sql.Append("        	select vcPart_id,vcOriginCompany from #TSQJD_temp       \n");
                 sql.Append("        	where vcIsDYJG = '2' or vcIsDYFX = '2'       \n");
                 sql.Append("        ) b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcOriginCompany = b.vcOriginCompany       \n");
                 #endregion
 
-                #region 更新生确表中的数据
+                #region 根据GUID更新生确表中的数据
                 sql.Append("          update TSQJD set           \n");
                 sql.Append("           vcJD = '4'          \n");
                 sql.Append("          ,dTFTM_BJ = b.dTFTM_BJ          \n");
@@ -1179,7 +1296,7 @@ namespace DataAccess
                 sql.Append("        (        \n");
                 sql.Append("        dSSDate,vcJD        \n");
                 sql.Append("        ,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag        \n");
-                sql.Append("        ,vcPartName,vcOE,vcSupplier_id,vcFXDiff,vcFXNo        \n");
+                sql.Append("        ,vcPartName,vcOE,vcHKPart_id,vcSupplier_id,vcFXDiff,vcFXNo        \n");
                 sql.Append("        ,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4        \n");
                 sql.Append("        ,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9        \n");
                 sql.Append("        ,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcTH        \n");
@@ -1198,6 +1315,7 @@ namespace DataAccess
                 sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcInOutflag"], false) + "        \n");
                 sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + "        \n");
                 sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcOE"], false) + "        \n");
+                sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcHKPart_id"], false) + "        \n");
                 sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + "        \n");
                 sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + "        \n");
                 sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + "        \n");
@@ -1236,6 +1354,15 @@ namespace DataAccess
                 sql.Append("        )        \n");
             }
             #endregion
+        }
+        #endregion
+
+        #region 获取当前登陆用户担当的原单位
+        public DataTable getUserOriginCompany(string strUserID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendLine("      select vcValue2 from TOutCode where vcCodeId = 'C011' and vcIsColum = '0' and vcValue1 = '"+strUserID+"'       ");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
         #endregion
 

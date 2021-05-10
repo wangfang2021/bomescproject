@@ -90,7 +90,17 @@ namespace SPPSApi.Controllers.G03
                     dataList_C026_all.Add(row);
                 }
                 #endregion
-
+                List<Object> dataList_TC011;                                                                    //担当原单位
+                DataTable DTC011 = fs0304_Logic.getUserOriginCompany(loginInfo.UserId);
+                if (DTC011==null || DTC011.Rows.Count<=0)
+                {
+                    dataList_TC011 = null;
+                }
+                else
+                {
+                    dataList_TC011 = ComFunction.convertAllToResult(DTC011);
+                }
+                
                 res.Add("C026", dataList_C026);
                 res.Add("C002", dataList_C002);
                 res.Add("C003", dataList_C003);
@@ -101,6 +111,7 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C029", dataList_C029);
                 res.Add("C030", dataList_C030);
                 res.Add("C026_all", dataList_C026_all);
+                res.Add("TC011", dataList_TC011);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -131,17 +142,18 @@ namespace SPPSApi.Controllers.G03
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strSSDate = dataForm.dSSDate;                //实施日期
-            string strJD = dataForm.vcJD;                       //生确进度
-            string strInOutFlag = dataForm.vcInOutflag;         //内外
-            string strSupplier_id = dataForm.vcSupplier_id;     //供应商
-            string strCarType = dataForm.vcCarType;             //车种
-            string strPart_id = dataForm.vcPart_id;             //品番
-            string strIsDYJG = dataForm.vcIsDYJG;               //对应可否确认结果
+            string strSSDate = dataForm.dSSDate;                    //实施日期
+            string strJD = dataForm.vcJD;                           //生确进度
+            string strInOutFlag = dataForm.vcInOutflag;             //内外
+            string strSupplier_id = dataForm.vcSupplier_id;         //供应商
+            string strCarType = dataForm.vcCarType;                 //车种
+            string strPart_id = dataForm.vcPart_id;                 //品番
+            string strIsDYJG = dataForm.vcIsDYJG;                   //对应可否确认结果
+            string strUserOriginCompany = dataForm.vcOriginCompany; //担当原单位
 
             try
             {
-                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id);
+                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,loginInfo.UserId);
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
@@ -185,7 +197,7 @@ namespace SPPSApi.Controllers.G03
 
             try
             {
-                DataTable dt = fs0304_Logic.Search();
+                DataTable dt = fs0304_Logic.Search(loginInfo.UserId);
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
@@ -227,20 +239,27 @@ namespace SPPSApi.Controllers.G03
             ApiResult apiresult = new ApiResult();
             dynamic dataform = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strSSDate = dataform.dSSDate;                //实施日期
-            string strJD = dataform.vcJD;                       //进度
-            string strInOutFlag = dataform.vcInOutflag;         //内外
-            string strSupplier_id = dataform.vcSupplier_id;     //供应商
-            string strCarType = dataform.vcCarType;             //车种
-            string strPart_id = dataform.vcPart_id;             //品番
-            string strIsDYJG = dataform.vcIsDYJG;               //对应可否确认结果
+            string strSSDate = dataform.dSSDate;                    //实施日期
+            string strJD = dataform.vcJD;                           //进度
+            string strInOutFlag = dataform.vcInOutflag;             //内外
+            string strSupplier_id = dataform.vcSupplier_id;         //供应商
+            string strCarType = dataform.vcCarType;                 //车种
+            string strPart_id = dataform.vcPart_id;                 //品番
+            string strIsDYJG = dataform.vcIsDYJG;                   //对应可否确认结果
+            string strUserOriginCompany = dataform.vcOriginCompany; //担当原单位
 
             try
             {
-                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id);
-                string[] fields = { "dSSDate","dNqDate", "vcJD_Name", "vcPart_id", "vcSPINo",
-                                    "vcChange_Name", "vcCarType_Name","vcInOutflag_Name","vcPartName",
-                                    "vcOE_Name","vcSupplier_id","vcFXDiff_Name","vcFXNo",
+                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,logininfo.UserId);
+                /*
+                 * 修改时间：2021-5-6
+                 * 修改人：董镇
+                 * 问题提出者：张培鑫
+                 * 修改内容：导出中车种信息应该导出数字字母组合的车种代码，不应该是车种关联出来的车名
+                 */
+                string[] fields = { "dSSDate","dNqDate", "vcJD_Name","vcOriginCompany","vcPart_id", "vcSPINo",
+                                    "vcChange_Name", "vcCarType","vcInOutflag_Name","vcPartName",
+                                    "vcOE_Name","vcHKPart_id","vcSupplier_id","vcFXDiff_Name","vcFXNo",
                                     "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcYQorNG",
                                     "vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province",
                                     "vcSYTCode_Name","vcSCSPlace","dSupplier_BJ","dSupplier_HK",
@@ -370,17 +389,31 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //只有已回复的才可以保存
-                //for (int i = 0; i < listInfoData.Count; i++)
-                //{
-                //    string strJD = listInfoData[i]["vcJD"].ToString();
-                //    if (strJD != "2")
-                //    {
-                //        apiResult.code = ComConstant.ERROR_CODE;
-                //        apiResult.data = "所选对象包含未回复品番";
-                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //    }
-                //}
+
+                #region 数据校验
+                /*
+                 * 修改时间：2021-5-7
+                 * 修改人：董镇
+                 * 修改内容：由原先的不校验任何数据 修改为 校验可修改字段的最大长度
+                 */
+                string[,] strField = new string[,] {{"号口品番(参考)","事业体"   ,"TFTM调整日期" },
+                                                    {"vcHKPart_id"   ,"vcSYTCode","dTFTM_BJ"     },
+                                                    {""              ,""         ,FieldCheck.Date},
+                                                    {"100"           ,"10"       ,"0"            },//最大长度设定,不校验最大长度用0
+                                                    {"0"             ,"0"        ,"0"            },//最小长度设定,可以为空用0
+                                                    {"11"            ,"24"       ,"29"           } //前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                string[,] strDateRegion = null;
+                string[,] strSpecialCheck = null;
+                List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0305");
+                if (checkRes != null)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = checkRes;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
 
                 fs0304_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -512,15 +545,8 @@ namespace SPPSApi.Controllers.G03
                     }
                 }
 
-                string strErrorPartId = "";
                 string strErr = "";
                 fs0304_Logic.sendUnit(listInfoData, loginInfo.UserId, ref strErr);
-                if (strErrorPartId != "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败，以下品番TFTM调整时间小于品番开始时间：<br/>" + strErrorPartId;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
                 if (strErr!="")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

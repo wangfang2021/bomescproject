@@ -19,16 +19,22 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strSSDate, string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id)
+        public DataTable Search(string strSSDate, string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id, string strUserOriginCompany,string strUserID)
         {
-            return fs0304_DataAccess.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id);
+            return fs0304_DataAccess.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,strUserID);
         }
         #endregion
 
         #region 初始化检索
-        public DataTable Search()
+        public DataTable Search(string strUserID)
         {
-            return fs0304_DataAccess.Search();
+            DataTable userOriginCompanyDT = fs0304_DataAccess.getUserOriginCompany(strUserID);
+            if (userOriginCompanyDT==null || userOriginCompanyDT.Rows.Count<=0 || userOriginCompanyDT.Rows[0][0]==null || userOriginCompanyDT.Rows[0][0].ToString()=="")
+            {
+                return null;
+            }
+
+            return fs0304_DataAccess.Search(userOriginCompanyDT.Rows[0][0].ToString());
         }
         #endregion
 
@@ -197,6 +203,44 @@ namespace Logic
         public DataTable getCheckGYSFromDate(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
         {
             return fs0304_DataAccess.getCheckGYSFromDate(listInfoData, strUserId, ref strErr);
+        }
+        #endregion
+
+        #region 获取当前登陆用户担当的原单位
+        public DataTable getUserOriginCompany(string strUserID)
+        {
+            DataTable dt = fs0304_DataAccess.getUserOriginCompany(strUserID);
+            if (dt==null || dt.Rows.Count<=0 || dt.Rows[0][0] == null || dt.Rows[0][0].ToString()=="")
+            {
+                return null;
+            }
+            string strUserOriginCompany = dt.Rows[0][0].ToString();
+
+            #region 担当原单位字符串格式化
+            strUserOriginCompany = strUserOriginCompany.Replace("，",",");           //如果字符串中存在中文字符，则转换为英文字符
+            if (strUserOriginCompany.Substring(strUserOriginCompany.Length-1,1)==",")//去掉结尾的逗号
+            {
+                strUserOriginCompany = strUserOriginCompany.Substring(0, strUserOriginCompany.Length - 1);
+            }
+            if (strUserOriginCompany.Substring(0, 1) == ",")//去掉开头的逗号
+            {
+                strUserOriginCompany = strUserOriginCompany.Substring(1);
+            }
+            #endregion
+
+            DataTable returnDt = new DataTable();
+            returnDt.Columns.Add("vcName");
+            returnDt.Columns.Add("vcValue");
+
+            for (int i = 0; i < strUserOriginCompany.Split(",").Length; i++)
+            {
+                DataRow dr = returnDt.NewRow();
+                dr["vcName"] = strUserOriginCompany.Split(",")[i];
+                dr["vcValue"] = strUserOriginCompany.Split(",")[i];
+                returnDt.Rows.Add(dr);
+            }
+
+            return returnDt;
         }
         #endregion
     }

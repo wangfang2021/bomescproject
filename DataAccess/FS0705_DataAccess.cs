@@ -165,7 +165,7 @@ namespace DataAccess
         #endregion
 
         #region 发注数量计算
-        public void computer(string strFaZhuID, string strUserID, string strPackSpot,string strRuHeToTime,string strBianCi)
+        public void computer(string strFaZhuID, string strUserID, string strPackSpot,string strRuHeToTime,string strBianCi,string strNaQiDate)
         {
             StringBuilder strSql = new StringBuilder();
             string strFlag = DateTime.Now.ToString("yyyyMMddhhmmss");
@@ -211,12 +211,8 @@ namespace DataAccess
             strSql.Append("            )b on   a.vcPackSpot=b.vcPackSpot and a.vcFaZhuID=b.vcFaZhuID      \r\n");
             strSql.Append("       );          \r\n");
             strSql.Append("       set @dEnd = '"+strRuHeToTime+"';     \r\n");
-            strSql.Append("       set @dNaQi = (select MAX(cast(convert(varchar(10),getdate(),120)+' '+convert(varchar(50),dNaQiFromTime) as datetime)) from TPackFaZhuTime where vcPackSpot = '" + strPackSpot + "'and vcFaZhuID = '"+strFaZhuID+"' and dFaZhuFromTime<=CONVERT(char(8),GETDATE(),108) and CONVERT(char(8),GETDATE(),108)<=dFaZhuToTime)     \r\n");
+            strSql.Append("       set @dNaQi = '"+strNaQiDate+"'     \r\n");
             strSql.Append("       set @vcBianCi =  '"+strBianCi+"'     \r\n");
-            strSql.Append("       IF @dNaQi is NULL     \r\n");
-            strSql.Append("       BEGIN     \r\n");
-            strSql.Append("       SET @dNaQi = (select  top 1 convert(varchar(10),getdate(),120)+' '+convert(varchar(50),dNaQiFromTime) from TPackFaZhuTime where vcPackSpot = '"+strPackSpot+"' and vcFaZhuID = '"+strFaZhuID+"' and dFaZhuToTime > CONVERT(char(8),GETDATE(),108)   order by dFaZhuToTime asc)     \r\n");
-            strSql.Append("       END     \r\n");
             
             strSql.Append("       insert into TPackCompute(vcFaZhuID,dTimeStr,vcPackNo,vcPackGPSNo,iA_SRS,iB_LastShengYu,iC_LiLun,iD_TiaoZheng,iE_JinJi,iF_DingGou,iG_ShengYu,vcOperatorID,dOperatorTime,vcFlag,dNaQiTime,vcBianCi,vcPackSpot)      \r\n");
             strSql.Append("       select vcFaZhuID,vcTimeStr,vcPackNo,vcPackGPSNo,A,B,SUM(C),SUM(D),SUM(E),F,G,'000000',GETDATE(),'"+strFlag+"',@dNaQi,@vcBianCi,'"+strPackSpot+"' from       \r\n");
@@ -243,7 +239,7 @@ namespace DataAccess
             strSql.Append("              				    (                  \r\n");
             strSql.Append("              					    select b.vcPackNo,b.iBiYao*a.iQuantity as 'iBiYao' from                  \r\n");
             strSql.Append("              					    (                  \r\n");
-            strSql.Append("              						    select vcPart_id,SUM(iQuantity) as 'iQuantity',dEnd from TOperateSJ where vcBZPlant = '" + strPackSpot+"' and vcZYType='S0' and @dBegin<=dEnd and dEnd<=@dEnd                  \r\n");
+            strSql.Append("              						    select vcPart_id,SUM(iQuantity) as 'iQuantity',dEnd from TOperateSJ where vcBZPlant = '" + strPackSpot+"' and vcZYType='S0' and @dBegin<dEnd and dEnd<=@dEnd                  \r\n");
             strSql.Append("              						    group by vcPart_id,dEnd                  \r\n");
             strSql.Append("              					    ) a                  \r\n");
             strSql.Append("              					    left join                  \r\n");
@@ -316,14 +312,14 @@ namespace DataAccess
             strSql.Append("       --获取所有当前时间段内所有品番的包材信息和有效信息      \r\n");
             strSql.Append("       select a.vcPart_id,b.vcPartsNo,b.vcPackNo,b.dUsedFrom,dUsedTo,b.vcBZPlant from       \r\n");
             strSql.Append("       (      \r\n");
-            strSql.Append("           select distinct vcPart_id from TOperateSJ where vcBZPlant = '"+strPackSpot+"' and vcZYType='S0' and @dBegin<=dEnd and dEnd<=@dEnd      \r\n");
+            strSql.Append("           select distinct vcPart_id from TOperateSJ where vcBZPlant = '" + strPackSpot + "' and vcZYType='S0' and @dBegin<=dEnd and dEnd<=@dEnd      \r\n");
             strSql.Append("       )a       \r\n");
             strSql.Append("       left join       \r\n");
             strSql.Append("       (      \r\n");
             strSql.Append("          select vcPartsNo,vcPackNo,dUsedFrom,dUsedTo,vcBZPlant from TPackItem a      \r\n");
             strSql.Append("          inner join        \r\n");
             strSql.Append("          (      \r\n");
-            strSql.Append("              select vcPart_id,vcBZPlant from TPackageMaster where vcBZPlant  = '"+strPackSpot+"'      \r\n");
+            strSql.Append("              select vcPart_id,vcBZPlant from TPackageMaster where vcBZPlant  = '" + strPackSpot + "'      \r\n");
             strSql.Append("          )  b  on a.vcPartsNo  = b.vcPart_id      \r\n");
             strSql.Append("       )b on a.vcPart_id = b.vcPartsNo      \r\n");
 
@@ -331,6 +327,14 @@ namespace DataAccess
         }
         #endregion
 
+        #region 校验当前计算的发注逻辑下是否存在有效包材构成
+        public DataTable getFaZhuIdPackCheckDT(string strFaZhuID,string strPackSpot)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendLine("       select vcPackNo from TPackBase where vcReleaseName = '" + strFaZhuID + "' and vcPackSpot = '" + strPackSpot + "' and dPackFrom < GETDATE() and dPackTo>GETDATE()      ");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+        }
+        #endregion
 
         #region 获取可以拥有计算过程检索和调整数据输入按钮权限的用户
         public DataTable getUserDisabledDT()
@@ -366,6 +370,74 @@ namespace DataAccess
             strSql.AppendLine("            set @vcBianCi = (select top 1 vcBianCi from TPackCompute where vcPackSpot = '"+strPackSpot+"' group by vcBianCi order by vcBianCi desc )          ");
             strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcBianCi = @vcBianCi and iF_DingGou >0         ");
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+        }
+        #endregion
+
+        #region 承认订购数量为0的计算结果用的检索
+        public DataTable admitEmptyDataSearch(string strPackSpot)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendLine("            declare @vcBianCi varchar(100)          ");
+            strSql.AppendLine("            set @vcBianCi = (select top 1 vcBianCi from TPackCompute where vcPackSpot = '" + strPackSpot + "' group by vcBianCi order by vcBianCi desc )          ");
+            strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcBianCi = @vcBianCi          ");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+        }
+        #endregion
+
+        #region 承认订购数量为0的计算结果
+        /// <summary>
+        /// 承认订购数量为0的计算结果
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="strUserID"></param>
+        public void AdmitEmptyData(DataTable dt, string strUserID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            try
+            {
+                #region 创建临时表
+                strSql.AppendLine("        if object_id('tempdb..#TPackCompute_temp') is not null  ");
+                strSql.AppendLine("        Begin  ");
+                strSql.AppendLine("        drop  table #TPackCompute_temp  ");
+                strSql.AppendLine("        End  ");
+                strSql.AppendLine("        select * into #TPackCompute_temp from       ");
+                strSql.AppendLine("        (      ");
+                strSql.AppendLine("      	  select vcOrderNo from TPackCompute where 1=0      ");
+                strSql.AppendLine("        ) a      ;");
+                strSql.AppendLine("        ALTER TABLE #TPackCompute_temp ADD  iAutoId int     ;");
+                #endregion
+
+                #region 更新临时表的订单号
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    strSql.AppendLine("       insert into #TPackCompute_temp      ");
+                    strSql.AppendLine("       (      ");
+                    strSql.AppendLine("           iAutoId      ");
+                    strSql.AppendLine("           ,vcOrderNo      ");
+                    strSql.AppendLine("       )      ");
+                    strSql.AppendLine("       VALUES      ");
+                    strSql.AppendLine("       (      ");
+                    strSql.AppendLine("           " + ComFunction.getSqlValue(dt.Rows[i]["iAutoId"], true) + "      ");
+                    strSql.AppendLine("           ,'XXXXXXX'      ");
+                    strSql.AppendLine("       )      ");
+                }
+                #endregion
+
+                #region 临时表与计算结果表关联，更新计算结果表的订单号
+                strSql.AppendLine("        UPDATE TPackCompute set vcOrderNo = b.vcOrderNo,vcOperatorID = '"+strUserID+"'         ");
+                strSql.AppendLine("        from TPackCompute  a         ");
+                strSql.AppendLine("        inner join          ");
+                strSql.AppendLine("        (         ");
+                strSql.AppendLine("            select * from #TPackCompute_temp             ");
+                strSql.AppendLine("        ) b on a.iAutoId = b.iAutoId         ");
+                #endregion
+
+                excute.ExcuteSqlWithStringOper(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         #endregion
 
@@ -508,6 +580,11 @@ namespace DataAccess
                 #endregion
 
                 #region 将此次的数据结果插入包材实际表中
+                /*
+                 * 修改时间：2021-5-7
+                 * 修改人：董镇
+                 * 修改内容：生成发注数据时，插入发注实际表时，不给发注时间赋值，发注时间应该是取订单发注界面点击发注订单时的时间
+                 */
                 strSql.AppendLine("        insert into TPack_FaZhu_ShiJi(                     ");
                 strSql.AppendLine("         vcOrderNo          ");
                 strSql.AppendLine("        ,vcPackNo          ");
@@ -535,7 +612,7 @@ namespace DataAccess
                 strSql.AppendLine("        ,c.vcParstName          ");
                 strSql.AppendLine("        ,b.iF_DingGou          ");
                 strSql.AppendLine("        ,'0'          ");
-                strSql.AppendLine("        ,GETDATE()          ");
+                strSql.AppendLine("        ,NULL          ");
                 strSql.AppendLine("        ,b.vcBianCi          ");
                 strSql.AppendLine("        ,b.iA_SRS          ");
                 strSql.AppendLine("        ,'0'          ");

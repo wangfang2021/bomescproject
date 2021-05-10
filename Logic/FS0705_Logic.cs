@@ -43,15 +43,25 @@ namespace Logic
         }
         #endregion
 
-        #region 获取所有当前时间段内所有品番的包材信息和有效信息
+        #region 获取所有当前时间段内所有品番的包材信息和有效信息,增加校验当前时段是否有包材品番入库
         public string[] getPackCheckDT(string strFaZhuID,string strPackSpot,string strRuHeToTime)
         {
             DataTable packCheckDT = fs0705_DataAccess.getPackCheckDT(strFaZhuID, strPackSpot,strRuHeToTime);
-            string[] strArray = new string[2];
+
+            string[] strArray = new string[3];
             //记录无包材构成的品番
             string strErr1 = "";
             //记录包材构成无效的品番
             string strErr2 = "";
+            //记录当前时间是否有包材品番入库
+            string strErr3 = "";
+
+            if (packCheckDT==null || packCheckDT.Rows.Count<=0)
+            {
+                strErr3 = "所选便次无包材品番入库";
+                strArray[2] = strErr3;
+                return strArray;
+            }
 
             //取到本次计算时段的所有品番(不重复)
             List<string> partLists = new List<string>();
@@ -83,6 +93,11 @@ namespace Logic
             return strArray;
         }
         #endregion
+
+        public DataTable getFaZhuIdPackCheckDT(string strFaZhuID,string strPackSpot)
+        {
+            return fs0705_DataAccess.getFaZhuIdPackCheckDT(strFaZhuID, strPackSpot);
+        }
 
         #region 发注便次更新
         public ArrayList SearchFaZhuTime(string strPackSpot)
@@ -396,9 +411,9 @@ namespace Logic
         #endregion
 
         #region 发注数量计算
-        public void computer(string strFaZhuID, string strUserID, string strPackSpot,string strRuHeToTime,string strBianCi)
+        public void computer(string strFaZhuID, string strUserID, string strPackSpot,string strRuHeToTime,string strBianCi,string strNaQiDate)
         {
-            fs0705_DataAccess.computer(strFaZhuID, strUserID, strPackSpot,strRuHeToTime,strBianCi);
+            fs0705_DataAccess.computer(strFaZhuID, strUserID, strPackSpot,strRuHeToTime,strBianCi,strNaQiDate);
         }
         #endregion
 
@@ -427,6 +442,20 @@ namespace Logic
         public DataTable SCFZDataSearchComputeJG(string strPackSpot)
         {
             return fs0705_DataAccess.SCFZDataSearchComputeJG(strPackSpot);
+        }
+        #endregion
+
+        #region 承认订购数量为0的计算结果用的检索
+        public DataTable admitEmptyDataSearch(string strPackSpot)
+        {
+            return fs0705_DataAccess.admitEmptyDataSearch(strPackSpot);
+        }
+        #endregion
+
+        #region 承认订购数量为0的计算结果用的检索
+        public void AdmitEmptyData(DataTable dt, string strUserID)
+        {
+            fs0705_DataAccess.AdmitEmptyData(dt, strUserID);
         }
         #endregion
 

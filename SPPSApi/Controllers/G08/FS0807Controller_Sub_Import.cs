@@ -120,7 +120,7 @@ namespace SPPSApi.Controllers.G08
                     {"10","12","0","0","10","25","25","25","2",
                      "5","0","20","20","1","10","10",
                      "4","4","100","25","25"},//最大长度设定,不校验最大长度用0
-                    {"0","1","1","1","0","1","0","0","0",
+                    {"0","12","1","1","0","1","0","0","0",
                      "0","1","0","0","0","0","0",
                      "0","0","0","0","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
@@ -226,6 +226,13 @@ namespace SPPSApi.Controllers.G08
                             apiResult.data = "第" + (i + 2) + "行时间区间必须满足起<止。";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
+                    }
+                    //校验 00品番和ED品番在手配表中是否存在
+                    if (fs0807_Logic.isExistSPMaster(importDt.Rows[i]["vcPart_id"].ToString().Substring(0, 10)) == false)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "第" + (i + 2) + "行品番(00和ED)在手配信息中不存在。";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
                 

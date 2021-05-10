@@ -184,7 +184,7 @@ namespace DataAccess
                 sbr.AppendLine("    LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C003') e ON a.vcInOutflag=e.vcValue");
                 sbr.AppendLine("    LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C012') f ON a.vcOE=f.vcValue");
                 sbr.AppendLine("    LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C004') g ON a.vcHaoJiu=g.vcValue");
-                sbr.AppendLine(" WHERE a.vcPart_id LIKE '" + PartId + "%' AND a.vcSupplier_id LIKE '" + Supplier_id + "%';");
+                sbr.AppendLine(" WHERE a.vcPart_id LIKE '" + PartId + "%' AND ISNULL(a.vcSupplier_id,'') LIKE '" + Supplier_id + "%';");
 
 
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");

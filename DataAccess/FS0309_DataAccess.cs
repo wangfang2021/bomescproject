@@ -94,7 +94,7 @@ namespace DataAccess
                 if (strPart_id != null && strPart_id != "")
                     strSql.Append("       and vcPart_id like '%" + strPart_id + "%'         \n");
                 if (strOriginCompany != null && strOriginCompany != "")
-                    strSql.Append("       and vcOriginCompany like '%" + strOriginCompany + "%'         \n");
+                    strSql.Append("       and vcOriginCompany = '" + strOriginCompany + "'         \n");
                 if (strHaoJiu != null && strHaoJiu != "")
                     strSql.Append("       and vcHaoJiu='" + strHaoJiu + "'         \n");
                 if (strProjectType != null && strProjectType != "")

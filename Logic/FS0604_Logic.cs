@@ -426,5 +426,10 @@ namespace Logic
         {
             fs0604_DataAccess.getData(userId);
         }
+
+        public void returnHandle(DataTable dtNewSupplierand, string userId)
+        {
+            fs0604_DataAccess.returnHandle(dtNewSupplierand,userId);
+        }
     }
 }

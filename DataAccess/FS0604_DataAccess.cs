@@ -991,6 +991,36 @@ namespace DataAccess
         }
 
         /// <summary>
+        /// 退回操作
+        /// </summary>
+        /// <param name="listInfoData"></param>
+        /// <param name="userId"></param>
+        public void returnHandle(DataTable dtNewSupplierand, string userId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+
+                sql.Append("update [THeZiManage] set  vcState='3', \n");
+
+                sql.Append(" vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId in( \n");
+                for (int i = 0; i < dtNewSupplierand.Rows.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(dtNewSupplierand.Rows[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// 织入原单位
         /// </summary>
         /// <param name="listInfoData"></param>

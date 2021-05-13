@@ -2754,17 +2754,17 @@ namespace DataAccess
                         DataRow[] rows = this.supplierMail.Select("vcValue1 = '" + pack.Supplier + "'");
                         DataTable maildt = rows.CopyToDataTable();
                         StringBuilder subject = new StringBuilder();
-                        subject.Append("主题");
+                        subject.Append("包装材紧急订单");
                         StringBuilder body = new StringBuilder();
-                        body.AppendLine("测试");
+                        body.AppendLine("<p>包材厂家"+pack.Supplier+" 担当</p><p>你好：</p><p><br></p><p>拜托按照附件提示包材及日期进行包材生产准备</p>");
 
                         bool flag = SendMail(this.Address, subject.ToString(), body.ToString(), path, maildt, this.copyEmail, this.FailEmail, "S");
                         if (!flag)
                         {
                             subject.Length = 0;
                             body.Length = 0;
-                            subject.Append("失败主题");
-                            body.AppendLine("测试");
+                            subject.Append("紧急订单邮件发送失败联络");
+                            body.AppendLine("附件紧急订单邮件发送失败。");
                             SendMail(this.Address, subject.ToString(), body.ToString(), path, maildt, this.copyEmail, this.FailEmail, "F");
                         }
                     }
@@ -2777,8 +2777,8 @@ namespace DataAccess
                         string path = DataTableToExcel(dt, rootpath, "", "包材构成失败");
                         StringBuilder subject = new StringBuilder();
                         StringBuilder body = new StringBuilder();
-                        subject.Append("不包含包材");
-                        body.AppendLine("内容");
+                        subject.Append("未维护包材构成品番明细");
+                        body.AppendLine("未维护包材构成品番明细请见附件。");
                         SendMail(this.Address, subject.ToString(), body.ToString(), path, null, this.copyEmail, this.FailEmail, "F");
                     }
                 }

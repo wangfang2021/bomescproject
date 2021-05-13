@@ -4319,8 +4319,17 @@ namespace Logic
                 apt = new SqlDataAdapter();
                 apt.InsertCommand = cmd;
                 apt.Update(dt);
+                updateEDParts();
             }
             return msg;
+        }
+
+        public void updateEDParts()
+        {
+            string sql = "update TKanbanPrintTbl set TKanbanPrintTbl.vcPrintflagED=a.vcPartsED,TKanbanPrintTbl.vcDockED=a.vcDockED ";
+            sql += "from (select substring(vcPartsNo,1,10)+'00' as vcPartsNo,vcPartsNo as vcPartsED,vcDock as vcDockED from tPartInfoMaster ";
+            sql += "where substring(vcPartsNo,11,2)='ED' and dTimeTo>=convert(varchar,getdate(),112)) a where TKanbanPrintTbl.vcPartsNo=a.vcPartsNo ";
+            excute.ExecuteSQLNoQuery(sql);
         }
 
         //获取对象周列名（生成打印数据用）

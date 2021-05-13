@@ -53,7 +53,8 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> dataList_C001 = ComFunction.convertAllToResult(ComFunction.getTCode("C042"));//发注逻辑
+                FS0701_Logic fS0701_Logic = new FS0701_Logic();
+                List<Object> dataList_C001 = ComFunction.convertAllToResult(fS0701_Logic.SearchFZLJ());//发注逻辑
 
                 res.Add("C001", dataList_C001);
                 apiResult.code = ComConstant.SUCCESS_CODE;

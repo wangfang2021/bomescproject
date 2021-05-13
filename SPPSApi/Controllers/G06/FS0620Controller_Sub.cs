@@ -158,7 +158,9 @@ namespace SPPSApi.Controllers.G06
                     dr["vcCarType"] = listInfoData[i]["vcCarType"] == null ? "" : listInfoData[i]["vcCarType"].ToString();
                     dr["vcAcceptNum"] = listInfoData[i]["vcAcceptNum"] == null ? "" : listInfoData[i]["vcAcceptNum"].ToString();
                     dr["vcJanuary"] = listInfoData[i]["vcJanuary"] == null ? "" : listInfoData[i]["vcJanuary"].ToString();
+                    dr["vcFebruary"] = listInfoData[i]["vcFebruary"] == null ? "" : listInfoData[i]["vcFebruary"].ToString();
                     dr["vcMarch"] = listInfoData[i]["vcMarch"] == null ? "" : listInfoData[i]["vcMarch"].ToString();
+                    dr["vcApril"] = listInfoData[i]["vcApril"] == null ? "" : listInfoData[i]["vcApril"].ToString();
                     dr["vcMay"] = listInfoData[i]["vcMay"] == null ? "" : listInfoData[i]["vcMay"].ToString();
                     dr["vcJune"] = listInfoData[i]["vcJune"] == null ? "" : listInfoData[i]["vcJune"].ToString();
                     dr["vcJuly"] = listInfoData[i]["vcJuly"] == null ? "" : listInfoData[i]["vcJuly"].ToString();

@@ -40,8 +40,11 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("     select distinct varChangedItem as vcName from TPackItem ");
-
+                //strSql.AppendLine("     select distinct varChangedItem as vcName from TPackItem ");
+                strSql.AppendLine("   select a.vcName,b.vcName as showName from (   ");
+                strSql.AppendLine("   select distinct varChangedItem as vcName from TPackItem)a   ");
+                strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C002') b   ");
+                strSql.AppendLine("   on a.vcName = b.vcValue   ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -81,7 +84,7 @@ namespace DataAccess
                 }
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,a.varChangedItem,d.vcBZPlant as vcPackSpot,a.vcPartsNo,   ");
+                strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,m.vcName as varChangedItem,d.vcBZPlant as vcPackSpot,a.vcPartsNo,   ");
                 strSql.AppendLine("    a.vcCar as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo, ");
                 strSql.AppendLine("     dFrom,  	");
                 strSql.AppendLine("    dTo,  	");
@@ -157,6 +160,8 @@ namespace DataAccess
                 strSql.AppendLine("   (  ");
                 strSql.AppendLine("   select * from TPackageMaster  ");
                 strSql.AppendLine("   )d on a.vcPartsNo= d.vcPart_id  ");
+                strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C002') m  ");
+                strSql.AppendLine("  on a.varChangedItem = m.vcValue  ");
                 strSql.AppendLine("    ");
                 strSql.AppendLine("    ");
 
@@ -178,8 +183,9 @@ namespace DataAccess
         {
             try
             {
+                strPartNoAll = strPartNoAll.Substring(0, strPartNoAll.Length - 1);
                 StringBuilder sql = new StringBuilder();
-                sql.Append(" delete from TPackItem where vcPartsNo in ('" + strPartNoAll + "') and isnull(vcPackNo,'')='' and  iBiYao is  null and isnull(vcDistinguish,'')=''  \r\n ");
+                sql.Append(" delete from TPackItem where vcPartsNo in (" + strPartNoAll + ") and isnull(vcPackNo,'')='' and  iBiYao is  null and isnull(vcDistinguish,'')=''  \r\n ");
 
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
@@ -291,8 +297,8 @@ namespace DataAccess
                 }
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,a.varChangedItem,d.vcBZPlant as vcPackSpot,a.vcPartsNo,   ");
-                strSql.AppendLine("    c.vcName as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,substring(CONVERT(varchar, a.dFrom,120),0,11) as dFrom,substring(CONVERT(varchar, a.dTo,120),0,11) as dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
+                strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,m.vcName as varChangedItem,d.vcBZPlant as vcPackSpot,a.vcPartsNo,   ");
+                strSql.AppendLine("    a.vcCar as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,substring(CONVERT(varchar, a.dFrom,120),0,11) as dFrom,substring(CONVERT(varchar, a.dTo,120),0,11) as dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
                 strSql.AppendLine("    ,b.vcName as vcShouhuofangID,'' as vcIsorNo from (       ");
                 strSql.AppendLine("     select *,'0' as vcModFlag,'0' as vcAddFlag from TPackItem    ");
                 strSql.AppendLine("      WHERE");
@@ -366,7 +372,8 @@ namespace DataAccess
                 strSql.AppendLine(" (   ");
                 strSql.AppendLine(" select * from TPackageMaster   ");
                 strSql.AppendLine(" )d on a.vcPartsNo=d.vcPart_id   ");
-
+                strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C002') m  ");
+                strSql.AppendLine("  on a.varChangedItem = m.vcValue  ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

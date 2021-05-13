@@ -94,7 +94,7 @@ namespace DataAccess
                 if (strPart_id != null && strPart_id != "")
                     strSql.Append("       and vcPart_id like '%" + strPart_id + "%'         \n");
                 if (strOriginCompany != null && strOriginCompany != "")
-                    strSql.Append("       and vcOriginCompany like '%" + strOriginCompany + "%'         \n");
+                    strSql.Append("       and vcOriginCompany = '" + strOriginCompany + "'         \n");
                 if (strHaoJiu != null && strHaoJiu != "")
                     strSql.Append("       and vcHaoJiu='" + strHaoJiu + "'         \n");
                 if (strProjectType != null && strProjectType != "")
@@ -1078,7 +1078,7 @@ namespace DataAccess
                 strSql.Append("      ,b.vcPartId_Replace        \n");
                 strSql.Append("      ,a.decPriceTNPWithTax        \n");
                 strSql.Append("      ,b.iPackingQty        \n");
-                strSql.Append("      ,a.vcCarTypeDesign        \n");
+                strSql.Append("      ,a.vcCarTypeDev        \n");
                 strSql.Append("      ,'' as vcNote        \n");//备注
                 strSql.Append("      from        \n");
                 strSql.Append("      (        \n");

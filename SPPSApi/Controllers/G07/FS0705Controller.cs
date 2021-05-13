@@ -140,6 +140,7 @@ namespace SPPSApi.Controllers.G07
                 string strRuHeToTime = listInfoData[listInfoData.Count - 1]["dRuheToDate"].ToString();
                 string strFaZhuID = listInfoData[listInfoData.Count - 1]["strFaZhuID"].ToString();
                 string strBianCi = listInfoData[listInfoData.Count - 1]["strBCName"].ToString();
+                string strNaQiDate = listInfoData[listInfoData.Count - 1]["dNaqiToDate"].ToString();
 
                 /*
                  * 添加校验此次补给品番是否维护包材构成
@@ -147,11 +148,37 @@ namespace SPPSApi.Controllers.G07
                  * 数据源：部品入库表，时间段取上次计算结束时间到(当前时间包材自动发注对应的入荷结束时间)
                  * 包材构成表：TPackItem
                  */
+
+
+                #region 校验当前计算的发注逻辑下是否存在有效包材构成
+                /*
+                 * 修改时间：2021-5-10
+                 * 修改人：董镇
+                 */
+                DataTable CheckFaZhuIDPackBase =  fs0705_Logic.getFaZhuIdPackCheckDT(strFaZhuID, loginInfo.BaoZhuangPlace);
+                if (CheckFaZhuIDPackBase==null || CheckFaZhuIDPackBase.Rows.Count<=0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "无对应该逻辑的包材品番";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
+
                 #region 验证补给品番是否存在有效的包材构成
                 string[] strArray = fs0705_Logic.getPackCheckDT(strFaZhuID,loginInfo.BaoZhuangPlace,strRuHeToTime);
 
                 string strErr1 = "";
                 string strErr2 = "";
+
+                #region 校验是否有包材品番入库
+                if (!string.IsNullOrEmpty(strArray[2]))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strArray[2];
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
+
 
                 if (strArray[0] != "")
                 {
@@ -179,7 +206,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 #endregion
 
-                fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace,strRuHeToTime,strBianCi);
+                fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace,strRuHeToTime,strBianCi,strNaQiDate);
 
                 #region 计算完毕检索计算结果
                 DataTable computeJGDT = fs0705_Logic.searchComputeJG(loginInfo.BaoZhuangPlace, strBianCi);
@@ -211,6 +238,51 @@ namespace SPPSApi.Controllers.G07
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
+        #endregion
+
+        #region 承认订购数量为0的计算结果
+
+        public string admitEmptyDataApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            try
+            {
+                /*
+                 * 查询出最后一次计算结果
+                 */
+                DataTable JGDT = fs0705_Logic.admitEmptyDataSearch(loginInfo.BaoZhuangPlace);
+
+                if (JGDT == null || JGDT.Rows.Count <= 0)       //为查询到任何数据，可能性：从未计算过
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请先进行计算";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                //承认计算结果为0
+                fs0705_Logic.AdmitEmptyData(JGDT, loginInfo.UserId);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M07UE0503", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "生成发注数据失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+
         #endregion
 
         #region 生成发注数据

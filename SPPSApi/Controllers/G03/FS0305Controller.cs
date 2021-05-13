@@ -395,6 +395,30 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
+                #region 数据校验
+                /*
+                 * 修改时间：2021-5-7
+                 * 修改人：董镇
+                 * 修改内容：由原先的不校验任何数据 修改为 校验可修改字段的最大长度
+                 */
+                string[,] strField = new string[,] {{"对应可否确认结果","防锈对应可否","对应不可理由/退回理由","延期说明","供应商补给日期","供应商号口日期","执行标准"},
+                                                    {"vcIsDYJG"        ,"vcIsDYFX"    ,"vcNotDY"              ,"vcYQorNG","dSupplier_BJ"  ,"dSupplier_HK"  ,"vcZXBZNo"},
+                                                    {""                ,""            ,""                     ,""        ,FieldCheck.Date ,FieldCheck.Date ,""        },
+                                                    {"1"               ,"1"           ,"600"                  ,"100"     ,"0"             ,"0"             ,"100"     },//最大长度设定,不校验最大长度用0
+                                                    {"0"               ,"0"           ,"0"                    ,"0"       ,"0"             ,"0"             ,"0"       },//最小长度设定,可以为空用0
+                                                    {"15"              ,"16"          ,"17"                   ,"18"      ,"26"            ,"27"            ,"29"      } //前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                string[,] strDateRegion = null;
+                string[,] strSpecialCheck = null;
+                List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0305");
+                if (checkRes != null)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = checkRes;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -461,7 +485,7 @@ namespace SPPSApi.Controllers.G03
                 DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id, logininfo.UserId);
                 string[] fields = { "vcPart_id", "dSSDate", "vcJD_Name", "vcSPINo",
                                     "vcChange_Name", "vcCarType","vcInOutflag_Name","vcPartName",
-                                    "vcOE_Name","vcSupplier_id","vcFXDiff_Name","vcFXNo",
+                                    "vcOE_Name","vcHKPart_id","vcSupplier_id","vcFXDiff_Name","vcFXNo",
                                     "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcNotDY",
                                     "vcYQorNG","vcTH","vcSCPlace_City","vcSCPlace_Province",
                                     "vcCHPlace_City","vcCHPlace_Province","vcSCSName","vcSCSPlace",
@@ -524,7 +548,7 @@ namespace SPPSApi.Controllers.G03
                                                     {""                ,""            ,""            },
                                                     {"1"               ,"1"           ,"0"           },//最大长度设定,不校验最大长度用0
                                                     {"1"               ,"1"           ,"0"           },//最小长度设定,可以为空用0
-                                                    {"14"              ,"15"          ,"26"          } //前台显示列号，从0开始计算,注意有选择框的是0
+                                                    {"15"              ,"16"          ,"28"          } //前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 string[,] strDateRegion = null;
                 string[,] strSpecialCheck = {

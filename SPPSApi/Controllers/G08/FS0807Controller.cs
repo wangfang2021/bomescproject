@@ -239,7 +239,7 @@ namespace SPPSApi.Controllers.G08
                         {"20","12","0","0","4","5","4",
                          "2","2","5","0","20","20","1",
                          "10","5","2","2","25","25"},//最大长度设定,不校验最大长度用0
-                        {"1","10","1","1","0","1","0",
+                        {"1","12","1","1","0","1","0",
                          "0","0","0","1","0","0","0",
                          "0","0","0","0","0","0"},//最小长度设定,可以为空用0
                         {"1","2","3","4","5","6","7",
@@ -286,6 +286,14 @@ namespace SPPSApi.Controllers.G08
                             {//区间有重复  
                                 apiResult.code = ComConstant.ERROR_CODE;
                                 apiResult.data = string.Format("保存失败，以下品番使用开始、结束区间存在重叠：{0}",strPart_id);
+                                apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                            //校验 00品番和ED品番在手配表中是否存在
+                            if(fs0807_Logic.isExistSPMaster(strPart_id.Substring(0,10))==false)
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = string.Format("保存失败，以下品番(00和ED)在手配信息中不存在：{0}", strPart_id);
                                 apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                             }

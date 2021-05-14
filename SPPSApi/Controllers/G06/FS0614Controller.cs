@@ -194,8 +194,11 @@ namespace SPPSApi.Controllers.G06
                     dtMessage.Columns.Add("vcMessage");
                     bool result = true;
                     List<FS0614_DataAccess.DownNode> nodeList = new List<FS0614_DataAccess.DownNode>();
+                    FS0614_DataAccess.PackEmail email = new FS0614_DataAccess.PackEmail("");
 
-                    bool resflag = fs0614_logic.CreateOrder(listInfoData, realPath, loginInfo.UserId, loginInfo.UnitCode, ref result, ref dtMessage, ref nodeList);
+                    bool resflag = fs0614_logic.CreateOrder(listInfoData, realPath, loginInfo.UserId, loginInfo.UnitCode, ref result, ref dtMessage, ref nodeList, _webHostEnvironment.ContentRootPath, loginInfo.Email);
+
+
 
                     if (dtMessage.Rows.Count > 0)
                     {

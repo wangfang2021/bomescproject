@@ -611,8 +611,13 @@ namespace DataAccess
                 }
                 //优化测试
 
-                //将更新后的条目的updateFlag 设置成1
                 cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "update TKanbanPrintTbl set TKanbanPrintTbl.vcPrintflagED=a.vcPartsED,TKanbanPrintTbl.vcDockED=a.vcDockED  ";
+                cmd.CommandText += "from (select substring(vcPartsNo,1,10)+'00' as vcPartsNo,vcPartsNo as vcPartsED,vcDock as vcDockED from tPartInfoMaster ";
+                cmd.CommandText += "where substring(vcPartsNo,11,2)='ED' and dTimeTo>=convert(varchar,getdate(),112)) a where TKanbanPrintTbl.vcPartsNo=a.vcPartsNo;";
+                cmd.ExecuteNonQuery();
+
+                //将更新后的条目的updateFlag 设置成1
                 cmd.CommandText = " update EDMonthPlanTMP set UpdateFlag='1', vcUpdateID='" + user + "', dUpdateTime=getdate() where vcMonth='" + mon + "' ";
                 cmd.CommandText += " and (select COUNT(1) from tPlanPartInfo where tPlanPartInfo.vcMonth='" + mon + "' and tPlanPartInfo.vcPartsno=EDMonthPlanTMP.vcPartsno and tPlanPartInfo.vcDock=EDMonthPlanTMP.vcDock ";
                 //cmd.CommandText += " and tPlanPartInfo.vcCarType = EDMonthPlanTMP.vcCarType and vcPlant ='" + plant + "' ) >0 ";

@@ -149,8 +149,8 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime, strYinQuType,strSHF,strLabelID, vcBanZhi, vcQianFen,vcBianCi);
-                string[] heads = { "引取类别","便次", "销售单号","器具数量", "卡车号","出荷日期","班值","前封号", "生成时间","传送人"};
-                string[] fields = { "vcYinQuTypeName","vcBianCi", "vcSellNo", "iToolQuantity", "vcTruckNo", "vcDate", "vcBanZhi", "vcQianFen", "dOperatorTime", "vcSender" };
+                string[] heads = { "出荷日期", "引取类别","便次", "销售单号","器具数量", "卡车号","班值","前封号", "生成时间","传送人"};
+                string[] fields = { "vcDate", "vcYinQuTypeName", "vcBianCi", "vcSellNo", "iToolQuantity", "vcTruckNo", "vcBanZhi", "vcQianFen", "dOperatorTime", "vcSender" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -257,12 +257,12 @@ namespace SPPSApi.Controllers.G08
                     #region 数据格式校验
                     string[,] strField = new string[,]
                     {
-                        {"便次","卡车号","出荷日期","班值","前封号"},//中文字段名
+                        {"便次","卡车号","出荷日期","班值","铅封号"},//中文字段名
                         {"vcBianCi","vcTruckNo","vcDate","vcBanZhi","vcQianFen"},//英文字段名
                         {"","",FieldCheck.Date,"",""},//数据类型校验
                         {"25","25","0","1","25"},//最大长度设定,不校验最大长度用0
                         {"1","1","0","0","0"},//最小长度设定,可以为空用0
-                        {"2","5","6","7","8"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"3","6","1","7","8"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0813");
                     if (checkRes != null)

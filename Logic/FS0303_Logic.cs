@@ -321,6 +321,14 @@ namespace Logic
                 }
                 #endregion
 
+                #region 记录数据同步时间，和数据同步结果条数
+                string strSyncTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                //原单位同步结果条数
+                int tUnit_Sync_HistoryCount = 0;
+                //所有事业体手配同步结果条数
+                int tSPMaster_Sync_HistoryCount = 0;
+                #endregion
+
                 #region 向下游同步数据
                 //获取所有的事业体
                 DataTable dt = ComFunction.getTCode("C016");
@@ -354,18 +362,31 @@ namespace Logic
                         #endregion
 
                         #region 准备就绪，开始同步操作
-                        fs0303_DataAccess.dataSync(strSYTName, tempList, strUserId, ref strMessage);
+                        fs0303_DataAccess.dataSync(strSYTName, tempList, strUserId, ref strMessage, strSyncTime);
                         #endregion
                         
                         #region 如果同步成功，将此次同步的数据的同步时间更新
-                        fs0303_DataAccess.dataSync(tempList, strUserId);
+                        fs0303_DataAccess.dataSync(tempList, strUserId,strSyncTime);
                         #endregion
+
+                        tSPMaster_Sync_HistoryCount += fs0303_DataAccess.setSyncData2SyncHistory_TSPMaster(strSyncTime, strSYTName);
 
                         strMessage += "发送成功！ \n";
                     }
                 }
                 #endregion
 
+                #region 数据同步结果校验
+                tUnit_Sync_HistoryCount = fs0303_DataAccess.setSyncData2SyncHistory_TUnit(strSyncTime);
+
+                string strMes = "本次数据同步：原单位" + tUnit_Sync_HistoryCount + "条，手配Master" + tSPMaster_Sync_HistoryCount + "条，同步结果不一致！\n同步时间：" + strSyncTime + "";
+
+                if (tSPMaster_Sync_HistoryCount!=tUnit_Sync_HistoryCount)
+                {
+                    fs0303_DataAccess.writeLog("原单位数据同步校验", strMes, strUserId);
+                }
+
+                #endregion
             }
             catch (Exception ex)
             {

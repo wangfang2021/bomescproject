@@ -15,6 +15,9 @@ using Microsoft.Office.Interop.Excel;
 using DataTable = System.Data.DataTable;
 using QRCoder;
 using System.Data.SqlClient;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using Convert = System.Convert;
 
 namespace DataAccess
 {
@@ -85,7 +88,7 @@ namespace DataAccess
         #endregion
 
         #region 生成
-        public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage, ref List<DownNode> DownList)
+        public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage, ref List<DownNode> DownList, string rootPath, string email)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
             sqlConnection.Open();
@@ -146,7 +149,9 @@ namespace DataAccess
                 //获取ED信息
                 DataTable EDPart = getEDPart();
 
-
+                //获取包材信息
+                DataTable PackInfo = getPackInfo();
+                PackEmail packEmail = new PackEmail(rootPath);
 
                 SqlCommand sqlCommand_deleteinfo = sqlConnection.CreateCommand();
                 sqlCommand_deleteinfo.Transaction = sqlTransaction;
@@ -808,6 +813,7 @@ namespace DataAccess
                             DateTime Time = DateTime.Parse(TargetYMJJ.Substring(0, 4) + "-" + TargetYMJJ.Substring(4, 2) + "-01");
                             DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
+
                             foreach (Detail detail in order.Details)
                             {
                                 #region 获取基础数据
@@ -1130,6 +1136,40 @@ namespace DataAccess
 
                                 #endregion
 
+
+                                #region 计算包材
+                                foreach (string key in NQ.Keys)
+                                {
+                                    DataRow[] packrows = PackInfo.Select("dFrom<='" + key + "' AND dTo>='" + key + "' AND dPackFrom<='" + key + "' AND dPackTo>='" + key + "' AND vcPartsNo = '" + vcPart_id + "'");
+                                    string Year = key.Substring(0, 4);
+                                    string Month = key.Substring(4, 2);
+                                    int day = Convert.ToInt32(key.Substring(6, 2));
+                                    double partnum = Convert.ToDouble(((List<string>)NQ[key])[0]);
+
+                                    if (packrows.Length > 0)
+                                    {
+                                        for (int p = 0; p < packrows.Length; p++)
+                                        {
+                                            double num = Convert.ToDouble(packrows[p]["iBiYao"]);
+                                            double packnum = num * partnum;
+                                            string packNo = packrows[p]["vcPackNo"].ToString();
+                                            string supplierId = packrows[p]["vcSupplierCode"].ToString();
+                                            PackSuccess pack = new PackSuccess(Year, Month, supplierId);
+                                            pack.list.Add(new PackItem(Year, Month, packNo, day, packnum));
+                                            packEmail.addSuccess(pack);
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        PackFail pack = new PackFail(Year, Month);
+                                        pack.list.Add(new PackItem(Year, Month, vcPart_id, day, partnum));
+                                        packEmail.addFail(pack);
+                                    }
+                                }
+
+
+                                #endregion
                             }
 
                             #region ED订单
@@ -1584,6 +1624,8 @@ namespace DataAccess
 
                 #endregion
 
+                packEmail.getEmail(email, SupplierEmail(), getEmail("C057"), getEmail("C058"));
+                packEmail.sendMail();
 
                 return true;
             }
@@ -2125,7 +2167,7 @@ namespace DataAccess
 
         #endregion
 
-        public string ObjToString(Object obj)
+        public static string ObjToString(Object obj)
         {
             try
             {
@@ -2617,5 +2659,554 @@ namespace DataAccess
             }
 
         }
+
+        public DataTable getPackInfo()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcPartsNo,a.vcPackNo,CONVERT(VARCHAR(8),dFrom,112) AS dFrom,CONVERT(VARCHAR(8),dTo,112) AS dTo,CONVERT(VARCHAR(8),dPackFrom,112) AS dPackFrom,CONVERT(VARCHAR(8),dPackTo,112) AS dPackTo,b.vcSupplierCode,iBiYao FROM ");
+                sbr.AppendLine("TPackItem a");
+                sbr.AppendLine("LEFT JOIN(");
+                sbr.AppendLine("SELECT vcPackNo,dPackFrom,dPackTo,vcSupplierCode FROM TPackBase");
+                sbr.AppendLine(") b ON a.vcPackNo = b.vcPackNo");
+
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #region 包材类
+
+        public class PackEmail
+        {
+            List<PackSuccess> success;
+            List<PackFail> fail;
+            private string rootpath;
+            string Address;
+            public DataTable supplierMail;
+            public List<mailClass> copyEmail;
+            public List<mailClass> FailEmail;
+            public PackEmail(string rootPath)
+            {
+                this.success = new List<PackSuccess>();
+                this.rootpath = rootPath;
+                this.fail = new List<PackFail>();
+            }
+
+            public void getEmail(string sendMail, DataTable dt, List<mailClass> copy, List<mailClass> fail)
+            {
+                this.Address = sendMail;
+                this.supplierMail = dt;
+                this.copyEmail = copy;
+                this.FailEmail = fail;
+            }
+
+            public void addSuccess(PackSuccess pack)
+            {
+                bool exist = false;
+                for (int i = 0; i < success.Count; i++)
+                {
+                    if (success[i].Year == pack.Year && success[i].Month == pack.Month &&
+                        success[i].Supplier == pack.Supplier)
+                    {
+                        success[i].AddPack(pack.list[0]);
+                        exist = true;
+                        break;
+                    }
+                }
+
+                if (!exist)
+                {
+                    this.success.Add(pack);
+                }
+            }
+            public void addFail(PackFail pack)
+            {
+                bool exist = false;
+                for (int i = 0; i < fail.Count; i++)
+                {
+                    if (success[i].Year == pack.Year && success[i].Month == pack.Month)
+                    {
+                        fail[i].AddPack(pack.list[0]);
+                        exist = true;
+                        break;
+                    }
+                }
+
+                if (!exist)
+                {
+                    this.fail.Add(pack);
+                }
+            }
+
+            public void sendMail()
+            {
+                if (success.Count > 0)
+                {
+                    foreach (PackSuccess pack in success)
+                    {
+                        DataTable dt = pack.getDt();
+                        string path = DataTableToExcel(dt, rootpath, pack.Supplier + "_", "包材构成");
+                        DataRow[] rows = this.supplierMail.Select("vcValue1 = '" + pack.Supplier + "'");
+                        DataTable maildt = rows.CopyToDataTable();
+                        StringBuilder subject = new StringBuilder();
+                        subject.Append("包装材紧急订单");
+                        StringBuilder body = new StringBuilder();
+                        body.AppendLine("<p>包材厂家"+pack.Supplier+" 担当</p><p>你好：</p><p><br></p><p>拜托按照附件提示包材及日期进行包材生产准备</p>");
+
+                        bool flag = SendMail(this.Address, subject.ToString(), body.ToString(), path, maildt, this.copyEmail, this.FailEmail, "S");
+                        if (!flag)
+                        {
+                            subject.Length = 0;
+                            body.Length = 0;
+                            subject.Append("紧急订单邮件发送失败联络");
+                            body.AppendLine("附件紧急订单邮件发送失败。");
+                            SendMail(this.Address, subject.ToString(), body.ToString(), path, maildt, this.copyEmail, this.FailEmail, "F");
+                        }
+                    }
+                }
+                if (fail.Count > 0)
+                {
+                    foreach (PackFail pack in fail)
+                    {
+                        DataTable dt = pack.getDt();
+                        string path = DataTableToExcel(dt, rootpath, "", "包材构成失败");
+                        StringBuilder subject = new StringBuilder();
+                        StringBuilder body = new StringBuilder();
+                        subject.Append("未维护包材构成品番明细");
+                        body.AppendLine("未维护包材构成品番明细请见附件。");
+                        SendMail(this.Address, subject.ToString(), body.ToString(), path, null, this.copyEmail, this.FailEmail, "F");
+                    }
+                }
+            }
+        }
+
+        public class PackSuccess
+        {
+            public string Year;
+            public string Month;
+            public string Supplier;
+            public int length;
+
+            public List<PackItem> list;
+
+            public PackSuccess(string Year, string Month, string Supplier)
+            {
+                this.Year = Year;
+                this.Month = Month;
+                this.Supplier = Supplier;
+                this.length = DateTime.DaysInMonth(Convert.ToInt32(Year), Convert.ToInt32(Month));
+                this.list = new List<PackItem>();
+            }
+
+            public void AddPack(PackItem newPack)
+            {
+                bool isExist = false;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    isExist = list[i].isExist(newPack);
+                    if (isExist)
+                    {
+                        list[i].Add(newPack);
+                        break;
+                    }
+                }
+
+                if (!isExist)
+                {
+                    list.Add(newPack);
+                }
+            }
+
+            public DataTable getDt()
+            {
+                DataTable dt = new DataTable();
+                dt.Columns.Add("PackNo");
+                for (int i = 1; i <= length; i++)
+                {
+                    dt.Columns.Add("day" + i);
+                }
+
+                DataRow title = dt.NewRow();
+                title["PackNo"] = "包材品番";
+                for (int i = 1; i <= length; i++)
+                {
+                    title["day" + i] = Year + "/" + Month + "/" + i;
+                }
+
+                dt.Rows.Add(title);
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    DataRow row = dt.NewRow();
+                    row["PackNo"] = list[i].PackNo;
+                    for (int j = 1; j <= length; j++)
+                        row["day" + j] = list[i].nums[j];
+                    dt.Rows.Add(row);
+                }
+
+                return dt;
+            }
+        }
+
+        public class PackItem
+        {
+            public string PackNo;
+            public double[] nums = new double[32];
+
+            public PackItem(string Year, string Month, string PackNo, int day, double num)
+            {
+                this.PackNo = PackNo;
+                nums[day] = num;
+            }
+
+            public void Add(PackItem newPack)
+            {
+                this.nums[1] = this.nums[1] + newPack.nums[1];
+                this.nums[2] = this.nums[2] + newPack.nums[2];
+                this.nums[3] = this.nums[3] + newPack.nums[3];
+                this.nums[4] = this.nums[4] + newPack.nums[4];
+                this.nums[5] = this.nums[5] + newPack.nums[5];
+                this.nums[6] = this.nums[6] + newPack.nums[6];
+                this.nums[7] = this.nums[7] + newPack.nums[7];
+                this.nums[8] = this.nums[8] + newPack.nums[8];
+                this.nums[9] = this.nums[9] + newPack.nums[9];
+                this.nums[10] = this.nums[10] + newPack.nums[10];
+                this.nums[11] = this.nums[11] + newPack.nums[11];
+                this.nums[12] = this.nums[12] + newPack.nums[12];
+                this.nums[13] = this.nums[13] + newPack.nums[13];
+                this.nums[14] = this.nums[14] + newPack.nums[14];
+                this.nums[15] = this.nums[15] + newPack.nums[15];
+                this.nums[16] = this.nums[16] + newPack.nums[16];
+                this.nums[17] = this.nums[17] + newPack.nums[17];
+                this.nums[18] = this.nums[18] + newPack.nums[18];
+                this.nums[19] = this.nums[19] + newPack.nums[19];
+                this.nums[20] = this.nums[20] + newPack.nums[20];
+                this.nums[21] = this.nums[21] + newPack.nums[21];
+                this.nums[22] = this.nums[22] + newPack.nums[22];
+                this.nums[23] = this.nums[23] + newPack.nums[23];
+                this.nums[24] = this.nums[24] + newPack.nums[24];
+                this.nums[25] = this.nums[25] + newPack.nums[25];
+                this.nums[26] = this.nums[26] + newPack.nums[26];
+                this.nums[27] = this.nums[27] + newPack.nums[27];
+                this.nums[28] = this.nums[28] + newPack.nums[28];
+                this.nums[29] = this.nums[29] + newPack.nums[29];
+                this.nums[30] = this.nums[30] + newPack.nums[30];
+                this.nums[31] = this.nums[31] + newPack.nums[31];
+            }
+
+            public bool isExist(PackItem newPack)
+            {
+                return this.PackNo.Equals(newPack.PackNo);
+            }
+
+        }
+
+        public class PackFail
+        {
+            public string Year;
+            public string Month;
+            public int length;
+
+            public List<PackItem> list;
+
+            public PackFail(string Year, string Month)
+            {
+                this.Year = Year;
+                this.Month = Month;
+                this.length = DateTime.DaysInMonth(Convert.ToInt32(Year), Convert.ToInt32(Month));
+                this.list = new List<PackItem>();
+            }
+
+            public void AddPack(PackItem newPack)
+            {
+                bool isExist = false;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    isExist = list[i].isExist(newPack);
+                    if (isExist)
+                    {
+                        list[i].Add(newPack);
+                        break;
+                    }
+                }
+
+                if (!isExist)
+                {
+                    list.Add(newPack);
+                }
+            }
+
+            public DataTable getDt()
+            {
+                DataTable dt = new DataTable();
+                dt.Columns.Add("PackNo");
+                for (int i = 1; i <= length; i++)
+                {
+                    dt.Columns.Add("day" + i);
+                }
+
+                DataRow title = dt.NewRow();
+                title["PackNo"] = "部品品番";
+                for (int i = 1; i <= length; i++)
+                {
+                    title["day" + i] = Year + "/" + Month + "/" + i;
+                }
+
+                dt.Rows.Add(title);
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    DataRow row = dt.NewRow();
+                    row["PackNo"] = list[i].PackNo;
+                    for (int j = 1; j <= length; j++)
+                        row["day" + j] = list[i].nums[j];
+                    dt.Rows.Add(row);
+                }
+
+                return dt;
+            }
+        }
+
+        public DataTable SupplierEmail()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine(" SELECT vcValue1,vcValue2,vcValue3,vcValue4 FROM TOutCode WHERE vcCodeId = 'C056' AND vcIsColum = '0'");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<mailClass> getEmail(string codeId)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine(" SELECT vcValue1,vcValue2 FROM TOutCode WHERE vcCodeId = '" + codeId + "' AND vcIsColum = '0'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                List<mailClass> list = new List<mailClass>();
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        list.Add(new mailClass(ObjToString(dt.Rows[i]["vcValue2"]), ObjToString(dt.Rows[i]["vcValue1"])));
+                    }
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        public class mailClass
+        {
+            public string address;
+            public string display;
+
+            public mailClass(string address, string display)
+            {
+                this.address = address;
+                this.display = display;
+            }
+        }
+
+        #region 生成Excel
+
+        public static string DataTableToExcel(DataTable dt, string rootPath, string supplierId, string strFunctionName)
+        {
+            bool result = false;
+            FileStream fs = null;
+            int size = 1048576 - 1;
+
+            string strFileName = supplierId + strFunctionName + "导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+            string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+
+            string path = fileSavePath + strFileName;
+
+            if (System.IO.File.Exists(path))
+            {
+                System.IO.File.Delete(path);
+            }
+            try
+            {
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    int page = dt.Rows.Count / size;
+                    IWorkbook workbook = new XSSFWorkbook();
+                    for (int i = 0; i < page + 1; i++)
+                    {
+                        string sheetname = "Sheet" + (i + 1).ToString();
+                        ISheet sheet = workbook.CreateSheet(sheetname);
+                        int rowCount = dt.Rows.Count - i * size > size ? size : dt.Rows.Count - i * size;//行数  
+                        int columnCount = dt.Columns.Count;//列数  
+                        List<ICellStyle> styles = new List<ICellStyle>();
+                        IRow row = sheet.CreateRow(0);
+                        ICell cell;
+                        //设置每列单元格属性
+                        for (int h = 0; h < columnCount; h++)
+                        {
+                            Type type = dt.Columns[h].DataType;
+                            ICellStyle dateStyle = workbook.CreateCellStyle();
+                            IDataFormat dataFormat = workbook.CreateDataFormat();
+                            dateStyle.DataFormat = dataFormat.GetFormat("General");
+                            styles.Add(dateStyle);
+                        }
+                        //设置每行每列的单元格,  
+                        for (int j = 0; j < rowCount; j++)
+                        {
+                            row = sheet.CreateRow(j);
+                            for (int l = 0; l < columnCount; l++)
+                            {
+                                Type type = dt.Columns[l].DataType;
+                                cell = row.CreateCell(l);
+                                cell.CellStyle = styles[l];
+                                if (type == Type.GetType("System.Decimal"))
+                                {
+                                    if (dt.Rows[j][l].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToDouble(dt.Rows[j + i * size][l].ToString()));
+                                }
+                                else if (type == Type.GetType("System.Int32"))
+                                {
+                                    if (dt.Rows[j][l].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToInt32(dt.Rows[j + i * size][l].ToString()));
+                                }
+                                else if (type == Type.GetType("System.Int16"))
+                                {
+                                    if (dt.Rows[j][l].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToInt16(dt.Rows[j + i * size][l].ToString()));
+                                }
+                                else if (type == Type.GetType("System.Int64"))
+                                {
+                                    if (dt.Rows[j][l].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToInt64(dt.Rows[j + i * size][l].ToString()));
+                                }
+                                else
+                                {
+                                    cell.SetCellValue(dt.Rows[j + i * size][l].ToString());
+                                }
+                            }
+                        }
+                        using (fs = File.OpenWrite(path))
+                        {
+                            workbook.Write(fs);//向打开的这个xls文件中写入数据  
+                        }
+                    }
+                    result = true;
+                }
+
+
+                return path;
+            }
+            catch (Exception ex)
+            {
+                if (fs != null)
+                {
+                    fs.Close();
+                }
+                ComFunction.ConsoleWriteLine(ex.Message);
+                return "";
+            }
+        }
+
+        #endregion
+
+        #region 发送邮件
+
+        public static bool SendMail(string userEmail, string Subject, string Body, string path, DataTable supplierdt, List<mailClass> copy, List<mailClass> Fail, string flag)
+        {
+            try
+            {
+                string strSubject = Subject;
+
+                DataTable cCDt = new DataTable();
+                DataTable receiverDt = new DataTable();
+                receiverDt.Columns.Add("address");
+                receiverDt.Columns.Add("displayName");
+                cCDt.Columns.Add("address");
+                cCDt.Columns.Add("displayName");
+                if (flag.Equals("S"))
+                {
+
+                    DataTable dt = supplierdt;
+                    if (dt.Rows.Count > 0)
+                    {
+                        string supplierId = ObjToString(dt.Rows[0]["vcValue1"]);
+                        List<string> EmailList = new List<string>();
+                        for (int i = 2; i <= 4; i++)
+                        {
+                            if (!string.IsNullOrWhiteSpace(ObjToString(dt.Rows[0]["vcValue" + i])))
+                            {
+                                EmailList.Add(ObjToString(dt.Rows[0]["vcValue" + i]));
+                            }
+                        }
+
+                        for (int i = 0; i < EmailList.Count; i++)
+                        {
+                            DataRow dr = receiverDt.NewRow();
+                            dr["address"] = EmailList[i];
+                            dr["displayName"] = supplierId;
+                            receiverDt.Rows.Add(dr);
+                        }
+                    }
+                    if (copy.Count > 0)
+                    {
+                        foreach (mailClass mail in copy)
+                        {
+                            DataRow dr = cCDt.NewRow();
+                            dr["address"] = mail.address;
+                            dr["displayName"] = mail.display;
+                            cCDt.Rows.Add(dr);
+                        }
+                    }
+                    else
+                    {
+                        cCDt = null;
+                    }
+                }
+                else if (flag.Equals("F"))
+                {
+                    cCDt = null;
+                    foreach (mailClass mailClass in Fail)
+                    {
+                        DataRow dr = receiverDt.NewRow();
+                        dr["address"] = mailClass.address;
+                        dr["displayName"] = mailClass.display;
+                        receiverDt.Rows.Add(dr);
+                    }
+                }
+
+                string EmailBody = Body;
+                string result = ComFunction.SendEmailInfo(userEmail, "补给系统", EmailBody, receiverDt, cCDt, strSubject, path, false);
+
+                //邮件发送失败
+                if (result.Equals("Error"))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
+        }
+
+        #endregion
     }
 }

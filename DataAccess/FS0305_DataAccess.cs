@@ -315,7 +315,7 @@ namespace DataAccess
                     sqlStr.Append("        insert into #TSQJD_temp         \n");
                     sqlStr.Append("        (         \n");
                     sqlStr.Append("        	 dSSDate,vcJD,vcPart_id,vcSPINo,vcChange         \n");
-                    sqlStr.Append("        	,vcCarType,vcInOutflag,vcPartName,vcOE,vcSupplier_id         \n");
+                    sqlStr.Append("        	,vcCarType,vcInOutflag,vcPartName,vcOE,vcHKPart_id,vcSupplier_id         \n");
                     sqlStr.Append("        	,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2         \n");
                     sqlStr.Append("        	,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7         \n");
                     sqlStr.Append("        	,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX         \n");
@@ -336,6 +336,7 @@ namespace DataAccess
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcInOutflag"], false) + "         \n");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + "         \n");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcOE"], false) + "         \n");
+                    sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcHKPart_id"], false) + "         \n");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + "         \n");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + "         \n");
                     sqlStr.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + "         \n");
@@ -381,7 +382,7 @@ namespace DataAccess
                 sqlStr.Append("        insert into TSQJD_Supplier       \r\n");
                 sqlStr.Append("        (       \r\n");
                 sqlStr.Append("        	 dSSDate,vcJD,vcPart_id,vcSPINo,vcChange       \r\n");
-                sqlStr.Append("        	,vcCarType,vcInOutflag,vcPartName,vcOE,vcSupplier_id       \r\n");
+                sqlStr.Append("        	,vcCarType,vcInOutflag,vcPartName,vcOE,vcHKPart_id,vcSupplier_id       \r\n");
                 sqlStr.Append("        	,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2       \r\n");
                 sqlStr.Append("        	,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7       \r\n");
                 sqlStr.Append("        	,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX       \r\n");
@@ -393,7 +394,7 @@ namespace DataAccess
                 sqlStr.Append("        )       \r\n");
                 sqlStr.Append("        select        \r\n");
                 sqlStr.Append("        	 dSSDate,vcJD,vcPart_id,vcSPINo,vcChange       \r\n");
-                sqlStr.Append("        	,vcCarType,vcInOutflag,vcPartName,vcOE,vcSupplier_id       \r\n");
+                sqlStr.Append("        	,vcCarType,vcInOutflag,vcPartName,vcOE,vcHKPart_id,vcSupplier_id       \r\n");
                 sqlStr.Append("        	,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2       \r\n");
                 sqlStr.Append("        	,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7       \r\n");
                 sqlStr.Append("        	,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX       \r\n");

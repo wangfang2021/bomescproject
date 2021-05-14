@@ -693,7 +693,146 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                fs0604_Logic.returnHandle(listInfoData, loginInfo.UserId);
+                //fs0604_Logic.returnHandle(listInfoData, loginInfo.UserId);
+                //构建 Datablt
+                DataTable dt = new DataTable();
+                //"dExportDate", "", "", "", ""
+                dt.Columns.Add("iAutoId");
+                dt.Columns.Add("vcSupplier_id");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    dr["iAutoId"] = listInfoData[i]["iAutoId"] == null ? "" : listInfoData[i]["iAutoId"].ToString();
+                    dr["vcSupplier_id"] = listInfoData[i]["vcSupplier_id"] == null ? "" : listInfoData[i]["vcSupplier_id"].ToString();
+                    dt.Rows.Add(dr);
+                }
+                string[] columnArray = { "vcSupplier_id" };
+                DataView dtSelectView = dt.DefaultView;
+                DataTable dtSelect = dtSelectView.ToTable(true, columnArray);//去重后的dt 
+                bool bReault = true;
+                FS0603_Logic fs0603_Logic = new FS0603_Logic();
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                for (int i = 0; i < dtSelect.Rows.Count; i++)
+                {
+                    string strSupplier = dtSelect.Rows[i]["vcSupplier_id"].ToString();
+                    DataTable dtCheckSupplier = fs0604_Logic.CheckEmail(strSupplier);
+                    if (dtCheckSupplier.Rows.Count == 0)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "供应商" + strSupplier + "在供应商表中信息不存在，请维护信息及其邮箱";
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
+                        DataRow[] drArray = dt.Select("vcSupplier_id='" + strSupplier + "' ");
+                        DataTable dtNewSupplierand = drArray[0].Table.Clone(); // 复制DataRow的表结构
+                        string msg = string.Empty;
+                        foreach (DataRow dr in drArray)
+                        {
+                            dtNewSupplierand.ImportRow(dr);
+                        }
+                        fs0604_Logic.returnHandle(dtNewSupplierand, loginInfo.UserId);
+                    }
+                    else
+                    {
+                        bool isYouXiaoEmail = false;
+                        for (int j = 0; j < dtCheckSupplier.Rows.Count; j++)
+                        {
+                            if (dtCheckSupplier.Rows[j]["vcEmail1"].ToString() != "" || dtCheckSupplier.Rows[j]["vcEmail2"].ToString() != "" || dtCheckSupplier.Rows[j]["vcEmail3"].ToString() != "")
+                            {
+                                isYouXiaoEmail = true;
+                                break;
+                            }
+                        }
+                        if (!isYouXiaoEmail)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "供应商" + strSupplier + "在供应商表中邮箱信息不存在，请维护邮箱";
+                            dtMessage.Rows.Add(dataRow);
+                            bReault = false;
+
+                            DataRow[] drArray = dt.Select("vcSupplier_id='" + strSupplier + "' ");
+                            DataTable dtNewSupplierand = drArray[0].Table.Clone(); // 复制DataRow的表结构
+                            string msg = string.Empty;
+                            foreach (DataRow dr in drArray)
+                            {
+                                dtNewSupplierand.ImportRow(dr);
+                            }
+                            fs0604_Logic.returnHandle(dtNewSupplierand, loginInfo.UserId);
+                        }
+                        else
+                        {
+                            DataRow[] drArray = dt.Select("vcSupplier_id='" + strSupplier + "' ");
+                            DataTable dtNewSupplierand = drArray[0].Table.Clone(); // 复制DataRow的表结构
+                            string msg = string.Empty;
+                            foreach (DataRow dr in drArray)
+                            {
+                                dtNewSupplierand.ImportRow(dr);
+                            }
+
+                            //收件人dt
+                            DataTable receiverDt = new DataTable();
+                            receiverDt.Columns.Add("address");
+                            receiverDt.Columns.Add("displayName");
+                            for (int j = 0; j < dtCheckSupplier.Rows.Count; j++)
+                            {
+                                if (dtCheckSupplier.Rows[j]["vcEmail1"].ToString().Length > 0)
+                                {
+                                    DataRow dr = receiverDt.NewRow();
+                                    dr["address"] = dtCheckSupplier.Rows[j]["vcEmail1"].ToString();
+                                    dr["displayName"] = dtCheckSupplier.Rows[j]["vcLinkMan1"].ToString();
+                                    receiverDt.Rows.Add(dr);
+                                }
+                                if (dtCheckSupplier.Rows[j]["vcEmail2"].ToString().Length > 0)
+                                {
+                                    DataRow dr = receiverDt.NewRow();
+                                    dr["address"] = dtCheckSupplier.Rows[j]["vcEmail2"].ToString();
+                                    dr["displayName"] = dtCheckSupplier.Rows[j]["vcLinkMan2"].ToString();
+                                    receiverDt.Rows.Add(dr);
+                                }
+                                if (dtCheckSupplier.Rows[j]["vcEmail3"].ToString().Length > 0)
+                                {
+                                    DataRow dr = receiverDt.NewRow();
+                                    dr["address"] = dtCheckSupplier.Rows[j]["vcEmail3"].ToString();
+                                    dr["displayName"] = dtCheckSupplier.Rows[j]["vcLinkMan3"].ToString();
+                                    receiverDt.Rows.Add(dr);
+                                }
+                            }
+
+                            string result = "Success";
+                            //邮件主题
+                            string strSubject = "荷姿退回邮件";
+                            //邮件内容
+                            string strEmailBody = "";
+                            strEmailBody += " <p class=\"ql - align - justify\">供应商殿：大家好</p><p class=\"ql - align - justify\">TFTM补给</p>  ";
+                            strEmailBody += " <p class=\"ql-align-justify\">&nbsp;</p>  ";
+                            strEmailBody += " <p class=\"ql-align-justify\">贵司在【一丰补给管理系统】中回复的补给品荷姿有被TFTM退回的品番，</p>  ";
+                            strEmailBody += " <p class=\"ql-align-justify\">请及时到系统上进行修正&amp;回复，如有问题联络TFTM补给担当。</p>  ";
+                            strEmailBody += " <p class=\"ql-align-justify\">&nbsp;</p><p class=\"ql-align-justify\">以上</p>  ";
+
+                            result = ComFunction.SendEmailInfo(loginInfo.Email, loginInfo.UserName, strEmailBody, receiverDt, null, strSubject, "", false);
+                            if (result == "Success")
+                            {
+                                fs0604_Logic.returnHandle(dtNewSupplierand, loginInfo.UserId);
+                            }
+                            else
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = "供应商" + strSupplier + "发送邮件失败";
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                        }
+                    }
+                }
+                if (!bReault)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

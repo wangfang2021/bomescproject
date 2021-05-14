@@ -58,7 +58,7 @@ namespace Logic
 
             if (packCheckDT==null || packCheckDT.Rows.Count<=0)
             {
-                strErr3 = "所选便次无包材品番入库";
+                strErr3 = "所选便次无部品入库品番";
                 strArray[2] = strErr3;
                 return strArray;
             }

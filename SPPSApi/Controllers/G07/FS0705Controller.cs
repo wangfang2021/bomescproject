@@ -159,7 +159,7 @@ namespace SPPSApi.Controllers.G07
                 if (CheckFaZhuIDPackBase==null || CheckFaZhuIDPackBase.Rows.Count<=0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "发注逻辑“" + strFaZhuID+"”无有效包材构成";
+                    apiResult.data = "无对应该逻辑的包材品番";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 #endregion

@@ -804,7 +804,7 @@ namespace SPPSApi.Controllers.G06
                             string strEmailBody = "";
                             strEmailBody += " <p class=\"ql - align - justify\">供应商殿：大家好</p><p class=\"ql - align - justify\">TFTM补给</p>  ";
                             strEmailBody += " <p class=\"ql-align-justify\">&nbsp;</p>  ";
-                            strEmailBody += " <p class=\"ql-align-justify\">贵司在“一丰补给系统”中回复的补给品荷姿有被TFTM退回的品番，</p>  ";
+                            strEmailBody += " <p class=\"ql-align-justify\">贵司在【一丰补给管理系统】中回复的补给品荷姿有被TFTM退回的品番，</p>  ";
                             strEmailBody += " <p class=\"ql-align-justify\">请及时到系统上进行修正&amp;回复，如有问题联络TFTM补给担当。</p>  ";
                             strEmailBody += " <p class=\"ql-align-justify\">&nbsp;</p><p class=\"ql-align-justify\">以上</p>  ";
 

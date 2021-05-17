@@ -185,7 +185,7 @@ namespace DataAccess
             {
                 strPartNoAll = strPartNoAll.Substring(0, strPartNoAll.Length - 1);
                 StringBuilder sql = new StringBuilder();
-                sql.Append(" delete from TPackItem where vcPartsNo in (" + strPartNoAll + ") and isnull(vcPackNo,'')='' and  iBiYao is  null and isnull(vcDistinguish,'')=''  \r\n ");
+                sql.Append(" delete from TPackItem where vcPartsNo in ('" + strPartNoAll + "') and isnull(vcPackNo,'')='' and  iBiYao is  null and isnull(vcDistinguish,'')=''  \r\n ");
 
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }

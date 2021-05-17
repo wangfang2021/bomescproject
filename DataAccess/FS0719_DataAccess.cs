@@ -254,6 +254,9 @@ namespace DataAccess
 
                 string strN = DateTime.Now.ToString("yyyyMM");
                 string strN_CL = DateTime.Now.AddMonths(-1).ToString("yyyyMM");
+                string NowDF = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date.ToString("yyyy-MM-dd HH:mm:ss");
+                string NowDE = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date.AddMonths(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm:ss");
+
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine(" select t1.vcPackGPSNo,t1.vcBZPlant,   ");
@@ -263,11 +266,11 @@ namespace DataAccess
                 strSql.AppendLine(" select * from TSoqReply where vcCLYM='" + strN_CL + "'and vcDXYM='" + strN + "'   ");
                 strSql.AppendLine(" )a left join   ");
                 strSql.AppendLine(" (   ");
-                strSql.AppendLine(" select * from TPackItem    ");
+                strSql.AppendLine(" select * from TPackItem  where dFrom<='" + NowDE + "'and dTo>='" + NowDF + "'    ");
                 strSql.AppendLine(" )b on a.vcPart_id=b.vcPartsNo   ");
                 strSql.AppendLine(" left join   ");
                 strSql.AppendLine(" (   ");
-                strSql.AppendLine(" select * from TPackageMaster   ");
+                strSql.AppendLine(" select * from TPackageMaster where GETDATE() between dTimeFrom and dTimeTo    ");
                 strSql.AppendLine(" )c on a.vcPart_id=c.vcPart_id   ");
                 strSql.AppendLine(" group by b.vcPackGPSNo,c.vcBZPlant   ");
                 strSql.AppendLine(" )t1 left join   ");

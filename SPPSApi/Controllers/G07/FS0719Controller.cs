@@ -375,7 +375,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["VCFaBuType"].ToString() == "0")
+                    if (listInfoData[i]["VCFaBuType"].ToString() == "自动发注")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "不可删除自动计算数据！";

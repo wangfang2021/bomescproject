@@ -1136,8 +1136,10 @@ namespace DataAccess
             StringBuilder strSql = new StringBuilder();
             try
             {
-                strSql.AppendLine("        select * from  TPackCompute         ");
-                strSql.AppendLine("        where 1=1         ");
+                strSql.AppendLine("        select a.*,case when CONVERT(int,ISNULL(b.vcOrderNoSum,''))>0 then '已发注' when CONVERT(int,ISNULL(b.vcOrderNoSum,''))<=0 then '未发注' end as 'vcFaZhuState' from         ");
+                strSql.AppendLine("        (         ");
+                strSql.AppendLine("        	select * from TPackCompute         ");
+                strSql.AppendLine("        	where 1=1         ");
                 if (!string.IsNullOrEmpty(strPackNo))
                 {
                     strSql.AppendLine("        and vcPackNo = '" + strPackNo + "'         ");
@@ -1158,7 +1160,20 @@ namespace DataAccess
                 {
                     strSql.AppendLine("        and dTimeStr<='" + strTo + "'         ");
                 }
-                strSql.AppendLine("       order by iAutoId      ");
+                strSql.AppendLine("        )a         ");
+                strSql.AppendLine("        left join         ");
+                strSql.AppendLine("        (         ");
+                strSql.AppendLine("        	select a.vcBianCi,b.vcOrderNoSum from          ");
+                strSql.AppendLine("        	(         ");
+                strSql.AppendLine("        		select distinct vcBianCi from TPackCompute         ");
+                strSql.AppendLine("        	)a         ");
+                strSql.AppendLine("        	left join         ");
+                strSql.AppendLine("        	(         ");
+                strSql.AppendLine("        		select vcBianCi,COUNT(vcBianCi) as vcOrderNoSum from TPackCompute where vcOrderNo is not null group by vcBianCi         ");
+                strSql.AppendLine("        	)b on a.vcBianCi = b.vcBianCi         ");
+                strSql.AppendLine("        )b on a.vcBianCi = b.vcBianCi         ");
+                strSql.AppendLine("       order by vcBianCi      ");
+                
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

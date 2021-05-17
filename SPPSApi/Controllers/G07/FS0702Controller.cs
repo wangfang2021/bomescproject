@@ -757,12 +757,12 @@ namespace SPPSApi.Controllers.G07
                     }
                     if (i != 0)
                     {
-                        strPartNoAll = strPartNoAll + "'" + listInfoData[i]["vcPartsNo"].ToString() + "',";
+                        strPartNoAll = strPartNoAll + "','" + listInfoData[i]["vcPartsNo"].ToString() ;
                     }
                     else
                     {
 
-                        strPartNoAll = "'"+listInfoData[i]["vcPartsNo"].ToString() + "',";
+                        strPartNoAll = listInfoData[i]["vcPartsNo"].ToString();
                     }
                     //判断品番是否存在
 
@@ -877,31 +877,31 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dtSOQ = new DataTable();
+                DataTable dtSPMaster = new DataTable();
                 DataTable dtItem = new DataTable();
                 dtItem = FS0702_Logic.checkItem();
-                dtSOQ = FS0702_Logic.checkSOQ();
+                dtSPMaster = FS0702_Logic.checkSPMaster();
                 //check
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
 
-                    DataRow[] dr = dtSOQ.Select("vcPart_id='" + listInfoData[i]["vcPartsNo"].ToString() + "'");
+                    DataRow[] dr = dtSPMaster.Select("vcPartId='" + listInfoData[i]["vcPartsNo"].ToString() + "'");
                     DataRow[] dr1 = dtItem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"].ToString() + "'");
-                    int z = 0;
-                    foreach (DataRow row in dr1)
-                    {
-                        if (z == 0)
-                        {
-                            dtItem.Rows.Remove(row);
-                        }
-                        z++;
-                    }
+                    //int z = 0;
+                    //foreach (DataRow row in dr1)
+                    //{
+                    //    if (z == 0)
+                    //    {
+                    //        dtItem.Rows.Remove(row);
+                    //    }
+                    //    z++;
+                    //}
                     int soq = dr.Length;
                     int item = dr1.Length - 1;
-                    if (soq + item < 2)
+                    if (soq + item < 1)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = dr[0]["vcPart_id"] + "存在上游不可删除！";
+                        apiResult.data = dr[0]["vcPartId"] + "存在上游不可删除！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

@@ -132,16 +132,17 @@ namespace SPPSApi.Controllers.G03
 
             string strJD = dataForm.vcJD;
             string strInOutflag = dataForm.vcInOutflag;
-            string strSupplier_id = dataForm.vcSupplier_id;
             string strCarType = dataForm.vcCarType;
             string strPart_id = dataForm.vcPart_id;
             string strIsDYJG = dataForm.vcIsDYJG;
             string strIsDYFX = dataForm.vcIsDYFX;
+            string strSPINo = dataForm.vcSPINo;
+            string strChange = dataForm.vcChange;
 
             try
             {
                 #region 拿到统括库中的所有供应商生确单
-                DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id, loginInfo.UserId);
+                DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strCarType, strPart_id, loginInfo.UserId,strSPINo,strChange);
                 #endregion
 
                 if (dt != null && dt.Rows.Count > 0)
@@ -475,14 +476,15 @@ namespace SPPSApi.Controllers.G03
 
             string strJD = dataform.vcJD;
             string strInOutflag = dataform.strInOutflag;
-            string strSupplier_id = dataform.vcSupplier_id;
             string strCarType = dataform.vcCarType;
             string strPart_id = dataform.vcPart_id;
             string strIsDYJG = dataform.vcIsDYJG;
             string strIsDYFX = dataform.vcIsDYFX;
+            string strSPINo = dataform.vcSPINo;
+            string strChange = dataform.vcChange;
             try
             {
-                DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id, logininfo.UserId);
+                DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strCarType, strPart_id, logininfo.UserId,strSPINo,strChange);
                 string[] fields = { "vcPart_id", "dSSDate", "vcJD_Name", "vcSPINo",
                                     "vcChange_Name", "vcCarType","vcInOutflag_Name","vcPartName",
                                     "vcOE_Name","vcHKPart_id","vcSupplier_id","vcFXDiff_Name","vcFXNo",

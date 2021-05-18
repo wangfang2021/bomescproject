@@ -19,9 +19,9 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strSSDate, string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id, string strUserOriginCompany,string strUserID)
+        public DataTable Search(string strSSDate, string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id, string strUserOriginCompany,string strUserID,string strSPINo,string strChange)
         {
-            return fs0304_DataAccess.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,strUserID);
+            return fs0304_DataAccess.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,strUserID,strSPINo,strChange);
         }
         #endregion
 

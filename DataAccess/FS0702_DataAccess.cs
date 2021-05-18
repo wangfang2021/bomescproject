@@ -248,7 +248,23 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("    select * from TPackItem   ");
+                strSql.AppendLine(" select b.vcName as varChangedItem,a.varChangedItem as varChangedItem1,d.vcBZPlant as vcPackSpot,a.vcPartsNo,a.vcCar,    ");
+                strSql.AppendLine(" a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo,a.dUsedFrom,a.dUsedTo,a.vcShouhuofangID,a.dFrom,a.dTo    ");
+                strSql.AppendLine(" from (    ");
+                strSql.AppendLine(" select * from TPackItem    ");
+                strSql.AppendLine(" )a left join    ");
+                strSql.AppendLine(" (    ");
+                strSql.AppendLine(" select vcValue,vcName from TCode where vcCodeId='C002'    ");
+                strSql.AppendLine(" )b on a.varChangedItem=b.vcValue    ");
+                strSql.AppendLine(" left join    ");
+                strSql.AppendLine(" (    ");
+                strSql.AppendLine("   select * from TCode where vcCodeId='C098'    ");
+                strSql.AppendLine(" )c on a.vcCar=c.vcValue    ");
+                strSql.AppendLine(" left join    ");
+                strSql.AppendLine(" (    ");
+                strSql.AppendLine(" select * from TPackageMaster     ");
+                strSql.AppendLine(" )d on  a.vcPartsNo= d.vcPart_id     ");
+                strSql.AppendLine("     ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -423,7 +439,7 @@ namespace DataAccess
                     {
                         PackGPSNo = dr1[0]["vcPackGPSNo"].ToString();
                     }
-                    DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"] + "'and  varChangedItem='" + listInfoData[i]["varChangedItem"] + "'");
+                    DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"] + "'and  varChangedItem='" + listInfoData[i]["varChangedItem"] + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"] + "' ");
                     if (dr2.Length == 0)
                     {
                         dUserFrom = "1990-01-01";
@@ -437,7 +453,7 @@ namespace DataAccess
                     {
                         dUserFrom = dr2[0]["dUsedFrom"].ToString();
                         dUserTo = dr2[0]["dUsedTo"].ToString();
-                        vcChange = dr2[0]["varChangedItem"].ToString();
+                        vcChange = dr2[0]["varChangedItem1"].ToString();
                         vcCar = dr2[0]["vcCar"].ToString();
                         if (dr2[0]["vcShouhuofangID"].ToString() != "")
                         {

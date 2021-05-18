@@ -749,21 +749,21 @@ namespace SPPSApi.Controllers.G07
                     if (bAddFlag == true)
                     {//新增
                         hasFind = true;
-                      
+                        if (i != 0)
+                        {
+                            strPartNoAll = strPartNoAll + "','" + listInfoData[i]["vcPartsNo"].ToString();
+                        }
+                        else
+                        {
+
+                            strPartNoAll = listInfoData[i]["vcPartsNo"].ToString();
+                        }
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
                     }
-                    if (i != 0)
-                    {
-                        strPartNoAll = strPartNoAll + "','" + listInfoData[i]["vcPartsNo"].ToString() ;
-                    }
-                    else
-                    {
 
-                        strPartNoAll = listInfoData[i]["vcPartsNo"].ToString();
-                    }
                     //判断品番是否存在
 
                     if (string.IsNullOrEmpty(listInfoData[i]["vcShouhuofangID"].ToString()))
@@ -773,15 +773,16 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "请填写收货方！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (Convert.ToDecimal(listInfoData[i]["iBiYao"].ToString())<0)
+                    if (Convert.ToDecimal(listInfoData[i]["iBiYao"].ToString()) < 0)
                     {
 
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "必要数不可小于‘0’";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    DataRow[] drr = dt1.Select("vcPackNo='"+ listInfoData[i]["vcPackNo"].ToString() + "'");
-                    if (drr.Length==0) {
+                    DataRow[] drr = dt1.Select("vcPackNo='" + listInfoData[i]["vcPackNo"].ToString() + "'");
+                    if (drr.Length == 0)
+                    {
 
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "此包材品番不在包材基础数据中！";
@@ -824,7 +825,7 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 List<Object> strSupplierCode = new List<object>();
-                
+
                 string strErrorPartId = "";
                 //删除导入含有的部品品番的包材为空的数据
                 FS0702_Logic.DeleteALL(strPartNoAll, loginInfo.UserId);

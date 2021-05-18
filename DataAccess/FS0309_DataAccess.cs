@@ -734,6 +734,7 @@ namespace DataAccess
                 strSql.AppendLine("                \r\n");
                 strSql.AppendLine("                \r\n");
                 strSql.AppendLine("        update TPrice set vcPriceState = '4'        \r\n");
+                strSql.AppendLine("        ,dPriceStateDate = GETDATE()        \r\n");
                 strSql.AppendLine("        from TPrice a        \r\n");
                 strSql.AppendLine("        inner join         \r\n");
                 strSql.AppendLine("        (        \r\n");

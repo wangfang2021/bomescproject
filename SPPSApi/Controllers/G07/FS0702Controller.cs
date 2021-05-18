@@ -276,9 +276,9 @@ namespace SPPSApi.Controllers.G07
             {
                 DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd, strExport);
                 string resMsg = "";
-                string[] head = { "变更事项", "包装场", "收货方", "品番", "车型", "开始时间", "结束时间", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数" };
+                string[] head = {"同步时间", "变更事项", "包装场", "收货方", "品番", "车型", "开始时间", "结束时间", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数" };
 
-                string[] fields = { "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
+                string[] fields = {"vcReTime", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
                     "vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"
                 };
 

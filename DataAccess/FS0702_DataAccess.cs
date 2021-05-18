@@ -250,6 +250,10 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" select b.vcName as varChangedItem,a.varChangedItem as varChangedItem1,d.vcBZPlant as vcPackSpot,a.vcPartsNo,a.vcCar,    ");
                 strSql.AppendLine(" a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo,a.dUsedFrom,a.dUsedTo,a.vcShouhuofangID,a.dFrom,a.dTo    ");
+                ///todo
+                strSql.AppendLine(" ,a.vcReTime   ");
+
+
                 strSql.AppendLine(" from (    ");
                 strSql.AppendLine(" select * from TPackItem    ");
                 strSql.AppendLine(" )a left join    ");
@@ -315,7 +319,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,m.vcName as varChangedItem,d.vcBZPlant as vcPackSpot,a.vcPartsNo,   ");
                 strSql.AppendLine("    a.vcCar as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,substring(CONVERT(varchar, a.dFrom,120),0,11) as dFrom,substring(CONVERT(varchar, a.dTo,120),0,11) as dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
-                strSql.AppendLine("    ,b.vcName as vcShouhuofangID,'' as vcIsorNo from (       ");
+                strSql.AppendLine("    ,b.vcName as vcShouhuofangID,'' as vcIsorNo,vcReTime from (       ");
                 strSql.AppendLine("     select *,'0' as vcModFlag,'0' as vcAddFlag from TPackItem    ");
                 strSql.AppendLine("      WHERE");
                 strSql.AppendLine("      	1 = 1");
@@ -429,6 +433,7 @@ namespace DataAccess
                     string vcChange = "";
                     string vcCar = "";
                     string strSHFID = "";
+                    string strReTime = "";
                     dtPackBase.CaseSensitive = true;
                     DataRow[] dr1 = dtPackBase.Select("vcPackNo='" + listInfoData[i]["vcPackNo"] + "'");
                     if (dr1.Length == 0)
@@ -448,6 +453,7 @@ namespace DataAccess
                         vcCar = "";
                         strSHFID = "";
                         PackSpot = "";
+                        strReTime = "";
                     }
                     else
                     {
@@ -465,6 +471,7 @@ namespace DataAccess
                         }
 
                         PackSpot = dr2[0]["vcPackSpot"].ToString();
+                        strReTime = dr2[0]["vcReTime"].ToString();
                     }
 
 
@@ -486,6 +493,11 @@ namespace DataAccess
                         sql.AppendLine("     ,[vcOperatorID] \r\n");
                         sql.AppendLine("     ,[dOperatorTime] \r\n");
                         sql.AppendLine("     ,[vcPackSpot] \r\n");
+
+                        ///todo
+                        sql.AppendLine("     ,[vcReTime] \r\n");
+
+
                         sql.AppendLine("     ,[varChangedItem]) \r\n");
                         sql.AppendLine("     VALUES \r\n");
                         sql.AppendLine("     ( \r\n");
@@ -530,6 +542,9 @@ namespace DataAccess
                         sql.AppendLine($"     		{strUserId},\r\n");
                         sql.AppendLine("     		getDate(),\r\n");
                         sql.AppendLine(" '" + PackSpot + "',   \r\n");
+                        ///todo
+                        sql.AppendLine(" '" + strReTime + "',   \r\n");
+
                         sql.AppendLine(" '" + vcChange + "'   \r\n");
                         sql.AppendLine("     	); ");
 
@@ -692,6 +707,7 @@ namespace DataAccess
                     string dUserTo = "";
                     string vcChange = "";
                     string vcCar = "";
+                    string strReTime = "";
                     dtPackBase.CaseSensitive = true;
                     DataRow[] dr1 = dtPackBase.Select("vcPackNo='" + dt.Rows[i]["vcPackNo"].ToString() + "'");
                     if (dr1.Length == 0)
@@ -709,13 +725,15 @@ namespace DataAccess
                         dUserTo = "";
                         vcChange = "";
                         vcCar = "";
+                        strReTime = "";
                     }
                     else
                     {
                         dUserFrom = dr2[0]["dUsedFrom"].ToString();
                         dUserTo = dr2[0]["dUsedTo"].ToString();
-                        vcChange = dr2[0]["varChangedItem"].ToString();
+                        vcChange = dr2[0]["varChangedItem1"].ToString();
                         vcCar = dr2[0]["vcCar"].ToString();
+                        strReTime= dr2[0]["vcReTime"].ToString();
                     }
 
                     if (dt.Rows[i]["vcIsorNo"].ToString() == "新增")
@@ -735,6 +753,9 @@ namespace DataAccess
                         sql.AppendLine("     ,[vcOperatorID] \r\n");
                         sql.AppendLine("     ,[dOperatorTime] \r\n");
                         sql.AppendLine("     ,[varChangedItem] \r\n");
+                        ///todo
+                        sql.AppendLine("     ,[vcReTime] \r\n");
+
                         sql.AppendLine("     ,[vcPackSpot]) \r\n");
                         sql.AppendLine("     VALUES \r\n");
 
@@ -799,6 +820,9 @@ namespace DataAccess
                         sql.AppendLine("     '" + strUserId + "',  \r\n");
                         sql.AppendLine("     getdate(),  \r\n");
                         sql.AppendLine("'" + vcChange + "',\r\n");
+                        ///todo
+                        sql.AppendLine("'" + strReTime + "',\r\n");
+
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + "\r\n");
                         sql.AppendLine("     )  \r\n");
                     }

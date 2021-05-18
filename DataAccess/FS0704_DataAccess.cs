@@ -44,7 +44,7 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dFromE))
                 {
-                    dFromE = "9999-12-31 00:00:00";
+                    dFromE = "9999-12-31 23:59:59";
 
                 }
                 if (string.IsNullOrEmpty(dToB))
@@ -55,7 +55,7 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dToE))
                 {
-                    dToE = "9999-12-31 00:00:00";
+                    dToE = "9999-12-31 23:59:59";
 
                 }
                 StringBuilder strSql = new StringBuilder();
@@ -85,7 +85,22 @@ namespace DataAccess
         }
 
 
+
+
         #endregion
+
+
+        #region 工作日的一天
+        public DataTable SearchBZ(string vcPackSpot)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("   select * from TPackSpotBZ where vcBZ='DD'     \n");
+            if(!string.IsNullOrEmpty(vcPackSpot))
+                strSql.Append("  and vcPackSpot='"+ vcPackSpot + "'    \n");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+        }
+        #endregion
+
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
@@ -227,18 +242,29 @@ namespace DataAccess
         #endregion
 
         #region 判断时间重复性
-        public DataTable SearchLJTime(string strFaZhu, string iAutoId)
+        public DataTable SearchLJTime(string strFaZhu, string iAutoId, string vcPackSpot)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 if (iAutoId == "")
                 {
-                    strSql.Append("  select* from TPackFaZhuTime where vcFaZhuID='" + strFaZhu + "'   order by dRuHeFromTime asc      \n");
+                    strSql.Append("  select* from TPackFaZhuTime where vcFaZhuID='" + strFaZhu + "'       \n");
+                    if (string.IsNullOrEmpty(vcPackSpot))
+                        strSql.Append("    order by dRuHeFromTime asc      \n");
+                    else
+                        strSql.Append("  and vcPackSpot='" + vcPackSpot + "'  order by dRuHeFromTime asc      \n");
+
+
                 }
                 else
                 {
-                    strSql.Append("  select* from TPackFaZhuTime where vcFaZhuID='" + strFaZhu + "' and iAutoId <>'" + iAutoId + "'  order by dRuHeFromTime asc    \n");
+                    strSql.Append("  select* from TPackFaZhuTime where vcFaZhuID='" + strFaZhu + "' and iAutoId <>'" + iAutoId + "'     \n");
+                    if (string.IsNullOrEmpty(vcPackSpot))
+                        strSql.Append("    order by dRuHeFromTime asc      \n");
+                    else
+                        strSql.Append("  and vcPackSpot='" + vcPackSpot + "'  order by dRuHeFromTime asc      \n");
+
                 }
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -259,7 +285,7 @@ namespace DataAccess
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    strSql.Append("  delete from  TPackFaZhuTime  where vcFaZhuID='"+ dt.Rows[i]["vcFaZhuID"].ToString() + "'and  vcBianCi='"+ dt.Rows[i]["vcBianCi"].ToString() + "' \n");
+                    strSql.Append("  delete from  TPackFaZhuTime  where vcFaZhuID='" + dt.Rows[i]["vcFaZhuID"].ToString() + "'and  vcBianCi='" + dt.Rows[i]["vcBianCi"].ToString() + "' \n");
                 }
 
                 for (int i = 0; i < dt.Rows.Count; i++)

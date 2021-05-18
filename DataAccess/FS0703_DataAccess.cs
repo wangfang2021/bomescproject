@@ -114,7 +114,7 @@ namespace DataAccess
                 strSql.AppendLine("  tt1.dZCTime       ");
                 strSql.AppendLine("  from       ");
                 strSql.AppendLine("  (       ");
-              
+
                 strSql.AppendLine(" select         ");
                 strSql.AppendLine("  T_1.vcYearMonth,   ");
                 strSql.AppendLine("  T_1.vcPart_id,   ");
@@ -249,18 +249,23 @@ namespace DataAccess
                 strSql.AppendLine("        ");
                 strSql.AppendLine("   )T_2 on T_1.vcPart_id=T_2.vcPartsNo          ");
 
-                strSql.AppendLine("  where T_2.vcSupplierCode in (      ");
+                strSql.AppendLine("  where 1=1     ");
 
-                for (int i = 0; i < strSupplierCode.Count; i++)
+                if (strSupplierCode.Count > 0)
                 {
-                    if (strSupplierCode.Count - i == 1)
+                    strSql.AppendLine(" T_2.vcSupplierCode in (     ");
+                    for (int i = 0; i < strSupplierCode.Count; i++)
                     {
-                        strSql.AppendLine("   '" + strSupplierCode[i] + "'    ");
+                        if (strSupplierCode.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + strSupplierCode[i] + "'    ");
+                        }
+                        else
+                            strSql.AppendLine("  '" + strSupplierCode[i] + "' ,    ");
                     }
-                    else
-                        strSql.AppendLine("  '" + strSupplierCode[i] + "' ,    ");
+                    strSql.AppendLine(" )     ");
                 }
-                strSql.AppendLine(" )     ");
+
                 strSql.AppendLine("    )tt1      ");
                 strSql.AppendLine("         ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

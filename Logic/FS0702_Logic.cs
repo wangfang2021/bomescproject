@@ -86,9 +86,9 @@ namespace Logic
 
 
         #region 检查
-        public DataTable checkSOQ()
+        public DataTable checkSPMaster()
         {
-            return FS0702_DataAccess.checkSOQ();
+            return FS0702_DataAccess.checkSPMaster();
         }
         public DataTable checkItem()
         {

@@ -183,9 +183,9 @@ namespace DataAccess
         {
             try
             {
-                strPartNoAll = strPartNoAll.Substring(0, strPartNoAll.Length - 1);
+                //strPartNoAll = strPartNoAll.Substring(0, strPartNoAll.Length - 1);
                 StringBuilder sql = new StringBuilder();
-                sql.Append(" delete from TPackItem where vcPartsNo in (" + strPartNoAll + ") and isnull(vcPackNo,'')='' and  iBiYao is  null and isnull(vcDistinguish,'')=''  \r\n ");
+                sql.Append(" delete from TPackItem where vcPartsNo in ('" + strPartNoAll + "') and isnull(vcPackNo,'')='' and  iBiYao is  null and isnull(vcDistinguish,'')=''  \r\n ");
 
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
@@ -623,12 +623,12 @@ namespace DataAccess
 
 
         #region 检查
-        public DataTable checkSOQ()
+        public DataTable checkSPMaster()
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("  select distinct vcPart_id from TSoqReply   \r\n ");
+                sql.Append("  select distinct vcPartId from TSPMaster   \r\n ");
 
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }

@@ -380,7 +380,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcType"].ToString() == "0"|| listInfoData[i]["dFaZhuTime"]!=null)
+                    if (listInfoData[i]["vcType"].ToString() == "自动发注"|| listInfoData[i]["dFaZhuTime"]!=null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "不可删除此数据！";

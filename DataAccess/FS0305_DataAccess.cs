@@ -13,7 +13,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 按检索条件返回dt
-        public DataTable Search(string strJD, string strInOutFlag, string strSupplier_id, string strCarType, string strPart_id, string strUserID)
+        public DataTable Search(string strJD, string strInOutFlag, string strCarType, string strPart_id, string strUserID,string strSPINo,string strChange)
         {
             try
             {
@@ -119,10 +119,6 @@ namespace DataAccess
                 {
                     strSql.Append("      and vcInOutflag = '" + strInOutFlag + "'   ");
                 }
-                if (!string.IsNullOrEmpty(strSupplier_id))
-                {
-                    strSql.Append("      and vcSupplier_id like '" + strSupplier_id + "%'   ");
-                }
                 if (!string.IsNullOrEmpty(strCarType))
                 {
                     strSql.Append("      and vcCarType like '" + strCarType + "%'   ");
@@ -130,6 +126,14 @@ namespace DataAccess
                 if (!string.IsNullOrEmpty(strPart_id))
                 {
                     strSql.Append("      and vcPart_id like '" + strPart_id + "%'       ");
+                }
+                if (!string.IsNullOrEmpty(strSPINo))
+                {
+                    strSql.Append("      and vcSPINo like '" + strSPINo + "%'       ");
+                }
+                if (!string.IsNullOrEmpty(strChange))
+                {
+                    strSql.Append("      and vcChange = '" + strChange + "'       ");
                 }
                 strSql.Append("         \n");
                 strSql.Append("     order by vcPart_id,iAutoId asc    \n");
@@ -979,7 +983,6 @@ namespace DataAccess
             }
         }
         #endregion
-
 
     }
 }

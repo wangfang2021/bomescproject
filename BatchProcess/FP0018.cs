@@ -55,6 +55,7 @@ namespace BatchProcess
             try
             {
                 DataTable dt = new DataTable();
+                string dtimenow = DateTime.Now.ToString("yyyy-MM-dd");
                 StringBuilder sql = new StringBuilder();
                 sql.Append("  select   distinct      \n");
                 sql.Append("           temp.[vcPartsNo]                    \n");
@@ -72,11 +73,17 @@ namespace BatchProcess
                 sql.Append("          ,temp.[dOperatorTime]                    \n");
                 sql.Append("          ,'' as vcPackSpot                    \n");
                 sql.Append("          ,Temp2.vcChanges as varChangedItem            \n");
+                ///todo
+                sql.Append("          ,temp.[vcReTime]   \n");
+
                 sql.Append("           \n");
                 sql.Append("   from         \n");
                 sql.Append("  (         \n");
                 sql.Append("   select ss.[vcPartsNo],ss.[vcPackNo],ss.[vcPackGPSNo],sss.dPackFrom    \n");
                 sql.Append("   ,sss.dPackTo,ss.[vcDistinguish],ss.[iBiYao],ss.[vcOperatorID],ss.[dOperatorTime],ss.dFrom,ss.dTo     \n");
+                ///todo
+                sql.Append("   ,ss.vcReTime    \n");
+
                 sql.Append("   from(     \n");
                 sql.Append("   select *from TPackItem      \n");
                 sql.Append("   )ss left join     \n");
@@ -174,6 +181,9 @@ namespace BatchProcess
                 sql.Append("      --varChangedItem                   \n");
                 sql.Append("      '' as vcPackSpot ,         \n");
                 sql.Append("      Temp2.vcChanges as [varChangedItem]           \n");
+                ///todo
+                sql.Append("     ,'"+ dtimenow + "' as  vcReTime       \n");
+
                 sql.Append("   from         \n");
                 sql.Append("   (         \n");
                 sql.Append("     select Temp0.vcPartId,min(Temp0.dTime) as dTime from(       \n");
@@ -284,6 +294,9 @@ namespace BatchProcess
                     sql.Append("   [vcOperatorID],  \n");
                     sql.Append("   [dOperatorTime],  \n");
                     sql.Append("   [varChangedItem] , vcPackSpot\n");
+                    ///todo
+                    sql.Append(" ,vcReTime  \n");
+
                     sql.Append("   ) values  \n");
                     sql.Append("   ( \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["vcPartsNo"].ToString() + "',  \n");
@@ -324,7 +337,13 @@ namespace BatchProcess
                     sql.Append("  '" + strUserId + "', \n");
                     sql.Append("   GETDATE(), \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["varChangedItem"].ToString() + "', \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["vcPackSpot"].ToString() + "') \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["vcPackSpot"].ToString() + "' \n");
+
+                    ////todo
+                    sql.Append("  ,'" + dtNewItem.Rows[i]["vcReTime"].ToString() + "' \n");
+
+
+                    sql.Append("    ) \n");
                 }
                 int isok = 1;
                 if (sql.Length > 0)

@@ -254,20 +254,30 @@ namespace DataAccess
 
                 string strN = DateTime.Now.ToString("yyyyMM");
                 string strN_CL = DateTime.Now.AddMonths(-1).ToString("yyyyMM");
-                StringBuilder strSql = new StringBuilder();
+                string NowDF = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date.ToString("yyyy-MM-dd HH:mm:ss");
+                string NowDE = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date.AddMonths(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm:ss");
 
+                StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" select t1.vcPackGPSNo,t1.vcBZPlant,   ");
                 strSql.AppendLine(" case when ISNULL(t2.iNumber,0)<>0 then t1.iPartNums-t2.iNumber else t1.iPartNums end as iNum   ");
                 strSql.AppendLine(" from (   ");
                 strSql.AppendLine(" select b.vcPackGPSNo,sum(a.iPartNums) as iPartNums,c.vcBZPlant from (   ");
-                strSql.AppendLine(" select * from TSoqReply where vcCLYM='" + strN_CL + "'and vcDXYM='" + strN + "'   ");
+
+                strSql.AppendLine(" select vcPart_id,vcDXYM,iPartNums from TSoqReply where vcCLYM='" + strN_CL + "'and vcDXYM='" + strN + "'   ");
+                strSql.AppendLine(" union all    ");
+                strSql.AppendLine(" --紧急，大客户，三包订单    ");
+                strSql.AppendLine(" select vcPartNo,SUM(vcPlantQtyDailySum) as vcPlantQtyDailySum ,vcTargetYearMonth from SP_M_ORD    ");
+                strSql.AppendLine(" where vcOrderType in ('H','F','C') AND vcTargetYearMonth='" + strN + "' and isnull(vcOrderNo,'')<>''    ");
+                strSql.AppendLine(" and SUBSTRING(vcOrderNo,7,2)<>'ED'    ");
+                strSql.AppendLine(" group  by vcPartNo,vcPackingSpot,vcTargetYearMonth    ");
+
                 strSql.AppendLine(" )a left join   ");
                 strSql.AppendLine(" (   ");
-                strSql.AppendLine(" select * from TPackItem    ");
+                strSql.AppendLine(" select * from TPackItem  where dFrom<='" + NowDE + "'and dTo>='" + NowDF + "'    ");
                 strSql.AppendLine(" )b on a.vcPart_id=b.vcPartsNo   ");
                 strSql.AppendLine(" left join   ");
                 strSql.AppendLine(" (   ");
-                strSql.AppendLine(" select * from TPackageMaster   ");
+                strSql.AppendLine(" select * from TPackageMaster where GETDATE() between dTimeFrom and dTimeTo    ");
                 strSql.AppendLine(" )c on a.vcPart_id=c.vcPart_id   ");
                 strSql.AppendLine(" group by b.vcPackGPSNo,c.vcBZPlant   ");
                 strSql.AppendLine(" )t1 left join   ");

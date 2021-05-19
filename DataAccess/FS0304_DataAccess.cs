@@ -13,7 +13,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 按检索条件返回dt
-        public DataTable Search(string strSSDate,string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id,string strUserOriginCompany,string strUserID)
+        public DataTable Search(string strSSDate,string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id,string strUserOriginCompany,string strUserID,string strSPINo,string strChange)
         {
             try
             {
@@ -91,6 +91,14 @@ namespace DataAccess
                 if (!string.IsNullOrEmpty(strPart_id))
                 {
                     strSql.Append("      and vcPart_id like '" + strPart_id + "%'   ");
+                }
+                if (!string.IsNullOrEmpty(strSPINo))
+                {
+                    strSql.Append("      and vcSPINo like '" + strSPINo + "%'   ");
+                }
+                if (!string.IsNullOrEmpty(strChange))
+                {
+                    strSql.Append("      and vcChange = '" + strChange + "'   ");
                 }
                 if (!string.IsNullOrEmpty(strInOutFlag))
                 {

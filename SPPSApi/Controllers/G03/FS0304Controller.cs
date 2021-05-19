@@ -150,10 +150,12 @@ namespace SPPSApi.Controllers.G03
             string strPart_id = dataForm.vcPart_id;                 //品番
             string strIsDYJG = dataForm.vcIsDYJG;                   //对应可否确认结果
             string strUserOriginCompany = dataForm.vcOriginCompany; //担当原单位
+            string strSPINo = dataForm.vcSPINo;                     //设变号
+            string strChange = dataForm.vcChange;                   //变更事项
 
             try
             {
-                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,loginInfo.UserId);
+                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,loginInfo.UserId,strSPINo,strChange);
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
@@ -247,10 +249,12 @@ namespace SPPSApi.Controllers.G03
             string strPart_id = dataform.vcPart_id;                 //品番
             string strIsDYJG = dataform.vcIsDYJG;                   //对应可否确认结果
             string strUserOriginCompany = dataform.vcOriginCompany; //担当原单位
+            string strSPINo = dataform.vcSPINo;                     //设变号
+            string strChange = dataform.vcChange;                   //变更事项
 
             try
             {
-                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,logininfo.UserId);
+                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,logininfo.UserId,strSPINo,strChange);
                 /*
                  * 修改时间：2021-5-6
                  * 修改人：董镇

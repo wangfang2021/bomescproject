@@ -212,7 +212,7 @@ namespace SPPSApi.Controllers.G03
                 ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
                 ,"vcOriginCompany_Name"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 1,loginInfo.UserId,FunctionID  );
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -424,7 +424,7 @@ namespace SPPSApi.Controllers.G03
 
                 DataTable dt = fs0309_Logic.getXiaoShouZhanKai(listInfoData);
                 string[] fields = {  "iNum","vcPart_id","vcFaZhuPlant","dQieTi","vcPart_Name","vcChange_Name",
-                        "vcPartId_Replace","decPriceTNPWithTax","iPackingQty","vcCarTypeDev","vcNote"
+                        "vcPartId_Replace","decPriceTNPWithTax","iPackingQty","vcCarTypeDesign","vcNote"
                     };
 
                 //获取单号，生成单号

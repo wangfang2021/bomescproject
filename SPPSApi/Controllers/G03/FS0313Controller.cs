@@ -216,7 +216,7 @@ namespace SPPSApi.Controllers.G03
                 ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
                 ,"vcOriginCompany_Name"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 1,loginInfo.UserId,FunctionID  );
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

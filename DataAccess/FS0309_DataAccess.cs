@@ -734,6 +734,7 @@ namespace DataAccess
                 strSql.AppendLine("                \r\n");
                 strSql.AppendLine("                \r\n");
                 strSql.AppendLine("        update TPrice set vcPriceState = '4'        \r\n");
+                strSql.AppendLine("        ,dPriceStateDate = GETDATE()        \r\n");
                 strSql.AppendLine("        from TPrice a        \r\n");
                 strSql.AppendLine("        inner join         \r\n");
                 strSql.AppendLine("        (        \r\n");
@@ -1078,7 +1079,7 @@ namespace DataAccess
                 strSql.Append("      ,b.vcPartId_Replace        \n");
                 strSql.Append("      ,a.decPriceTNPWithTax        \n");
                 strSql.Append("      ,b.iPackingQty        \n");
-                strSql.Append("      ,a.vcCarTypeDev        \n");
+                strSql.Append("      ,a.vcCarTypeDesign        \n");
                 strSql.Append("      ,'' as vcNote        \n");//备注
                 strSql.Append("      from        \n");
                 strSql.Append("      (        \n");

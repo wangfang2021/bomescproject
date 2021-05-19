@@ -830,7 +830,7 @@ namespace DataAccess
         #endregion
 
         #region 数据同步-更新源数据的同步时间
-        public void dataSync(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void dataSync(List<Dictionary<string, Object>> listInfoData, string strUserId,string strSyncTime)
         {
             try
             {
@@ -840,7 +840,7 @@ namespace DataAccess
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     string autoId = listInfoData[i]["iAutoId"].ToString();
-                    strSql.Append("     update TUnit set dSyncTime = GETDATE() where iAutoId = '" + autoId + "'        \n");
+                    strSql.Append("     update TUnit set dSyncTime = '"+strSyncTime+"' where iAutoId = '" + autoId + "'        \n");
                 }
                 #endregion
 
@@ -857,7 +857,7 @@ namespace DataAccess
         #endregion
 
         #region 数据同步
-        public void dataSync(string sytCode, List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strMessage)
+        public void dataSync(string sytCode, List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strMessage,string strSyncTime)
         {
             try
             {
@@ -865,7 +865,7 @@ namespace DataAccess
 
                 FS0303_DataAccess_Sync2 sync2 = new FS0303_DataAccess_Sync2("#TUnit_temp",strSql,strUserId);
 
-                sync2.setTempTalbeData(listInfoData, strSql);
+                sync2.setTempTalbeData(listInfoData, strSql, strSyncTime);
 
                 sync2.getUnit2TagMasterSync();
 
@@ -1067,6 +1067,115 @@ namespace DataAccess
             {
                 throw ex;
             }
+        }
+        #endregion
+
+        #region 根据同步时间将本次同步数据放入履历表中（手配）
+        public int setSyncData2SyncHistory_TSPMaster(string strSyncTime, string strSYTCode)
+        {
+            StringBuilder strSql = new StringBuilder();
+
+            strSql.AppendLine("       insert into TSPMaster_Sync_History        ");
+            strSql.AppendLine("       (        ");
+            strSql.AppendLine("        dSyncTime,vcChanges,vcPackingPlant,vcPartId,vcPartENName        ");
+            strSql.AppendLine("       ,vcCarfamilyCode,vcCarModel,vcReceiver,dFromTime,dToTime        ");
+            strSql.AppendLine("       ,vcPartId_Replace,vcInOut,vcOESP,vcHaoJiu,vcOldProduction        ");
+            strSql.AppendLine("       ,dOldStartTime,dDebugTime,vcSupplierId,dSupplierFromTime,dSupplierToTime        ");
+            strSql.AppendLine("       ,vcSupplierName,vcSupplierPlace,vcInteriorProject,vcPassProject,vcFrontProject        ");
+            strSql.AppendLine("       ,dFrontProjectTime,dShipmentTime,vcBillType,vcOrderingMethod,vcMandOrder        ");
+            strSql.AppendLine("       ,vcPartImage,vcRemark1,vcRemark2,vcSupplierPacking,vcDelete        ");
+            strSql.AppendLine("       ,vcOperatorID,dOperatorTime,dSyncToSPTime,vcPartNameCn        ");
+            strSql.AppendLine("       )        ");
+            strSql.AppendLine("       select        ");
+            strSql.AppendLine("        dSyncTime,vcChanges,vcPackingPlant,vcPartId,vcPartENName        ");
+            strSql.AppendLine("       ,vcCarfamilyCode,vcCarModel,vcReceiver,dFromTime,dToTime        ");
+            strSql.AppendLine("       ,vcPartId_Replace,vcInOut,vcOESP,vcHaoJiu,vcOldProduction        ");
+            strSql.AppendLine("       ,dOldStartTime,dDebugTime,vcSupplierId,dSupplierFromTime,dSupplierToTime        ");
+            strSql.AppendLine("       ,vcSupplierName,vcSupplierPlace,vcInteriorProject,vcPassProject,vcFrontProject        ");
+            strSql.AppendLine("       ,dFrontProjectTime,dShipmentTime,vcBillType,vcOrderingMethod,vcMandOrder        ");
+            strSql.AppendLine("       ,vcPartImage,vcRemark1,vcRemark2,vcSupplierPacking,vcDelete        ");
+            strSql.AppendLine("       ,vcOperatorID,dOperatorTime,dSyncToSPTime,vcPartNameCn        ");
+            strSql.AppendLine("       from TSPMaster        ");
+            strSql.AppendLine("       where dSyncTime = '"+strSyncTime+"'        ");
+            strSql.AppendLine("       union all        ");
+            strSql.AppendLine("       (        ");
+            strSql.AppendLine("       select        ");
+            strSql.AppendLine("        dSyncTime,vcChanges,vcPackingPlant,vcPartId,vcPartENName        ");
+            strSql.AppendLine("       ,vcCarfamilyCode,vcCarModel,vcReceiver,dFromTime,dToTime        ");
+            strSql.AppendLine("       ,vcPartId_Replace,vcInOut,vcOESP,vcHaoJiu,vcOldProduction        ");
+            strSql.AppendLine("       ,dOldStartTime,dDebugTime,vcSupplierId,dSupplierFromTime,dSupplierToTime        ");
+            strSql.AppendLine("       ,vcSupplierName,vcSupplierPlace,vcInteriorProject,vcPassProject,vcFrontProject        ");
+            strSql.AppendLine("       ,dFrontProjectTime,dShipmentTime,vcBillType,vcOrderingMethod,vcMandOrder        ");
+            strSql.AppendLine("       ,vcPartImage,vcRemark1,vcRemark2,vcSupplierPacking,vcDelete        ");
+            strSql.AppendLine("       ,vcOperatorID,dOperatorTime,dSyncToSPTime,vcPartNameCn        ");
+            strSql.AppendLine("       from TSPMaster_temp        ");
+            strSql.AppendLine("       where dSyncTime = '"+strSyncTime+"'        ");
+            strSql.AppendLine("       )        ");
+            return excute.ExcuteSqlWithStringOper(strSql.ToString(), strSYTCode);
+        }
+        #endregion
+
+        #region 根据同步时间将本次同步数据放入履历表中（原单位）
+        public int setSyncData2SyncHistory_TUnit(string strSyncTime)
+        {
+            StringBuilder strSql = new StringBuilder();
+
+            #region 将需要用的数据放进临时表中
+            strSql.AppendLine("       insert into TUnit_Sync_History(       ");
+            strSql.AppendLine("        dSyncTime,vcChange,vcSPINo,vcSQState,vcDiff       ");
+            strSql.AppendLine("       ,vcPart_id,vcCarTypeDev,vcCarTypeDesign,vcCarTypeName,dTimeFrom       ");
+            strSql.AppendLine("       ,dTimeTo,dTimeFromSJ,vcBJDiff,vcPartReplace,vcPartNameEn       ");
+            strSql.AppendLine("       ,vcPartNameCn,vcHKGC,vcBJGC,vcInOutflag,vcSupplier_id       ");
+            strSql.AppendLine("       ,vcSupplier_Name,vcSCPlace,vcCHPlace,vcSYTCode,vcSCSName       ");
+            strSql.AppendLine("       ,vcSCSAdress,dGYSTimeFrom,dGYSTimeTo,vcOE,vcHKPart_id       ");
+            strSql.AppendLine("       ,vcHaoJiu,dJiuBegin,dJiuEnd,vcJiuYear,vcNXQF       ");
+            strSql.AppendLine("       ,dSSDate,vcMeno,vcFXDiff,vcFXNo,vcNum1       ");
+            strSql.AppendLine("       ,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6       ");
+            strSql.AppendLine("       ,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11       ");
+            strSql.AppendLine("       ,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo       ");
+            strSql.AppendLine("       ,vcReceiver,vcOriginCompany,dNqDate,vcOperator,dOperatorTime       ");
+            strSql.AppendLine("       ,vcRemark,vcSQContent)       ");
+            strSql.AppendLine("       select        ");
+            strSql.AppendLine("        dSyncTime,vcChange,vcSPINo,vcSQState,vcDiff       ");
+            strSql.AppendLine("       ,vcPart_id,vcCarTypeDev,vcCarTypeDesign,vcCarTypeName,dTimeFrom       ");
+            strSql.AppendLine("       ,dTimeTo,dTimeFromSJ,vcBJDiff,vcPartReplace,vcPartNameEn       ");
+            strSql.AppendLine("       ,vcPartNameCn,vcHKGC,vcBJGC,vcInOutflag,vcSupplier_id       ");
+            strSql.AppendLine("       ,vcSupplier_Name,vcSCPlace,vcCHPlace,vcSYTCode,vcSCSName       ");
+            strSql.AppendLine("       ,vcSCSAdress,dGYSTimeFrom,dGYSTimeTo,vcOE,vcHKPart_id       ");
+            strSql.AppendLine("       ,vcHaoJiu,dJiuBegin,dJiuEnd,vcJiuYear,vcNXQF       ");
+            strSql.AppendLine("       ,dSSDate,vcMeno,vcFXDiff,vcFXNo,vcNum1       ");
+            strSql.AppendLine("       ,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6       ");
+            strSql.AppendLine("       ,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11       ");
+            strSql.AppendLine("       ,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo       ");
+            strSql.AppendLine("       ,vcReceiver,vcOriginCompany,dNqDate,vcOperator,dOperatorTime       ");
+            strSql.AppendLine("       ,vcRemark,vcSQContent       ");
+            strSql.AppendLine("       from TUnit       ");
+            strSql.AppendLine("       where dSyncTime = '" + strSyncTime + "'       ");
+            #endregion
+            return excute.ExcuteSqlWithStringOper(strSql.ToString(), "TK");
+        }
+        #endregion
+
+        #region 数据同步记录错误日志
+        public void writeLog(string strMsg, string strExMsg, string strUserID)
+        {
+            string strExTrace = "at Logic.FS0303_Logic.dataSync(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strMessage) in API\\SPPSApi\\Controllers\\G03\\FS0303_Logic.cs:line 387";
+            SqlParameter[] parameters = {
+                    new SqlParameter("@vcMessage", SqlDbType.NVarChar),
+                    new SqlParameter("@vcException", SqlDbType.NVarChar),
+                    new SqlParameter("@vcTrack", SqlDbType.NVarChar)
+                };
+            parameters[0].Value = strMsg;
+            parameters[1].Value = strExMsg;
+            parameters[2].Value = strExTrace;
+            string strSql = "insert into SLog(UUID,vcFunctionID,vcLogType,vcUserID,vcMessage,vcException,vcTrack,dCreateTime) values(newid(),"
+                                                        + "'FS0309','E','"
+                                                        + strUserID + "',"
+                                                        + "@vcMessage,"
+                                                        + "@vcException,"
+                                                        + "@vcTrack,"
+                                                        + "CONVERT(varchar, GETDATE(),120))";
+            excute.ExcuteSqlWithStringOper(strSql, parameters);
         }
         #endregion
     }

@@ -819,6 +819,7 @@ namespace SPPSApi.Controllers.G06
                                 dataRow["vcMessage"] = "供应商" + strSupplier + "发送邮件失败";
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
+                                fs0604_Logic.returnHandle(dtNewSupplierand, loginInfo.UserId);
                             }
                         }
                     }

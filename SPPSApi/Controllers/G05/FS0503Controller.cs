@@ -558,8 +558,9 @@ namespace SPPSApi.Controllers.G05
                 bool bReault = true;
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcState"].ToString() != "待回复" && listInfoData[i]["vcState"].ToString() != "退回"&& listInfoData[i]["vcState"].ToString() != "待回复(已填写)" && listInfoData[i]["vcState"].ToString() != "退回(已填写)")
-                    {
+                    //if (listInfoData[i]["vcState"].ToString() != "待回复" && listInfoData[i]["vcState"].ToString() != "退回"&& listInfoData[i]["vcState"].ToString() != "待回复(已填写)" && listInfoData[i]["vcState"].ToString() != "退回(已填写)")
+                     if (listInfoData[i]["vcState"].ToString() != "待回复(已填写)" && listInfoData[i]["vcState"].ToString() != "退回(已填写)")
+                        {
                         DataRow dataRow = dataTable.NewRow();
                         dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
                         dataRow["vcMessage"] = "状态不正确,必须是待回复(已填写)或退回(已填写)，才能进行回复操作！";

@@ -30,6 +30,7 @@ namespace DataAccess
                 strSql.Append("     ,b9.vcName as 'vcIsDYFX_Name'    \n");
                 strSql.Append("     ,b10.iNum    \n");
                 strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dHFDate,111) as dHFDate_Name    \n");
                 strSql.Append("     from TSQJD a    \n");
                 strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");
@@ -207,6 +208,7 @@ namespace DataAccess
                 strSql.Append("     ,b9.vcName as 'vcIsDYFX_Name'    \n");
                 strSql.Append("     ,b10.iNum    \n");
                 strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dHFDate,111) as dHFDate_Name    \n");
                 strSql.Append("     from TSQJD a    \n");
                 strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");

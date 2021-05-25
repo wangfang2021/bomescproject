@@ -1683,7 +1683,7 @@ namespace DataAccess
                 sql.Append("    b.[vcBoxType]=a.vcBoxType ,b.[vcLength]=a.vcLength,   \n");
                 sql.Append("    b.[vcWide]=a.vcWide ,b.[vcHeight]=a.vcHeight   \n");
                 sql.Append("    ,b.[vcEmptyWeight]=a.vcEmptyWeight ,b.[vcUnitNetWeight]=a.vcUnitNetWeight ,   \n");
-                sql.Append("    b.vcMemo=a.vcMemo from    \n");
+                sql.Append("    b.vcMemo=a.vcMemo,b.dSendDate=a.dSendDate,b.vcOperatorID=a.vcOperatorID,b.dOperatorTime=a.dOperatorTime from    \n");
                 sql.Append("    (select * from [THeZiManageImportTmp] where vcType='3' and vcOperatorID='" + strUserId + "') a   \n");
                 sql.Append("   	left join [THeZiManage] b    \n");
                 sql.Append("   	on a.vcPackingPlant = b.vcPackingPlant and a.vcReceiver=b.vcReceiver   \n");

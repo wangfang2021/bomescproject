@@ -261,7 +261,7 @@ namespace SPPSApi.Controllers.G03
                  * 问题提出者：张培鑫
                  * 修改内容：导出中车种信息应该导出数字字母组合的车种代码，不应该是车种关联出来的车名
                  */
-                string[] fields = { "dSSDate","dNqDate", "vcJD_Name","vcOriginCompany","vcPart_id", "vcSPINo",
+                string[] fields = { "dSSDate","dNqDate","dHFDate_Name","vcJD_Name","vcOriginCompany","vcPart_id", "vcSPINo",
                                     "vcChange_Name", "vcCarType","vcInOutflag_Name","vcPartName",
                                     "vcOE_Name","vcHKPart_id","vcSupplier_id","vcFXDiff_Name","vcFXNo",
                                     "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcYQorNG",

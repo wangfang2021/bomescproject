@@ -55,7 +55,7 @@ namespace DataAccess
                 strSql.Append("      )c on a.vcUnitCode=c.vcUnitCode       \n");
                 strSql.Append("      left join      \n");
                 strSql.Append("      (      \n");
-                strSql.Append("         select vcValue,vcName from TCode where vcCodeId='C001'      \n");
+                strSql.Append("         select vcValue,vcName from TCode where vcCodeId='C023'      \n");
                 strSql.Append("      )d on a.vcBaoZhuangPlace=d.vcValue      \n");
                 strSql.Append("      left join      \n");
                 strSql.Append("      (      \n");

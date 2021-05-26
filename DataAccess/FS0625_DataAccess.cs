@@ -506,14 +506,14 @@ namespace DataAccess
                         vcPurposes = "7";
                     }
 
-                    string dOrderPurposesDate = dt.Rows[i]["dOrderPurposesDate"] == System.DBNull.Value ? null : Convert.ToDateTime(dt.Rows[i]["dOrderPurposesDate"].ToString()).ToString();
-                    string dOrderReceiveDate = dt.Rows[i]["dOrderReceiveDate"] == System.DBNull.Value ? null : dt.Rows[i]["dOrderReceiveDate"].ToString();
-                    string vcReceiveTimes = dt.Rows[i]["vcReceiveTimes"] == System.DBNull.Value ? "" : dt.Rows[i]["vcReceiveTimes"].ToString();
-                    string vcActualNum = dt.Rows[i]["vcActualNum"] == System.DBNull.Value ? "" : dt.Rows[i]["vcActualNum"].ToString();
-                    string dActualReceiveDate = dt.Rows[i]["dActualReceiveDate"] == System.DBNull.Value ? null : Convert.ToDateTime(dt.Rows[i]["dActualReceiveDate"].ToString()).ToString();
-                    string vcAccountOrderNo = dt.Rows[i]["vcAccountOrderNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcAccountOrderNo"].ToString();
-                    string dAccountOrderReceiveDate = dt.Rows[i]["dAccountOrderReceiveDate"] == System.DBNull.Value ? null : Convert.ToDateTime(dt.Rows[i]["dAccountOrderReceiveDate"].ToString()).ToString();
-                    string vcMemo = dt.Rows[i]["vcMemo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcMemo"].ToString();
+                    string dOrderPurposesDate = dt.Rows[i]["dOrderPurposesDate"].ToString() == "" ? null : Convert.ToDateTime(dt.Rows[i]["dOrderPurposesDate"].ToString()).ToString();
+                    string dOrderReceiveDate = dt.Rows[i]["dOrderReceiveDate"].ToString() == "" ? null : dt.Rows[i]["dOrderReceiveDate"].ToString();
+                    string vcReceiveTimes = dt.Rows[i]["vcReceiveTimes"].ToString() == "" ? "" : dt.Rows[i]["vcReceiveTimes"].ToString();
+                    string vcActualNum = dt.Rows[i]["vcActualNum"].ToString() == "" ? "" : dt.Rows[i]["vcActualNum"].ToString();
+                    string dActualReceiveDate = dt.Rows[i]["dActualReceiveDate"].ToString() == "" ? null : Convert.ToDateTime(dt.Rows[i]["dActualReceiveDate"].ToString()).ToString();
+                    string vcAccountOrderNo = dt.Rows[i]["vcAccountOrderNo"].ToString() == "" ? "" : dt.Rows[i]["vcAccountOrderNo"].ToString();
+                    string dAccountOrderReceiveDate = dt.Rows[i]["dAccountOrderReceiveDate"].ToString() == "" ? null : Convert.ToDateTime(dt.Rows[i]["dAccountOrderReceiveDate"].ToString()).ToString();
+                    string vcMemo = dt.Rows[i]["vcMemo"].ToString() == "" ? "" : dt.Rows[i]["vcMemo"].ToString();
 
 
                     strSql.AppendLine("  INSERT INTO [dbo].[TOralTestManage]   ");

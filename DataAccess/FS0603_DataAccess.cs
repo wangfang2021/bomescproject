@@ -24,7 +24,9 @@ namespace DataAccess
                 }
                 if (strType == "Receiver")//收货方
                 {
-                    strSql.AppendLine("select vcValue,vcValue as vcName from TCustomerInfo where vcDisting='C' and vcDisable='0'");
+                    //strSql.AppendLine("select vcValue,vcValue as vcName from TCustomerInfo where vcDisting='C' and vcDisable='0'");
+                    strSql.AppendLine("select vcValue as vcValue,vcName as vcName from TCode where vcCodeId='C005' order by vcValue");
+
                 }
                 if (strType == "NqState")//纳期状态
                 {

@@ -189,7 +189,7 @@ namespace DataAccess
                 string strGQ = strSupplier_GQ.Substring(4, 1);
 
                 StringBuilder sql = new StringBuilder();
-                string strdate = System.DateTime.Now.ToString();
+                string strdate = System.DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
                 List<string> lsOrderNo = new List<string>();
                 List<string> lsPart_id = new List<string>();
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -536,7 +536,7 @@ namespace DataAccess
         {
             try
             {
-                DateTime now = DateTime.Now;
+                string now = System.DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
                 string strLastTimeFlag = DateTime.Now.ToString("yyyyMMddHHmmss");
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("if object_id('tempdb..#TUrgentOrder_temp_cr') is not null       \n");
@@ -619,7 +619,7 @@ namespace DataAccess
         {
             try
             {
-                DateTime now = DateTime.Now;
+                string now = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
                 string strSupplier = strSupplier_GQ.Substring(0, 4);
                 string strGQ = strSupplier_GQ.Substring(4, 1);
 

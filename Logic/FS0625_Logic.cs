@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string dExportDate, string vcCarType, string vcPartNo, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcIsNewRulesFlag, string vcPurposes, string vcOESP,string dOrderPurposesDate)
+        public DataTable Search(string dExportDate, string vcCarType, string vcPartNo, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcIsNewRulesFlag, string vcPurposes, string vcOESP,string dOrderPurposesDate,string vcEmailFlag)
         {
-            return fs0625_DataAccess.Search(dExportDate, vcCarType, vcPartNo, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcIsNewRulesFlag, vcPurposes, vcOESP, dOrderPurposesDate);
+            return fs0625_DataAccess.Search(dExportDate, vcCarType, vcPartNo, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcIsNewRulesFlag, vcPurposes, vcOESP, dOrderPurposesDate, vcEmailFlag);
         }
 
         public DataTable GetPurposes()

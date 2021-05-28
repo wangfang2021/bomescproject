@@ -262,7 +262,7 @@ namespace Logic
                     default:
                         re.Add(weekTypeVals[i]);
                         break;
-                } 
+                }
             }
 
             //如果不够31，则补齐

@@ -258,7 +258,7 @@ namespace Logic
                         break;
                     case null:
                         re.Add("0");
-                        break;
+                        break; 
                     default:
                         re.Add(weekTypeVals[i]);
                         break;

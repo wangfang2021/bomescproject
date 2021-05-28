@@ -262,7 +262,7 @@ namespace DataAccess
                             sql.AppendLine($"   vcSupplierName ='',");
                         }
                         else {
-                            sql.AppendLine($"   vcSupplierName = {ComFunction.getSqlValue(dr[i]["vcName"].ToString(), false)},");
+                            sql.AppendLine($"   vcSupplierName = {ComFunction.getSqlValue(dr[0]["vcName"].ToString(), false)},");
 
                         }
                         

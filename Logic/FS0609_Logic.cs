@@ -90,7 +90,7 @@ namespace Logic
                     }
                     catch
                     {
-                        dayTempalte[k - 1] = null;
+                        dayTempalte[k - 1] = "0";
                     }
                     //周数（取第一位数字）
                     weekTempalte[k - 1] = "";
@@ -160,7 +160,7 @@ namespace Logic
                     }
                     catch
                     {
-                        dayTempalte[k - 1] = null;
+                        dayTempalte[k - 1] = "0";
                     }
                     //周数（取第一位数字）
                     weekTempalte[k - 1] = "";
@@ -230,7 +230,7 @@ namespace Logic
                     }
                     catch
                     {
-                        dayTempalte[k - 1] = null;
+                        dayTempalte[k - 1] = "0";
                     }
                     //周数（取第一位数字）
                     weekTempalte[k - 1] = "";
@@ -257,7 +257,7 @@ namespace Logic
                         re.Add(weekTypeVals[i] + "*");
                         break;
                     case null:
-                        re.Add(null);
+                        re.Add("0");
                         break;
                     default:
                         re.Add(weekTypeVals[i]);
@@ -270,7 +270,7 @@ namespace Logic
             {
                 for (int i = 0; i < 31 - re.Count; i++)
                 {
-                    re.Add(null);
+                    re.Add("0");
                 }
             }
             return fs0609_DataAccess.save(re, varDxny, varFZGC, TOTALWORKDAYS, strUserId);

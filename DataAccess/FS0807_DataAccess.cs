@@ -55,7 +55,7 @@ namespace DataAccess
                 if (vcTimeFrom == "" || vcTimeFrom == null)
                     vcTimeFrom = "2001/01/01";
                 if (vcTimeTo == "" || vcTimeTo == null)
-                    vcTimeTo = "2099/12/31";
+                    vcTimeTo = "9999/12/31";
                 strSql.Append("and t1.dTimeFrom >= '" +vcTimeFrom + "' and t1.dTimeTo <= '" + vcTimeTo + "'  \n");
                 strSql.Append("order by t1.vcPart_id,t1.vcSHF,t1.dTimeFrom   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

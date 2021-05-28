@@ -1291,6 +1291,12 @@ namespace DataAccess
                 cmd.Connection.Open();
                 cmd.Transaction = cmd.Connection.BeginTransaction();
                 cmd.CommandTimeout = 0;
+
+                #region 2021-5-27 wlw 清掉看板打印数据
+                cmd.CommandText = "delete from tKanbanPrintTbl where vcPlanMonth='" + lbltime.Substring(0, 4) + '-' + lbltime.Substring(4, 2) + "' and vcEDflag='S' and exists(select vcPartsNo from tPlanPartInfo where vcPlant in ('" + plant + "') and vcEDflag='S' and vcPartsNo=tKanbanPrintTbl.vcPartsno and vcMonth='" + lbltime.Substring(0, 4) + '-' + lbltime.Substring(4, 2) + "');";
+                cmd.ExecuteNonQuery();
+                #endregion
+
                 TransactionPlan(dt0, cmd, partsInfo, "MonthKanBanPlanTblTMP", user, lbltime, plant, ref msg);
                 if (msg.Length <= 0)
                 {
@@ -1909,7 +1915,7 @@ namespace DataAccess
             string tmpmon = mon + "-01";
             StringBuilder sb = new StringBuilder();
             sb.Length = 0;
-            sb.AppendLine("delete from tPlanPartInfo where vcMonth='" + mon + "' and vcPartNameCN='m' ");
+            sb.AppendLine("delete from tPlanPartInfo where vcMonth='" + mon + "' and vcPartNameCN='m' and vcPlant='" + plant + "' ");
             sb.AppendLine(" insert into tPlanPartInfo ");
             sb.AppendFormat(" select '{0}' as vcMonth, t1.*,'S' as vcEDFlag,t2.vcPartPlant , ", mon);
             sb.AppendLine(" 'm' as vcPartsNameCHN,t2.vcCurrentPastCode,t2.vcPorType , t2.vcZB,t2.iQuantityPerContainer,t2.vcQFflag from (");

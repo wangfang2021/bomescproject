@@ -276,9 +276,9 @@ namespace SPPSApi.Controllers.G07
             {
                 DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd, strExport);
                 string resMsg = "";
-                string[] head = { "变更事项", "包装场", "收货方", "品番", "车型", "开始时间", "结束时间", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数" };
+                string[] head = {"同步时间", "变更事项", "包装场", "收货方", "品番", "车型", "开始时间", "结束时间", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数" };
 
-                string[] fields = { "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
+                string[] fields = {"vcReTime", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
                     "vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"
                 };
 
@@ -749,21 +749,31 @@ namespace SPPSApi.Controllers.G07
                     if (bAddFlag == true)
                     {//新增
                         hasFind = true;
-                      
+                        if (i != 0)
+                        {
+                            strPartNoAll = strPartNoAll + "','" + listInfoData[i]["vcPartsNo"].ToString();
+                        }
+                        else
+                        {
+
+                            strPartNoAll = listInfoData[i]["vcPartsNo"].ToString();
+                        }
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
-                    }
-                    if (i != 0)
-                    {
-                        strPartNoAll = strPartNoAll + "'" + listInfoData[i]["vcPartsNo"].ToString() + "',";
-                    }
-                    else
-                    {
+                        if (string.IsNullOrEmpty(listInfoData[i]["vcPackSpot"].ToString())) {
 
-                        strPartNoAll = "'"+listInfoData[i]["vcPartsNo"].ToString() + "',";
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "上游数据未匹配到包装厂，请检查！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+
+
+
+
                     }
+
                     //判断品番是否存在
 
                     if (string.IsNullOrEmpty(listInfoData[i]["vcShouhuofangID"].ToString()))
@@ -773,15 +783,16 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "请填写收货方！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (Convert.ToDecimal(listInfoData[i]["iBiYao"].ToString())<0)
+                    if (Convert.ToDecimal(listInfoData[i]["iBiYao"].ToString()) < 0)
                     {
 
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "必要数不可小于‘0’";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    DataRow[] drr = dt1.Select("vcPackNo='"+ listInfoData[i]["vcPackNo"].ToString() + "'");
-                    if (drr.Length==0) {
+                    DataRow[] drr = dt1.Select("vcPackNo='" + listInfoData[i]["vcPackNo"].ToString() + "'");
+                    if (drr.Length == 0)
+                    {
 
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "此包材品番不在包材基础数据中！";
@@ -824,7 +835,7 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 List<Object> strSupplierCode = new List<object>();
-                
+
                 string strErrorPartId = "";
                 //删除导入含有的部品品番的包材为空的数据
                 FS0702_Logic.DeleteALL(strPartNoAll, loginInfo.UserId);
@@ -877,31 +888,31 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dtSOQ = new DataTable();
+                DataTable dtSPMaster = new DataTable();
                 DataTable dtItem = new DataTable();
                 dtItem = FS0702_Logic.checkItem();
-                dtSOQ = FS0702_Logic.checkSOQ();
+                dtSPMaster = FS0702_Logic.checkSPMaster();
                 //check
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
 
-                    DataRow[] dr = dtSOQ.Select("vcPart_id='" + listInfoData[i]["vcPartsNo"].ToString() + "'");
+                    DataRow[] dr = dtSPMaster.Select("vcPartId='" + listInfoData[i]["vcPartsNo"].ToString() + "'");
                     DataRow[] dr1 = dtItem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"].ToString() + "'");
-                    int z = 0;
-                    foreach (DataRow row in dr1)
-                    {
-                        if (z == 0)
-                        {
-                            dtItem.Rows.Remove(row);
-                        }
-                        z++;
-                    }
+                    //int z = 0;
+                    //foreach (DataRow row in dr1)
+                    //{
+                    //    if (z == 0)
+                    //    {
+                    //        dtItem.Rows.Remove(row);
+                    //    }
+                    //    z++;
+                    //}
                     int soq = dr.Length;
                     int item = dr1.Length - 1;
-                    if (soq + item < 2)
+                    if (soq + item < 1)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = dr[0]["vcPart_id"] + "存在上游不可删除！";
+                        apiResult.data = dr[0]["vcPartId"] + "存在上游不可删除！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

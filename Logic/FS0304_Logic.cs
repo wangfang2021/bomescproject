@@ -19,9 +19,9 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strSSDate, string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id, string strUserOriginCompany,string strUserID)
+        public DataTable Search(string strSSDate, string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id, string strUserOriginCompany,string strUserID,string strSPINo,string strChange)
         {
-            return fs0304_DataAccess.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,strUserID);
+            return fs0304_DataAccess.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,strUserID,strSPINo,strChange);
         }
         #endregion
 
@@ -66,8 +66,6 @@ namespace Logic
             fs0304_DataAccess.Back(listInfoData, strUserId,strTH);
             #endregion
 
-            #region 给供应商发邮件
-
             #region 获取登陆人的邮件模板(邮件标题和邮件内容)，未找到：返回错误提示
             DataTable dtSetting = getEmailSetting(strUserId);
             string strTitle = "";//邮件标题
@@ -86,15 +84,19 @@ namespace Logic
             }
             #endregion
 
-            //再向供应商发邮件
-            StringBuilder strEmailBody = new StringBuilder();
+            #region 向供应商发邮件
+            List<string> listSuppliers = new List<string>();
             for (int i = 0; i < listInfoData.Count; i++)
             {
-                string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
-                DataTable receiverDt = getSupplierEmail(strSupplier_id);
+                listSuppliers.Add( listInfoData[i]["vcSupplier_id"].ToString() );
+            }
+            listSuppliers = listSuppliers.Distinct().ToList();
+            for (int i = 0; i < listSuppliers.Count; i++)
+            {
+                DataTable receiverDt = getSupplierEmail(listSuppliers[i]);
                 if (receiverDt == null)
                 {
-                    strErr += "退回成功，但未找到 '" + strSupplier_id + "' 供应商邮箱地址 ";
+                    strErr += "退回成功，但未找到 '" + listSuppliers[i] + "' 供应商邮箱地址 ";
                     return;
                 }
                 ComFunction.SendEmailInfo(strEmail, strUserName, strContent, receiverDt, null, strTitle, "", false);
@@ -171,9 +173,9 @@ namespace Logic
         #endregion
 
         #region 根据供应商获取邮箱地址
-        public DataTable getSupplierEmail(string strSupplierId)
+        public DataTable getSupplierEmail(string strSuppliers)
         {
-            DataTable dt = fs0304_DataAccess.getSupplierEmail(strSupplierId);
+            DataTable dt = fs0304_DataAccess.getSupplierEmail(strSuppliers);
             if (dt == null || dt.Rows.Count == 0)
                 return null;
             else

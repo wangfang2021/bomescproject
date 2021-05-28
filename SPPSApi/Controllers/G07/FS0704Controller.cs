@@ -241,15 +241,36 @@ namespace SPPSApi.Controllers.G07
 
                     //判断对应逻辑下是否有重叠时间
                     #region 判断对应逻辑下是否有重叠时间
-                    DataTable dtLJtime = FS0704_Logic.SearchLJTime(listInfoData[i]["vcFaZhuID"].ToString(), listInfoData[i]["iAutoId"].ToString());
+                    DataTable dtLJtime = FS0704_Logic.SearchLJTime(listInfoData[i]["vcFaZhuID"].ToString(), listInfoData[i]["iAutoId"].ToString(), listInfoData[i]["vcPackSpot"].ToString());
 
+                    //查找工作日的一天
+                    DataTable dtBZtime= FS0704_Logic.SearchBZ(listInfoData[i]["vcPackSpot"].ToString());
+                    DateTime dBZtime = DateTime.Parse(dtBZtime.Rows[0]["vcBeginTime"].ToString());
 
+                    
                     DateTime dRuHeFromDay = DateTime.Parse(listInfoData[i]["dRuHeFromTime"].ToString()).AddDays(Convert.ToInt32( listInfoData[i]["vcRuHeFromDay"].ToString()));
+                    if (dRuHeFromDay < dBZtime)
+                        dRuHeFromDay = dRuHeFromDay.AddDays(1);
+
                     DateTime dRuHeToDay = DateTime.Parse(listInfoData[i]["druHeToTime"].ToString()).AddDays(Convert.ToInt32(listInfoData[i]["vcRuHeToDay"].ToString()));
+                    if (dRuHeToDay < dBZtime)
+                        dRuHeToDay = dRuHeToDay.AddDays(1);
+
                     DateTime dFaZhuFromDay = DateTime.Parse(listInfoData[i]["dFaZhuFromTime"].ToString()).AddDays(Convert.ToInt32(listInfoData[i]["vcFaZhuFromDay"].ToString()));
+                    if (dFaZhuFromDay < dBZtime)
+                        dFaZhuFromDay = dFaZhuFromDay.AddDays(1);
+
                     DateTime dFaZhuToDay = DateTime.Parse(listInfoData[i]["dFaZhuToTime"].ToString()).AddDays(Convert.ToInt32(listInfoData[i]["vcFaZhuToDay"].ToString()));
+                    if (dFaZhuToDay < dBZtime)
+                        dFaZhuToDay = dFaZhuToDay.AddDays(1);
+
                     DateTime dNaQiFromDay = DateTime.Parse(listInfoData[i]["dNaQiFromTime"].ToString()).AddDays(Convert.ToInt32(listInfoData[i]["vcNaQiFromDay"].ToString()));
+                    if (dNaQiFromDay < dBZtime)
+                        dNaQiFromDay = dNaQiFromDay.AddDays(1);
+
                     DateTime dNaQiToDay = DateTime.Parse(listInfoData[i]["dNaQiToTime"].ToString()).AddDays(Convert.ToInt32(listInfoData[i]["vcNaQiToDay"].ToString()));
+                    if (dNaQiToDay < dBZtime)
+                        dNaQiToDay = dNaQiToDay.AddDays(1);
 
                     DateTime dFrom = DateTime.Parse(listInfoData[i]["dFrom"].ToString());
                     DateTime dTo = DateTime.Parse(listInfoData[i]["dTo"].ToString());

@@ -184,7 +184,8 @@ namespace SPPSApi.Controllers.G07
                 List<Object> strSupplierCode = new List<object>();
                 FS0701_Logic FS0701_Logic = new FS0701_Logic();
                 DataTable dtPackBase = FS0701_Logic.Search(new List<object>(), "", "", strSupplierCode, "", "", "", "");
-                DataTable dtPackitem = FS0702_Logic.Search(new List<object>(), new List<object>(), new List<object>(), "", "", "", "", "", "", "", "");
+                //DataTable dtPackitem = FS0702_Logic.Search(new List<object>(), new List<object>(), new List<object>(), "", "", "", "", "", "", "", "");
+                DataTable dtPackitem = FS0702_Logic.Search_1();
                 //删除导入含有的部品品番的包材为空的数据
                 FS0702_Logic.DeleteALL(strPartNoAll, loginInfo.UserId);
                 FS0702_Logic.importSave(importDt, loginInfo.UserId, dtPackBase, dtPackitem);

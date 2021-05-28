@@ -13,7 +13,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 按检索条件返回dt
-        public DataTable Search(string strSSDate,string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id,string strUserOriginCompany,string strUserID)
+        public DataTable Search(string strSSDate,string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id,string strUserOriginCompany,string strUserID,string strSPINo,string strChange)
         {
             try
             {
@@ -30,6 +30,7 @@ namespace DataAccess
                 strSql.Append("     ,b9.vcName as 'vcIsDYFX_Name'    \n");
                 strSql.Append("     ,b10.iNum    \n");
                 strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dHFDate,111) as dHFDate_Name    \n");
                 strSql.Append("     from TSQJD a    \n");
                 strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");
@@ -91,6 +92,14 @@ namespace DataAccess
                 if (!string.IsNullOrEmpty(strPart_id))
                 {
                     strSql.Append("      and vcPart_id like '" + strPart_id + "%'   ");
+                }
+                if (!string.IsNullOrEmpty(strSPINo))
+                {
+                    strSql.Append("      and vcSPINo like '" + strSPINo + "%'   ");
+                }
+                if (!string.IsNullOrEmpty(strChange))
+                {
+                    strSql.Append("      and vcChange = '" + strChange + "'   ");
                 }
                 if (!string.IsNullOrEmpty(strInOutFlag))
                 {
@@ -199,6 +208,7 @@ namespace DataAccess
                 strSql.Append("     ,b9.vcName as 'vcIsDYFX_Name'    \n");
                 strSql.Append("     ,b10.iNum    \n");
                 strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dHFDate,111) as dHFDate_Name    \n");
                 strSql.Append("     from TSQJD a    \n");
                 strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");
@@ -287,10 +297,11 @@ namespace DataAccess
                 sql.Append("          on a.[GUID] = b.[GUID]          \n");
                 #endregion
 
-                #region 更新供应商生确表的包装工场
+                #region 更新供应商生确表的包装工场和TFTM调整日期
                 sql.Append("          update TSQJD_Supplier set           \n");
                 sql.Append("           vcSYTCode = b.vcSYTCode          \n");
                 sql.Append("          ,vcHKPart_id = b.vcHKPart_id          \n");
+                sql.Append("          ,dTFTM_BJ = b.dTFTM_BJ          \n");
                 sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
                 sql.Append("          from TSQJD_Supplier a           \n");
@@ -363,8 +374,6 @@ namespace DataAccess
             sql.Append("          update TSQJD_Supplier set           \n");
             sql.Append("           vcJD = '3'          \n");
             sql.Append("          ,vcNotDY = null          \n");
-            sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
-            sql.Append("          ,dOperatorTime = GETDATE()          \n");
             sql.Append("          from TSQJD_Supplier a          \n");
             sql.Append("          inner join           \n");
             sql.Append("          (          \n");

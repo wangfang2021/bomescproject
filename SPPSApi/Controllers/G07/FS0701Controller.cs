@@ -84,6 +84,8 @@ namespace SPPSApi.Controllers.G07
         [EnableCors("any")]
         public string searchApi([FromBody] dynamic data)
         {
+
+    
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {

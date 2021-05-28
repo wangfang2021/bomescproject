@@ -132,16 +132,17 @@ namespace SPPSApi.Controllers.G03
 
             string strJD = dataForm.vcJD;
             string strInOutflag = dataForm.vcInOutflag;
-            string strSupplier_id = dataForm.vcSupplier_id;
             string strCarType = dataForm.vcCarType;
             string strPart_id = dataForm.vcPart_id;
             string strIsDYJG = dataForm.vcIsDYJG;
             string strIsDYFX = dataForm.vcIsDYFX;
+            string strSPINo = dataForm.vcSPINo;
+            string strChange = dataForm.vcChange;
 
             try
             {
                 #region 拿到统括库中的所有供应商生确单
-                DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id, loginInfo.UserId);
+                DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strCarType, strPart_id, loginInfo.UserId,strSPINo,strChange);
                 #endregion
 
                 if (dt != null && dt.Rows.Count > 0)
@@ -401,12 +402,12 @@ namespace SPPSApi.Controllers.G03
                  * 修改人：董镇
                  * 修改内容：由原先的不校验任何数据 修改为 校验可修改字段的最大长度
                  */
-                string[,] strField = new string[,] {{"对应可否确认结果","防锈对应可否","对应不可理由/退回理由","延期说明","供应商补给日期","供应商号口日期","执行标准"},
-                                                    {"vcIsDYJG"        ,"vcIsDYFX"    ,"vcNotDY"              ,"vcYQorNG","dSupplier_BJ"  ,"dSupplier_HK"  ,"vcZXBZNo"},
-                                                    {""                ,""            ,""                     ,""        ,FieldCheck.Date ,FieldCheck.Date ,""        },
-                                                    {"1"               ,"1"           ,"600"                  ,"100"     ,"0"             ,"0"             ,"100"     },//最大长度设定,不校验最大长度用0
-                                                    {"0"               ,"0"           ,"0"                    ,"0"       ,"0"             ,"0"             ,"0"       },//最小长度设定,可以为空用0
-                                                    {"15"              ,"16"          ,"17"                   ,"18"      ,"26"            ,"27"            ,"29"      } //前台显示列号，从0开始计算,注意有选择框的是0
+                string[,] strField = new string[,] {{"对应可否确认结果","防锈对应可否","对应不可理由/退回理由","延期说明","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"供应商补给日期","供应商号口日期","执行标准"},
+                                                    {"vcIsDYJG"        ,"vcIsDYFX"    ,"vcNotDY"              ,"vcYQorNG","vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province","dSupplier_BJ"  ,"dSupplier_HK"  ,"vcZXBZNo"},
+                                                    {""                ,""            ,""                     ,""        ,""              ,""                  ,""              ,""                  ,FieldCheck.Date ,FieldCheck.Date ,""        },
+                                                    {"1"               ,"1"           ,"600"                  ,"100"     ,"10"            ,"50"                ,"10"            ,"50"                ,"0"             ,"0"             ,"100"     },//最大长度设定,不校验最大长度用0
+                                                    {"0"               ,"0"           ,"0"                    ,"0"       ,"0"             ,"0"                 ,"0"             ,"0"                 ,"0"             ,"0"             ,"0"       },//最小长度设定,可以为空用0
+                                                    {"15"              ,"16"          ,"17"                   ,"18"      ,"19"            ,"20"                ,"21"            ,"22"                ,"26"            ,"27"            ,"29"      } //前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 string[,] strDateRegion = null;
                 string[,] strSpecialCheck = null;
@@ -475,14 +476,15 @@ namespace SPPSApi.Controllers.G03
 
             string strJD = dataform.vcJD;
             string strInOutflag = dataform.strInOutflag;
-            string strSupplier_id = dataform.vcSupplier_id;
             string strCarType = dataform.vcCarType;
             string strPart_id = dataform.vcPart_id;
             string strIsDYJG = dataform.vcIsDYJG;
             string strIsDYFX = dataform.vcIsDYFX;
+            string strSPINo = dataform.vcSPINo;
+            string strChange = dataform.vcChange;
             try
             {
-                DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id, logininfo.UserId);
+                DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strCarType, strPart_id, logininfo.UserId,strSPINo,strChange);
                 string[] fields = { "vcPart_id", "dSSDate", "vcJD_Name", "vcSPINo",
                                     "vcChange_Name", "vcCarType","vcInOutflag_Name","vcPartName",
                                     "vcOE_Name","vcHKPart_id","vcSupplier_id","vcFXDiff_Name","vcFXNo",
@@ -761,6 +763,35 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 string strErr = "";
+
+                #region 数据校验
+                //生产地-市、出荷地-市长度校验
+                if (strSCPlace_City.Length>10)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "“生产地-市”长度过长";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (strCHPlace_City.Length > 10)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "“出荷地-市”长度过长";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (strSCPlace_Province.Length > 50)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "“生产地-省”长度过长";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (strCHPlace_Province.Length > 50)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "“出荷地-省”长度过长";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
+
                 //已回复数据不进行一括付与，需要剔除
                 fs0305_Logic.SetFY(listInfoData, strSupplier_BJ, strSupplier_HK, strSCPlace_City, strSCPlace_Province, strCHPlace_City, strCHPlace_Province, loginInfo.UserId, ref strErr);
                 if (strErr != "")
@@ -801,7 +832,7 @@ namespace SPPSApi.Controllers.G03
             {
                 string strFileName = dataform.fileName;
                 strFileName = "-" + strFileName.Substring(strFileName.Length - 5);
-                string fileSavePath = strFileName + ".pdf";
+                string fileSavePath = strFileName + ".PDF";
                 apiresult.code = ComConstant.SUCCESS_CODE;
                 apiresult.data = fileSavePath;
                 return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);

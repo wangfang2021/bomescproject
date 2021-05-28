@@ -47,7 +47,7 @@ namespace DataAccess
         {
             this.tempTableName = tempTableName;
             this.strSql = strSql;
-
+            this.strOperatorID = vcOperatorID;
             getUnitTable(strSql);
         }
         #endregion
@@ -85,7 +85,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="listInfoData">要插入的数据集</param>
         /// <param name="strSql">SQL语句</param>
-        public void setTempTalbeData(List<Dictionary<string, Object>> listInfoData, StringBuilder strSql)
+        public void setTempTalbeData(List<Dictionary<string, Object>> listInfoData, StringBuilder strSql,string strSyncTime)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace DataAccess
                     strSql.Append("      )       \r\n");
                     strSql.Append("      values       \r\n");
                     strSql.Append("      (       \r\n");
-                    strSql.Append("       GETDATE()       \r\n");
+                    strSql.Append("       '"+strSyncTime+"'       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcSQState"], false) + "       \r\n");
@@ -149,7 +149,7 @@ namespace DataAccess
 
 
                     #region 替代品番特殊处理
-                    string vcPartReplace = listInfoData[i]["vcPartReplace"].ToString();
+                    string vcPartReplace = listInfoData[i]["vcPartReplace"]==null?"": listInfoData[i]["vcPartReplace"].ToString();
                     if (vcPartReplace.Length == 11)
                     {
                         vcPartReplace = vcPartReplace.Replace("-", "") + "00";
@@ -870,13 +870,13 @@ namespace DataAccess
             strSql.Append("       ,dSupplierFromTime=b.dGYSTimeFrom            \r\n");
             strSql.Append("       ,dSupplierToTime  =b.dGYSTimeTo            \r\n");
             strSql.Append("       ,vcSupplierName   =b.vcSupplier_Name            \r\n");
-            strSql.Append("       ,dSyncTime        =GETDATE()            \r\n");
-            strSql.Append("       ,dSyncToSPTime    =GETDATE()            \r\n");
+            strSql.Append("       ,dSyncTime        =b.dSyncTime            \r\n");
+            strSql.Append("       ,dSyncToSPTime    =b.dSyncTime            \r\n");
             strSql.Append("       ,vcOrderingMethod ='0'            \r\n");
             strSql.Append("       ,vcMandOrder      ='0'            \r\n");
             strSql.Append("       ,vcBillType       =case when isnull(a.vcBillType,'')='' then b.vcBillType else a.vcBillType end            \r\n");
             strSql.Append("       ,vcOperatorID     ='" + strOperatorID + "'            \r\n");
-            strSql.Append("       ,dOperatorTime    =GETDATE()            \r\n");
+            strSql.Append("       ,dOperatorTime    =b.dSyncTime            \r\n");
             strSql.Append("          from TSPMaster a          \r\n");
             strSql.Append("          inner join           \r\n");
             strSql.Append("          (          \r\n");
@@ -914,13 +914,13 @@ namespace DataAccess
             strSql.Append("       ,dSupplierFromTime=b.dGYSTimeFrom            \r\n");
             strSql.Append("       ,dSupplierToTime  =b.dGYSTimeTo            \r\n");
             strSql.Append("       ,vcSupplierName   =b.vcSupplier_Name            \r\n");
-            strSql.Append("       ,dSyncTime        =GETDATE()            \r\n");
-            strSql.Append("       ,dSyncToSPTime    =GETDATE()            \r\n");
+            strSql.Append("       ,dSyncTime        =b.dSyncTime            \r\n");
+            strSql.Append("       ,dSyncToSPTime    =b.dSyncTime            \r\n");
             strSql.Append("       ,vcOrderingMethod ='0'            \r\n");
             strSql.Append("       ,vcMandOrder      ='0'            \r\n");
             strSql.Append("       ,vcBillType       =case when isnull(a.vcBillType,'')='' then b.vcBillType else a.vcBillType end            \r\n");
             strSql.Append("       ,vcOperatorID    ='"+strOperatorID+"'            \r\n");
-            strSql.Append("       ,dOperatorTime    =GETDATE()            \r\n");
+            strSql.Append("       ,dOperatorTime    =b.dSyncTime            \r\n");
             strSql.Append("          from TSPMaster_temp a          \r\n");
             strSql.Append("          inner join           \r\n");
             strSql.Append("          (          \r\n");
@@ -1066,7 +1066,7 @@ namespace DataAccess
             strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcPartNameCn,a.vcCarTypeDev,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
-            strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'"+strOperatorID+"',GETDATE()       \r\n");
+            strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,a.dSyncTime,a.dSyncTime,'" + strOperatorID+ "',a.dSyncTime       \r\n");
             strSql.Append("      	,'0','0',a.vcBillType       \r\n");
             strSql.Append("       from        \r\n");
             strSql.Append("      (       \r\n");

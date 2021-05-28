@@ -401,7 +401,7 @@ namespace DataAccess
                 {
                     string iAutoId = dt.Rows[i]["iAutoId"] == System.DBNull.Value ? "" : dt.Rows[i]["iAutoId"].ToString();
                     string vcIsExportFlag = dt.Rows[i]["vcIsExportFlag"] == System.DBNull.Value ? "" : dt.Rows[i]["vcIsExportFlag"].ToString();
-                    string dOrderHandleDate = dt.Rows[i]["dOrderHandleDate"] == System.DBNull.Value ? DateTime.Now.ToString("yyyy-MM-dd") : Convert.ToDateTime(dt.Rows[i]["dOrderHandleDate"].ToString()).ToString();
+                    string dOrderHandleDate = dt.Rows[i]["dOrderHandleDate"].ToString() == "" ? DateTime.Now.ToString("yyyy-MM-dd") : Convert.ToDateTime(dt.Rows[i]["dOrderHandleDate"].ToString()).ToString();
                     string vcOrderNo = dt.Rows[i]["vcOrderNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOrderNo"].ToString();
                     string vcPartNo = dt.Rows[i]["vcPartNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartNo"].ToString();
                     string vcInsideOutsideType = dt.Rows[i]["vcInsideOutsideType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcInsideOutsideType"].ToString();
@@ -444,10 +444,10 @@ namespace DataAccess
                     string vcCarType = dt.Rows[i]["vcCarType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcCarType"].ToString();
                     string vcOrderNum = dt.Rows[i]["vcOrderNum"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOrderNum"].ToString();
 
-                    string dExpectReceiveDate = dt.Rows[i]["dExpectReceiveDate"] == System.DBNull.Value ? "" : Convert.ToDateTime(dt.Rows[i]["dExpectReceiveDate"].ToString()).ToString();
-                    string vcOderTimes = dt.Rows[i]["vcOderTimes"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOderTimes"].ToString();
-                    string vcInjectionOrderNo = dt.Rows[i]["vcInjectionOrderNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcInjectionOrderNo"].ToString();
-                    string vcMemo = dt.Rows[i]["vcMemo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcMemo"].ToString();
+                    string dExpectReceiveDate = dt.Rows[i]["dExpectReceiveDate"].ToString() == "" ? "" : Convert.ToDateTime(dt.Rows[i]["dExpectReceiveDate"].ToString()).ToString();
+                    string vcOderTimes = dt.Rows[i]["vcOderTimes"].ToString() == "" ? "" : dt.Rows[i]["vcOderTimes"].ToString();
+                    string vcInjectionOrderNo = dt.Rows[i]["vcInjectionOrderNo"].ToString() == "" ? "" : dt.Rows[i]["vcInjectionOrderNo"].ToString();
+                    string vcMemo = dt.Rows[i]["vcMemo"].ToString() == "" ? "" : dt.Rows[i]["vcMemo"].ToString();
 
                     if (iAutoId == "")
                     {

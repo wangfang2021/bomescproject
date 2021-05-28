@@ -150,10 +150,12 @@ namespace SPPSApi.Controllers.G03
             string strPart_id = dataForm.vcPart_id;                 //品番
             string strIsDYJG = dataForm.vcIsDYJG;                   //对应可否确认结果
             string strUserOriginCompany = dataForm.vcOriginCompany; //担当原单位
+            string strSPINo = dataForm.vcSPINo;                     //设变号
+            string strChange = dataForm.vcChange;                   //变更事项
 
             try
             {
-                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,loginInfo.UserId);
+                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,loginInfo.UserId,strSPINo,strChange);
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
@@ -247,22 +249,24 @@ namespace SPPSApi.Controllers.G03
             string strPart_id = dataform.vcPart_id;                 //品番
             string strIsDYJG = dataform.vcIsDYJG;                   //对应可否确认结果
             string strUserOriginCompany = dataform.vcOriginCompany; //担当原单位
+            string strSPINo = dataform.vcSPINo;                     //设变号
+            string strChange = dataform.vcChange;                   //变更事项
 
             try
             {
-                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,logininfo.UserId);
+                DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id,strUserOriginCompany,logininfo.UserId,strSPINo,strChange);
                 /*
                  * 修改时间：2021-5-6
                  * 修改人：董镇
                  * 问题提出者：张培鑫
                  * 修改内容：导出中车种信息应该导出数字字母组合的车种代码，不应该是车种关联出来的车名
                  */
-                string[] fields = { "dSSDate","dNqDate", "vcJD_Name","vcOriginCompany","vcPart_id", "vcSPINo",
+                string[] fields = { "dSSDate","dNqDate","dHFDate_Name","vcJD_Name","vcOriginCompany","vcPart_id", "vcSPINo",
                                     "vcChange_Name", "vcCarType","vcInOutflag_Name","vcPartName",
                                     "vcOE_Name","vcHKPart_id","vcSupplier_id","vcFXDiff_Name","vcFXNo",
                                     "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcYQorNG",
                                     "vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province",
-                                    "vcSYTCode_Name","vcSCSPlace","dSupplier_BJ","dSupplier_HK",
+                                    "vcSYTCode_Name","vcSCSName","vcSCSPlace","dSupplier_BJ","dSupplier_HK",
                                     "dTFTM_BJ","vcZXBZDiff","vcZXBZNo","vcNum1",
                                     "vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8","vcNum9",
                                     "vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"

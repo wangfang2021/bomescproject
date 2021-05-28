@@ -6,7 +6,7 @@
   },
   "ExtendedData": {
     "inputs": [
-      "http://localhost:63480/PrintTable.asmx"
+        "http://localhost:25011/PrintTable.asmx"
     ],
     "collectionTypes": [
       "System.Array",

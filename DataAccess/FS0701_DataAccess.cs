@@ -56,24 +56,24 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dFromB))
                 {
-                    dFromB = "1900-01-01 0:00:00";
+                    dFromB = "1900-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dFromE))
                 {
-                    dFromE = "9999-12-31 0:00:00";
+                    dFromE = "9999-12-31 23:59:59";
 
                 }
                 if (string.IsNullOrEmpty(dToB))
                 {
-                    dToB = "1900-01-01 0:00:00";
+                    dToB = "1900-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dToE))
                 {
-                    dToE = "9999-12-31 0:00:00";
+                    dToE = "9999-12-31 23:59:59";
 
                 }
                 StringBuilder strSql = new StringBuilder();
@@ -262,7 +262,7 @@ namespace DataAccess
                             sql.AppendLine($"   vcSupplierName ='',");
                         }
                         else {
-                            sql.AppendLine($"   vcSupplierName = {ComFunction.getSqlValue(dr[i]["vcName"].ToString(), false)},");
+                            sql.AppendLine($"   vcSupplierName = {ComFunction.getSqlValue(dr[0]["vcName"].ToString(), false)},");
 
                         }
                         

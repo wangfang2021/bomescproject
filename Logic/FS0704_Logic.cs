@@ -75,13 +75,20 @@ namespace Logic
         #endregion
 
         #region 判断逻辑时间重复
-        public DataTable SearchLJTime(string strFaZhu,string iAutoId)
+        public DataTable SearchLJTime(string strFaZhu,string iAutoId,string vcPackSpot)
         {
-            return FS0704_DataAccess.SearchLJTime(strFaZhu, iAutoId);
+            return FS0704_DataAccess.SearchLJTime(strFaZhu, iAutoId, vcPackSpot);
         }
-        #endregion 
 
 
+        #endregion
+
+        #region 工作日的一天
+        public DataTable SearchBZ(string vcPackSpot)
+        {
+            return FS0704_DataAccess.SearchBZ(vcPackSpot);
+        }
+        #endregion
 
     }
 }

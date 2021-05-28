@@ -297,10 +297,11 @@ namespace DataAccess
                 sql.Append("          on a.[GUID] = b.[GUID]          \n");
                 #endregion
 
-                #region 更新供应商生确表的包装工场
+                #region 更新供应商生确表的包装工场和TFTM调整日期
                 sql.Append("          update TSQJD_Supplier set           \n");
                 sql.Append("           vcSYTCode = b.vcSYTCode          \n");
                 sql.Append("          ,vcHKPart_id = b.vcHKPart_id          \n");
+                sql.Append("          ,dTFTM_BJ = b.dTFTM_BJ          \n");
                 sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
                 sql.Append("          from TSQJD_Supplier a           \n");
@@ -373,8 +374,6 @@ namespace DataAccess
             sql.Append("          update TSQJD_Supplier set           \n");
             sql.Append("           vcJD = '3'          \n");
             sql.Append("          ,vcNotDY = null          \n");
-            sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
-            sql.Append("          ,dOperatorTime = GETDATE()          \n");
             sql.Append("          from TSQJD_Supplier a          \n");
             sql.Append("          inner join           \n");
             sql.Append("          (          \n");

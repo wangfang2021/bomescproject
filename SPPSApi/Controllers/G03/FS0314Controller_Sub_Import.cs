@@ -69,7 +69,7 @@ namespace SPPSApi.Controllers.G03
                 string strMsg = "";
                 string[,] headers = new string[,] {{"供应商代码","供应商名称","生产商名称","生产商地址","泰达","新一","四川","长春","联系人1", "联系人1电话","联系人1邮箱","联系人2","联系人2电话","联系人2邮箱","联系人3","联系人3电话","联系人3邮箱"},
                                                 {"vcSupplier_id","vcSupplier_name","vcProduct_name","vcAddress","vcTD","vcXY","vcSC","vcCC","vcLXR1","vcPhone1","vcEmail1","vcLXR2","vcPhone2","vcEmail2","vcLXR3","vcPhone3","vcEmail3"},
-                                                {FieldCheck.NumChar,"","","","","","","","","","","","","","","",""},
+                                                {FieldCheck.NumChar,"","","","","","","","","",FieldCheck.Email,"","",FieldCheck.Email,"","",FieldCheck.Email},
                                                 {"4","0","0","0","0","0","0","0","0","0", "0", "0", "0", "0", "0", "0", "0"},//最大长度设定,不校验最大长度用0
                                                 {"4","0","0","0","0","0","0","0","0","0", "0", "0", "0", "0", "0", "0", "0"}};//最小长度设定,可以为空用0
 

@@ -266,7 +266,7 @@ namespace SPPSApi.Controllers.G03
                                     "vcOE_Name","vcHKPart_id","vcSupplier_id","vcFXDiff_Name","vcFXNo",
                                     "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcYQorNG",
                                     "vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province",
-                                    "vcSYTCode_Name","vcSCSPlace","dSupplier_BJ","dSupplier_HK",
+                                    "vcSYTCode_Name","vcSCSName","vcSCSPlace","dSupplier_BJ","dSupplier_HK",
                                     "dTFTM_BJ","vcZXBZDiff","vcZXBZNo","vcNum1",
                                     "vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8","vcNum9",
                                     "vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"

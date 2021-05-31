@@ -1109,7 +1109,7 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("		,b.vcSReplyUser=null");
                 strSql_modinfo.AppendLine("		,b.dSReplyTime=null");
                 strSql_modinfo.AppendLine("from ");
-                strSql_modinfo.AppendLine("(select * from TSoq_temp where vcOperator='000000' and vcDyState in ('0','2','3') and vcHyState in ('0','3') )a");
+                strSql_modinfo.AppendLine("(select * from TSoq_temp where vcOperator='" + strOperId + "' and vcDyState in ('0','2','3') and vcHyState in ('0','3') )a");
                 strSql_modinfo.AppendLine("left join");
                 strSql_modinfo.AppendLine("(select * from TSoq)b");
                 strSql_modinfo.AppendLine("on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id and a.vcSupplier_id=b.vcSupplier_id");

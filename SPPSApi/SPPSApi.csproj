@@ -20,7 +20,6 @@
     <None Remove="Doc\CryReports\crv_FS1702_kanban.rpt" />
     <None Remove="Doc\CryReports\crv_FS1702_kb_main.rpt" />
     <None Remove="Doc\CryReports\crv_FS1702_qrd.rpt" />
-    <None Remove="Doc\Export\预留.txt" />
     <None Remove="Doc\Image\HeZiImages\预留.txt" />
     <None Remove="Doc\Image\PackingOper\预留.txt" />
     <None Remove="Doc\Image\SPPartImage\预留.txt" />
@@ -165,7 +164,6 @@
     <None Remove="Doc\Template\SPIS_Template.xlsx" />
     <None Remove="Doc\Template\Sync_Info.xlsx" />
     <None Remove="Doc\Template\年计导出报表.xls" />
-    <None Remove="Doc\upload\预留.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -276,12 +274,11 @@
     <Folder Include="Controllers\G17\" />
     <Folder Include="Doc\Image\Checking\" />
     <Folder Include="Doc\Import\" />
+    <Folder Include="Doc\Export\" />
+    <Folder Include="Doc\upload\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Doc\Export\预留.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Doc\Image\HeZiImages\预留.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -544,9 +541,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Doc\Template\年计导出报表.xls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Doc\upload\预留.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

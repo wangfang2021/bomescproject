@@ -1150,13 +1150,23 @@ namespace DataAccess
                                     {
                                         for (int p = 0; p < packrows.Length; p++)
                                         {
-                                            double num = Convert.ToDouble(packrows[p]["iBiYao"]);
-                                            double packnum = num * partnum;
                                             string packNo = packrows[p]["vcPackNo"].ToString();
-                                            string supplierId = packrows[p]["vcSupplierCode"].ToString();
-                                            PackSuccess pack = new PackSuccess(Year, Month, supplierId);
-                                            pack.list.Add(new PackItem(Year, Month, packNo, day, packnum));
-                                            packEmail.addSuccess(pack);
+                                            if (!packNo.ToUpper().Equals("MBC"))
+                                            {
+                                                double num = Convert.ToDouble(packrows[p]["iBiYao"]);
+                                                double packnum = num * partnum;
+                                                string supplierId = packrows[p]["vcSupplierCode"].ToString();
+                                                PackSuccess pack = new PackSuccess(Year, Month, supplierId);
+                                                pack.list.Add(new PackItem(Year, Month, packNo, day, packnum));
+                                                packEmail.addSuccess(pack);
+                                            }
+                                            else
+                                            {
+                                                PackFail pack = new PackFail(Year, Month);
+                                                pack.list.Add(new PackItem(Year, Month, vcPart_id+"(MBC)", day, partnum));
+                                                packEmail.addFail(pack);
+                                            }
+                                            
 
                                         }
                                     }

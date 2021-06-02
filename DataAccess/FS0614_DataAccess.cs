@@ -3218,5 +3218,33 @@ namespace DataAccess
         }
 
         #endregion
+
+        #region 获取已做成订单
+
+        public List<string> getFinish()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcOrderNo FROM dbo.TOrderUploadManage WHERE vcOrderState = '1'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                List<string> list = new List<string>();
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        list.Add(ObjToString(dt.Rows[i]["vcOrderNo"]).Trim());
+                    }
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
     }
 }

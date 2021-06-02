@@ -621,8 +621,8 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select vcValue,vcName from TCode where vcCodeId='"+ vcCodeID + "'  ");
-
+                //strSql.AppendLine("  select vcValue,vcName from TCode where vcCodeId='"+ vcCodeID + "'  ");
+                strSql.AppendLine("  select vcValue1 as vcValue,vcValue2  as vcName from TOutCode where vcCodeId='"+ vcCodeID + "' and vcIsColum='0'  ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

@@ -238,7 +238,7 @@ namespace Logic
                                         DateTime dBaiEnd = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd") + " " + dt.Rows[0]["tToTime"].ToString());
                                         DateTime temp= Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd") + " " + strNaQiFromTime);
                                         ///end///
-                                        if (temp > dBaiStart && temp < dBaiEnd)//如果纳期起是白班，这种用户会在纳期维护+1，实际上还是当天，则需要减去-1
+                                        if (temp >= dBaiStart && temp <= dBaiEnd)//如果纳期起是白班，这种用户会在纳期维护+1，实际上还是当天，则需要减去-1
                                         {
                                             dTimeTemp_NaQi = dTimeTemp_NaQi.AddDays(-1);
                                         }
@@ -256,7 +256,7 @@ namespace Logic
                                 }
                                 else
                                 { //如果不是稼动日，则往后找一天最早班值的第一便次(距离白or夜起始时间最近的便次，即第一便次)
-
+                                    task.dRuheToDate = dY_To;
                                     int findIndex = 0;
                                     int MAX_FIND = 30;//最多向后找30天
                                     while (true)//找纳期是否稼动，如果不是稼动，则往后找一天最早班值的第一便次
@@ -271,8 +271,8 @@ namespace Logic
                                         {
                                             DataRow dRow = getFirstBianCi(strPackSpot, dtStandard, "白", dTimeTemp_NaQi);
                                             strBianCi = dRow["vcBianCi"].ToString();//便次名后缀
-                                            dY_To = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dRuHeToTime"].ToString());//入荷结束时间
-                                            task.dRuheToDate = dY_To;
+                                            //dY_To = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dRuHeToTime"].ToString());//入荷结束时间
+                                            //task.dRuheToDate = dY_To;
                                             //这种往后找的便次，有且只有：当前时间>=后找到的便次对应发注作业起，用户才能看见
                                             DateTime dX_temp = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dFaZhuFromTime"].ToString());//发注起始时间
                                             if(DateTime.Now>=dX_temp)
@@ -283,8 +283,8 @@ namespace Logic
                                         {
                                             DataRow dRow = getFirstBianCi(strPackSpot, dtStandard, "夜", dTimeTemp_NaQi);
                                             strBianCi = dRow["vcBianCi"].ToString();//便次名后缀
-                                            dY_To = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dRuHeToTime"].ToString());//入荷结束时间
-                                            task.dRuheToDate = dY_To;
+                                            //dY_To = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dRuHeToTime"].ToString());//入荷结束时间
+                                            //task.dRuheToDate = dY_To;
                                             //这种往后找的便次，有且只有：当前时间>=后找到的便次对应发注作业起，用户才能看见
                                             DateTime dX_temp = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dFaZhuFromTime"].ToString());//发注起始时间
                                             if (DateTime.Now >= dX_temp)
@@ -573,7 +573,7 @@ namespace Logic
             for (int i = 0; i < checkList.Count; i++)
             {
                 BZTime bZTime = (BZTime)checkList[i];
-                if (dT > bZTime.dStart && dT < bZTime.dEnd)
+                if (dT >= bZTime.dStart && dT <= bZTime.dEnd)
                 {
                     strBaiYeType = bZTime.strBaiYeType;
                     return true;

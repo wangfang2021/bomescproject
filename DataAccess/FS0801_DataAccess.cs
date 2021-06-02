@@ -32,6 +32,7 @@ namespace DataAccess
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C062') t7 on t1.vcBZQF=t7.vcValue  \n");
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C063') t8 on t1.vcRHQF=t8.vcValue  \n");
                 strSql.Append("where 1=1   \n");
+                strSql.Append("and GETDATE() between dTimeFrom and dTimeTo  \n");
                 if (vcBZPlant != "" && vcBZPlant != null)
                     strSql.Append("and isnull(t1.vcBZPlant,'') like '" + vcBZPlant + "%'  \n");
                 if (vcPart_id != "" && vcPart_id != null)

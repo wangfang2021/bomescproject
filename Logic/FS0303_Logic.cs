@@ -274,6 +274,15 @@ namespace Logic
             //再向供应商发邮件
             StringBuilder strEmailBody = new StringBuilder();
 
+            #region 记录错误的供应商邮箱
+            //错误供应商记录消息
+            string strErrorEmail = "";
+            //筛选出的正确邮箱DT
+            DataTable correctEmailDT = new DataTable();
+            correctEmailDT.Columns.Add("displayName");
+            correctEmailDT.Columns.Add("address");
+            #endregion
+
             StringBuilder sbr = new StringBuilder();
             for (int i = 0; i < listSupplier.Count; i++)
             {
@@ -285,12 +294,59 @@ namespace Logic
                 }
                 else
                 {
+                    for (int j = 0; j < receiverDt.Rows.Count; j++)
+                    {
+                        if (CheckEmailFormat(receiverDt.Rows[j]["address"], receiverDt.Rows[j]["displayName"]))
+                        {
+                            DataRow dr = correctEmailDT.NewRow();
+                            dr["displayName"] = receiverDt.Rows[j]["displayName"].ToString().Trim();
+                            dr["address"] = receiverDt.Rows[j]["address"].ToString().Trim();
+                            correctEmailDT.Rows.Add(dr);
+                        }
+                        else
+                        {
+                            if (strErrorEmail == "")
+                            {
+                                strErrorEmail += "供应商错误邮箱{";
+                            }
+                            strErrorEmail += "供应商:" + listSupplier[i];
+                            strErrorEmail += "-收件人:" + receiverDt.Rows[i]["displayName"].ToString();
+                            strErrorEmail += "-邮箱地址:" + receiverDt.Rows[i]["address"].ToString() + ";";
+                        }
+                    }
+
                     ComFunction.SendEmailInfo(strEmail, strUserName, strContent, receiverDt, null, strTitle, "", false);
                 }
             }
             if (sbr.Length>0)
             {
                 strErr += "生确单发送成功,但未找到 '" + sbr.ToString() + "' 供应商邮件信息，邮件未发送。";
+            }
+            if (strErrorEmail != "")
+            {
+                strErrorEmail += "}";
+
+                #region 如果有错误邮箱，记录日志
+                MultiExcute me;
+                me = new MultiExcute();
+                System.Data.SqlClient.SqlParameter[] parameters = {
+                        new System.Data.SqlClient.SqlParameter("@vcMessage",SqlDbType.NVarChar),
+                        new System.Data.SqlClient.SqlParameter("@vcException",SqlDbType.NVarChar),
+                        new System.Data.SqlClient.SqlParameter("@vcTrack",SqlDbType.NVarChar)
+                    };
+                parameters[0].Value = strErrorEmail;
+                parameters[1].Value = "";
+                parameters[2].Value = "";
+                string strSql = "insert into SLog(UUID,vcFunctionID,vcLogType,vcUserID,vcMessage,vcException,vcTrack,dCreateTime) values(newid(),"
+                                                            + "'FS0303',"
+                                                            + "'E','"
+                                                            + strUserId + "',"
+                                                            + "@vcMessage,"
+                                                            + "@vcException,"
+                                                            + "@vcTrack,"
+                                                            + "CONVERT(varchar, GETDATE(),120))";
+                me.ExcuteSqlWithStringOper(strSql, parameters);
+                #endregion
             }
         }
         #endregion
@@ -583,6 +639,26 @@ namespace Logic
         public void udpateSupplierName()
         {
             fs0303_DataAccess.udpateSupplierName();
+        }
+        #endregion
+
+        #region 校验邮箱格式是否正确
+        /// <summary>
+        /// 校验收件人信息能否被添加
+        /// </summary>
+        /// <param name="strEmail"></param>
+        /// <returns>true：可以添加，反之则false</returns>
+        public bool CheckEmailFormat(object strEmail, object disPlayName)
+        {
+            try
+            {
+                new System.Net.Mail.MailAddress(strEmail.ToString().Trim(), disPlayName.ToString().Trim(), Encoding.UTF8);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
         #endregion
     }

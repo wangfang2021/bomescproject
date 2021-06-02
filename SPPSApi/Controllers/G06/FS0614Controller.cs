@@ -248,7 +248,7 @@ namespace SPPSApi.Controllers.G06
                         if (response.Body.setCRVToPDFResult != "导出成功")
                         {
                             DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                            dataRow["vcMessage"] = "订单已做成，请检索刷新页面获取状态，但标签生成失败，请联系管理员进行打印接口故障检查。";
                             dtMessage.Rows.Add(dataRow);
                         }
                         #endregion

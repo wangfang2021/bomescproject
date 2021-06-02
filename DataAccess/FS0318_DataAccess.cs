@@ -273,7 +273,7 @@ namespace DataAccess
                 sbr.AppendLine("SET @intPackALL = 0 ");
                 sbr.AppendLine("");
                 sbr.AppendLine("SELECT @outPack = COUNT(*)  FROM  ");
-                sbr.AppendLine("(SELECT * FROM dbo.VI_PackItem WHERE dUsedFrom <= @time AND dUsedTo >= @time AND vcPackNo IS NOT NULL  ) a ");
+                sbr.AppendLine("(SELECT * FROM dbo.VI_PackItem WHERE dUsedFrom <= @time AND dUsedTo >= @time AND isnull(vcPackNo,'') <> ''  ) a ");
                 sbr.AppendLine("");
                 sbr.AppendLine("SELECT @outPackALL = COUNT(*)  FROM  ");
                 sbr.AppendLine("(SELECT * FROM dbo.VI_PackItem WHERE dUsedFrom <= @time AND dUsedTo >= @time  ) a ");

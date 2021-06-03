@@ -477,7 +477,7 @@ namespace DataAccess
                         }
                         else
                         {
-                            IQuantityNow = ((IQuantityNow / iSRS) - 1) * iSRS;
+                            IQuantityNow = ((IQuantityNow / iSRS)) * iSRS;
                         }
                     }
                 }

@@ -162,7 +162,6 @@ namespace DataAccess
                 sqlCommand_deleteinfo.ExecuteNonQuery();
 
 
-                List<EDNode> EDList = new List<EDNode>();
                 //读取文件
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -171,6 +170,7 @@ namespace DataAccess
                     Order order = GetPartFromFile(path + listInfoData[i]["vcFilePath"].ToString(), listInfoData[i]["vcOrderNo"].ToString(), ref msg);
                     string vcOrderNo = order.Head.No;
                     StringBuilder sbr = new StringBuilder();
+                    List<EDNode> EDList = new List<EDNode>();
 
                     if (Type.Equals("S"))
                     {

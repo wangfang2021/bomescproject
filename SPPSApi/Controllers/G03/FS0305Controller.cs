@@ -143,6 +143,14 @@ namespace SPPSApi.Controllers.G03
             {
                 #region 拿到统括库中的所有供应商生确单
                 DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strCarType, strPart_id, loginInfo.UserId,strSPINo,strChange);
+
+                if (dt == null || dt.Rows.Count <= 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "检索数据为空";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 #endregion
 
                 if (dt != null && dt.Rows.Count > 0)
@@ -238,6 +246,13 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 DataTable dt = fs0305_Logic.Search(loginInfo.UserId);
+
+                if (dt == null || dt.Rows.Count <= 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "检索数据为空";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 if (dt != null && dt.Rows.Count > 0)
                 {

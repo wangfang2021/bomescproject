@@ -186,9 +186,9 @@ namespace SPPSApi.Controllers.G07
                 DataTable dtPackBase = FS0701_Logic.Search(new List<object>(), "", "", strSupplierCode, "", "", "", "");
                 //DataTable dtPackitem = FS0702_Logic.Search(new List<object>(), new List<object>(), new List<object>(), "", "", "", "", "", "", "", "");
                 DataTable dtPackitem = FS0702_Logic.Search_1();
+                FS0702_Logic.importSave(importDt, loginInfo.UserId, dtPackBase, dtPackitem);
                 //删除导入含有的部品品番的包材为空的数据
                 FS0702_Logic.DeleteALL(strPartNoAll, loginInfo.UserId);
-                FS0702_Logic.importSave(importDt, loginInfo.UserId, dtPackBase, dtPackitem);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

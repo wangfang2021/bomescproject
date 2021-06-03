@@ -1054,8 +1054,9 @@ namespace DataAccess
 
 
                 strSql.Append("      select   cast(ROW_NUMBER() over (order by a.vcPart_id) as int) as iNum      \n");
-                strSql.Append("      ,a.vcPart_id        \n");
-                strSql.Append("      ,b.vcFaZhuPlant        \n");
+                strSql.Append("      ,a.vcReceiver        \n");
+                strSql.Append("      ,case SUBSTRING(a.vcPart_id,11,2) when '00' then SUBSTRING(a.vcPart_id,1,10) else a.vcPart_id end as vcPart_id        \n");
+                strSql.Append("      ,(select top 1 vcSYTCode from TPrice_xiaoshouzhankai_SYTCode) as vcFaZhuPlant        \n");
                 strSql.Append("      ,case when a.vcPriceChangeInfo='2' then CONVERT(varchar(100),a.dPricebegin, 111)          \n");
                 strSql.Append("       when a.vcPriceChangeInfo='1' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
                 strSql.Append("       when a.vcPriceChangeInfo='5' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
@@ -1075,6 +1076,7 @@ namespace DataAccess
                 strSql.Append("       when a.vcPriceChangeInfo='14' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
                 strSql.Append("       else null end as dQieTi          \n");
                 strSql.Append("      ,a.vcPart_Name        \n");
+                strSql.Append("      ,d.vcPartNameCN        \n");
                 strSql.Append("      ,c.vcName as 'vcChange_Name'        \n");
                 strSql.Append("      ,b.vcPartId_Replace        \n");
                 strSql.Append("      ,a.decPriceTNPWithTax        \n");
@@ -1130,6 +1132,10 @@ namespace DataAccess
                 strSql.Append("      (        \n");
                 strSql.Append("         select vcValue,vcName from TCode where vcCodeId='C002'         \n");
                 strSql.Append("      )c on a.vcPriceChangeInfo=c.vcValue           \n");
+                strSql.Append("      left join           \n");
+                strSql.Append("      (           \n");
+                strSql.Append("      	select vcPart_Id,vcCPDCompany,vcSupplier_id,vcPartNameCN from TtagMaster           \n");
+                strSql.Append("      )d on a.vcPart_id = d.vcPart_Id and a.vcReceiver = d.vcCPDCompany and a.vcSupplier_id = d.vcSupplier_id           \n");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

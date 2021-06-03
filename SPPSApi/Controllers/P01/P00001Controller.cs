@@ -753,7 +753,7 @@ namespace SPPSApi.Controllers.P01
 
 
 
-    #region 登录到主页,将状态设置为已登录,插入状态到履历表中
+    #region 登录到主页,将状态设置为已登录,插入状态到履历表中,将之前未做出货的箱号重新绑定，并显示最新的箱号
     //UpdateStatus2Api
     [HttpPost]
     [EnableCors("any")]
@@ -794,6 +794,45 @@ namespace SPPSApi.Controllers.P01
           {
 
             int poiResultUp = P00001_Logic.UpdateStatus4(pointNo, opearteId);
+
+
+            #region 将当前绑定，未打印装箱单的箱号重新绑定
+            DataTable getCase = P00001_Logic.GetCase(opearteId);
+            if (getCase.Rows.Count>0) {
+              for (int i=0;i<getCase.Rows.Count;i++) {
+                string caseNo = getCase.Rows[i][0].ToString();
+                DataTable getCase1 = P00001_Logic.GetCase1(caseNo);
+                if (getCase1.Rows.Count==0)//未打印装箱单
+                {
+                  int caseResultUp = P00001_Logic.UpdateCase(iP,serverTime,opearteId,caseNo);
+
+
+
+
+
+                }
+
+
+
+              }
+
+
+
+
+
+
+
+
+            }
+
+
+
+
+
+
+            #endregion 
+
+
 
 
 

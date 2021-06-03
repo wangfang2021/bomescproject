@@ -539,9 +539,24 @@ itemname10, packLocation10, suppName10, outNum10, partsAndNum, cpdCompany, opear
       return P00001_DataAccess.UpdateTrolley(opearteId, iP);
     }
 
+    public static DataTable GetCase(string opearteId)
+    {
+      return P00001_DataAccess.GetCase(opearteId);
+    }
+
     public static DataTable GetLabel(string iP, string lotIdNew)
     {
       return P00001_DataAccess.GetLabel(iP, lotIdNew);
+    }
+
+    public static DataTable GetCase1(string caseNo)
+    {
+      return P00001_DataAccess.GetCase1(caseNo);
+    }
+
+    public static int UpdateCase(string iP, string serverTime, string opearteId, string caseNo)
+    {
+      return P00001_DataAccess.UpdateCase(iP,serverTime,opearteId,caseNo);
     }
 
     public static int UpdatePack(string iP, string minLabel, string maxLabel, string lotIdNew)

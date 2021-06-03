@@ -486,14 +486,14 @@ namespace SPPSApi.Controllers.P01
         //DataTable getInputQuantity = P00002_Logic.GetInputQuantity(partId, kanbanOrderNo, kanbanSerial, dock);//入库数量
 
         DataTable getSupplier = P00002_Logic.GetSupplier(partId, scanTime);
-        DataTable getCheckQuantity = P00002_Logic.GetCheckQuantity(quantity);
+        
         DataTable validateData = P00002_Logic.ValidateData(partId, scanTime);
 
 
         DataTable getCheckType = P00002_Logic.GetCheckType(partId, kanbanOrderNo, kanbanSerial, dock, scanTime);
 
 
-        if (getCheckType.Rows.Count == 1 && getSupplier.Rows.Count == 1 && validateOpr.Rows.Count == 1 && validateOpr1.Rows.Count == 0 && getCheckQuantity.Rows.Count == 1 && validateData.Rows.Count == 1)
+        if (getCheckType.Rows.Count == 1 && getSupplier.Rows.Count == 1 && validateOpr.Rows.Count == 1 && validateOpr1.Rows.Count == 0  && validateData.Rows.Count == 1)
         {
 
           string supplierId = getSupplier.Rows[0][0].ToString();
@@ -501,12 +501,27 @@ namespace SPPSApi.Controllers.P01
           if (getSPIS.Rows.Count == 1)
           {
             string parts = getSPIS.Rows[0][0].ToString();
-
+            string tjsx = getCheckType.Rows[0][1].ToString();
 
             string quantity1 = validateOpr.Rows[0][10].ToString();
 
             string checkType = getCheckType.Rows[0][0].ToString();
-            string tjsx = getCheckType.Rows[0][1].ToString();
+            if (checkType=="抽检") {
+              DataTable getCheckQuantity = P00002_Logic.GetCheckQuantity(quantity);
+              if (getCheckQuantity.Rows.Count != 1) {
+
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "当前品番" + partId + "在检查频度表中不存在有效数据,请检查";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+              }
+
+
+
+            }
+
+
+            
             #region 构造返回数据
             P00002_DataEntity.quantity = quantity1;
             P00002_DataEntity.tjsx = tjsx;
@@ -538,13 +553,7 @@ namespace SPPSApi.Controllers.P01
 
 
         }
-        else if (getCheckQuantity.Rows.Count != 1)
-        {
-
-          apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "当前品番" + partId + "在检查频度表中不存在有效数据,请检查";
-          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        }
+       
 
         else if (getCheckType.Rows.Count != 1)
         {

@@ -885,9 +885,9 @@ namespace SPPSApi.Controllers.P01
           }
 
 
+        
 
-
-          string path1 = @"C:\Users\Administrator\Desktop\laowu 0531修改\打印程序\FILE\" + path;
+          string path1 = @"C: \Users\Administrator\Desktop\laowu 0531修改\FILE\" + path;
           string mail = "fqm_wufan@tftm.com.cn";
           string userName = "laowu";
 

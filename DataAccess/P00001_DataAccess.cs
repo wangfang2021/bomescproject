@@ -372,6 +372,27 @@ namespace DataAccess
       return excute.ExcuteSqlWithSelectToDT(GetPointSql.ToString());
     }
 
+    public DataTable GetCase(string opearteId)
+    {
+      StringBuilder GetCaseSql = new StringBuilder();
+      GetCaseSql.Append("select vcBoxNo from TCaseInfo where vcOperatorID='"+opearteId+ "' order by dOperatorTime desc");
+      return excute.ExcuteSqlWithSelectToDT(GetCaseSql.ToString());
+    }
+
+    public DataTable GetCase1(string caseNo)
+    {
+      StringBuilder GetCaseSql = new StringBuilder();
+      GetCaseSql.Append("select vcCaseno from TCaseList  where vcCaseno='"+caseNo+"'");
+      return excute.ExcuteSqlWithSelectToDT(GetCaseSql.ToString());
+    }
+
+    public int UpdateCase(string iP, string serverTime, string opearteId, string caseNo)
+    {
+      StringBuilder UpdateCaseSql = new StringBuilder();
+      UpdateCaseSql.Append("update TCaseInfo set vcHostIp='"+iP+"',vcStatus='0',dOperatorTime='"+serverTime+"' where vcBoxNo='"+caseNo+"' and vcOperatorID='"+opearteId+"'");
+      return excute.ExcuteSqlWithStringOper(UpdateCaseSql.ToString());
+    }
+
     public DataTable GetPoint2(string iP)
     {
       StringBuilder GetPoingSql = new StringBuilder();

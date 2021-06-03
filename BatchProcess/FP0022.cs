@@ -89,7 +89,7 @@ namespace BatchProcess
                     if (dt != null && dt.Rows.Count > 0)
                     {
                         for (int i = 0; i < dt.Rows.Count; i++)
-                        {
+                        { 
                             //s2.Append("update TPartInfoMaster set vcInOutFlag='0' where vcPartsNo='" + dt.Rows[i]["vcPartsNo00"].ToString() + "' ");
                             //s2.Append("and dTimeFrom!='" + dt.Rows[i]["dTimeFrom"].ToString() + "' and dTimeTo>=convert(char(10),getdate(),120);");
                             //s2.Append("update TPartInfoMaster set vcInOutFlag='1',vcSupplierPlant='' where vcPartsNo='" + dt.Rows[i]["vcPartsNo00"].ToString() + "' ");

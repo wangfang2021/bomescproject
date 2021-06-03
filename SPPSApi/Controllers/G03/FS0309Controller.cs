@@ -423,7 +423,7 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 DataTable dt = fs0309_Logic.getXiaoShouZhanKai(listInfoData);
-                string[] fields = {  "iNum","vcPart_id","vcFaZhuPlant","dQieTi","vcPart_Name","vcChange_Name",
+                string[] fields = {  "iNum","vcReceiver","vcPart_id","vcFaZhuPlant","dQieTi","vcPart_Name","vcPartNameCN","vcChange_Name",
                         "vcPartId_Replace","decPriceTNPWithTax","iPackingQty","vcCarTypeDesign","vcNote"
                     };
 

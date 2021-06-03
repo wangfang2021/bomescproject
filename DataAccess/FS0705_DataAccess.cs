@@ -715,12 +715,17 @@ namespace DataAccess
 
 
         #region 取工厂对应班值的时间范围
-        public DataTable getBanZhi(string strPackPlant,string strBanZhi)
+        public DataTable getBanZhi(string strPackPlant, string strBanZhi)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("  select * from TBZTime where vcBanZhi='"+ strBanZhi + "' and vcPackPlant='" + strPackPlant + "'   \n");
+                strSql.AppendLine("   select * from    \n");
+                strSql.AppendLine("   (    \n");
+                strSql.AppendLine("   select vcBeginTime as tFromTime,vcEndTime as tToTime,case when vcBZ='DD' then '白' else '夜' end as vcBanZhi,vcPackSpot     \n");
+                strSql.AppendLine("   from TPackSpotBZ     \n");
+                strSql.AppendLine("   )a    \n");
+                strSql.AppendLine("   where  a.vcPackSpot='" + strPackPlant + "' and a.vcBanZhi='" + strBanZhi + "'    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -729,7 +734,7 @@ namespace DataAccess
             }
         }
         #endregion
- 
+
 
 
         #region 获取包材发注时间

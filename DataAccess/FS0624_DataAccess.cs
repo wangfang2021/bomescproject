@@ -136,7 +136,34 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("     select left(a.vcChangeNo,4)+'/'+substring(a.vcChangeNo,5,2)+'/'+right(a.vcChangeNo,2) as vcChangeDate,a.vcChangeNo           \n");
+                //strSql.Append("     select left(a.vcChangeNo,4)+'/'+substring(a.vcChangeNo,5,2)+'/'+right(a.vcChangeNo,2) as vcChangeDate,a.vcChangeNo           \n");
+                //strSql.Append("    ,c.vcGroupName,a.vcPart_Id,a.iQuantityBefore,a.iQuantityNow,        \n");
+                //strSql.Append("    case when isnull(a.iQuantityBefore,0)=0 then 0               \n");
+                //strSql.Append("           else cast(                \n");
+                //strSql.Append("            (        \n");
+                //strSql.Append("    			cast(a.iQuantityNow as decimal(18,2))-cast(a.iQuantityBefore as decimal(18,2)))        \n");
+                //strSql.Append("    			/cast(a.iQuantityBefore as decimal(18,2)        \n");
+                //strSql.Append("    		)*100               \n");
+                //strSql.Append("            as decimal(18,2)                 \n");
+                //strSql.Append("           )                \n");
+                //strSql.Append("           end as decChangePercent         \n");
+                //strSql.Append("    from                \n");
+                //strSql.Append("    (                \n");
+                //strSql.Append("    	select vcChangeNo                 \n");
+                //strSql.Append("    	,case when iQuantityBefore<>iQuantityNow then '有变更' else '无变更' end as vcChangeType                \n");
+                //strSql.Append("    	,vcOrderNo,iQuantityBefore,iQuantityNow                \n");
+                //strSql.Append("    	,vcPart_Id,dFileUpload  from TSoqDayChange                \n");
+                //strSql.Append("    )a                \n");
+                //strSql.Append("    left join                \n");
+                //strSql.Append("    (                \n");
+                //strSql.Append("    	select *  from  TDaysChangeOrdersBaseData                 \n");
+                //strSql.Append("    )b on a.vcPart_Id=b.vcPartNo                \n");
+                //strSql.Append("    left join                \n");
+                //strSql.Append("    (                \n");
+                //strSql.Append("    	select *  from  TGroup                 \n");
+                //strSql.Append("    )c on b.vcGroupId=c.iAutoId        \n");
+                //strSql.Append("    where vcChangeNo='"+ strChangeNo + "'        \n");
+                strSql.Append("     select left(a.vcDXDate,4)+'/'+substring(a.vcDXDate,5,2)+'/'+right(a.vcDXDate,2) as vcChangeDate,a.vcChangeNo           \n");
                 strSql.Append("    ,c.vcGroupName,a.vcPart_Id,a.iQuantityBefore,a.iQuantityNow,        \n");
                 strSql.Append("    case when isnull(a.iQuantityBefore,0)=0 then 0               \n");
                 strSql.Append("           else cast(                \n");
@@ -149,7 +176,7 @@ namespace DataAccess
                 strSql.Append("           end as decChangePercent         \n");
                 strSql.Append("    from                \n");
                 strSql.Append("    (                \n");
-                strSql.Append("    	select vcChangeNo                 \n");
+                strSql.Append("    	select vcChangeNo  ,vcDXDate               \n");
                 strSql.Append("    	,case when iQuantityBefore<>iQuantityNow then '有变更' else '无变更' end as vcChangeType                \n");
                 strSql.Append("    	,vcOrderNo,iQuantityBefore,iQuantityNow                \n");
                 strSql.Append("    	,vcPart_Id,dFileUpload  from TSoqDayChange                \n");
@@ -162,7 +189,7 @@ namespace DataAccess
                 strSql.Append("    (                \n");
                 strSql.Append("    	select *  from  TGroup                 \n");
                 strSql.Append("    )c on b.vcGroupId=c.iAutoId        \n");
-                strSql.Append("    where vcChangeNo='"+ strChangeNo + "'        \n");
+                strSql.Append("    where vcChangeNo='" + strChangeNo + "'        \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

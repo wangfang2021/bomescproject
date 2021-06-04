@@ -546,6 +546,13 @@ namespace DataAccess
       return excute.ExcuteSqlWithSelectToDT(validateOrdSql.ToString());
     }
 
+    public int UpdatePack2(string iP, string serverTime)
+    {
+      StringBuilder UpdatePackSql = new StringBuilder();
+      UpdatePackSql.Append("update TPackList set dFirstPrintTime='"+serverTime+"' where vcHostip='"+iP+"' and dFirstPrintTime is null");
+      return excute.ExcuteSqlWithStringOper(UpdatePackSql.ToString());
+    }
+
     public DataTable GetPrintName(string iP)
     {
       StringBuilder GetPrintNameSql = new StringBuilder();

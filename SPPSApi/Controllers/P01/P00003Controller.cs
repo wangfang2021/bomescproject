@@ -2139,8 +2139,8 @@ namespace SPPSApi.Controllers.P01
 
         }
         DataTable getPartsName = P00003_Logic.GetPartsName(scanTime, partId);
-
-        if (validateOpr.Rows.Count == 1 && validateInv.Rows.Count == 1 && getPartsName.Rows.Count == 1)
+        DataTable validateCase = P00003_Logic.ValidateCase(partId,kanbanOrderNo,kanbanSerial,dock,caseNo);
+        if (validateOpr.Rows.Count == 1 && validateInv.Rows.Count == 1 && getPartsName.Rows.Count == 1 && validateCase.Rows.Count == 0)
         {
           if (packQuantity == "0")//只进行装箱作业
 
@@ -2480,7 +2480,17 @@ namespace SPPSApi.Controllers.P01
 
 
 
+        } else if (validateCase.Rows.Count>0) {
+
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "品番" + partId + "在箱号"+caseNo+"中已经存在数据，请检查！!";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
         }
+
+
+
+
         else if (getPartsName.Rows.Count != 1)
         {
           apiResult.code = ComConstant.ERROR_CODE;

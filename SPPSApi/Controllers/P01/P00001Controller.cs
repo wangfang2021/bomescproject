@@ -2905,6 +2905,11 @@ itemname10, packLocation10, suppName10, outNum10, partsAndNum, cpdCompany, opear
         #endregion
 
 
+        #region 在打印结束之后更新当前IP的首次打印时间，如果打印失败将其变成再发行
+        int packResultUp1 = P00001_Logic.UpdatePack2(iP,serverTime);
+        #endregion
+
+
         #region 在打印品番标签之前对内容进行判断是否打印
 
 

@@ -808,5 +808,10 @@ itemname10, packLocation10, suppName10, outNum10, partsAndNum, cpdCompany, opear
     {
       return P00001_DataAccess.GetPrintName(iP);
     }
+
+    public static int UpdatePack2(string iP, string serverTime)
+    {
+      return P00001_DataAccess.UpdatePack2(iP,serverTime);
+    }
   }
 }

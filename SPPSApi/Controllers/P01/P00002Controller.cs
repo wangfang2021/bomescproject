@@ -62,7 +62,7 @@ namespace SPPSApi.Controllers.P01
           string dock = validateOpr1.Rows[0][1].ToString();
           string supplierId = validateOpr1.Rows[0][5].ToString();
           string quantity = validateOpr1.Rows[0][4].ToString();
-          DataTable getCheckType = P00002_Logic.GetCheckType(partId, kanbanOrderNo, kanbanSerial, dock, scanTime);
+          DataTable getCheckType = P00002_Logic.GetCheckType(partId, kanbanOrderNo, kanbanSerial, dock,scanTime,supplierId);
           DataTable getSPIS = P00002_Logic.GetSPIS(partId, scanTime, supplierId);
           if (getCheckType.Rows.Count == 1 && getSPIS.Rows.Count == 1)
           {
@@ -281,7 +281,7 @@ namespace SPPSApi.Controllers.P01
           string cpdCompany = validateOpr.Rows[0][6].ToString();//收货方
                                                                 // string checkType = validateOpr.Rows[0][7].ToString();//检查区分
 
-          DataTable getCheckType = P00002_Logic.GetCheckType(partId, kanbanOrderNo, kanbanSerial, dock, scanTime);
+          DataTable getCheckType = P00002_Logic.GetCheckType(partId, kanbanOrderNo, kanbanSerial, dock, scanTime,supplierId);
           string lblStart = validateOpr.Rows[0][8].ToString();//标签开始
           string lblEnd = validateOpr.Rows[0][9].ToString();//标签结束
                                                             //checkType如果是抽检获取检查个数
@@ -490,15 +490,16 @@ namespace SPPSApi.Controllers.P01
         DataTable validateData = P00002_Logic.ValidateData(partId, scanTime);
 
 
-        DataTable getCheckType = P00002_Logic.GetCheckType(partId, kanbanOrderNo, kanbanSerial, dock, scanTime);
+        
 
 
-        if (getCheckType.Rows.Count == 1 && getSupplier.Rows.Count == 1 && validateOpr.Rows.Count == 1 && validateOpr1.Rows.Count == 0  && validateData.Rows.Count == 1)
+        if ( getSupplier.Rows.Count == 1 && validateOpr.Rows.Count == 1 && validateOpr1.Rows.Count == 0  && validateData.Rows.Count == 1)
         {
 
           string supplierId = getSupplier.Rows[0][0].ToString();
           DataTable getSPIS = P00002_Logic.GetSPIS(partId, scanTime, supplierId);
-          if (getSPIS.Rows.Count == 1)
+          DataTable getCheckType = P00002_Logic.GetCheckType(partId, kanbanOrderNo, kanbanSerial, dock, scanTime,supplierId);
+          if (getSPIS.Rows.Count == 1 && getCheckType.Rows.Count == 1)
           {
             string parts = getSPIS.Rows[0][0].ToString();
             string tjsx = getCheckType.Rows[0][1].ToString();
@@ -506,7 +507,7 @@ namespace SPPSApi.Controllers.P01
             string quantity1 = validateOpr.Rows[0][10].ToString();
 
             string checkType = getCheckType.Rows[0][0].ToString();
-            if (checkType=="抽检") {
+            if (checkType == "抽检") {
               DataTable getCheckQuantity = P00002_Logic.GetCheckQuantity(quantity);
               if (getCheckQuantity.Rows.Count != 1) {
 
@@ -521,7 +522,7 @@ namespace SPPSApi.Controllers.P01
             }
 
 
-            
+
             #region 构造返回数据
             P00002_DataEntity.quantity = quantity1;
             P00002_DataEntity.tjsx = tjsx;
@@ -530,13 +531,22 @@ namespace SPPSApi.Controllers.P01
             apiResult.data = P00002_DataEntity;
             #endregion
           }
-          else
+          else if (getSPIS.Rows.Count != 1)
           {
 
 
             apiResult.code = ComConstant.ERROR_CODE;
             apiResult.data = "当前品番" + partId + "在检查法中没有有效数据,请检查";
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+
+          } else if (getCheckType.Rows.Count!=1) {
+
+
+            apiResult.code = ComConstant.ERROR_CODE;
+            apiResult.data = "当前品番" + partId + "在检查区分中没有有效数据,请检查";
+            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
 
 
           }
@@ -555,14 +565,6 @@ namespace SPPSApi.Controllers.P01
         }
        
 
-        else if (getCheckType.Rows.Count != 1)
-        {
-          apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "当前品番" + partId + "在检查区分表中没有有效数据,请检查";
-          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
-        }
         else if (validateData.Rows.Count != 1)
         {
 

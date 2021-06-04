@@ -596,6 +596,15 @@ namespace SPPSApi.Controllers.G03
                         if (strChange == "1" || strChange == "2" || strChange == "10" || strChange == "8" || strChange == "12")
                         {
                             if (
+                                  listInfoData[i]["vcSCSName"] == null || listInfoData[i]["vcSCSName"].ToString() == ""
+                                || listInfoData[i]["vcSCSPlace"] == null || listInfoData[i]["vcSCSPlace"].ToString() == ""
+                                )
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "生确回复失败！生产商名称和生产商地址必须填写";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                            if (
                                   listInfoData[i]["vcSCPlace_City"] == null || listInfoData[i]["vcSCPlace_City"].ToString() == ""
                                 || listInfoData[i]["vcSCPlace_Province"] == null || listInfoData[i]["vcSCPlace_Province"].ToString() == ""
                                 || listInfoData[i]["vcCHPlace_City"] == null || listInfoData[i]["vcCHPlace_City"].ToString() == ""
@@ -631,15 +640,7 @@ namespace SPPSApi.Controllers.G03
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                     }
-                    if (
-                          listInfoData[i]["vcSCSName"] == null || listInfoData[i]["vcSCSName"].ToString() == ""
-                        || listInfoData[i]["vcSCSPlace"] == null || listInfoData[i]["vcSCSPlace"].ToString() == ""
-                        )
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "生确回复失败！生产商名称和生产商地址必须填写";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                    
                 }
 
                 string strErr = "";

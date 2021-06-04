@@ -44,53 +44,16 @@ namespace Logic
         #endregion
 
         #region 获取所有当前时间段内所有品番的包材信息和有效信息,增加校验当前时段是否有包材品番入库
-        public string[] getPackCheckDT(string strFaZhuID,string strPackSpot,string strRuHeToTime)
+        public DataTable getInvalidPackNo(string strFaZhuID,string strPackSpot,string strEnd)
         {
-            DataTable packCheckDT = fs0705_DataAccess.getPackCheckDT(strFaZhuID, strPackSpot,strRuHeToTime);
+            return fs0705_DataAccess.getInvalidPackNo(strFaZhuID, strPackSpot, strEnd);
+        }
+        #endregion
 
-            string[] strArray = new string[3];
-            //记录无包材构成的品番
-            string strErr1 = "";
-            //记录包材构成无效的品番
-            string strErr2 = "";
-            //记录当前时间是否有包材品番入库
-            string strErr3 = "";
-
-            if (packCheckDT==null || packCheckDT.Rows.Count<=0)
-            {
-                strErr3 = "所选便次无部品入库品番";
-                strArray[2] = strErr3;
-                return strArray;
-            }
-
-            //取到本次计算时段的所有品番(不重复)
-            List<string> partLists = new List<string>();
-            for (int i = 0; i < packCheckDT.Rows.Count; i++)
-            {
-                partLists.Add(packCheckDT.Rows[i]["vcPart_id"].ToString());
-            }
-             partLists = partLists.Distinct().ToList();
-
-            for (int i = 0; i < partLists.Count; i++)
-            {
-                DataRow[] drs = packCheckDT.Select("vcPart_id='" + partLists[i]+ "' and vcPartsNo is null");
-                if (drs.Length>0)
-                {
-                    strErr1 += partLists[i]+",";
-                }
-                else
-                {
-                    drs = packCheckDT.Select("vcPart_id='" + partLists[i] + "' and dUsedFrom<'" + DateTime.Now.ToString() + "' and '" + DateTime.Now.ToString() + "'<dUsedTo");
-                    if (drs.Length<=0)
-                    {
-                        strErr2 += partLists[i]+",";
-                    }
-                }
-            }
-
-            strArray[0] = strErr1;
-            strArray[1] = strErr2;
-            return strArray;
+        #region 获取发邮件需要准备的数据
+        public DataTable getEmailInformation()
+        {
+            return fs0705_DataAccess.getEmailInformation();
         }
         #endregion
 

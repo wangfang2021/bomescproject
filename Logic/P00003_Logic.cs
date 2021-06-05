@@ -380,9 +380,9 @@ namespace Logic
       return P00003_DataAccess.InsertFre(time, formatDate, effiEncy, opearteId, serverTime, iP, date, banZhi);
     }
 
-    public DataTable GetCheckType(string partId, string scanTime)
+    public DataTable GetCheckType(string partId, string scanTime, string supplier_id)
     {
-      return P00003_DataAccess.GetCheckType(partId, scanTime);
+      return P00003_DataAccess.GetCheckType(partId, scanTime,supplier_id);
     }
 
     public int UpdateFre(string time, string serverTime, string formatDate, string opearteId)
@@ -410,9 +410,9 @@ namespace Logic
       return P00003_DataAccess.UpdateCase(count, sum, caseNo);
     }
 
-    public static int InsertOpr(string bzPlant, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inoutFlag, string supplier_id, string supplierGQ, string scanTime, string serverTime, string quantity, string bZUnit, string sHF, string dock, string checkType, string labelStart, string labelEnd, string checkStatus, string opearteId, string timeStart, string timeEnd, string iP)
+    public static int InsertOpr(string bzPlant, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inoutFlag, string supplier_id, string supplierGQ, string scanTime, string serverTime, string quantity, string bZUnit, string sHF, string dock, string checkType, string labelStart, string labelEnd, string checkStatus, string opearteId, string timeStart, string timeEnd, string iP, string pointType)
     {
-      return P00003_DataAccess.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, int.Parse(bZUnit), sHF, dock, checkType, labelStart, labelEnd, checkStatus, opearteId, timeStart, timeEnd, iP);
+      return P00003_DataAccess.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, int.Parse(bZUnit), sHF, dock, checkType, labelStart, labelEnd, checkStatus, opearteId, timeStart, timeEnd, iP,pointType);
     }
 
     public int UpdateFre1(int totalTime, string opearteId, string formatDate)
@@ -500,9 +500,9 @@ namespace Logic
       return P00003_DataAccess.ValidateOpr3(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
     }
 
-    public int InsertSj(string supplierId, string supplierPlant, string packingQuantity, string checkType, string lblStart, string lblEnd, string inOutFlag, string checkStatus, string packingSpot, string inputNo, string checkNum, string partId, string kanbanOrderNo, string kanbanSerial, string dock, string opearteId, string scanTime, string serverTime, string iP, string sHF, string quantity1, string caseNo)
+    public int InsertSj(string supplierId, string supplierPlant, string packingQuantity, string checkType, string lblStart, string lblEnd, string inOutFlag, string checkStatus, string packingSpot, string inputNo, string checkNum, string partId, string kanbanOrderNo, string kanbanSerial, string dock, string opearteId, string scanTime, string serverTime, string iP, string sHF, string quantity1, string caseNo, string pointType)
     {
-      return P00003_DataAccess.InsertSj(supplierId, supplierPlant, packingQuantity, checkType, lblStart, lblEnd, inOutFlag, checkStatus, packingSpot, inputNo, checkNum, partId, kanbanOrderNo, kanbanSerial, dock, opearteId, scanTime, serverTime, iP, sHF, quantity1, caseNo);
+      return P00003_DataAccess.InsertSj(supplierId, supplierPlant, packingQuantity, checkType, lblStart, lblEnd, inOutFlag, checkStatus, packingSpot, inputNo, checkNum, partId, kanbanOrderNo, kanbanSerial, dock, opearteId, scanTime, serverTime, iP, sHF, quantity1, caseNo,pointType);
     }
 
     public DataTable ValidateSJ2(string partId, string dock, string kanbanOrderNo, string kanbanSerial)

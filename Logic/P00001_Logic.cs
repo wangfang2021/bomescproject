@@ -306,9 +306,9 @@ namespace Logic
       return P00001_DataAccess.GetQBData(iP);
     }
 
-    public static int InsertOpr(string packingSpot, string inno, string kanbanOrderNo, string kanbanSerial, string partId, string inoutFlag, string supplierCode, string supplierPlant, string scanTime, string serverTime, string quantity, int packingQuantity, string cpdCompany, string dock, string checkType, string lblSart, string lblEnd, string opearteId)
+    public static int InsertOpr(string packingSpot, string inno, string kanbanOrderNo, string kanbanSerial, string partId, string inoutFlag, string supplierCode, string supplierPlant, string scanTime, string serverTime, string quantity, int packingQuantity, string cpdCompany, string dock, string checkType, string lblSart, string lblEnd, string opearteId, string pointType, string iP)
     {
-      return P00001_DataAccess.InsertOpr(packingSpot, inno, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierCode, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblSart, lblEnd, opearteId);
+      return P00001_DataAccess.InsertOpr(packingSpot, inno, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierCode, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblSart, lblEnd, opearteId,pointType,iP);
     }
 
     public static DataTable GetPoint1(string iP)
@@ -539,9 +539,9 @@ itemname10, packLocation10, suppName10, outNum10, partsAndNum, cpdCompany, opear
       return P00001_DataAccess.UpdateTrolley(opearteId, iP);
     }
 
-    public static DataTable GetCase(string opearteId)
+    public static DataTable GetCase(string opearteId, string iP)
     {
-      return P00001_DataAccess.GetCase(opearteId);
+      return P00001_DataAccess.GetCase(opearteId,iP);
     }
 
     public static DataTable GetLabel(string iP, string lotIdNew)
@@ -813,5 +813,7 @@ itemname10, packLocation10, suppName10, outNum10, partsAndNum, cpdCompany, opear
     {
       return P00001_DataAccess.UpdatePack2(iP,serverTime);
     }
+
+  
   }
 }

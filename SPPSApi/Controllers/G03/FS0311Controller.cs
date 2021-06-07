@@ -137,8 +137,12 @@ namespace SPPSApi.Controllers.G03
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-
-                    if (bModFlag == true)
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        hasFind = true;
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
                     }
@@ -152,12 +156,19 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"收货方","车名","中文品名","执行标准","生产商名称","地址","开始时间","结束时间"},
-                                                {"vcCPDCompany","vcCarTypeName","vcPartNameCN","vcZXBZNo","vcSCSName","vcSCSAdress","dTimeFrom","dTimeTo"},
-                                                {"","","","","","",FieldCheck.Date,FieldCheck.Date},
-                                                {"0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","0","1","1","1","1"},//最小长度设定,可以为空用0
-                                                {"1","3","4","5","6","7","8","9"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    //string[,] strField = new string[,] {{"收货方","车名","中文品名","执行标准","生产商名称","地址","开始时间","结束时间","补给品番","供应商编号"},
+                    //                            {"vcCPDCompany","vcCarTypeName","vcPartNameCN","vcZXBZNo","vcSCSName","vcSCSAdress","dTimeFrom","dTimeTo","vcPart_Id","vcSupplier_id"},
+                    //                            {"","","","","","",FieldCheck.Date,FieldCheck.Date,"",""},
+                    //                            {"0","0","0","0","0","0","0","0","12","4"},//最大长度设定,不校验最大长度用0
+                    //                            {"1","1","1","0","1","1","1","1","10","1"},//最小长度设定,可以为空用0
+                    //                            {"1","3","4","6","7","8","9","10","2","5"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    //};
+                    string[,] strField = new string[,] {{"收货方","补给品番","车名","中文品名","执行标准","供应商编号","生产商名称","地址","开始时间","结束时间"},
+                        {"vcCPDCompany","vcPart_Id","vcCarTypeName","vcPartNameCN","vcZXBZNo","vcSupplier_id","vcSCSName","vcSCSAdress","dTimeFrom","dTimeTo"},
+                        {"","","","","","","","",FieldCheck.Date,FieldCheck.Date},
+                        {"0","12","0","0","0","4","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                        {"1","10","1","1","0","4","1","1","1","1"},//最小长度设定,可以为空用0
+                        {"1","2","3","4","5","6","7","8","9","10"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { { "dTimeFrom", "dTimeTo" } };

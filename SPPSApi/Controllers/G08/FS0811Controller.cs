@@ -358,10 +358,19 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            Dictionary<string, object> res = new Dictionary<string, object>();
             try
             {
 
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
+                string strHosDate = dataForm.DailyPaperDate == null ? "" : dataForm.DailyPaperDate;
+                string strPackingPlant = dataForm.DailyPaperPackingPlant == null ? "" : dataForm.DailyPaperPackingPlant;
+                if (strHosDate == "" || strPackingPlant == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "请输入报表下载条件";
+                    dtMessage.Rows.Add(dataRow);
+                }
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
@@ -370,7 +379,7 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dtDayRef = fS0811_Logic.getDayRef(ref dtMessage);
+                DataTable dtDailyPaper = fS0811_Logic.getDailyPaper(strPackingPlant, strHosDate, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
@@ -379,10 +388,9 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string[] fields = {"vcExportDate","vcRefDate","vcMonth_dx","vcMonth_ns","vcMonth_nns","decDXYNum","decNSYNum","decNNSYNum",
-                    "vcProject","decSOQ_dx","decSOQ_ns_before","decSOQ_ns","decSOQ_nns_before","decSOQ_nns","decNNA_dx","decNNA_ns","decNNA_nns"};
+                string[] fields = { "vcPartItem", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
 
-                string filepath = ComFunction.generateExcelWithXlt(dtDayRef, fields, _webHostEnvironment.ContentRootPath, "FTMS内示总结.xlsx", 1, 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dtDailyPaper, fields, _webHostEnvironment.ContentRootPath, "DailyPaper.xlsx", 1, 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -420,10 +428,19 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            Dictionary<string, object> res = new Dictionary<string, object>();
             try
             {
 
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
+                string strHosDate = dataForm.DailyInfoDate == null ? "" : dataForm.DailyInfoDate;
+                string strPackingPlant = dataForm.DailyInfoPackingPlant == null ? "" : dataForm.DailyInfoPackingPlant;
+                if (strHosDate == "" || strPackingPlant == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "请输入报表下载条件";
+                    dtMessage.Rows.Add(dataRow);
+                }
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
@@ -432,7 +449,7 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dtDayRef = fS0811_Logic.getDayRef(ref dtMessage);
+                DataTable dtDailyPaper = fS0811_Logic.getDailyPaper(strPackingPlant, strHosDate, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
@@ -441,10 +458,9 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string[] fields = {"vcExportDate","vcRefDate","vcMonth_dx","vcMonth_ns","vcMonth_nns","decDXYNum","decNSYNum","decNNSYNum",
-                    "vcProject","decSOQ_dx","decSOQ_ns_before","decSOQ_ns","decSOQ_nns_before","decSOQ_nns","decNNA_dx","decNNA_ns","decNNA_nns"};
+                string[] fields = { "vcPartItem", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
 
-                string filepath = ComFunction.generateExcelWithXlt(dtDayRef, fields, _webHostEnvironment.ContentRootPath, "FTMS内示总结.xlsx", 1, 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dtDailyPaper, fields, _webHostEnvironment.ContentRootPath, "DailyPaper.xlsx", 1, 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -482,10 +498,19 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            Dictionary<string, object> res = new Dictionary<string, object>();
             try
             {
 
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
+                string strHosDate = dataForm.MonthPaperDate == null ? "" : dataForm.MonthPaperDate;
+                string strPackingPlant = dataForm.MonthPaperPackingPlant == null ? "" : dataForm.MonthPaperPackingPlant;
+                if (strHosDate == "" || strPackingPlant == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "请输入报表下载条件";
+                    dtMessage.Rows.Add(dataRow);
+                }
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
@@ -494,7 +519,7 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dtMonthRef = fS0811_Logic.getMonthRef(ref dtMessage);
+                DataTable dtDailyPaper = fS0811_Logic.getMonthPaper(strPackingPlant, strHosDate, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
@@ -503,10 +528,9 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string[] fields = {"vcExportDate","vcRefDate","vcMonth_dx","vcMonth_ns","vcMonth_nns","decDXYNum","decNSYNum","decNNSYNum",
-                    "vcProject","decSOQ_dx","decSOQ_ns_before","decSOQ_ns","decSOQ_nns_before","decSOQ_nns","decNNA_dx","decNNA_ns","decNNA_nns"};
+                string[] fields = { "vcPartItem", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
 
-                string filepath = ComFunction.generateExcelWithXlt(dtMonthRef, fields, _webHostEnvironment.ContentRootPath, "FTMS内示总结.xlsx", 1, 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dtDailyPaper, fields, _webHostEnvironment.ContentRootPath, "MonthPaper.xlsx", 1, 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -519,9 +543,9 @@ namespace SPPSApi.Controllers.G08
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08PE1106", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08PE1105", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "月报导出失败";
+                apiResult.data = "日报导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

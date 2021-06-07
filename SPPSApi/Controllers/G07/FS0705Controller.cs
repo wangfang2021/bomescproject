@@ -154,6 +154,7 @@ namespace SPPSApi.Controllers.G07
                 /*
                  * 修改时间：2021-5-10
                  * 修改人：董镇
+                 * 注：注意包材品番的有效时间
                  */
                 DataTable CheckFaZhuIDPackBase =  fs0705_Logic.getFaZhuIdPackCheckDT(strFaZhuID, loginInfo.BaoZhuangPlace);
                 if (CheckFaZhuIDPackBase==null || CheckFaZhuIDPackBase.Rows.Count<=0)
@@ -164,47 +165,69 @@ namespace SPPSApi.Controllers.G07
                 }
                 #endregion
 
-                #region 验证补给品番是否存在有效的包材构成
-                string[] strArray = fs0705_Logic.getPackCheckDT(strFaZhuID,loginInfo.BaoZhuangPlace,strRuHeToTime);
-
-                string strErr1 = "";
-                string strErr2 = "";
-
-                #region 校验是否有包材品番入库
-                if (!string.IsNullOrEmpty(strArray[2]))
+                #region 检验是否存在当前计算时间段内有部品品番无有效包材构成，如果有则发邮件提示
+                DataTable dt = fs0705_Logic.getInvalidPackNo(strFaZhuID, loginInfo.BaoZhuangPlace, strRuHeToTime);
+                if (dt!=null && dt.Rows.Count>0)
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = strArray[2];
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    #region 发送邮件
+
+                    #region 获取发件人名称、发件人邮箱、邮件主题、邮件模板、收件人DT、生成EXCEL附件
+                    DataTable EmailInformation = fs0705_Logic.getEmailInformation();
+                    string strUserName = EmailInformation.Rows[0]["strUserName"] != null ? EmailInformation.Rows[0]["strUserName"].ToString() : "";
+                    string strUserEmail = EmailInformation.Rows[0]["strUserEmail"] != null ? EmailInformation.Rows[0]["strUserEmail"].ToString() : "";
+                    string strSubject = EmailInformation.Rows[0]["strSubject"] != null ? EmailInformation.Rows[0]["strSubject"].ToString() : "";
+                    string strEmailBody = EmailInformation.Rows[0]["strEmailBody"] != null ? EmailInformation.Rows[0]["strEmailBody"].ToString() : "";
+                    DataTable receiverDT = new DataTable();
+                    receiverDT.Columns.Add("address");
+                    receiverDT.Columns.Add("displayName");
+                    DataRow dr = receiverDT.NewRow();
+                    dr["address"] = EmailInformation.Rows[0]["receiverEmail"] != null ? EmailInformation.Rows[0]["receiverEmail"].ToString() : "";
+                    dr["displayName"] = EmailInformation.Rows[0]["receiverName"] != null ? EmailInformation.Rows[0]["receiverName"].ToString() : "";
+                    receiverDT.Rows.Add(dr);
+
+                    //生成附件
+                    string[] head = { "品番", "数量" };
+                    string[] field = { "vcPart_id", "iQuantity" };
+                    string strMsg = "";
+                    string fileName = ComFunction.DataTableToExcel(head, field, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
+
+                    if (strMsg!="") //导出文件出错
+                    {   
+                        /*不发送附件，记录日志*/
+                        ComFunction.SendEmailInfo(strUserEmail, strUserName, strEmailBody, receiverDT, null, strSubject, "", false);
+                        MultiExcute me;
+                        me = new MultiExcute();
+                        System.Data.SqlClient.SqlParameter[] parameters = {
+                        new System.Data.SqlClient.SqlParameter("@vcMessage",SqlDbType.NVarChar),
+                        new System.Data.SqlClient.SqlParameter("@vcException",SqlDbType.NVarChar),
+                        new System.Data.SqlClient.SqlParameter("@vcTrack",SqlDbType.NVarChar)
+                    };
+                        parameters[0].Value = strMsg;
+                        parameters[1].Value = "";
+                        parameters[2].Value = "";
+                        string strSql = "insert into SLog(UUID,vcFunctionID,vcLogType,vcUserID,vcMessage,vcException,vcTrack,dCreateTime) values(newid(),"
+                                                                    + "'FS0705',"
+                                                                    + "'E','"
+                                                                    + loginInfo.UserId+"',"
+                                                                    + "@vcMessage,"
+                                                                    + "@vcException,"
+                                                                    + "@vcTrack,"
+                                                                    + "CONVERT(varchar, GETDATE(),120))";
+                        me.ExcuteSqlWithStringOper(strSql, parameters);
+                    }
+                    else
+                    {
+                        ComFunction.SendEmailInfo(strUserEmail, strUserName, strEmailBody, receiverDT, null, strSubject, fileName, false);
+                    }
+
+                    #endregion
+
+
+                    #endregion
                 }
+
                 #endregion
 
-
-                if (strArray[0] != "")
-                {
-                    foreach (var item in strArray[0].Split(","))
-                    {
-                        strErr1 += item + "<br/>";
-                    }
-                    res.Add("errPart", "发注数量计算失败,以下品番无包材构成！"+ "<br/>" + strErr1);
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.flag = 1;
-                    apiResult.data = res;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                if (strArray[1] != "")
-                {
-                    foreach (var item in strArray[1].Split(","))
-                    {
-                        strErr2 += item + "<br/>";
-                    }
-                    res.Add("errPart",  "发注数量计算失败,以下品番包材构成无效！"+ "<br/>" + strErr2);
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.flag = 1;
-                    apiResult.data = res;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                #endregion
 
                 fs0705_Logic.computer(strFaZhuID, loginInfo.UserId, loginInfo.BaoZhuangPlace,strRuHeToTime,strBianCi,strNaQiDate);
 
@@ -310,7 +333,7 @@ namespace SPPSApi.Controllers.G07
                 if (JGDT==null||JGDT.Rows.Count<=0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "没有找到需要订购的品番信息";
+                    apiResult.data = "没有找到需要订购的品番信息"; 
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 

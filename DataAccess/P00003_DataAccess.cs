@@ -491,6 +491,13 @@ namespace DataAccess
       return excute.ExcuteSqlWithSelectToDT(GetPackDataSql.ToString());
     }
 
+    public DataTable ValidateCaseNo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string caseNo)
+    {
+      StringBuilder ValidateCaseNoSql = new StringBuilder();
+      ValidateCaseNoSql.Append("select vcPart_id from TOperateSJ where vcSR='"+dock+"' and vcPart_id='" + partId+"' and vcKBOrderNo='"+kanbanOrderNo+"' and vcKBLFNo='"+kanbanSerial+"'  and vcBoxNo='"+caseNo+"' and vcZYType='S3'");
+      return excute.ExcuteSqlWithSelectToDT(ValidateCaseNoSql.ToString());
+    }
+
     public int InsertPackWork(string packNo, string gpsNo, string packsupplier, string bZUnit, string biYao, string opearteId, string serverTime, string quantity)
     {
       double quantity1 = double.Parse(quantity) / double.Parse(bZUnit) * double.Parse(biYao);

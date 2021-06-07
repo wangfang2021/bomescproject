@@ -373,7 +373,7 @@ namespace Logic
       int size = 1048576 - 1;
 
       string strFileName = "INVINTERFACE_" + sellNo + "_APC06_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + ".csv";
-      string fileSavePath = @"C:\Users\Administrator\Desktop\laowu 0531修改\打印程序\FILE\";//文件临时目录，导入完成后 删除
+      string fileSavePath = @"C:\Users\Administrator\Desktop\laowu 0531修改\FILE\";//文件临时目录，导入完成后 删除
 
       string path = fileSavePath + strFileName;
 

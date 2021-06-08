@@ -118,9 +118,11 @@ namespace DataAccess
                 strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
                 strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,iPackingQty,vcBoxType,iLength,iWidth,iHeight,iVolume ");
                 strSql.AppendLine("FROM [TSPMaster_Box] ");
-                strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                //strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                strSql.AppendLine("WHERE  [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
                 strSql.AppendLine(")T3");
-                strSql.AppendLine("ON T3.rank='1' AND T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId] AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId]");
+                //strSql.AppendLine("ON T3.rank='1' AND T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId] AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId]");
+                strSql.AppendLine("ON T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId] AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId]");
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT ");
                 strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");

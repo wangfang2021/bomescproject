@@ -372,6 +372,27 @@ namespace DataAccess
       return excute.ExcuteSqlWithSelectToDT(GetPointSql.ToString());
     }
 
+    public DataTable GetCase(string opearteId)
+    {
+      StringBuilder GetCaseSql = new StringBuilder();
+      GetCaseSql.Append("select vcBoxNo from TCaseInfo where vcOperatorID='"+opearteId+ "' order by dOperatorTime desc");
+      return excute.ExcuteSqlWithSelectToDT(GetCaseSql.ToString());
+    }
+
+    public DataTable GetCase1(string caseNo)
+    {
+      StringBuilder GetCaseSql = new StringBuilder();
+      GetCaseSql.Append("select vcCaseno from TCaseList  where vcCaseno='"+caseNo+"'");
+      return excute.ExcuteSqlWithSelectToDT(GetCaseSql.ToString());
+    }
+
+    public int UpdateCase(string iP, string serverTime, string opearteId, string caseNo)
+    {
+      StringBuilder UpdateCaseSql = new StringBuilder();
+      UpdateCaseSql.Append("update TCaseInfo set vcHostIp='"+iP+"',vcStatus='0',dOperatorTime='"+serverTime+"' where vcBoxNo='"+caseNo+"' and vcOperatorID='"+opearteId+"'");
+      return excute.ExcuteSqlWithStringOper(UpdateCaseSql.ToString());
+    }
+
     public DataTable GetPoint2(string iP)
     {
       StringBuilder GetPoingSql = new StringBuilder();
@@ -523,6 +544,13 @@ namespace DataAccess
       validateOrdSql.Append("   (CAST(ISNULL(vcPlantQtyDaily30,0) as int)-CAST(ISNULL(vcInputQtyDaily30,0) as int)) as day30 ,(CAST(ISNULL(vcPlantQtyDaily31,0) as int)-CAST(ISNULL(vcInputQtyDaily31,0) as int)) as day31    \n");
       validateOrdSql.Append("  from  SP_M_ORD where vcPartNo='" + partId + "' and vcOrderNo!=''   \n");
       return excute.ExcuteSqlWithSelectToDT(validateOrdSql.ToString());
+    }
+
+    public int UpdatePack2(string iP, string serverTime)
+    {
+      StringBuilder UpdatePackSql = new StringBuilder();
+      UpdatePackSql.Append("update TPackList set dFirstPrintTime='"+serverTime+"' where vcHostip='"+iP+"' and dFirstPrintTime is null");
+      return excute.ExcuteSqlWithStringOper(UpdatePackSql.ToString());
     }
 
     public DataTable GetPrintName(string iP)

@@ -880,19 +880,19 @@ namespace SPPSApi.Controllers.P01
           for (int i = 0; i < getSellInfo3.Rows.Count; i++)
           {
 
-            info = info + getSellInfo3.Rows[i][0].ToString() + ":" + getSellInfo3.Rows[i][1].ToString() + "\n";
+            info = info + getSellInfo3.Rows[i][0].ToString() + ":" + getSellInfo3.Rows[i][1].ToString() + "<br>";
 
           }
 
 
+        
 
-
-          string path1 = @"C:\Users\laowu\Desktop\新建文件夹 (6)\新建文件夹\spps_api\SPPSApi\Doc\Export\" + path;
+          string path1 = @"C:\Users\Administrator\Desktop\laowu 0531修改\FILE\" + path;
           string mail = "fqm_wufan@tftm.com.cn";
           string userName = "laowu";
 
 
-          string emailBody = "FTMS各位相关同事:\n大家好!\n附件为销售数据,请查收!\n发货日期:" + date1 + "\n发货班值:" + banzhi + "\n便次区分:" + yinQuType1 + "第" + bianci + "便\n引取车牌照号:" + truckNo1 + "\n合计数量" + toolSum + "个\n器具明细" + info + "收货时请及时确认数量\n以上";
+          string emailBody = "FTMS各位相关同事:<br>大家好!<br>附件为销售数据,请查收!<br>发货日期:" + date1 + "<br>发货班值:" + banzhi + "<br>便次区分:" + yinQuType1 + "第" + bianci + "便<br>引取车牌照号:" + truckNo1 + "<br>合计数量" + toolSum + "个<br>器具明细:" + info + "<br>收货时请及时确认数量<br>以上";
           string subject = "发货";
           DataTable getCode = P00004_Logic.GetCode();
           if (getCode.Rows.Count > 0)

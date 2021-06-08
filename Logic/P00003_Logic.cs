@@ -728,5 +728,10 @@ namespace Logic
     {
       return P00003_DataAccess.InsertZaiKu(packNo, gpsNo, packsupplier, opearteId, serverTime);
     }
+
+    public DataTable ValidateCase(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string caseNo)
+    {
+      return P00003_DataAccess.ValidateCaseNo(partId,kanbanOrderNo,kanbanSerial,dock,caseNo);
+    }
   }
 }

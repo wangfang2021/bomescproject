@@ -418,7 +418,7 @@ namespace DataAccess
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
 
 
-                    string dfrom = listInfoData[i]["dFrom"].ToString() == "" ? "1990-01-01 0:00:00" : listInfoData[i]["dFrom"].ToString();
+                    string dfrom = listInfoData[i]["dFrom"].ToString() == "" ? "1900-01-01 0:00:00" : listInfoData[i]["dFrom"].ToString();
                     string dto = listInfoData[i]["dTo"].ToString() == "" ? "3000-01-01 0:00:00" : listInfoData[i]["dTo"].ToString();
 
                     //if (listInfoData[i]["vcShouhuofang"].ToString() != "")
@@ -444,35 +444,70 @@ namespace DataAccess
                     {
                         PackGPSNo = dr1[0]["vcPackGPSNo"].ToString();
                     }
-                    DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"] + "'and  varChangedItem='" + listInfoData[i]["varChangedItem"] + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"] + "' ");
-                    if (dr2.Length == 0)
-                    {
-                        dUserFrom = "1990-01-01";
-                        dUserTo = "9999-12-31";
-                        vcChange = "";
-                        vcCar = "";
-                        strSHFID = "";
-                        PackSpot = "";
-                        strReTime = "";
-                    }
-                    else
-                    {
-                        dUserFrom = dr2[0]["dUsedFrom"].ToString();
-                        dUserTo = dr2[0]["dUsedTo"].ToString();
-                        vcChange = dr2[0]["varChangedItem1"].ToString();
-                        vcCar = dr2[0]["vcCar"].ToString();
-                        if (dr2[0]["vcShouhuofangID"].ToString() != "")
+                   
+                    if (string.IsNullOrEmpty(listInfoData[i]["varChangedItem"].ToString())) {
+                        DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"] + "'and  varChangedItem is null and vcShouhuofangID='"+ listInfoData[i]["vcShouhuofangID"] + "'");
+                        if (dr2.Length == 0)
                         {
-                            strSHFID = dr2[0]["vcShouhuofangID"].ToString();
+                            dUserFrom = "1900-01-01";
+                            dUserTo = "9999-12-31";
+                            vcChange = "";
+                            vcCar = "";
+                            strSHFID = "";
+                            PackSpot = "";
+                            strReTime = "";
                         }
                         else
                         {
-                            strSHFID = "";
-                        }
+                            dUserFrom = dr2[0]["dUsedFrom"].ToString();
+                            dUserTo = dr2[0]["dUsedTo"].ToString();
+                            vcChange = dr2[0]["varChangedItem1"].ToString();
+                            vcCar = dr2[0]["vcCar"].ToString();
+                            if (dr2[0]["vcShouhuofangID"].ToString() != "")
+                            {
+                                strSHFID = dr2[0]["vcShouhuofangID"].ToString();
+                            }
+                            else
+                            {
+                                strSHFID = "";
+                            }
 
-                        PackSpot = dr2[0]["vcPackSpot"].ToString();
-                        strReTime = dr2[0]["vcReTime"].ToString();
+                            PackSpot = dr2[0]["vcPackSpot"].ToString();
+                            strReTime = dr2[0]["vcReTime"].ToString();
+                        }
                     }
+                    else {
+                        DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"] + "'and  varChangedItem='" + listInfoData[i]["varChangedItem"] + "'and vcShouhuofangID='" + listInfoData[i]["vcShouhuofangID"] + "'");
+                        if (dr2.Length == 0)
+                        {
+                            dUserFrom = "1900-01-01";
+                            dUserTo = "9999-12-31";
+                            vcChange = "";
+                            vcCar = "";
+                            strSHFID = "";
+                            PackSpot = "";
+                            strReTime = "";
+                        }
+                        else
+                        {
+                            dUserFrom = dr2[0]["dUsedFrom"].ToString();
+                            dUserTo = dr2[0]["dUsedTo"].ToString();
+                            vcChange = dr2[0]["varChangedItem1"].ToString();
+                            vcCar = dr2[0]["vcCar"].ToString();
+                            if (dr2[0]["vcShouhuofangID"].ToString() != "")
+                            {
+                                strSHFID = dr2[0]["vcShouhuofangID"].ToString();
+                            }
+                            else
+                            {
+                                strSHFID = "";
+                            }
+
+                            PackSpot = dr2[0]["vcPackSpot"].ToString();
+                            strReTime = dr2[0]["vcReTime"].ToString();
+                        }
+                    }
+                    
 
 
 
@@ -718,7 +753,7 @@ namespace DataAccess
                     {
                         PackGPSNo = dr1[0]["vcPackGPSNo"].ToString();
                     }
-                    DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "'");
+                    DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "'and vcShouhuofangID='"+ dt.Rows[i]["vcShouhuofangID"].ToString() + "'");
                     if (dr2.Length == 0)
                     {
                         dUserFrom = "";

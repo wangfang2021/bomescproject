@@ -156,6 +156,7 @@ namespace SPPSApi.Controllers.G06
                 }
 
                 string refMsg = "";
+                List<string> orderList = fs0614_logic.getFinish();
                 //开始数据验证
                 if (hasFind)
                 {
@@ -176,6 +177,15 @@ namespace SPPSApi.Controllers.G06
                             apiResult.data = "存在已撤销的订单不能进行生成操作";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
+
+                        if (orderList.Contains(listInfoData[i]["vcOrderNo"].ToString()))
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.flag = 1;
+                            apiResult.data = listInfoData[i]["vcOrderNo"].ToString()+"已经做成请检索刷新获取状态。";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+
                     }
 
                     bool flag = fs0614_logic.checkType(listInfoData, ref refMsg);
@@ -248,7 +258,7 @@ namespace SPPSApi.Controllers.G06
                         if (response.Body.setCRVToPDFResult != "导出成功")
                         {
                             DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                            dataRow["vcMessage"] = "订单已做成，请检索刷新页面获取状态，但标签生成失败，请联系管理员进行打印接口故障检查。";
                             dtMessage.Rows.Add(dataRow);
                         }
                         #endregion

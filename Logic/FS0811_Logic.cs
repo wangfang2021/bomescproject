@@ -492,5 +492,447 @@ namespace Logic
                 throw ex;
             }
         }
+
+        //============================================报表业务=============================================
+        public DataTable getMonthPaper(string strPackPlant, string strMonth, ref DataTable dtMessage)
+        {
+            try
+            {
+                int iDateNum = Convert.ToDateTime(strMonth.Replace("/", "-") + "-01").AddMonths(1).AddDays(-1).Day;
+                //创建日报表结构
+                DataTable dtDailyPaper_M = fs0811_DataAccess.createMonthPaper();
+                for (int iNum = 1; iNum <= iDateNum; iNum++)
+                {
+                    string strHosDate = strMonth + "/" + (100 + iNum).ToString().Substring(1, 2);
+
+                    DataTable dtDailyPaper = getDailyPaper(strPackPlant, strHosDate, ref dtMessage);
+                    if(dtDailyPaper_M.Rows.Count== dtDailyPaper.Rows.Count)
+                    {
+                        for (int i = 0; i < dtDailyPaper_M.Rows.Count; i++)
+                        {
+                            dtDailyPaper_M.Rows[i]["A"] = Convert.ToInt32(dtDailyPaper_M.Rows[i]["A"].ToString()) + Convert.ToInt32(dtDailyPaper.Rows[i]["A"].ToString());
+                            dtDailyPaper_M.Rows[i]["B"] = Convert.ToInt32(dtDailyPaper_M.Rows[i]["B"].ToString()) + Convert.ToInt32(dtDailyPaper.Rows[i]["B"].ToString());
+                            dtDailyPaper_M.Rows[i]["C"] = Convert.ToInt32(dtDailyPaper_M.Rows[i]["C"].ToString()) + Convert.ToInt32(dtDailyPaper.Rows[i]["C"].ToString());
+                            dtDailyPaper_M.Rows[i]["D"] = Convert.ToInt32(dtDailyPaper_M.Rows[i]["D"].ToString()) + Convert.ToInt32(dtDailyPaper.Rows[i]["D"].ToString());
+                            dtDailyPaper_M.Rows[i]["E"] = Convert.ToInt32(dtDailyPaper_M.Rows[i]["E"].ToString()) + Convert.ToInt32(dtDailyPaper.Rows[i]["E"].ToString());
+                            dtDailyPaper_M.Rows[i]["F"] = Convert.ToDecimal(dtDailyPaper_M.Rows[i]["F"].ToString()) + Convert.ToDecimal(dtDailyPaper.Rows[i]["F"].ToString());
+                            dtDailyPaper_M.Rows[i]["G"] = Convert.ToDecimal(dtDailyPaper_M.Rows[i]["G"].ToString()) + Convert.ToDecimal(dtDailyPaper.Rows[i]["G"].ToString());
+                            dtDailyPaper_M.Rows[i]["H"] = Convert.ToDecimal(dtDailyPaper_M.Rows[i]["H"].ToString()) + Convert.ToDecimal(dtDailyPaper.Rows[i]["H"].ToString());
+                            dtDailyPaper_M.Rows[i]["I"] = Convert.ToDecimal(dtDailyPaper_M.Rows[i]["I"].ToString()) + Convert.ToDecimal(dtDailyPaper.Rows[i]["I"].ToString());
+                            dtDailyPaper_M.Rows[i]["L"] = Convert.ToDecimal(dtDailyPaper_M.Rows[i]["L"].ToString()) + Convert.ToDecimal(dtDailyPaper.Rows[i]["L"].ToString());
+                            dtDailyPaper_M.Rows[i]["J"] = "0.00%";
+                            if (Convert.ToDecimal(dtDailyPaper_M.Rows[i]["G"].ToString()) != 0)
+                            {
+                                dtDailyPaper_M.Rows[i]["J"] = (Convert.ToDecimal(dtDailyPaper_M.Rows[i]["I"].ToString()) * 100 / Convert.ToDecimal(dtDailyPaper_M.Rows[i]["G"].ToString())).ToString("#0.00") + "%";
+                            }
+                            dtDailyPaper_M.Rows[i]["K"] = "0.00%";
+                            if (Convert.ToDecimal(dtDailyPaper_M.Rows[i]["H"].ToString()) != 0)
+                            {
+                                dtDailyPaper_M.Rows[i]["K"] = (Convert.ToDecimal(dtDailyPaper_M.Rows[i]["I"].ToString()) * 100 / Convert.ToDecimal(dtDailyPaper_M.Rows[i]["H"].ToString())).ToString("#0.00") + "%";
+                            }
+                        }
+                    }
+                }
+                dtDailyPaper_M.Columns.Add("vcMonth");
+                for (int i = 0; i < dtDailyPaper_M.Rows.Count; i++)
+                {
+                    dtDailyPaper_M.Rows[i]["vcMonth"] = strMonth;
+                }
+
+                return dtDailyPaper_M;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getDailyPaper(string strPackPlant, string strHosDate, ref DataTable dtMessage)
+        {
+            try
+            {
+                //创建日报表结构
+                DataTable dtDailyPaper = fs0811_DataAccess.createDailyPaper();
+                DataTable dtDailyPaper_T = dtDailyPaper.Clone();
+                //获取当天出勤班值信息
+                DataTable dtCalendarInfo = fs0811_DataAccess.getDailyCalendarInfo(strHosDate);
+                foreach (DataRow drCalendarInfo in dtCalendarInfo.Rows)
+                {
+                    DataTable dtDailyPaper_A = fs0811_DataAccess.createDailyPaper();
+                    //if (drCalendarInfo["vcDay"].ToString() == "A")
+                    if (drCalendarInfo["vcDay"].ToString() != string.Empty)
+                    {
+                        string strBanZhi = drCalendarInfo["vcType"].ToString();
+                        //获取品目别实绩数据
+                        DataTable dtDailyList_00 = fs0811_DataAccess.getDailyList_00(strPackPlant, strHosDate, strBanZhi);
+                        decimal decH_total = 0;
+
+                        for (int i = 0; i < dtDailyList_00.Rows.Count; i++)
+                        {
+                            string strPartItem = dtDailyList_00.Rows[i]["vcPartItem"].ToString();
+                            foreach (DataRow drDailyPaper_A in dtDailyPaper_A.Rows)
+                            {
+                                if (drDailyPaper_A["vcPartItem"].ToString() == strPartItem)
+                                {
+                                    drDailyPaper_A["A"] = dtDailyList_00.Rows[i]["A"].ToString();//包装计划
+                                    drDailyPaper_A["B"] = dtDailyList_00.Rows[i]["B"].ToString();//实行计划
+                                    drDailyPaper_A["C"] = dtDailyList_00.Rows[i]["C"].ToString();//入荷实绩
+                                    drDailyPaper_A["D"] = dtDailyList_00.Rows[i]["D"].ToString();//包装实绩
+                                    drDailyPaper_A["E"] = dtDailyList_00.Rows[i]["E"].ToString();//包装差额
+                                    drDailyPaper_A["F"] = dtDailyList_00.Rows[i]["F"].ToString();//包装计划工时(H)
+                                    drDailyPaper_A["G"] = dtDailyList_00.Rows[i]["G"].ToString();//实行计划工时(H)
+                                    //品目别实绩在线工时SS
+                                    drDailyPaper_A["H"] = 0;//实绩在线工时(H)
+                                    decimal[] decOnline = getOperOnLineInfo(strPackPlant, strHosDate, strBanZhi, strPartItem);
+                                    if (decOnline[0] == 0)
+                                    {
+                                        if (decOnline[1] != 0)
+                                        {
+                                            drDailyPaper_A["H"] = decOnline[1] / Convert.ToDecimal(3600.00);
+                                        }
+                                    }
+                                    if (strPartItem != "合计")
+                                    {
+                                        decH_total = decH_total + Convert.ToDecimal(drDailyPaper_A["H"].ToString());
+                                    }
+                                    else
+                                    {
+                                        drDailyPaper_A["H"] = decH_total;
+                                    }
+                                    drDailyPaper_A["I"] = dtDailyList_00.Rows[i]["I"].ToString(); //实绩包装工时(H)
+                                    drDailyPaper_A["J"] = "0.00%";//工时完成率
+                                    if (Convert.ToDecimal(drDailyPaper_A["G"].ToString()) != 0)
+                                    {
+                                        drDailyPaper_A["J"] = (Convert.ToDecimal(drDailyPaper_A["I"].ToString()) * 100 / Convert.ToDecimal(drDailyPaper_A["G"].ToString())).ToString("#0.00") + "%";
+                                    }
+                                    drDailyPaper_A["K"] = "0.00%";//作业效率
+                                    if (Convert.ToDecimal(drDailyPaper_A["H"].ToString()) != 0)
+                                    {
+                                        drDailyPaper_A["K"] = (Convert.ToDecimal(drDailyPaper_A["I"].ToString()) * 100 / Convert.ToDecimal(drDailyPaper_A["H"].ToString())).ToString("#0.00") + "%";
+                                    }
+                                    drDailyPaper_A["L"] = Convert.ToDecimal(drDailyPaper_A["G"].ToString()) - Convert.ToDecimal(drDailyPaper_A["I"].ToString());//作业工时差
+
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    //将处理后的表附加dtDailyPaper下
+                    foreach (DataRow drDailyPaper_A in dtDailyPaper_A.Rows)
+                    {
+                        dtDailyPaper_T.ImportRow(drDailyPaper_A);
+                    }
+                }
+                //统计合计值
+                dtDailyPaper_T = getHeJiInfo(dtDailyPaper_T, dtDailyPaper, ref dtMessage);
+
+                dtDailyPaper_T.Columns.Add("vcHosDate");
+                for (int i = 0; i < dtDailyPaper_T.Rows.Count; i++)
+                {
+                    dtDailyPaper_T.Rows[i]["vcHosDate"] = strHosDate;
+                }
+
+                return dtDailyPaper_T;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public decimal[] getOperOnLineInfo(string strPackPlant, string strHosDate, string strBanZhi, string strPointName)
+        {
+            try
+            {
+                decimal[] vs = new decimal[2];
+                //获取休息阶段、点位登录履历、操作人当日完成基准时间
+                DataSet dsOperPointInfo = fs0811_DataAccess.getOperPointInfo(strPackPlant, strBanZhi, strHosDate, strPointName);
+                if (dsOperPointInfo == null)
+                {
+                    vs[0] = -2;//点位信息获取失败--报错显示
+                    return vs;
+                }
+                if (dsOperPointInfo.Tables[0].Rows.Count == 0)
+                {
+                    vs[0] = -3;//当值休息时间获取失败--报错显示
+                    return vs;
+                }
+                if (dsOperPointInfo.Tables[1].Rows.Count == 0)
+                {
+                    vs[0] = 0;//当值点位履历获取失败--报错显示
+                    vs[1] = 0;
+                    return vs;
+                }
+                //点位在线有效时间（ss）
+                decimal decOnLine = getOnLineDetails(dsOperPointInfo.Tables[1], dsOperPointInfo.Tables[0]);
+                vs[0] = 0;
+                vs[1] = decOnLine;
+                return vs;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private decimal getOnLineDetails(DataTable dtPointDetails, DataTable dtRest)
+        {
+            try
+            {
+                DataTable dtPointDetails_Temp = dtPointDetails.Clone();
+                dtPointDetails_Temp.Columns.Add("iOnLine");
+                for (int i = 0; i < dtPointDetails.Rows.Count; i++)
+                {
+                    DataTable dtRest_Temp = dtRest.Clone();
+                    string strHosDate = dtPointDetails.Rows[i]["dHosDate"].ToString();
+                    string strPackPlant = dtPointDetails.Rows[i]["vcPackPlant"].ToString();
+                    string strBanZhi = dtPointDetails.Rows[i]["vcBanZhi"].ToString();
+                    string strPointNo = dtPointDetails.Rows[i]["vcPointNo"].ToString();
+                    string strUUID = dtPointDetails.Rows[i]["UUID"].ToString();
+                    string strEntryTime = dtPointDetails.Rows[i]["dEntryTime"].ToString();
+                    string strDestroyTime = dtPointDetails.Rows[i]["dDestroyTime"].ToString();
+                    if (Convert.ToDateTime(strEntryTime) >= Convert.ToDateTime(strDestroyTime))
+                    {
+                        DataRow drPointDetails_Temp = dtPointDetails_Temp.NewRow();
+                        drPointDetails_Temp["dHosDate"] = strHosDate;
+                        drPointDetails_Temp["vcPackPlant"] = strPackPlant;
+                        drPointDetails_Temp["vcBanZhi"] = strBanZhi;
+                        drPointDetails_Temp["vcPointNo"] = strPointNo;
+                        drPointDetails_Temp["UUID"] = strUUID;
+                        drPointDetails_Temp["dEntryTime"] = "1900-01-01";
+                        drPointDetails_Temp["dDestroyTime"] = "1900-01-01";
+                        dtPointDetails_Temp.Rows.Add(drPointDetails_Temp);
+                    }
+                    else
+                    {
+                        //判断开始结束是否是在休息范围内
+                        DataRow[] drRest_00 = dtRest.Select("vcPackPlant='" + strPackPlant + "' and vcBanZhi='" + strBanZhi + "' and tBeforTime<='" + strEntryTime + "' and tLastTime>='" + strDestroyTime + "'");
+                        if (drRest_00.Length != 0)
+                        {
+                            DataRow drPointDetails_Temp = dtPointDetails_Temp.NewRow();
+                            drPointDetails_Temp["dHosDate"] = strHosDate;
+                            drPointDetails_Temp["vcPackPlant"] = strPackPlant;
+                            drPointDetails_Temp["vcBanZhi"] = strBanZhi;
+                            drPointDetails_Temp["vcPointNo"] = strPointNo;
+                            drPointDetails_Temp["UUID"] = strUUID;
+                            drPointDetails_Temp["dEntryTime"] = "1900-01-01";
+                            drPointDetails_Temp["dDestroyTime"] = "1900-01-01";
+                            dtPointDetails_Temp.Rows.Add(drPointDetails_Temp);
+                        }
+                        else
+                        {
+                            //判断开始在休息时间之间
+                            DataRow[] drRest_20 = dtRest.Select("vcPackPlant='" + strPackPlant + "' and vcBanZhi='" + strBanZhi + "' and tBeforTime<='" + strEntryTime + "' and tLastTime>='" + strEntryTime + "'");
+                            if (drRest_20.Length != 0)
+                            {
+                                strEntryTime = drRest_20[0]["tLastTime"].ToString();
+                            }
+                            //判断开始在休息时间之前
+                            DataRow[] drRest_10 = dtRest.Select("vcPackPlant='" + strPackPlant + "' and vcBanZhi='" + strBanZhi + "' and tBeforTime>='" + strEntryTime + "'");
+                            if (drRest_10.Length != 0)
+                            {
+                                for (int j = 0; j < drRest_10.Length; j++)
+                                {
+                                    DataRow drRest_Temp = dtRest_Temp.NewRow();
+                                    drRest_Temp["TANK"] = drRest_10[j]["TANK"];
+                                    drRest_Temp["vcPackPlant"] = drRest_10[j]["vcPackPlant"];
+                                    drRest_Temp["vcBanZhi"] = drRest_10[j]["vcBanZhi"];
+                                    drRest_Temp["tBeforTime"] = drRest_10[j]["tBeforTime"];
+                                    drRest_Temp["tLastTime"] = drRest_10[j]["tLastTime"];
+                                    drRest_Temp["iMinute"] = drRest_10[j]["iMinute"];
+                                    dtRest_Temp.Rows.Add(drRest_Temp);
+                                }
+                                dtRest_Temp.DefaultView.Sort = "TANK ASC";
+                                dtRest_Temp = dtRest_Temp.DefaultView.ToTable();
+                                int iTANK = Convert.ToInt32(dtRest_Temp.Rows[0]["TANK"].ToString());
+                                //判断结束在休息时间中
+                                DataRow[] drRest_11 = dtRest_Temp.Select("vcPackPlant='" + strPackPlant + "' and vcBanZhi='" + strBanZhi + "' and tBeforTime<='" + strDestroyTime + "' and tLastTime>='" + strDestroyTime + "'");
+                                if (drRest_11.Length != 0)
+                                {
+                                    int iTANK_11 = Convert.ToInt32(drRest_11[drRest_11.Length - 1]["TANK"].ToString());
+                                    for (int j = 0; j < iTANK_11 - iTANK + 1; j++)
+                                    {
+                                        string strEntryTime_11 = "";
+                                        string strDestroyTime_11 = "";
+                                        if (j == 0)
+                                            strEntryTime_11 = strEntryTime;
+                                        else
+                                            strEntryTime_11 = dtRest_Temp.Rows[j - 1]["tLastTime"].ToString();
+
+                                        if (j == 0)
+                                            strDestroyTime_11 = dtRest_Temp.Rows[j]["tBeforTime"].ToString();
+                                        //else
+                                        //if (iTANK_11 - iTANK + 1 - 1 == j)
+                                        //    strDestroyTime_11 = dtRest_Temp.Rows[j]["tBeforTime"].ToString();
+                                        else
+                                            strDestroyTime_11 = dtRest_Temp.Rows[j]["tBeforTime"].ToString();
+
+
+                                        DataRow drPointDetails_Temp = dtPointDetails_Temp.NewRow();
+                                        drPointDetails_Temp["dHosDate"] = strHosDate;
+                                        drPointDetails_Temp["vcPackPlant"] = strPackPlant;
+                                        drPointDetails_Temp["vcBanZhi"] = strBanZhi;
+                                        drPointDetails_Temp["vcPointNo"] = strPointNo;
+                                        drPointDetails_Temp["UUID"] = strUUID;
+                                        drPointDetails_Temp["dEntryTime"] = strEntryTime_11;
+                                        drPointDetails_Temp["dDestroyTime"] = strDestroyTime_11;
+                                        dtPointDetails_Temp.Rows.Add(drPointDetails_Temp);
+                                    }
+                                }
+                                else
+                                {
+                                    //判断结束在休息时间间
+                                    DataRow[] drRest_12 = dtRest_Temp.Select("vcPackPlant='" + strPackPlant + "' and vcBanZhi='" + strBanZhi + "' and tLastTime<'" + strDestroyTime + "'");
+                                    if (drRest_12.Length != 0)
+                                    {
+                                        for (int j = 0; j < drRest_12.Length; j++)
+                                        {
+                                            string strEntryTime_11 = "1900-01-01";
+                                            string strDestroyTime_11 = "1900-01-01";
+                                            if (j == 0)
+                                            {
+                                                strEntryTime_11 = strEntryTime;
+                                                strDestroyTime_11 = drRest_12[j]["tBeforTime"].ToString();
+                                                DataRow drPointDetails_Temp_1 = dtPointDetails_Temp.NewRow();
+                                                drPointDetails_Temp_1["dHosDate"] = strHosDate;
+                                                drPointDetails_Temp_1["vcPackPlant"] = strPackPlant;
+                                                drPointDetails_Temp_1["vcBanZhi"] = strBanZhi;
+                                                drPointDetails_Temp_1["vcPointNo"] = strPointNo;
+                                                drPointDetails_Temp_1["UUID"] = strUUID;
+                                                drPointDetails_Temp_1["dEntryTime"] = strEntryTime_11;
+                                                drPointDetails_Temp_1["dDestroyTime"] = strDestroyTime_11;
+                                                dtPointDetails_Temp.Rows.Add(drPointDetails_Temp_1);
+                                            }
+                                            if (j == drRest_12.Length - 1)
+                                            {
+                                                strEntryTime_11 = drRest_12[j]["tLastTime"].ToString();
+                                                strDestroyTime_11 = strDestroyTime;
+                                                DataRow drPointDetails_Temp_1 = dtPointDetails_Temp.NewRow();
+                                                drPointDetails_Temp_1["dHosDate"] = strHosDate;
+                                                drPointDetails_Temp_1["vcPackPlant"] = strPackPlant;
+                                                drPointDetails_Temp_1["vcBanZhi"] = strBanZhi;
+                                                drPointDetails_Temp_1["vcPointNo"] = strPointNo;
+                                                drPointDetails_Temp_1["UUID"] = strUUID;
+                                                drPointDetails_Temp_1["dEntryTime"] = strEntryTime_11;
+                                                drPointDetails_Temp_1["dDestroyTime"] = strDestroyTime_11;
+                                                dtPointDetails_Temp.Rows.Add(drPointDetails_Temp_1);
+                                            }
+                                            else
+                                            {
+                                                strEntryTime_11 = drRest_12[j]["tLastTime"].ToString();
+                                                strDestroyTime_11 = drRest_12[j + 1]["tBeforTime"].ToString();
+                                                DataRow drPointDetails_Temp_1 = dtPointDetails_Temp.NewRow();
+                                                drPointDetails_Temp_1["dHosDate"] = strHosDate;
+                                                drPointDetails_Temp_1["vcPackPlant"] = strPackPlant;
+                                                drPointDetails_Temp_1["vcBanZhi"] = strBanZhi;
+                                                drPointDetails_Temp_1["vcPointNo"] = strPointNo;
+                                                drPointDetails_Temp_1["UUID"] = strUUID;
+                                                drPointDetails_Temp_1["dEntryTime"] = strEntryTime_11;
+                                                drPointDetails_Temp_1["dDestroyTime"] = strDestroyTime_11;
+                                                dtPointDetails_Temp.Rows.Add(drPointDetails_Temp_1);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DataRow drPointDetails_Temp = dtPointDetails_Temp.NewRow();
+                                        drPointDetails_Temp["dHosDate"] = strHosDate;
+                                        drPointDetails_Temp["vcPackPlant"] = strPackPlant;
+                                        drPointDetails_Temp["vcBanZhi"] = strBanZhi;
+                                        drPointDetails_Temp["vcPointNo"] = strPointNo;
+                                        drPointDetails_Temp["UUID"] = strUUID;
+                                        drPointDetails_Temp["dEntryTime"] = strEntryTime;
+                                        drPointDetails_Temp["dDestroyTime"] = strDestroyTime;
+                                        dtPointDetails_Temp.Rows.Add(drPointDetails_Temp);
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+                decimal decOnLine = 0;
+                for (int i = 0; i < dtPointDetails_Temp.Rows.Count; i++)
+                {
+                    DateTime dEntryTime = Convert.ToDateTime(dtPointDetails_Temp.Rows[i]["dEntryTime"].ToString());
+                    DateTime dDestroyTime = Convert.ToDateTime(dtPointDetails_Temp.Rows[i]["dDestroyTime"].ToString());
+                    TimeSpan timeSpan = dDestroyTime.Subtract(dEntryTime);
+                    double secInterval = timeSpan.TotalSeconds;
+                    decOnLine = decOnLine + Convert.ToDecimal(secInterval);
+                }
+                return decOnLine;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getHeJiInfo(DataTable dtDailyPaper_T, DataTable dtDailyPaper, ref DataTable dtMessage)
+        {
+            try
+            {
+                foreach (DataRow drDailyPaper in dtDailyPaper.Rows)
+                {
+                    string strPartItem = drDailyPaper["vcPartItem"].ToString();
+                    DataRow[] drDailyPaper_T = dtDailyPaper_T.Select("vcPartItem='" + strPartItem + "'");
+                    int A = 0;//包装计划
+                    int B = 0;//实行计划
+                    int C = 0;//入荷实绩
+                    int D = 0;//包装实绩
+                    int E = 0;//包装差额
+                    decimal F = 0;//包装计划工时(H)
+                    decimal G = 0;//实行计划工时(H)
+                    decimal H = 0;//实绩在线工时(H)
+                    decimal I = 0;//实绩包装工时(H)
+                    string J = "0.00%";//工时完成率
+                    string K = "0.00%";//作业效率
+                    decimal L = 0;//作业工时差
+                    if (drDailyPaper_T.Length != 0)
+                    {
+                        for (int i = 0; i < drDailyPaper_T.Length; i++)
+                        {
+                            A = A + Convert.ToInt32(drDailyPaper_T[i]["A"].ToString());
+                            B = B + Convert.ToInt32(drDailyPaper_T[i]["B"].ToString());
+                            C = C + Convert.ToInt32(drDailyPaper_T[i]["C"].ToString());
+                            D = D + Convert.ToInt32(drDailyPaper_T[i]["D"].ToString());
+                            E = E + Convert.ToInt32(drDailyPaper_T[i]["E"].ToString());
+                            F = F + Convert.ToDecimal(drDailyPaper_T[i]["F"].ToString());
+                            G = G + Convert.ToDecimal(drDailyPaper_T[i]["G"].ToString());
+                            H = H + Convert.ToDecimal(drDailyPaper_T[i]["H"].ToString());
+                            I = I + Convert.ToDecimal(drDailyPaper_T[i]["I"].ToString());
+                            L = L + Convert.ToDecimal(drDailyPaper_T[i]["L"].ToString());
+                        }
+                    }
+                    if (Convert.ToDecimal(G) != 0)
+                    {
+                        J = (Convert.ToDecimal(I) * 100 / Convert.ToDecimal(G)).ToString("#0.00") + "%";
+                    }
+                    if (Convert.ToDecimal(H) != 0)
+                    {
+                        K = (Convert.ToDecimal(I) * 100 / Convert.ToDecimal(H)).ToString("#0.00") + "%";
+                    }
+                    drDailyPaper["A"] = A;
+                    drDailyPaper["B"] = B;
+                    drDailyPaper["C"] = C;
+                    drDailyPaper["D"] = D;
+                    drDailyPaper["E"] = E;
+                    drDailyPaper["F"] = F;
+                    drDailyPaper["G"] = G;
+                    drDailyPaper["H"] = H;
+                    drDailyPaper["I"] = I;
+                    drDailyPaper["L"] = L;
+                    drDailyPaper["J"] = J;
+                    drDailyPaper["K"] = K;
+                }
+                //将处理后的表附加dtDailyPaper下
+                foreach (DataRow drDailyPaper in dtDailyPaper.Rows)
+                {
+                    dtDailyPaper_T.ImportRow(drDailyPaper);
+                }
+                return dtDailyPaper_T;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

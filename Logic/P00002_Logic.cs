@@ -24,9 +24,9 @@ namespace Logic
     }
 
 
-    public static DataTable GetCheckType(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string scanTime)
+    public static DataTable GetCheckType(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string scanTime, string supplierId)
     {
-      return P00002_DataAccess.GetCheckType(partId, kanbanOrderNo, kanbanSerial, dock, scanTime);
+      return P00002_DataAccess.GetCheckType(partId, kanbanOrderNo, kanbanSerial, dock, scanTime,supplierId);
     }
 
 

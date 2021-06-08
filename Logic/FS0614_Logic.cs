@@ -72,5 +72,10 @@ namespace Logic
         {
             return fs0614_DataAccess.orderList();
         }
+
+        public List<string> getFinish()
+        {
+            return fs0614_DataAccess.getFinish();
+        }
     }
 }

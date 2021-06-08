@@ -16,10 +16,10 @@ namespace DataAccess
 
 
 
-    public DataTable GetCheckType(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string scanTime)
+    public DataTable GetCheckType(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string scanTime, string supplierId)
     {
       StringBuilder GetCheckTypeSql = new StringBuilder();
-      GetCheckTypeSql.Append(" select vcCheckP,vcTJSX from tCheckQf where vcPartId='" + partId + "' and vcTimeFrom<='" + scanTime + "'and vcTimeTo>='" + scanTime + "'");
+      GetCheckTypeSql.Append(" select vcCheckP,vcTJSX from tCheckQf where vcSupplierCode='"+supplierId+"' and  vcPartId='" + partId + "' and vcTimeFrom<='" + scanTime + "'and vcTimeTo>='" + scanTime + "'");
       return excute.ExcuteSqlWithSelectToDT(GetCheckTypeSql.ToString());
     }
 

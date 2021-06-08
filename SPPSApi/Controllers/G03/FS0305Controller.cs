@@ -143,6 +143,14 @@ namespace SPPSApi.Controllers.G03
             {
                 #region 拿到统括库中的所有供应商生确单
                 DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strCarType, strPart_id, loginInfo.UserId,strSPINo,strChange);
+
+                if (dt == null || dt.Rows.Count <= 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "检索数据为空";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 #endregion
 
                 if (dt != null && dt.Rows.Count > 0)
@@ -238,6 +246,13 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 DataTable dt = fs0305_Logic.Search(loginInfo.UserId);
+
+                if (dt == null || dt.Rows.Count <= 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "检索数据为空";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
@@ -581,6 +596,15 @@ namespace SPPSApi.Controllers.G03
                         if (strChange == "1" || strChange == "2" || strChange == "10" || strChange == "8" || strChange == "12")
                         {
                             if (
+                                  listInfoData[i]["vcSCSName"] == null || listInfoData[i]["vcSCSName"].ToString() == ""
+                                || listInfoData[i]["vcSCSPlace"] == null || listInfoData[i]["vcSCSPlace"].ToString() == ""
+                                )
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "生确回复失败！生产商名称和生产商地址必须填写";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                            if (
                                   listInfoData[i]["vcSCPlace_City"] == null || listInfoData[i]["vcSCPlace_City"].ToString() == ""
                                 || listInfoData[i]["vcSCPlace_Province"] == null || listInfoData[i]["vcSCPlace_Province"].ToString() == ""
                                 || listInfoData[i]["vcCHPlace_City"] == null || listInfoData[i]["vcCHPlace_City"].ToString() == ""
@@ -616,15 +640,7 @@ namespace SPPSApi.Controllers.G03
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                     }
-                    if (
-                          listInfoData[i]["vcSCSName"] == null || listInfoData[i]["vcSCSName"].ToString() == ""
-                        || listInfoData[i]["vcSCSPlace"] == null || listInfoData[i]["vcSCSPlace"].ToString() == ""
-                        )
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "生确回复失败！生产商名称和生产商地址必须填写";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                    
                 }
 
                 string strErr = "";

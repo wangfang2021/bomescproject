@@ -170,6 +170,9 @@ namespace BatchProcess
                     string YMD = hsIn[key].ToString();
                     string ym = YMD.Substring(0, 6);
                     string day = YMD.Substring(6, 2);
+
+                    string CLYM = Convert.ToDateTime(YMD.Substring(0,4)+"-"+YMD.Substring(4,2) + "-01").AddMonths(-1).ToString("yyyyMM");
+
                     if (day[0] == '0')
                         day = day[1].ToString();
                     if (sbr.Length > 0)
@@ -178,7 +181,7 @@ namespace BatchProcess
                     }
                     sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + YMD + "' as DXR  FROM TSoqReply");
                     sbr.AppendLine("WHERE vcInOutFlag = '0' AND vcMakingOrderType in (" + getTypeMethod("D") + ")");
-                    sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "'");
+                    sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "' AND vcCLYM = '"+CLYM+"'");
                 }
 
                 foreach (string key in hsOut.Keys)
@@ -186,6 +189,9 @@ namespace BatchProcess
                     string YMD = hsOut[key].ToString();
                     string ym = YMD.Substring(0, 6);
                     string day = YMD.Substring(6, 2);
+                    string CLYM = Convert.ToDateTime(YMD.Substring(0, 4) + "-" + YMD.Substring(4, 2) + "-01").AddMonths(-1).ToString("yyyyMM");
+
+
                     if (day[0] == '0')
                         day = day[1].ToString();
                     if (sbr.Length > 0)
@@ -194,7 +200,7 @@ namespace BatchProcess
                     }
                     sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + YMD + "' as DXR  FROM TSoqReply");
                     sbr.AppendLine("WHERE vcInOutFlag = '1' AND vcMakingOrderType in (" + getTypeMethod("D") + ")");
-                    sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "'");
+                    sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "' AND vcCLYM = '" + CLYM + "'");
                 }
 
                 if (sbr.Length > 0)

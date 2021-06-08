@@ -127,7 +127,7 @@ namespace Common
             for (int i = 0; i < dtChild.Rows.Count; i++)
             {
                 Dictionary<string, object> row = new Dictionary<string, object>();
-                row["iAPILineNo"] = index.ToString() + (i+1000).ToString().Substring(1,3);
+                row["iAPILineNo"] = index.ToString() + (i + 1000).ToString().Substring(1, 3);
                 for (int j = 0; j < dtChild.Columns.Count; j++)
                 {
                     string colName = dtChild.Columns[j].ColumnName;
@@ -1902,7 +1902,7 @@ namespace Common
                     url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/getWindowsPath_img";
                 if (pathtype == "crv")
                     url = ComConnectionHelper.GetFileUploadHost() + @"/api/Download/getWindowsPath_crv";
-                if(url=="")
+                if (url == "")
                 {
                     throw new Exception("路径读取失败");
                 }
@@ -2113,6 +2113,8 @@ namespace Common
         /// 英数 + "-",且必须有"-"
         /// </summary>
         public static readonly string PartLine = "PartLine";
+
+        public static readonly string Email = @"^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$";
 
     }
     #endregion

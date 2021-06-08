@@ -145,6 +145,7 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string dExportDate = dataForm.dExportDate == null ? "" : dataForm.dExportDate;
+            string vcEmailFlag = dataForm.vcEmailFlag == null ? "" : dataForm.vcEmailFlag;
             string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
@@ -156,7 +157,7 @@ namespace SPPSApi.Controllers.G06
             string dOrderPurposesDate = dataForm.dOrderPurposesDate == null ? "" : dataForm.dOrderPurposesDate;
             try
             {
-                DataTable dt = fs0625_Logic.Search(dExportDate, vcCarType, vcPartNo, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcIsNewRulesFlag, vcPurposes, vcOESP, dOrderPurposesDate);
+                DataTable dt = fs0625_Logic.Search(dExportDate, vcCarType, vcPartNo, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcIsNewRulesFlag, vcPurposes, vcOESP, dOrderPurposesDate,vcEmailFlag);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -197,6 +198,7 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string dExportDate = dataForm.dExportDate == null ? "" : dataForm.dExportDate;
+            string vcEmailFlag = dataForm.vcEmailFlag == null ? "" : dataForm.vcEmailFlag;
             string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
@@ -208,15 +210,15 @@ namespace SPPSApi.Controllers.G06
             string dOrderPurposesDate = dataForm.dOrderPurposesDate == null ? "" : dataForm.dOrderPurposesDate;
             try
             {
-                DataTable dt = fs0625_Logic.Search(dExportDate, vcCarType, vcPartNo, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcIsNewRulesFlag, vcPurposes, vcOESP, dOrderPurposesDate);
+                DataTable dt = fs0625_Logic.Search(dExportDate, vcCarType, vcPartNo, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcIsNewRulesFlag, vcPurposes, vcOESP, dOrderPurposesDate, vcEmailFlag);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
                 //    const tHeader = ["导入时间", "车型", "品番", "品名", "内外", "供应商代码", "工区", "是否新规", "OE=SP", "受入", "号试数量", "号试目的", "订单预计发行日", "订单预计纳入日", "纳入便次", "实际纳入日", "结算订单号", "结算订单验收日期", "号试订单验收日期", "备注"];
                 //    const filterVal = ["dExportDate", "vcCarType", "vcPartNo", "vcPartName", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcIsNewRulesFlag", "vcOEOrSP", "vcDock", "vcNumber", "vcPurposes", "dOrderPurposesDate", "dOrderReceiveDate", "vcReceiveTimes", "dActualReceiveDate", "vcAccountOrderNo", "dAccountOrderReceiveDate", "dOrderSendDate", "vcMemo"];
 
-                head = new string[] { "导入时间", "车型", "品番", "品名", "内外", "供应商代码", "工区", "是否新规", "OE=SP", "受入", "号试数量", "号试目的", "订单发行日", "订单预计纳入日", "纳入便次","实际纳入数量", "实际纳入日", "结算订单号", "结算订单验收日期", "号试订单验收日期", "备注" };
-                field = new string[] { "dExportDate", "vcCarType", "vcPartNo", "vcPartName", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcIsNewRulesFlag", "vcOEOrSP", "vcDock", "vcNumber", "vcPurposes", "dOrderPurposesDate", "dOrderReceiveDate", "vcReceiveTimes", "vcActualNum", "dActualReceiveDate", "vcAccountOrderNo", "dAccountOrderReceiveDate", "dOrderSendDate", "vcMemo" };
+                head = new string[] { "导入时间", "状态", "车型", "品番", "品名", "内外", "供应商代码", "工区", "是否新规", "OE=SP", "受入", "号试数量", "号试目的", "订单发行日", "订单预计纳入日", "纳入便次","实际纳入数量", "实际纳入日", "结算订单号", "结算订单验收日期", "号试订单验收日期", "备注" };
+                field = new string[] { "dExportDate", "vcEmailFlag", "vcCarType", "vcPartNo", "vcPartName", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcIsNewRulesFlag", "vcOEOrSP", "vcDock", "vcNumber", "vcPurposes", "dOrderPurposesDate", "dOrderReceiveDate", "vcReceiveTimes", "vcActualNum", "dActualReceiveDate", "vcAccountOrderNo", "dAccountOrderReceiveDate", "dOrderSendDate", "vcMemo" };
                 string msg = string.Empty;
                 string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0625_Data.xlsx", 1, loginInfo.UserId, FunctionID,true);
                 //string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS625_Export.xlsx", 2, loginInfo.UserId, FunctionID);

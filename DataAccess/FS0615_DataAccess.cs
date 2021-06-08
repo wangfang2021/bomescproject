@@ -131,8 +131,8 @@ namespace DataAccess
         {
             try
             {
-                counts1 = excute.ExecuteScalar("select count(1) from TOrderUploadManage where vcOrderType='H' and vcOrderState='0'");
-                counts2 = excute.ExecuteScalar("select count(1) from TOrderUploadManage where vcOrderType='H' and vcOrderState='4'");
+                counts1 = excute.ExecuteScalar("select count(1) from TOrderUploadManage where vcOrderType in ('H','C','F') and vcOrderState='0'");
+                counts2 = excute.ExecuteScalar("select count(1) from TOrderUploadManage where vcOrderType in ('H','C','F') and vcOrderState='4'");
             }
             catch (Exception ex)
             {
@@ -147,7 +147,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT vcFilePath FROM TOrderUploadManage WHERE vcOrderNo = '" + orderNo + "'");
+                sbr.AppendLine("SELECT vcFilePath FROM TOrderUploadManage WHERE vcOrderNo='" + orderNo + "'");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
                 if (dt.Rows.Count > 0)
                 {

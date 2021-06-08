@@ -127,9 +127,17 @@ namespace DataAccess
                         partsNosStr += "'"+listInfoData[i]["vcPartNo"].ToString()+"',";
                     }
                 }
-                partsNosStr = partsNosStr.Substring(0, partsNosStr.Length - 1);
-                strSql.AppendLine("  select  distinct vcPartNo from TDaysChangeOrdersBaseData where vcPartNo in (" + partsNosStr + ")  ");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                if (partsNosStr.Length > 0)
+                {
+                    partsNosStr = partsNosStr.Substring(0, partsNosStr.Length - 1);
+                    strSql.AppendLine("  select  distinct vcPartNo from TDaysChangeOrdersBaseData where vcPartNo in (" + partsNosStr + ")  ");
+                    return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                }
+                else
+                {
+                    return new DataTable();
+                }
+                
             }
             catch (Exception ex)
             {

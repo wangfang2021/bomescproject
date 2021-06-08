@@ -1095,6 +1095,23 @@ namespace DataAccess
                             strSql.AppendLine("  '" + dFromTime + "','" + dToTime + "','" + vcSupplierPlant + "',   ");
                             strSql.AppendLine("  '1', '" + userId + "',getdate()); ");
                             strSql.AppendLine("    update [THeZiManage] set  vcState='5',dWeaveDate =GETDATE(), vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId = " + iAutoId + "  ; ");
+                            //插入履历
+                            string strShouRongShu = "收容数:"+iPackingQty+"；箱种:"+vcBoxType+"；长:"+iLength+"；宽:"+iWidth+"；高:"+iHeight+"；体积:"+iVolume;
+                            string strGongQu = "工区:"+vcSupplierPlant;
+                            string strVcActionTime = "";
+                            string strdFromTime = dFromTime == null ? "" : dFromTime;
+                            string strdToTime = dToTime == null ? "" : dToTime;
+                            strVcActionTime = "使用开始：" + strdFromTime.Replace("/", "-") + "；使用结束：" + strdToTime.Replace("/", "-");
+                            
+                            strSql.AppendLine("  INSERT INTO [dbo].[TSPMaster_OperHistory]  ");
+                            strSql.AppendLine("             ([vcPackingPlant] ,[vcPartId] ,[vcReceiver]   ,[vcSupplierId] ,[vcChangeItem] ,  ");
+                            strSql.AppendLine("  		   [vcAction] ,[vcActionTime] ,[vcOperatorID] ,[dOperatorTime])  ");
+                            strSql.AppendLine("            VALUES ('"+ vcPackingPlant + "','"+ vcPartId + "','"+ vcReceiver + "','"+ vcSupplierId + "','收容数织入','"+ strShouRongShu + "','"+strVcActionTime+ "', '" + userId + "',GETDATE()) ; ");
+                            strSql.AppendLine("  INSERT INTO [dbo].[TSPMaster_OperHistory]  ");
+                            strSql.AppendLine("             ([vcPackingPlant] ,[vcPartId] ,[vcReceiver]   ,[vcSupplierId] ,[vcChangeItem] ,  ");
+                            strSql.AppendLine("  		   [vcAction] ,[vcActionTime] ,[vcOperatorID] ,[dOperatorTime])  ");
+                            strSql.AppendLine("            VALUES ('" + vcPackingPlant + "','" + vcPartId + "','" + vcReceiver + "','" + vcSupplierId + "','工区织入','" + strGongQu + "','" + strVcActionTime + "', '" + userId + "',GETDATE()) ; ");
+                            
                         }
                         if (strSql.Length > 0)
                         {
@@ -1683,7 +1700,7 @@ namespace DataAccess
                 sql.Append("    b.[vcBoxType]=a.vcBoxType ,b.[vcLength]=a.vcLength,   \n");
                 sql.Append("    b.[vcWide]=a.vcWide ,b.[vcHeight]=a.vcHeight   \n");
                 sql.Append("    ,b.[vcEmptyWeight]=a.vcEmptyWeight ,b.[vcUnitNetWeight]=a.vcUnitNetWeight ,   \n");
-                sql.Append("    b.vcMemo=a.vcMemo from    \n");
+                sql.Append("    b.vcMemo=a.vcMemo,b.dSendDate=a.dSendDate,b.vcOperatorID=a.vcOperatorID,b.dOperatorTime=a.dOperatorTime from    \n");
                 sql.Append("    (select * from [THeZiManageImportTmp] where vcType='3' and vcOperatorID='" + strUserId + "') a   \n");
                 sql.Append("   	left join [THeZiManage] b    \n");
                 sql.Append("   	on a.vcPackingPlant = b.vcPackingPlant and a.vcReceiver=b.vcReceiver   \n");

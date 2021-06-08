@@ -593,7 +593,8 @@ namespace Logic
                     string strTzhSOQN2 = dataTable.Rows[i]["iTzhSOQN2"].ToString() == "" ? "0" : dataTable.Rows[i]["iTzhSOQN2"].ToString();
                     string strExpectTime = fs0603_DataAccess.setNullValue(dExpectTime, "", "");
                     string strInputType = "company";
-                    if ((strHyState == "0" || strHyState == "3"))
+                    //if ((strHyState == "0" || strHyState == "3"))
+                    if (strHyState == "0" && strDyState == "0")//合意状态：待回复(TFTM)0 并且 对应状态：未发送0--21.05.27修改
                     {
                         DataRow drImport = dtImport.NewRow();
                         drImport["vcYearMonth"] = strYearMonth;
@@ -622,9 +623,11 @@ namespace Logic
                 if (dtImport.Rows.Count != dataTable.Rows.Count)
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "该对象月内示情报已经有待确认或已合意状态，不能整体退回";
+                    dataRow["vcMessage"] = "该对象月内示情报已经进行了处理，不能整体退回";
                     dtMessage.Rows.Add(dataRow);
                 }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    return null;
                 return dtImport.Rows[0]["vcYearMonth"].ToString();
             }
             catch (Exception ex)

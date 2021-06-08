@@ -47,7 +47,7 @@ namespace DataAccess
         {
             this.tempTableName = tempTableName;
             this.strSql = strSql;
-
+            this.strOperatorID = vcOperatorID;
             getUnitTable(strSql);
         }
         #endregion

@@ -2,6 +2,9 @@
 using System;
 using System.Text;
 using System.Data;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
 namespace BatchProcess
 {
     public class FP0019
@@ -99,12 +102,70 @@ namespace BatchProcess
 
                 #region 开始发送邮件
                 //记录错误信息
-                string strErr = "";     
-                SendMail(strUserEmail, strUserName, strEmailBody, receiverDt, cCDt, strSubject, strFilePath, delFileNameFlag,ref strErr);
+                string strErr = "";
+
+                string strErrEmail = "";
+                DataTable correctEmail = receiverDt.Clone();
+
+                #region 筛出正确邮箱并记录错误邮箱和对应供应商
+                for (int i = 0; i < receiverDt.Rows.Count; i++)
+                {
+                    if (CheckEmailFormat(receiverDt.Rows[i]["address"],receiverDt.Rows[i]["displayName"]))
+                    {
+                        DataRow dr = correctEmail.NewRow();
+                        for (int j = 0; j < correctEmail.Columns.Count; j++)
+                        {
+                            dr[j] = receiverDt.Rows[i][j].ToString().Trim();
+                        }
+                        correctEmail.Rows.Add(dr);
+                    }
+                    else
+                    {
+                        if (strErrEmail=="")
+                        {
+                            strErrEmail += "供应商错误邮箱{";
+                        }
+                        strErrEmail += "供应商:"+receiverDt.Rows[i]["vcSupplier_id"].ToString();
+                        strErrEmail += "-收件人:" + receiverDt.Rows[i]["displayName"].ToString();
+                        strErrEmail += "-邮箱地址:" + receiverDt.Rows[i]["address"].ToString()+";";
+                    }
+                }
+                if (strErrEmail!="")
+                {
+                    strErrEmail += "}";
+                }
+                #endregion
+
+                SendMail(strUserEmail, strUserName, strEmailBody, correctEmail, cCDt, strSubject, strFilePath, delFileNameFlag,ref strErr);
                 if (strErr!="")
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1906", null, strUserId);
                     return true;
+                }
+                #endregion
+
+                #region 如果有错误邮箱，记录日志
+                if (strErrEmail!="")
+                {
+                    MultiExcute me;
+                    me = new MultiExcute();
+                    System.Data.SqlClient.SqlParameter[] parameters = {
+                        new System.Data.SqlClient.SqlParameter("@vcMessage",SqlDbType.NVarChar),
+                        new System.Data.SqlClient.SqlParameter("@vcException",SqlDbType.NVarChar),
+                        new System.Data.SqlClient.SqlParameter("@vcTrack",SqlDbType.NVarChar)
+                    };
+                    parameters[0].Value = strErrEmail;
+                    parameters[1].Value = "";
+                    parameters[2].Value = "";
+                    string strSql = "insert into SLog(UUID,vcFunctionID,vcLogType,vcUserID,vcMessage,vcException,vcTrack,dCreateTime) values(newid(),"
+                                                                + "'FP0019',"
+                                                                + "'E',"
+                                                                + "'system',"
+                                                                + "@vcMessage,"
+                                                                + "@vcException,"
+                                                                + "@vcTrack,"
+                                                                + "CONVERT(varchar, GETDATE(),120))";
+                    me.ExcuteSqlWithStringOper(strSql, parameters);
                 }
                 #endregion
 
@@ -200,7 +261,7 @@ namespace BatchProcess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select b.address,b.displayName from        ");
+                strSql.AppendLine("      select a.vcSupplier_id,b.address,b.displayName from        ");
                 strSql.AppendLine("      (       ");
                 strSql.AppendLine("      	select vcSupplier_id from TSQJD       ");
                 strSql.AppendLine("      	where vcJD='1' and dNqDate<GETDATE() and ( vcYQorNG is null or vcYQorNG = '')       ");
@@ -214,7 +275,7 @@ namespace BatchProcess
                 strSql.AppendLine("      union all       ");
                 strSql.AppendLine("      select vcEmail3 as 'address',vcSupplier_id as 'displayName' from TSupplier where vcEmail3 is not null and vcEmail3 !=''       ");
                 strSql.AppendLine("      ) b on a.vcSupplier_id = b.displayName       ");
-                strSql.AppendLine("      group by address,displayName        ");
+                strSql.AppendLine("      group by a.vcSupplier_id,address,displayName        ");
 
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
                 if (dt.Rows.Count>0)
@@ -299,5 +360,24 @@ namespace BatchProcess
         }
         #endregion
 
+        #region 校验邮箱格式是否正确
+        /// <summary>
+        /// 校验收件人信息能否被添加
+        /// </summary>
+        /// <param name="strEmail"></param>
+        /// <returns>true：可以添加，反之则false</returns>
+        public bool CheckEmailFormat(object strEmail,object disPlayName)
+        {
+            try
+            {
+                new System.Net.Mail.MailAddress(strEmail.ToString().Trim(),disPlayName.ToString().Trim(), Encoding.UTF8);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        #endregion
     }
 }

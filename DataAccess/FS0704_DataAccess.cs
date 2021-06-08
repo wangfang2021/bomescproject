@@ -95,8 +95,8 @@ namespace DataAccess
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("   select * from TPackSpotBZ where vcBZ='DD'     \n");
-            if(!string.IsNullOrEmpty(vcPackSpot))
-                strSql.Append("  and vcPackSpot='"+ vcPackSpot + "'    \n");
+            if (!string.IsNullOrEmpty(vcPackSpot))
+                strSql.Append("  and vcPackSpot='" + vcPackSpot + "'    \n");
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
         #endregion
@@ -172,6 +172,11 @@ namespace DataAccess
 
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
+                        sql.AppendLine($"  update TPackBase set vcReleaseName={ComFunction.getSqlValue(listInfoData[i]["vcFaZhuID"], false)}  where vcReleaseName=(   select vcFaZhuID from TPackFaZhuTime where iAutoId='{iAutoId}');");
+
+
+
+
                         sql.AppendLine("  UPDATE TPackFaZhuTime");
                         sql.AppendLine("  SET ");
                         sql.AppendLine($"   vcFaZhuID = {ComFunction.getSqlValue(listInfoData[i]["vcFaZhuID"], false)},");
@@ -195,6 +200,9 @@ namespace DataAccess
                         sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
                         sql.AppendLine($"  WHERE");
                         sql.AppendLine($"  iAutoId='{iAutoId}';");
+
+
+
 
 
                     }
@@ -223,7 +231,6 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("  delete TPackFaZhuTime where iAutoId in(   \r\n ");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (i != 0)

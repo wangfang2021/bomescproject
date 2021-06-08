@@ -788,7 +788,7 @@ namespace DataAccess
             try
             {
                 string strLastTimeFlag = DateTime.Now.ToString("yyyyMMddHHmmss");
-                DateTime now = DateTime.Now;
+                string now = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
                 StringBuilder sql = new StringBuilder();
                 //插历史
                 sql.Append("insert into TSoq_OperHistory (vcYearMonth,vcPart_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,vcInputType,vcOperator,dOperatorTime)    \n");

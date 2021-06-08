@@ -162,7 +162,6 @@ namespace DataAccess
                 sqlCommand_deleteinfo.ExecuteNonQuery();
 
 
-                List<EDNode> EDList = new List<EDNode>();
                 //读取文件
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -171,6 +170,7 @@ namespace DataAccess
                     Order order = GetPartFromFile(path + listInfoData[i]["vcFilePath"].ToString(), listInfoData[i]["vcOrderNo"].ToString(), ref msg);
                     string vcOrderNo = order.Head.No;
                     StringBuilder sbr = new StringBuilder();
+                    List<EDNode> EDList = new List<EDNode>();
 
                     if (Type.Equals("S"))
                     {
@@ -1150,13 +1150,23 @@ namespace DataAccess
                                     {
                                         for (int p = 0; p < packrows.Length; p++)
                                         {
-                                            double num = Convert.ToDouble(packrows[p]["iBiYao"]);
-                                            double packnum = num * partnum;
                                             string packNo = packrows[p]["vcPackNo"].ToString();
-                                            string supplierId = packrows[p]["vcSupplierCode"].ToString();
-                                            PackSuccess pack = new PackSuccess(Year, Month, supplierId);
-                                            pack.list.Add(new PackItem(Year, Month, packNo, day, packnum));
-                                            packEmail.addSuccess(pack);
+                                            if (!packNo.ToUpper().Equals("MBC"))
+                                            {
+                                                double num = Convert.ToDouble(packrows[p]["iBiYao"]);
+                                                double packnum = num * partnum;
+                                                string supplierId = packrows[p]["vcSupplierCode"].ToString();
+                                                PackSuccess pack = new PackSuccess(Year, Month, supplierId);
+                                                pack.list.Add(new PackItem(Year, Month, packNo, day, packnum));
+                                                packEmail.addSuccess(pack);
+                                            }
+                                            else
+                                            {
+                                                PackFail pack = new PackFail(Year, Month);
+                                                pack.list.Add(new PackItem(Year, Month, vcPart_id+"(MBC)", day, partnum));
+                                                packEmail.addFail(pack);
+                                            }
+                                            
 
                                         }
                                     }
@@ -3205,6 +3215,34 @@ namespace DataAccess
             }
 
 
+        }
+
+        #endregion
+
+        #region 获取已做成订单
+
+        public List<string> getFinish()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcOrderNo FROM dbo.TOrderUploadManage WHERE vcOrderState = '1'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                List<string> list = new List<string>();
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        list.Add(ObjToString(dt.Rows[i]["vcOrderNo"]).Trim());
+                    }
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         #endregion

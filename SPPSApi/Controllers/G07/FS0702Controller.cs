@@ -762,6 +762,16 @@ namespace SPPSApi.Controllers.G07
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
+                        if (string.IsNullOrEmpty(listInfoData[i]["vcPackSpot"].ToString())) {
+
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "上游数据未匹配到包装厂，请检查！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+
+
+
+
                     }
 
                     //判断品番是否存在
@@ -827,9 +837,10 @@ namespace SPPSApi.Controllers.G07
                 List<Object> strSupplierCode = new List<object>();
 
                 string strErrorPartId = "";
+                
+                FS0702_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId, dt, dt1);
                 //删除导入含有的部品品番的包材为空的数据
                 FS0702_Logic.DeleteALL(strPartNoAll, loginInfo.UserId);
-                FS0702_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId, dt, dt1);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

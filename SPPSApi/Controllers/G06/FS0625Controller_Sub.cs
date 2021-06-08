@@ -1040,7 +1040,7 @@ namespace SPPSApi.Controllers.G06
                     //hdstyle15.BorderRight = BorderStyle.Medium;
                     #endregion
                     int nextRow2 = 0;
-                    DataTable dsHHD = fs0625_Logic.getHSHD("C057");
+                    DataTable dsHHD = fs0625_Logic.getHSHD("C059");
                     string vcShowStr1 = string.Empty;
                     string vcShowStr2 = string.Empty;
                     if (dsHHD.Rows.Count > 0)

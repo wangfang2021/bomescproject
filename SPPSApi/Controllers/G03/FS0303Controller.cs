@@ -346,8 +346,9 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                OADateConvert(ref listInfoData);
 
+                OADateConvert(ref listInfoData);
+                
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 bool bModFlag = false;
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -369,6 +370,16 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+
+                #region iAutoId重复校验
+                if (CheckAutoId(listInfoData))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "发现重复数据，请刷新界面后重试";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
+
                 //开始数据验证
                 /*
                  * 时间：2021-01-26
@@ -616,6 +627,16 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
+                #region iAutoId重复校验
+                if (CheckAutoId(listInfoData))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "发现重复数据，请刷新界面后重试";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                #endregion
+
                 //开始数据验证
                 /*
                  * 时间：2021-01-26
@@ -784,12 +805,22 @@ namespace SPPSApi.Controllers.G03
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
 
+                
                 if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+
+                #region iAutoId重复校验
+                //if (CheckAutoId(listInfoData))
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = "发现重复数据，请刷新界面后重试";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
+                #endregion
 
                 string[,] strField = new string[,] {{"同步数据"     ,"变更事项"     ,"设变号" ,"生确"          ,"区分"  ,"补给品番"           ,"车型(设计)"  ,"车型(开发)"     ,"车名"         ,"使用开始"     ,"使用结束"     ,"切替实绩"     ,"SD"      ,"替代品番"     ,"英文品名"    ,"中文品名"    ,"号口工程","补给工程","内外"            ,"供应商代码"   ,"供应商名称"     ,"生产地"   ,"出荷地"   ,"包装工厂"      ,"生产商名称","地址"       ,"开始"         ,"结束"         ,"OE=SP"    ,"品番(参考)" ,"号旧"         ,"旧型开始"     ,"旧型结束"     ,"旧型经年" ,"年限区分","实施年限(年限)","特记"  ,"防锈区分","防锈指示书","执行标准No","收货方"         ,"所属原单位"           ,"旧型1年","旧型2年","旧型3年","旧型4年","旧型5年","旧型6年","旧型7年","旧型8年","旧型9年","旧型10年","旧型11年","旧型12年","旧型13年","旧型14年","旧型15年"},
                                                     {"dSyncTime"    ,"vcChange"     ,"vcSPINo","vcSQState_Name","vcDiff","vcPart_id"          ,"vcCarTypeDesign","vcCarTypeDev","vcCarTypeName","dTimeFrom"    ,"dTimeTo"      ,"dTimeFromSJ"  ,"vcBJDiff","vcPartReplace","vcPartNameEn","vcPartNameCn","vcHKGC"  ,"vcBJGC"  ,"vcInOutflag_Name","vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace","vcSYTCode_Name","vcSCSName" ,"vcSCSAdress","dGYSTimeFrom" ,"dGYSTimeTo"   ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBegin"    ,"dJiuEnd"      ,"vcJiuYear","vcNXQF"  ,"dSSDate"       ,"vcMeno","vcFXDiff","vcFXNo"    ,"vcZXBZNo"  ,"vcReceiver_Name","vcOriginCompany_Name" ,"vcNum1" ,"vcNum2" ,"vcNum3" ,"vcNum4" ,"vcNum5" ,"vcNum6" ,"vcNum7" ,"vcNum8" ,"vcNum9" ,"vcNum10" ,"vcNum11" ,"vcNum12" ,"vcNum13" ,"vcNum14" ,"vcNum15" },
@@ -853,6 +884,32 @@ namespace SPPSApi.Controllers.G03
             }
         }
         #endregion
- 
+
+        #region 校验iAutoId是否重复
+        /// <summary>
+        /// 校验从前台用户所选择的数据集是否存在重复数据
+        /// </summary>
+        /// <param name="listInfoData">前台用户所选择的数据集</param>
+        /// <returns>true：存在重复  false:不存在重复</returns>
+        public bool CheckAutoId(List<Dictionary<string, Object>> listInfoData)
+        {
+            try
+            {
+                List<string> autoIdlist = new List<string>();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["iAutoId"]!=null && listInfoData[i]["iAutoId"].ToString()!="")
+                    {
+                        autoIdlist.Add(listInfoData[i]["iAutoId"].ToString());
+                    }
+                }
+                return autoIdlist.GroupBy(obj => obj).Where(o => o.Count() > 1).Count() >= 1;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

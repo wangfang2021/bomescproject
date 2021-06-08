@@ -383,7 +383,7 @@ namespace Logic
                     DataRow[] drEmail = dtEmail.Select("vcSupplier_id = '" + strSupplierId + "' and vcSupplierPlant = '" + strSupplierPlant + "'");
                     if (drEmail.Length != 0)
                     {
-                        for (int j = 0; j < drEmail.Length; j++) 
+                        for (int j = 0; j < drEmail.Length; j++)
                         {
                             DataRow drToInfo = dtToInfo.NewRow();
                             drToInfo["address"] = drEmail[j]["vcEmail1"].ToString();
@@ -647,6 +647,19 @@ namespace Logic
             {
                 throw ex;
             }
+        }
+        public string setEmailBody()
+        {
+            StringBuilder sbr = new StringBuilder();
+            sbr.AppendLine("<p>相关各位：大家好</p>");
+            sbr.AppendLine("<p>TFTM补给资材企管课 ***</p>");
+            sbr.AppendLine("<p><br></p>");
+            sbr.AppendLine("<p>贵司发行的月度内示已经<u style=\"color: rgb(230, 0, 0);\">回退！</u>，请查收~</p>");
+            sbr.AppendLine("<p>请于进行订单修正并上传，谢谢</p>");
+            sbr.AppendLine("<p>请查收。</p>");
+            sbr.AppendLine("<p>以上。</p><p><br></p>");
+
+            return sbr.ToString();
         }
 
         public string setEmailBody(string strExpectTime, string strFlag)

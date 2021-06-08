@@ -533,6 +533,12 @@ namespace Logic
                         }
                     }
                 }
+                dtDailyPaper_M.Columns.Add("vcMonth");
+                for (int i = 0; i < dtDailyPaper_M.Rows.Count; i++)
+                {
+                    dtDailyPaper_M.Rows[i]["vcMonth"] = strMonth;
+                }
+
                 return dtDailyPaper_M;
             }
             catch (Exception ex)
@@ -618,6 +624,13 @@ namespace Logic
                 }
                 //统计合计值
                 dtDailyPaper_T = getHeJiInfo(dtDailyPaper_T, dtDailyPaper, ref dtMessage);
+
+                dtDailyPaper_T.Columns.Add("vcHosDate");
+                for (int i = 0; i < dtDailyPaper_T.Rows.Count; i++)
+                {
+                    dtDailyPaper_T.Rows[i]["vcHosDate"] = strHosDate;
+                }
+
                 return dtDailyPaper_T;
             }
             catch (Exception ex)

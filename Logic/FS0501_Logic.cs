@@ -140,9 +140,9 @@ namespace Logic
                 sheet.GetRow(1).GetCell(5).SetCellValue(iMonth + "月");
                 sheet.GetRow(1).GetCell(6).SetCellValue(iMonth_2 + "月");
                 sheet.GetRow(1).GetCell(7).SetCellValue(iMonth_3 + "月");
-                sheet.GetRow(1).GetCell(5).SetCellValue(iMonth + "月");
-                sheet.GetRow(1).GetCell(6).SetCellValue(iMonth_2 + "月");
-                sheet.GetRow(1).GetCell(7).SetCellValue(iMonth_3 + "月");
+                sheet.GetRow(1).GetCell(8).SetCellValue(iMonth + "月");
+                sheet.GetRow(1).GetCell(9).SetCellValue(iMonth_2 + "月");
+                sheet.GetRow(1).GetCell(10).SetCellValue(iMonth_3 + "月");
 
                 string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
                 string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除

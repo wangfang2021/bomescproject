@@ -578,8 +578,8 @@ namespace Logic
                                     drDailyPaper_A["C"] = dtDailyList_00.Rows[i]["C"].ToString();//入荷实绩
                                     drDailyPaper_A["D"] = dtDailyList_00.Rows[i]["D"].ToString();//包装实绩
                                     drDailyPaper_A["E"] = dtDailyList_00.Rows[i]["E"].ToString();//包装差额
-                                    drDailyPaper_A["F"] = dtDailyList_00.Rows[i]["F"].ToString();//包装计划工时(H)
-                                    drDailyPaper_A["G"] = dtDailyList_00.Rows[i]["G"].ToString();//实行计划工时(H)
+                                    drDailyPaper_A["F"] = Convert.ToDecimal(dtDailyList_00.Rows[i]["F"].ToString()).ToString("#0.0");//包装计划工时(H)
+                                    drDailyPaper_A["G"] = Convert.ToDecimal(dtDailyList_00.Rows[i]["G"].ToString()).ToString("#0.0");//实行计划工时(H)
                                     //品目别实绩在线工时SS
                                     drDailyPaper_A["H"] = 0;//实绩在线工时(H)
                                     decimal[] decOnline = getOperOnLineInfo(strPackPlant, strHosDate, strBanZhi, strPartItem);
@@ -587,7 +587,7 @@ namespace Logic
                                     {
                                         if (decOnline[1] != 0)
                                         {
-                                            drDailyPaper_A["H"] = decOnline[1] / Convert.ToDecimal(3600.00);
+                                            drDailyPaper_A["H"] = Convert.ToDecimal(decOnline[1] / Convert.ToDecimal(3600.00)).ToString("#0.0");
                                         }
                                     }
                                     if (strPartItem != "合计")
@@ -598,7 +598,7 @@ namespace Logic
                                     {
                                         drDailyPaper_A["H"] = decH_total;
                                     }
-                                    drDailyPaper_A["I"] = dtDailyList_00.Rows[i]["I"].ToString(); //实绩包装工时(H)
+                                    drDailyPaper_A["I"] = Convert.ToDecimal(dtDailyList_00.Rows[i]["I"].ToString()).ToString("#0.0"); //实绩包装工时(H)
                                     drDailyPaper_A["J"] = "0.00%";//工时完成率
                                     if (Convert.ToDecimal(drDailyPaper_A["G"].ToString()) != 0)
                                     {

@@ -126,7 +126,20 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "导入失败:第" + (i + 2) + "行没有维护收货方！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    if (string.IsNullOrEmpty(importDt.Rows[i]["dFrom"].ToString()))
+                    {
 
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导入失败:第" + (i + 2) + "行没有包材品番开始时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (string.IsNullOrEmpty(importDt.Rows[i]["dTo"].ToString()))
+                    {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导入失败:第" + (i + 2) + "行没有包材品番结束时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
 
                     string strAutoId = importDt.Rows[i]["iAutoId"].ToString() == "" ? "0" : importDt.Rows[i]["iAutoId"].ToString();
                     int iAutoId = Convert.ToInt32(strAutoId);

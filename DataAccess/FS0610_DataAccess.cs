@@ -1082,7 +1082,7 @@ namespace DataAccess
                 #endregion
                 cmd.Transaction.Commit();
                 cmd.Connection.Close();
-                updateEDParts();
+                //updateEDParts();
             }
             catch (Exception ex)
             {

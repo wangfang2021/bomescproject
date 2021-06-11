@@ -306,9 +306,9 @@ namespace Logic
       return P00001_DataAccess.GetQBData(iP);
     }
 
-    public static int InsertOpr(string packingSpot, string inno, string kanbanOrderNo, string kanbanSerial, string partId, string inoutFlag, string supplierCode, string supplierPlant, string scanTime, string serverTime, string quantity, int packingQuantity, string cpdCompany, string dock, string checkType, string lblSart, string lblEnd, string opearteId)
+    public static int InsertOpr(string packingSpot, string inno, string kanbanOrderNo, string kanbanSerial, string partId, string inoutFlag, string supplierCode, string supplierPlant, string scanTime, string serverTime, string quantity, int packingQuantity, string cpdCompany, string dock, string checkType, string lblSart, string lblEnd, string opearteId, string pointType, string iP)
     {
-      return P00001_DataAccess.InsertOpr(packingSpot, inno, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierCode, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblSart, lblEnd, opearteId);
+      return P00001_DataAccess.InsertOpr(packingSpot, inno, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierCode, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblSart, lblEnd, opearteId,pointType,iP);
     }
 
     public static DataTable GetPoint1(string iP)
@@ -321,9 +321,9 @@ namespace Logic
       return P00001_DataAccess.ValidateSJ(partId, kanbanOrderNo, kanbanSerial, inputNo);
     }
 
-    public static DataTable ValidateOpr(string partId, string kanbanOrderNo, string kanbanSerial, string inputNo)
+    public static DataTable ValidateOpr(string partId, string kanbanOrderNo, string kanbanSerial, string dock)
     {
-      return P00001_DataAccess.ValidateOpr(partId, kanbanOrderNo, kanbanSerial, inputNo);
+      return P00001_DataAccess.ValidateOpr(partId, kanbanOrderNo, kanbanSerial,dock);
     }
 
     public static DataTable GetPackItem(string scanTime, string partId)
@@ -429,9 +429,9 @@ namespace Logic
       return P00001_DataAccess.InsertTP1(iP, opearteId, serverTime, printName);
     }
 
-    public static DataTable ValidatePrice(string partId, string scanTime)
+    public static DataTable ValidatePrice(string partId, string scanTime, string sHF, string supplierId)
     {
-      return P00001_DataAccess.ValidatePrice(partId, scanTime);
+      return P00001_DataAccess.ValidatePrice(partId, scanTime,sHF,supplierId);
     }
 
     public static DataTable ValidateQF(string partId, string scanTime)
@@ -539,9 +539,9 @@ itemname10, packLocation10, suppName10, outNum10, partsAndNum, cpdCompany, opear
       return P00001_DataAccess.UpdateTrolley(opearteId, iP);
     }
 
-    public static DataTable GetCase(string opearteId)
+    public static DataTable GetCase(string opearteId, string iP)
     {
-      return P00001_DataAccess.GetCase(opearteId);
+      return P00001_DataAccess.GetCase(opearteId,iP);
     }
 
     public static DataTable GetLabel(string iP, string lotIdNew)
@@ -812,6 +812,11 @@ itemname10, packLocation10, suppName10, outNum10, partsAndNum, cpdCompany, opear
     public static int UpdatePack2(string iP, string serverTime)
     {
       return P00001_DataAccess.UpdatePack2(iP,serverTime);
+    }
+
+    public static DataTable GetQBData1(string iP)
+    {
+      return P00001_DataAccess.GetQBData1(iP);
     }
   }
 }

@@ -372,10 +372,10 @@ namespace DataAccess
       return excute.ExcuteSqlWithSelectToDT(GetPointSql.ToString());
     }
 
-    public DataTable GetCase(string opearteId)
+    public DataTable GetCase(string opearteId, string iP)
     {
       StringBuilder GetCaseSql = new StringBuilder();
-      GetCaseSql.Append("select vcBoxNo from TCaseInfo where vcOperatorID='"+opearteId+ "' order by dOperatorTime desc");
+      GetCaseSql.Append("select vcBoxNo from TCaseInfo where vcHostIp='"+iP+"' and vcOperatorID='" + opearteId+ "' order by dOperatorTime desc");
       return excute.ExcuteSqlWithSelectToDT(GetCaseSql.ToString());
     }
 
@@ -544,6 +544,13 @@ namespace DataAccess
       validateOrdSql.Append("   (CAST(ISNULL(vcPlantQtyDaily30,0) as int)-CAST(ISNULL(vcInputQtyDaily30,0) as int)) as day30 ,(CAST(ISNULL(vcPlantQtyDaily31,0) as int)-CAST(ISNULL(vcInputQtyDaily31,0) as int)) as day31    \n");
       validateOrdSql.Append("  from  SP_M_ORD where vcPartNo='" + partId + "' and vcOrderNo!=''   \n");
       return excute.ExcuteSqlWithSelectToDT(validateOrdSql.ToString());
+    }
+
+    public DataTable GetQBData1(string iP)
+    {
+      StringBuilder GetQBDataSql = new StringBuilder();
+      GetQBDataSql.Append(" select vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR,count(*) from TOperatorQB where  vcZYType='S0' and vcReflectFlag='0' and vcHostIp='" + iP+"' group by vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR having count(*)>=2");
+      return excute.ExcuteSqlWithSelectToDT(GetQBDataSql.ToString());
     }
 
     public int UpdatePack2(string iP, string serverTime)
@@ -1144,10 +1151,10 @@ namespace DataAccess
       return excute.ExcuteSqlWithSelectToDT(ValidateQFSql.ToString());
     }
 
-    public DataTable ValidatePrice(string partId, string scanTime)
+    public DataTable ValidatePrice(string partId, string scanTime, string sHF, string supplierId)
     {
       StringBuilder ValidatePriceSql = new StringBuilder();
-      ValidatePriceSql.Append("   select  * from TPrice where dUseBegin<='" + scanTime + "' and dUseEnd>='" + scanTime + "' and vcPart_id='" + partId + "'");
+      ValidatePriceSql.Append("  select decPriceOrigin  from TPrice where vcSupplier_id='"+supplierId+"' and vcReceiver='"+sHF+"' and vcPart_id='"+partId+"' and dPricebegin<='"+scanTime+"' and dPriceEnd>='"+scanTime+"'");
       return excute.ExcuteSqlWithSelectToDT(ValidatePriceSql.ToString());
     }
 
@@ -1209,10 +1216,10 @@ namespace DataAccess
       return excute.ExcuteSqlWithSelectToDT(getPackBaseSql.ToString());
     }
 
-    public DataTable ValidateOpr(string partId, string kanbanOrderNo, string kanbanSerial, string inputNo)
+    public DataTable ValidateOpr(string partId, string kanbanOrderNo, string kanbanSerial, string dock)
     {
       StringBuilder validateOpr = new StringBuilder();
-      validateOpr.Append("select * from TOperateSJ where vcInputNo = '" + inputNo + "' and vcPart_id = '" + partId + "' and vcKBOrderNo = '" + kanbanOrderNo + "' and vcKBLFNo = '" + kanbanSerial + "'");
+      validateOpr.Append("select * from TOperateSJ where vcSR='"+dock+"' and vcPart_id = '" + partId + "' and vcKBOrderNo = '" + kanbanOrderNo + "' and vcKBLFNo = '" + kanbanSerial + "'");
       return excute.ExcuteSqlWithSelectToDT(validateOpr.ToString());
     }
 
@@ -1232,14 +1239,14 @@ namespace DataAccess
       return excute.ExcuteSqlWithSelectToDT(getCheckTypeSql.ToString());
     }
 
-    public int InsertOpr(string packingSpot, string inno, string kanbanOrderNo, string kanbanSerial, string partId, string inoutFlag, string supplierCode, string supplierPlant, string scanTime, string serverTime, string quantity, int packingQuantity, string cpdCompany, string dock, string checkType, string lblSart, string lblEnd, string opearteId)
+    public int InsertOpr(string packingSpot, string inno, string kanbanOrderNo, string kanbanSerial, string partId, string inoutFlag, string supplierCode, string supplierPlant, string scanTime, string serverTime, string quantity, int packingQuantity, string cpdCompany, string dock, string checkType, string lblSart, string lblEnd, string opearteId, string pointType, string iP)
     {
       StringBuilder InsertOprSql = new StringBuilder();
       InsertOprSql.Append("INSERT INTO TOperateSJ (vcZYType,vcBZPlant,vcInputNo,vcKBOrderNo,vcKBLFNo,vcPart_id,vcIOType,vcSupplier_id,vcSupplierGQ,dStart\n");
       InsertOprSql.Append(",dEnd,iQuantity,vcBZUnit,vcSHF,vcSR,vcBoxNo,vcSheBeiNo,vcCheckType,iCheckNum,vcCheckStatus,vcLabelStart,vcLabelEnd\n");
-      InsertOprSql.Append(",vcUnlocker,dUnlockTime,vcSellNo,vcOperatorID,dOperatorTime)\n");
+      InsertOprSql.Append(",vcUnlocker,dUnlockTime,vcSellNo,vcOperatorID,dOperatorTime,vcHostIp,packingcondition,vcPackingPlant)\n");
       InsertOprSql.Append("VALUES('S0','" + packingSpot + "','" + inno + "','" + kanbanOrderNo + "','" + kanbanSerial + "','" + partId + "','" + inoutFlag + "','" + supplierCode + "','" + supplierPlant + "','" + scanTime + "','" + serverTime + "',\n");
-      InsertOprSql.Append("" + int.Parse(quantity) + ",'" + packingQuantity + "','" + cpdCompany + "','" + dock + "','','','" + checkType + "','','','" + lblSart + "','" + lblEnd + "','',null,'','" + opearteId + "','" + serverTime + "')\n");
+      InsertOprSql.Append("" + int.Parse(quantity) + ",'" + packingQuantity + "','" + cpdCompany + "','" + dock + "','','"+pointType+"','" + checkType + "','','','" + lblSart + "','" + lblEnd + "','',null,'','" + opearteId + "','" + serverTime + "','"+iP+"','0','')\n");
       return excute.ExcuteSqlWithStringOper(InsertOprSql.ToString());
     }
 

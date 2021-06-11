@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +7,7 @@ using Common;
 using System.Data.SqlClient;
 using System.Collections;
 
-namespace DataAccess
+namespace DataAccess 
 {
     public class FS1501_DataAccess
     {

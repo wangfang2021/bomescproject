@@ -505,6 +505,17 @@ namespace SPPSApi.Controllers.P01
           int toolResult = P00004_Logic.InsertTool(sellNo, opearteId, scanTime, hUQuantity, hUQuantity1, bPQuantity, pCQuantity, cBQuantity, bianCi);
 
         }
+
+
+
+
+
+
+
+
+
+
+
         if (bianCi == "cx")
         {
           string tmpString = "SHPCX";
@@ -518,6 +529,16 @@ namespace SPPSApi.Controllers.P01
           bianCiSeqNo = getSeqNo.Rows[0][0].ToString();
           int seqNoNew = int.Parse(bianCiSeqNo) + 1;
           int seqResultUp = P00004_Logic.UpdateSeqNo(seqNoNew, formatDate, tmpString);
+
+
+
+
+
+
+
+
+
+
           int sumResultIn = P00004_Logic.InsertSum(bianCiSeqNo, sellNo, truckNo, caseSum, bianCi, opearteId, serverTime, date, banzhi, qianFen);
 
 
@@ -592,23 +613,10 @@ namespace SPPSApi.Controllers.P01
               string price = getPrice.Rows[0][0].ToString();
               string invoiceNo = sellNo.Substring(4, 10);
               string dCH = validateInv.Rows[0][0].ToString();
-              DataTable getPoint = P00004_Logic.GetPoint(iP);
-              if (getPoint.Rows.Count != 1)
-              {
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "当前点位信息异常，请检查！";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-              }
-              string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
-
-
-
-
               if (int.Parse(dCH) >= int.Parse(quantity) && (int.Parse(validateInv.Rows[0][0].ToString()) >= int.Parse(quantity)) && (int.Parse(validateOrd1.Rows[0][0].ToString()) - int.Parse(getCount.Rows[0][0].ToString()) >= int.Parse(quantity)))
               {
 
-                int sjReultIn = P00004_Logic.InsertSj(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuatity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, checkStatus, caseNo, sellNo,iP,pointType);
+                int sjReultIn = P00004_Logic.InsertSj(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuatity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, checkStatus, caseNo, sellNo);
 
                 int sellResultIn = P00004_Logic.InsertSell(bianCiSeqNo, sellNo, truckNo, cpdCompany, partId, kanbanOrderNo, kanbanSerial, invoiceNo, caseNo, partsNameEn, quantity, bianCi, opearteId, scanTime, supplierId, lblStart, lblEnd, price);
 

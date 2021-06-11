@@ -249,15 +249,8 @@ namespace SPPSApi.Controllers.P01
         string ngBlame = dataForm.NGBlame == null ? "" : dataForm.NGBlame;
         string ngReason = dataForm.NGReason == null ? "" : dataForm.NGReason;
         string ngQuantity = dataForm.NGQuantity == null ? "" : dataForm.NGQuantity;
-        DataTable getPoint = P00002_Logic.GetPoint(iP);
-        if (getPoint.Rows.Count != 1)
-        {
-          apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "当前点位信息异常，请检查！";
-          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
-        }
-        string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+
 
         DataTable validateOpr1 = P00002_Logic.ValidateOpr1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//修改逻辑1,已经进行检查过的总数
                                                                                                                 //   DataTable getInputQuantity = P00002_Logic.GetInputQuantity(partId,kanbanOrderNo,kanbanSerial,dock);//入库数量
@@ -301,7 +294,7 @@ namespace SPPSApi.Controllers.P01
               if (getCheckQuantity.Rows.Count == 1)
               {
                 string checkQuantity = getCheckQuantity.Rows[0][0].ToString();
-                int sjReultIn = P00002_Logic.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, ngQuantity, checkQuantity,pointType,iP);
+                int sjReultIn = P00002_Logic.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, ngQuantity, checkQuantity);
                 int ngResultIn = P00002_Logic.InsertNG(partId, kanbanOrderNo, kanbanSerial, dock, quantity, ngReason, ngBlame, opearteId, serverTime, ngQuantity);
                 if (sjReultIn == 1)
                 {
@@ -335,7 +328,7 @@ namespace SPPSApi.Controllers.P01
             else
             {
               #region 原检查方法
-              int sjReultIn = P00002_Logic.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, ngQuantity,pointType,iP);
+              int sjReultIn = P00002_Logic.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, ngQuantity);
               int ngResultIn = P00002_Logic.InsertNG(partId, kanbanOrderNo, kanbanSerial, dock, quantity, ngReason, ngBlame, opearteId, serverTime, ngQuantity);
               if (sjReultIn == 1)
               {
@@ -736,15 +729,7 @@ namespace SPPSApi.Controllers.P01
         string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
         string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
         string value = dataForm.value == null ? "" : dataForm.value;//检查结果
-        DataTable getPoint = P00002_Logic.GetPoint(iP);
-        if (getPoint.Rows.Count != 1)
-        {
-          apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "当前点位信息异常，请检查！";
-          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-        }
-        string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();                                          //CheckType
+                                                                    //CheckType
         string checkType = dataForm.CheckType == null ? "" : dataForm.CheckType;//检查结果
         DataTable validateOpr1 = P00002_Logic.ValidateOpr1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//修改逻辑3
         DataTable validateOpr = P00002_Logic.ValidateOpr(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
@@ -774,7 +759,7 @@ namespace SPPSApi.Controllers.P01
             {
               string checkQuantity = getCheckQuantity.Rows[0][0].ToString();
 
-              int sjReultIn = P00002_Logic.InsertOpr1(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, checkQuantity,pointType,iP);
+              int sjReultIn = P00002_Logic.InsertOpr1(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, checkQuantity);
 
               if (sjReultIn == 1)
               {
@@ -804,7 +789,7 @@ namespace SPPSApi.Controllers.P01
           }
           else
           {
-            int sjReultIn = P00002_Logic.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value,pointType,iP);
+            int sjReultIn = P00002_Logic.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value);
 
             if (sjReultIn == 1)
             {

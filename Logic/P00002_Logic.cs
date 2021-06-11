@@ -36,9 +36,9 @@ namespace Logic
       return P00002_DataAccess.ValidateOpr1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
     }
 
-    public int InsertOpr(string packingSpot, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inOutFlag, string supplierId, string supplierPlant, string scanTime, string serverTime, string quantity, string packingQuantity, string cpdCompany, string dock, string checkType, string lblStart, string lblEnd, string opearteId, string value, string ngQuantity,string pointType,string iP)
+    public int InsertOpr(string packingSpot, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inOutFlag, string supplierId, string supplierPlant, string scanTime, string serverTime, string quantity, string packingQuantity, string cpdCompany, string dock, string checkType, string lblStart, string lblEnd, string opearteId, string value, string ngQuantity)
     {
-      return P00002_DataAccess.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, ngQuantity,pointType,iP);
+      return P00002_DataAccess.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, ngQuantity);
     }
 
     public DataTable GetInnoData(string inno)
@@ -71,9 +71,9 @@ namespace Logic
       return P00002_DataAccess.GetInputQuantity(partId, kanbanOrderNo, kanbanSerial, dock);
     }
 
-    public int InsertOpr(string packingSpot, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inOutFlag, string supplierId, string supplierPlant, string scanTime, string serverTime, string quantity, string packingQuantity, string cpdCompany, string dock, string checkType, string lblStart, string lblEnd, string opearteId, string value, string pointType, string iP)
+    public int InsertOpr(string packingSpot, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inOutFlag, string supplierId, string supplierPlant, string scanTime, string serverTime, string quantity, string packingQuantity, string cpdCompany, string dock, string checkType, string lblStart, string lblEnd, string opearteId, string value)
     {
-      return P00002_DataAccess.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value,pointType,iP);
+      return P00002_DataAccess.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value);
     }
 
     public DataTable GetSPIS(string partId, string scanTime, string supplierId)
@@ -91,26 +91,19 @@ namespace Logic
       return P00002_DataAccess.GetCheckQuantity(quantity);
     }
 
-    public int InsertOpr(string packingSpot, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inOutFlag, string supplierId, string supplierPlant, string scanTime, string serverTime, string quantity, string packingQuantity, string cpdCompany, string dock, string checkType, string lblStart, string lblEnd, string opearteId, string value, string ngQuantity, string checkQuantity, string pointType, string iP)
+    public int InsertOpr(string packingSpot, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inOutFlag, string supplierId, string supplierPlant, string scanTime, string serverTime, string quantity, string packingQuantity, string cpdCompany, string dock, string checkType, string lblStart, string lblEnd, string opearteId, string value, string ngQuantity, string checkQuantity)
     {
-      return P00002_DataAccess.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, ngQuantity, checkQuantity,pointType,iP);
+      return P00002_DataAccess.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, ngQuantity, checkQuantity);
     }
 
-    public int InsertOpr1(string packingSpot, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inOutFlag, string supplierId, string supplierPlant, string scanTime, string serverTime, string quantity, string packingQuantity, string cpdCompany, string dock, string checkType, string lblStart, string lblEnd, string opearteId, string value, string checkQuantity, string pointType, string iP)
+    public int InsertOpr1(string packingSpot, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inOutFlag, string supplierId, string supplierPlant, string scanTime, string serverTime, string quantity, string packingQuantity, string cpdCompany, string dock, string checkType, string lblStart, string lblEnd, string opearteId, string value, string checkQuantity)
     {
-      return P00002_DataAccess.InsertOpr1(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, checkQuantity,pointType,iP);
+      return P00002_DataAccess.InsertOpr1(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inOutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuantity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, value, checkQuantity);
     }
 
     public DataTable ValidateData(string partId, string scanTime)
     {
       return P00002_DataAccess.ValidateData(partId, scanTime);
     }
-
-    public DataTable GetPoint(string iP)
-    {
-      return P00002_DataAccess.GetPoint(iP);
-    }
-
- 
   }
 }

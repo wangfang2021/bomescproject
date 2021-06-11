@@ -797,7 +797,7 @@ namespace SPPSApi.Controllers.P01
 
 
             #region 将当前绑定，未打印装箱单的箱号重新绑定
-            DataTable getCase = P00001_Logic.GetCase(opearteId,iP);
+            DataTable getCase = P00001_Logic.GetCase(opearteId);
             if (getCase.Rows.Count>0) {
               for (int i=0;i<getCase.Rows.Count;i++) {
                 string caseNo = getCase.Rows[i][0].ToString();
@@ -2150,19 +2150,8 @@ namespace SPPSApi.Controllers.P01
         string tmpString = "PACH2";
         string tmpString1 = "LBLH2";
         string tmpString2 = "INOH2";
-        DataTable getPoint = P00001_Logic.GetPointNo(iP);
-        if (getPoint.Rows.Count!=1) {
-          apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "当前点位信息异常，请检查！";
-          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-        }
-        string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
 
 
-        #region 在打印结束之后更新当前IP的首次打印时间，如果打印失败将其变成再发行
-        int packResultUp1 = P00001_Logic.UpdatePack2(iP, serverTime);
-        #endregion
 
         #region 在数据上传的时候生成段取指示号,生成入库单号,生成标签ID
         #region 生成段取指示号
@@ -2318,7 +2307,24 @@ namespace SPPSApi.Controllers.P01
 
         DataTable getQBData = P00001_Logic.GetQBData(iP);//从实绩情报表获得数据
 
-     
+        /*
+        #region 打印前更新打印表
+
+        //更新段取表,插入打印时间变成在再发行
+        int pacResultUp = P00001_Logic.UpdatePack1(iP, serverTime);
+
+        //更新段取打印表
+        int printResultUp = P00001_Logic.UpdatePrint(iP);
+
+        //更新标签打印表
+        int printResultUp1 = P00001_Logic.UpdatePrint1(iP);
+
+        //更新标签明细表,添加系统时间变成再发行
+
+        int lblResultUP = P00001_Logic.UpdateLabel(iP,serverTime);
+        #endregion
+
+        */
 
 
         if (getQBData.Rows.Count > 0)
@@ -2420,7 +2426,7 @@ namespace SPPSApi.Controllers.P01
               {
 
 
-                int oprReusultIn = P00001_Logic.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, int.Parse(packingQuantity), cpdCompany, dock, checkType, lblStart, lblEnd, opearteId,pointType,iP);//插入作业实际表
+                int oprReusultIn = P00001_Logic.InsertOpr(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, int.Parse(packingQuantity), cpdCompany, dock, checkType, lblStart, lblEnd, opearteId);//插入作业实际表
                 int invResultIn = P00001_Logic.InsertInv(packingSpot, inputNo, partId, cpdCompany, quantity, serverTime, kanbanOrderNo, kanbanSerial, scanTime, opearteId);//插入入出库履历表
                                                                                                                                                                            //更新实绩情报表
 
@@ -2899,7 +2905,9 @@ itemname10, packLocation10, suppName10, outNum10, partsAndNum, cpdCompany, opear
         #endregion
 
 
- 
+        #region 在打印结束之后更新当前IP的首次打印时间，如果打印失败将其变成再发行
+        int packResultUp1 = P00001_Logic.UpdatePack2(iP,serverTime);
+        #endregion
 
 
         #region 在打印品番标签之前对内容进行判断是否打印

@@ -562,6 +562,9 @@ namespace DataAccess
                             case "5":
                                 sql.AppendLine(" '5:取说',\r\n");
                                 break;
+                            case "6":
+                                sql.AppendLine(" '6:双层包装',\r\n");
+                                break;
                             default:
                                 sql.AppendLine(" '',\r\n");
                                 break;
@@ -618,6 +621,9 @@ namespace DataAccess
                                 break;
                             case "5":
                                 sql.AppendLine(" vcDistinguish ='5:取说',\r\n");
+                                break;
+                            case "6":
+                                sql.AppendLine(" vcDistinguish ='6:双层包装',\r\n");
                                 break;
                             default:
                                 sql.AppendLine(" vcDistinguish ='',\r\n");
@@ -834,6 +840,9 @@ namespace DataAccess
                                 break;
                             case "5":
                                 sql.AppendLine(" '5:取说',\r\n");
+                                break;
+                            case "6":
+                                sql.AppendLine(" '6:双层包装',\r\n");
                                 break;
                             default:
                                 sql.AppendLine(" '',\r\n");

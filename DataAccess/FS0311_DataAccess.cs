@@ -28,10 +28,11 @@ namespace DataAccess
                     sbr.Append("  AND vcCPDCompany LIKE '" + strSHF + "%' \r\n");
                 }
 
-                //if (!vcFlag)
-                //{
-                //    sbr.Append("  AND dTimeFrom<=GETDATE() AND dTimeTo>= GETDATE() \r\n");
-                //}
+                if (!vcFlag)
+                {
+                    sbr.Append("  AND dTimeFrom<=GETDATE() AND dTimeTo>= GETDATE() \r\n");
+                }
+
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
@@ -50,7 +51,25 @@ namespace DataAccess
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    if (bModFlag == true)
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {
+                        sbr.AppendLine(" INSERT INTO dbo.TtagMaster(vcPart_Id,vcCPDCompany,vcSupplier_id,vcCarTypeName,vcPartNameCN,");
+                        sbr.AppendLine(" vcZXBZNo,vcSCSName,vcSCSAdress,dTimeFrom,dTimeTo,dDateSyncTime,vcOperator,dOperatorTime) VALUES (");
+                        sbr.AppendLine(" "+ ComFunction.getSqlValue(listInfoData[i]["vcPart_Id"], false) + ", ");
+                        sbr.AppendLine(" "+ ComFunction.getSqlValue(listInfoData[i]["vcCPDCompany"], false) + ", ");
+                        sbr.AppendLine(" "+ ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ", ");
+                        sbr.AppendLine(" "+ ComFunction.getSqlValue(listInfoData[i]["vcCarTypeName"], false) + ", ");
+                        sbr.AppendLine(" "+ ComFunction.getSqlValue(listInfoData[i]["vcPartNameCN"], false) + ", ");
+                        sbr.AppendLine(" "+ ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + ", ");
+                        sbr.AppendLine(" "+ ComFunction.getSqlValue(listInfoData[i]["vcSCSName"], false) + ", ");
+                        sbr.AppendLine(" "+ ComFunction.getSqlValue(listInfoData[i]["vcSCSAdress"], false) + ", ");
+                        sbr.AppendLine(" "+ ComFunction.getSqlValue(listInfoData[i]["dTimeFrom"], true) + ", ");
+                        sbr.AppendLine(" "+ ComFunction.getSqlValue(listInfoData[i]["dTimeTo"], true) + ", ");
+                        sbr.AppendLine(" GETDATE(),'" + strUserId + "', GETDATE()");
+                        sbr.AppendLine(")");
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAuto_Id"]);
 

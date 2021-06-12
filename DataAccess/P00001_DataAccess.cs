@@ -1405,7 +1405,8 @@ namespace DataAccess
         stringBuilder.AppendLine("left join ");
         stringBuilder.AppendLine("(select vcPackingPlant,vcPartId,vcSupplierId,vcReceiver,vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace from TSPMaster WHERE dFromTime<='" + serverTime + "' and dToTime>='" + serverTime + "')b ");
         stringBuilder.AppendLine("on t1.vcPart_id = b.vcPartId and t1.vcCpdCompany=b.vcReceiver and t1.vcSupplierId=b.vcSupplierId  ");
-        stringBuilder.AppendLine("--查询台车连番");
+        stringBuilder.AppendLine("order by dScanTime");
+                stringBuilder.AppendLine("--查询台车连番");
         stringBuilder.AppendLine("select distinct vcTrolleySeqNo from TOperatorQB ");
         stringBuilder.AppendLine("where vcHostIp='" + strIP + "' and vcZYType='S0' and vcReflectFlag='0' order by vcTrolleySeqNo");
         stringBuilder.AppendLine("--查询标签总个数");

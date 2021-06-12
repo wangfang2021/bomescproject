@@ -2112,7 +2112,7 @@ namespace SPPSApi.Controllers.P01
 
     #endregion
 
-    #region  获得数据   
+    #region  入荷上传   
     [HttpPost]
     [EnableCors("any")]
     public string SendInputDataApi([FromBody] dynamic data)

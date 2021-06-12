@@ -2230,7 +2230,7 @@ namespace SPPSApi.Controllers.P01
         DataTable dtTroSeq = P00001_Logic.setSeqNo(tmpString, dsInPutQBInfo.Tables[1].Rows.Count, formatServerTime);
         //4.2 断取号生成并更新TOperatorQB（需要一起更新）
         string seqNoTrolley = dtTroSeq.Rows[0][0].ToString().PadLeft(5, '0');//断取连番
-        P00001_Logic.setLotToOperatorQB(dsInPutQBInfo.Tables[0], iP, formatServerTime, seqNoTrolley);
+        P00001_Logic.setLotToOperatorQB(dsInPutQBInfo.Tables[1], iP, formatServerTime, seqNoTrolley);
         #endregion
 
         #region //5 生成标签

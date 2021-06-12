@@ -419,12 +419,12 @@ namespace Logic
             return P00001_DataAccess.UpdatePack(lotId, packNo, iP, opearteId, qty);
         }
 
-        public static int InsertTP(string iP, string opearteId, string serverTime, string lotIdNew)
+        public static string InsertTP(string iP, string opearteId, string serverTime, string lotIdNew)
         {
             return P00001_DataAccess.InsertTP(iP, opearteId, serverTime, lotIdNew);
         }
 
-        public static int InsertTP1(string iP, string opearteId, string serverTime, string printName)
+        public static string InsertTP1(string iP, string opearteId, string serverTime, string printName)
         {
             return P00001_DataAccess.InsertTP1(iP, opearteId, serverTime, printName);
         }
@@ -559,7 +559,7 @@ namespace Logic
             return P00001_DataAccess.UpdateCase(iP, serverTime, opearteId, caseNo);
         }
 
-        public static int UpdatePack(string iP, string minLabel, string maxLabel, string lotIdNew)
+        public static string UpdatePack(string iP, string minLabel, string maxLabel, string lotIdNew)
         {
             return P00001_DataAccess.UpdatePack(iP, minLabel, maxLabel, lotIdNew);
         }
@@ -864,5 +864,14 @@ namespace Logic
             return P00001_DataAccess.setInputInfo(strIP, strPointName, dtPackList_Temp, dtLabelList_Temp, dtInv_Temp, dtOrder_Temp, strOperId);
         }
 
+    public static DataSet CheckDb1(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string scanTime)
+    {
+      return P00001_DataAccess.CheckDb1(partId, kanbanOrderNo, kanbanSerial, dock, scanTime);
     }
+
+    public static void Excute(string sql)
+    {
+      P00001_DataAccess.Excute(sql);
+    }
+  }
 }

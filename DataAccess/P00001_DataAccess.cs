@@ -2782,7 +2782,7 @@ namespace DataAccess
         strSql_printinfo.AppendLine("group by");
         strSql_printinfo.AppendLine("vcLotid,");
         strSql_printinfo.AppendLine("vcPackingpartsno,");
-        strSql_printinfo.AppendLine("dQty,");
+        //strSql_printinfo.AppendLine("dQty,");
         strSql_printinfo.AppendLine("vcPackingpartslocation,");
         strSql_printinfo.AppendLine("vcPackinggroup,");
         strSql_printinfo.AppendLine("vcHostip,");

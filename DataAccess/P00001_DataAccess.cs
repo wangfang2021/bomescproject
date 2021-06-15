@@ -1035,8 +1035,6 @@ namespace DataAccess
         public bool setInputInfo(string strIP, string strPointName, string strPrinterName, DataTable dtPackList_Temp, DataTable dtLabelList_Temp, DataTable dtInv_Temp, DataTable dtOrder_Temp, string strOperId)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
-            string vcppp = "";
-            string vcsss = "";
             sqlConnection.Open();
             SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
             try

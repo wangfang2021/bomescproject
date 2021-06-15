@@ -34,8 +34,6 @@ namespace SPPSApi.Controllers.P01
     P00003_Logic P00003_Logic = new P00003_Logic();
     ComFunction comFunction = new ComFunction();
     #region 激活验证解锁权限
-    //ValidateUserRoleApi
-
     [HttpPost]
     [EnableCors("any")]
     public string ValidateUserRoleApi([FromBody] dynamic data)
@@ -87,23 +85,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region 根据入库指示书判断是否可以包装,返回到前台验证看板
-    //ValidateInvApi
     [HttpPost]
     [EnableCors("any")]
     public string ValidateInvApi([FromBody] dynamic data)
@@ -189,25 +173,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region 定时更新能率
-
-    //GetEffiApi
-    //decimal effi = P00001_Logic.getOperEfficacyInfo("H2", opearteId, pointNo);
-
     [HttpPost]
     [EnableCors("any")]
     public string GetEffiApi([FromBody] dynamic data)
@@ -258,24 +226,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region  暂停运行
-    //PauseApi
-
     [HttpPost]
     [EnableCors("any")]
     public string PauseApi([FromBody] dynamic data)
@@ -340,22 +293,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region 更新箱号时间
-    //UpdateCaseTimeApi
     [HttpPost]
     [EnableCors("any")]
     public string UpdateCaseTimeApi([FromBody] dynamic data)
@@ -390,26 +330,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region  获取箱号列表
-    //GetCaseListApi
-
     [HttpPost]
     [EnableCors("any")]
     public string GetCaseListApi([FromBody] dynamic data)
@@ -493,19 +416,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
     #endregion
 
-
-
-
-
-
     #region  获得用户信息,获取箱号
-
     [HttpPost]
     [EnableCors("any")]
     public string GetUserInfoApi([FromBody] dynamic data)
@@ -563,29 +476,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
-
-
     #region 销毁页面或退出系统时候更新总时间,重新登录需要将当前箱号状态设置为不可用,需要更改机器状态为未登录
-    //UpdateTimeApi
     public string UpdateTimeApi([FromBody] dynamic data)
     {
       string strToken = Request.Headers["X-Token"];
@@ -729,27 +622,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region  验证时间
-
-    //GenTimeApi
-
     public string GenTimeApi([FromBody] dynamic data)
     {
       string strToken = Request.Headers["X-Token"];
@@ -865,17 +740,7 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
     #endregion
-
-
-
-
 
     #region 验证看板数据
     public string ValidateKanbanApi([FromBody] dynamic data)
@@ -1656,17 +1521,7 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
     #endregion
-
-
-
-
 
     #region 登出前更新信息
     public string ReloginApi([FromBody] dynamic data)
@@ -1702,15 +1557,7 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
     #endregion
-
 
     #region 打印装箱单
     public string PrintCaseListApi([FromBody] dynamic data)
@@ -1902,13 +1749,7 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
     #endregion
-
 
     #region 获得箱号使用信息 是否出荷,是否绑定信息
     public string GetCaseInfoApi([FromBody] dynamic data)
@@ -1938,9 +1779,7 @@ namespace SPPSApi.Controllers.P01
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
     }
-
     #endregion
-
 
     #region  验证箱号是否可用
     public string ValidateCaseNoApi([FromBody] dynamic data)
@@ -1964,8 +1803,6 @@ namespace SPPSApi.Controllers.P01
         DataTable validateCaseNo2 = P00003_Logic.ValidateCaseNo2(caseNo);//验证箱号在发货明细书表中是否使用
         DataTable validateCaseNo3 = P00003_Logic.ValidateCaseNo3(caseNo);//验证箱号在作业实绩中是否有装箱数据
         DataTable validateCaseNo4 = P00003_Logic.ValidateCaseNo4(caseNo);//验证箱号在作业实绩中是否有装箱数据
-
-
         if (validateCaseNo4.Rows.Count > 0)
         {
 
@@ -2076,19 +1913,7 @@ namespace SPPSApi.Controllers.P01
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
     }
-
-
-
     #endregion
-
-
-
-
-
-
-
-
-
 
     #region  包装装箱
     public string PackWithEnchaseApi([FromBody] dynamic data)
@@ -2557,7 +2382,6 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
     private byte[] GenerateQRCode(string content)
     {
       var generator = new QRCodeGenerator();
@@ -2569,16 +2393,9 @@ namespace SPPSApi.Controllers.P01
       bitmapImg.Save(stream, ImageFormat.Jpeg);
       return stream.GetBuffer();
     }
-
     #endregion
 
-
-
-
-
-
     #region  包装不装箱
-
     public string PackWithoutEnchaseApi([FromBody] dynamic data)
     {
       string strToken = Request.Headers["X-Token"];
@@ -2919,14 +2736,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
     #endregion
 
     #region  获得包装数据
-    //GetCheckDataApi
     public string GetCheckDataApi([FromBody] dynamic data)
     {
       string strToken = Request.Headers["X-Token"];
@@ -3013,17 +2825,7 @@ namespace SPPSApi.Controllers.P01
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
     }
-
-
     #endregion 
-
-
-
-
-
-
-
-
   }
 
 }

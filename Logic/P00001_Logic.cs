@@ -1,17 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
 using DataAccess;
-using System.Collections;
-using System.Net;
-
-using System.Web;
 using System.Drawing;
-using DataEntity;
 using System.IO;
-using System.Xml;
 using QRCoder;
 using System.Drawing.Imaging;
 
@@ -19,20 +10,13 @@ namespace Logic
 {
     public class P00001_Logic
     {
-
-
         static P00001_DataAccess P00001_DataAccess = new P00001_DataAccess();
-
-
-        
 
         public static DataTable GetSum(string iP)
         {
             // return P00001_DataAccess.GetSum(iP);
             return P00001_DataAccess.GetSum(iP);
         }
-
-        
 
         public static DataTable GetUserRole(string opearteId)
         {
@@ -85,9 +69,9 @@ namespace Logic
             return P00001_DataAccess.GetInfoData(iP);
         }
 
-        public static int DeleteTrolley(string trolley, string iP, string lotId)
+        public static void DeleteTrolley(string trolley, string iP, string lotId)
         {
-            return P00001_DataAccess.DeleteTrolley(trolley, iP, lotId);
+             P00001_DataAccess.DeleteTrolley(trolley, iP, lotId);
         }
 
         public static DataTable GetQuantity(string partId, string scanTime, string dock)
@@ -100,19 +84,19 @@ namespace Logic
             return P00001_DataAccess.GetSeqNo(tmpString, formatServerTime);
         }
 
-        public static int InsertSeqNo(string tmpString, string formatServerTime)
+        public static void InsertSeqNo(string tmpString, string formatServerTime)
         {
-            return P00001_DataAccess.InsertSeqNo(tmpString, formatServerTime);
+             P00001_DataAccess.InsertSeqNo(tmpString, formatServerTime);
         }
 
-        public static int InsertTrolley1(string seqNo, string trolley, string iP, string opearteId, string serverTime)
+        public static void InsertTrolley1(string seqNo, string trolley, string iP, string opearteId, string serverTime)
         {
-            return P00001_DataAccess.InsertTrolley1(seqNo, trolley, iP, opearteId, serverTime);
+             P00001_DataAccess.InsertTrolley1(seqNo, trolley, iP, opearteId, serverTime);
         }
 
-        public static int UpdateSeqNo(string tmpString, string formatServerTime, int seqNoNew)
+        public static void UpdateSeqNo(string tmpString, string formatServerTime, int seqNoNew)
         {
-            return P00001_DataAccess.UpdateSeqNo(tmpString, formatServerTime, seqNoNew);
+             P00001_DataAccess.UpdateSeqNo(tmpString, formatServerTime, seqNoNew);
 
         }
 
@@ -131,14 +115,14 @@ namespace Logic
             return P00001_DataAccess.GetTrolleyInfo(trolley, iP, lotId);
         }
 
-        public static int UpdateDetail(string uuid, string serverTime)
+        public static void UpdateDetail(string uuid, string serverTime)
         {
-            return P00001_DataAccess.UpdateDetail(uuid, serverTime);
+            P00001_DataAccess.UpdateDetail(uuid, serverTime);
         }
 
-        public static int UpdateStatus5(string pointNo)
+        public static void UpdateStatus5(string pointNo)
         {
-            return P00001_DataAccess.UpdateStatus5(pointNo);
+            P00001_DataAccess.UpdateStatus5(pointNo);
         }
 
         public static DataTable GetBanZhi(string serverTime)
@@ -146,20 +130,20 @@ namespace Logic
             return P00001_DataAccess.GetBanZhi(serverTime);
         }
 
-        public static int UpdateStatus4(string pointNo, string opearteId)
+        public static void UpdateStatus4(string pointNo, string opearteId)
         {
-            return P00001_DataAccess.UpdateStatus4(pointNo, opearteId);
+            P00001_DataAccess.UpdateStatus4(pointNo, opearteId);
         }
 
 
-        public static int InsertDetail(string date, string banZhi, string pointNo, string uuid, string serverTime, string opearteId)
+        public static void InsertDetail(string date, string banZhi, string pointNo, string uuid, string serverTime, string opearteId)
         {
-            return P00001_DataAccess.InsertDetail(date, banZhi, pointNo, uuid, serverTime, opearteId);
+           P00001_DataAccess.InsertDetail(date, banZhi, pointNo, uuid, serverTime, opearteId);
         }
 
-        public static int UpdateStatus3(string pointNo)
+        public static void UpdateStatus3(string pointNo)
         {
-            return P00001_DataAccess.UpdateStatus3(pointNo);
+             P00001_DataAccess.UpdateStatus3(pointNo);
         }
 
 
@@ -173,9 +157,9 @@ namespace Logic
             return P00001_DataAccess.GetTrolley(iP);
         }
 
-        public static int UpdateStatus(string opearteId, string iP, string pointNo)
+        public static void UpdateStatus(string opearteId, string iP, string pointNo)
         {
-            return P00001_DataAccess.UpdateStatus(opearteId, iP, pointNo);
+             P00001_DataAccess.UpdateStatus(opearteId, iP, pointNo);
         }
 
         public static DataTable GetKanBan(string iP, string trolley, string trolleySeqNo)
@@ -189,9 +173,9 @@ namespace Logic
         }
 
 
-        public static int DeleteKanban(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string iP)
+        public static void DeleteKanban(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string iP)
         {
-            return P00001_DataAccess.DeleteKanban(partId, kanbanOrderNo, kanbanSerial, dock, iP);
+            P00001_DataAccess.DeleteKanban(partId, kanbanOrderNo, kanbanSerial, dock, iP);
         }
 
 
@@ -205,9 +189,9 @@ namespace Logic
 
 
 
-        public static int InsertSeqNo(string packingSpot, string serverTime, string tmpString)
+        public static void InsertSeqNo(string packingSpot, string serverTime, string tmpString)
         {
-            return P00001_DataAccess.InsertSeqNo(packingSpot, serverTime, tmpString);
+             P00001_DataAccess.InsertSeqNo(packingSpot, serverTime, tmpString);
         }
 
         public static int UpdateSeqNo(string packingSpot, string serverTime, int seqNoNew, string tmpString)
@@ -215,15 +199,15 @@ namespace Logic
             return P00001_DataAccess.UpdateSeqNo(packingSpot, serverTime, seqNoNew, tmpString);
         }
 
-        public static int UpdateCase(string iP)
+        public static void UpdateCase(string iP)
         {
-            return P00001_DataAccess.UpdateCase(iP);
+             P00001_DataAccess.UpdateCase(iP);
         }
 
 
-        public static int UpdateQB(string lotId, string iP, string trolley)
+        public static void UpdateQB(string lotId, string iP, string trolley)
         {
-            return P00001_DataAccess.UpdateQB(lotId, iP, trolley);
+            P00001_DataAccess.UpdateQB(lotId, iP, trolley);
         }
 
 
@@ -244,9 +228,9 @@ namespace Logic
 
         }
 
-        public static int UpdatePoint1(string pointNo)
+        public static void UpdatePoint1(string pointNo)
         {
-            return P00001_DataAccess.UpdatePoint1(pointNo);
+             P00001_DataAccess.UpdatePoint1(pointNo);
         }
 
 
@@ -266,14 +250,14 @@ namespace Logic
             return P00001_DataAccess.ValidateTrolley(trolley, opearteId, iP);
         }
 
-        public static int InsertTrolley(string trolley, string opearteId, string serverTime, string iP, string lotId)
+        public static void InsertTrolley(string trolley, string opearteId, string serverTime, string iP, string lotId)
         {
-            return P00001_DataAccess.InsertTrolley(trolley, opearteId, serverTime, iP, lotId);
+            P00001_DataAccess.InsertTrolley(trolley, opearteId, serverTime, iP, lotId);
         }
 
-        public static int UpdateTrolley(string trolley, string opearteId, string serverTime, string iP, string lotId)
+        public static void UpdateTrolley(string trolley, string opearteId, string serverTime, string iP, string lotId)
         {
-            return P00001_DataAccess.UpdateTrolley(trolley, opearteId, serverTime, iP, lotId);
+            P00001_DataAccess.UpdateTrolley(trolley, opearteId, serverTime, iP, lotId);
         }
 
 
@@ -288,15 +272,15 @@ namespace Logic
             return P00001_DataAccess.GetCase1(caseNo);
         }
 
-        public static int UpdateCase(string iP, string serverTime, string opearteId, string caseNo)
+        public static void UpdateCase(string iP, string serverTime, string opearteId, string caseNo)
         {
-            return P00001_DataAccess.UpdateCase(iP, serverTime, opearteId, caseNo);
+            P00001_DataAccess.UpdateCase(iP, serverTime, opearteId, caseNo);
         }
 
 
-        public static int UpdateTrolley1(string iP, string opearteId, string trolley, string lotId)
+        public static void UpdateTrolley1(string iP, string opearteId, string trolley, string lotId)
         {
-            return P00001_DataAccess.UpdateTrolley1(iP, opearteId, trolley, lotId);
+             P00001_DataAccess.UpdateTrolley1(iP, opearteId, trolley, lotId);
         }
 
 
@@ -351,9 +335,9 @@ namespace Logic
             return P00001_DataAccess.GetData(trolley1, trolleySeqNo1, iP);
         }
 
-        public static int UpdateTrolley3(string trolley, string trolleySeqNo, string iP)
+        public static void UpdateTrolley3(string trolley, string trolleySeqNo, string iP)
         {
-            return P00001_DataAccess.UpdateTrolley3(trolley, trolleySeqNo, iP);
+           P00001_DataAccess.UpdateTrolley3(trolley, trolleySeqNo, iP);
         }
 
         //========================================================================重写========================================================================

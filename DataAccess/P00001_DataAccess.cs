@@ -1202,7 +1202,7 @@ namespace DataAccess
     public DataTable GetData1(string trolley1, string trolleySeqNo1, string iP)
     {
       StringBuilder GetDataSql = new StringBuilder();
-      GetDataSql.Append("select count(*) from TOperatorQB where vcTrolleyNo = '" + trolley1 + "' and vcTrolleySeqNo = '" + trolleySeqNo1 + "' and vcHostIp = '" + iP + "' and vcReflectFlag  = '0'  ");
+      GetDataSql.Append("select count(*) as sum from TOperatorQB where vcTrolleyNo = '" + trolley1 + "' and vcTrolleySeqNo = '" + trolleySeqNo1 + "' and vcHostIp = '" + iP + "' and vcReflectFlag  = '0'  ");
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
       DataSet ds = new DataSet();
       try

@@ -50,7 +50,6 @@ namespace SPPSApi.Controllers.P01
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 string inno = dataForm.Inno == null ? "" : dataForm.Inno;//入库指令书号
-
                 string scanTime = dataForm.ScanTime == null ? "" : dataForm.ScanTime;//客户端时间
                 DataTable validateOpr1 = P00001_Logic.ValidateOpr1(inno);
                 DataTable validateOpr2 = P00001_Logic.ValidateOpr2(inno);
@@ -75,13 +74,7 @@ namespace SPPSApi.Controllers.P01
                         P00002_DataEntity.kanbanOrderNo = kanbanOrderNo;
                         P00002_DataEntity.kanbanSerial = kanbanSerial;
                         P00002_DataEntity.quantity = quantity;
-
                         apiResult.data = P00002_DataEntity;
-
-
-
-
-
                     }
                     else if (getCheckType.Rows.Count != 1)
                     {
@@ -97,13 +90,6 @@ namespace SPPSApi.Controllers.P01
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                     }
-
-
-
-
-
-
-
                 }
                 else if (validateOpr1.Rows.Count != 1)
                 {
@@ -119,10 +105,6 @@ namespace SPPSApi.Controllers.P01
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-
-
-
-
             }
             catch (Exception ex)
             {
@@ -131,22 +113,9 @@ namespace SPPSApi.Controllers.P01
                 apiResult.data = "获取入库信息失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
-
-
-
-
-
-
-
         #endregion
-
-
-
-
 
         #region 根据入库单号获得数据
 
@@ -177,28 +146,13 @@ namespace SPPSApi.Controllers.P01
                     P00002_DataEntity.kanbanSerial = getInnoData.Rows[0][4].ToString();
                     apiResult.data = P00002_DataEntity;
                     #endregion
-
-
-
-
-
-
                 }
                 else
                 {
-
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "入库单号" + inno + "在作业实绩情报表中没有或有多条入库数据,请检查!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
                 }
-
-
-
-
-
-
-
             }
             catch (Exception ex)
             {
@@ -207,25 +161,11 @@ namespace SPPSApi.Controllers.P01
                 apiResult.data = "获取品番信息失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
-
-
-
-
-
         #endregion
 
-
-
-
-
-
-
         #region  获得用户信息
-
         [HttpPost]
         [EnableCors("any")]
         public string GetUserInfoApi([FromBody] dynamic data)
@@ -242,13 +182,9 @@ namespace SPPSApi.Controllers.P01
             ApiResult apiResult = new ApiResult();
             try
             {
-
                 P00002_DataEntity.userName = userName;
                 P00002_DataEntity.banZhi = banZhi;
                 apiResult.data = P00002_DataEntity;
-
-
-
             }
             catch (Exception ex)
             {
@@ -257,22 +193,8 @@ namespace SPPSApi.Controllers.P01
                 apiResult.data = "获取用户信息失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
-
-
-
-
-
-
-
-
-
-
-
         #endregion
 
         #region  检查-看板扫描

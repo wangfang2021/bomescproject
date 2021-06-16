@@ -128,7 +128,7 @@ namespace Logic
                         catch (Exception ex)
                         {
                             #region 提示第几行的数据不合法，提示消息赋值给strErr
-                            strErr += "第" + (i + 2) + "行出现错误"+ex.Message;
+                            strErr += "第" + (i + 2) + "行"+item.strTitle + "列出现错误:"+ex.Message+ "<br></br>";
                             #endregion
                         }
                     }

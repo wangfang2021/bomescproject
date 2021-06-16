@@ -592,18 +592,23 @@ namespace SPPSApi.Controllers.G03
                     }
                     if (listInfoData[i]["vcIsDYJG"].ToString() == "1")
                     {
+                        /*
+                         * 修改人：董镇
+                         * 修改时间：2021-6-11
+                         * 修改内容：在生确回复时，如果对应结果为可对应，此时生产商名称和生产商地址必须填写(原来的需要考虑变更事项为新设类，现不考虑变更事项)
+                         */
+                        if (
+                                  listInfoData[i]["vcSCSName"] == null || listInfoData[i]["vcSCSName"].ToString().Trim() == ""
+                                || listInfoData[i]["vcSCSPlace"] == null || listInfoData[i]["vcSCSPlace"].ToString().Trim() == ""
+                                )
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "生确回复失败！生产商名称和生产商地址必须填写";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                         string strChange = listInfoData[i]["vcChange"].ToString();
                         if (strChange == "1" || strChange == "2" || strChange == "10" || strChange == "8" || strChange == "12")
                         {
-                            if (
-                                  listInfoData[i]["vcSCSName"] == null || listInfoData[i]["vcSCSName"].ToString() == ""
-                                || listInfoData[i]["vcSCSPlace"] == null || listInfoData[i]["vcSCSPlace"].ToString() == ""
-                                )
-                            {
-                                apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = "生确回复失败！生产商名称和生产商地址必须填写";
-                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                            }
                             if (
                                   listInfoData[i]["vcSCPlace_City"] == null || listInfoData[i]["vcSCPlace_City"].ToString() == ""
                                 || listInfoData[i]["vcSCPlace_Province"] == null || listInfoData[i]["vcSCPlace_Province"].ToString() == ""

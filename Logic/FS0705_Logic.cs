@@ -128,43 +128,77 @@ namespace Logic
 
                             if (strX_WorkType == "白")
                             {
+                                //if (strY_WorkType == "白")
+                                //    dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay);
+                                //else//入荷是夜班
+                                //    dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay+1);
+
+                                //if (strY_To_WorkType == "白")
+                                //    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay);
+                                //else//入荷止是夜班
+                                //    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay + 1);
+
                                 if (strY_WorkType == "白")
-                                    dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay);
+                                    dY = addSubDay(dX,iRuHeFromDay);
                                 else//入荷是夜班
-                                    dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay+1);
+                                    dY = addSubDay(dX, iRuHeFromDay + 1);
 
                                 if (strY_To_WorkType == "白")
-                                    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay);
+                                    dY_To = addSubDay(dX, iRuHeToDay);
                                 else//入荷止是夜班
-                                    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay + 1);
-
+                                    dY_To = addSubDay(dX, iRuHeToDay + 1);
                             }
                             else
                             { //夜班
+                                //if (dX.Hour >= 12 && dX.Hour < 24)
+                                //{
+                                //    dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay);
+                                //}
+                                //else if (dX.Hour >= 0 && dX.Hour < 12 && dY.Hour >= 12 && dY.Hour < 24)
+                                //{
+                                //    dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay-1);
+                                //}
+                                //else if (dX.Hour >= 0 && dX.Hour < 12 && dY.Hour >= 0 && dY.Hour < 12)
+                                //{
+                                //    dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay);
+                                //}
+
+                                //if (dX.Hour >= 12 && dX.Hour < 24)
+                                //{
+                                //    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay);
+                                //}
+                                //else if (dX.Hour >= 0 && dX.Hour < 12 && dY_To.Hour >= 12 && dY_To.Hour < 24)
+                                //{
+                                //    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay - 1);
+                                //}
+                                //else if (dX.Hour >= 0 && dX.Hour < 12 && dY_To.Hour >= 0 && dY_To.Hour < 12)
+                                //{
+                                //    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay);
+                                //}
                                 if (dX.Hour >= 12 && dX.Hour < 24)
                                 {
-                                    dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay);
+                                    dY = addSubDay(dX, iRuHeFromDay);
                                 }
                                 else if (dX.Hour >= 0 && dX.Hour < 12 && dY.Hour >= 12 && dY.Hour < 24)
                                 {
-                                    dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay-1);
+                                    dY = addSubDay(dX, iRuHeFromDay-1);
                                 }
                                 else if (dX.Hour >= 0 && dX.Hour < 12 && dY.Hour >= 0 && dY.Hour < 12)
                                 {
-                                    dY = Convert.ToDateTime(dX).AddDays(iRuHeFromDay);
+                                    dY = addSubDay(dX, iRuHeFromDay);
                                 }
 
                                 if (dX.Hour >= 12 && dX.Hour < 24)
                                 {
-                                    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay);
+                                    dY_To = addSubDay(dX, iRuHeToDay);
                                 }
                                 else if (dX.Hour >= 0 && dX.Hour < 12 && dY_To.Hour >= 12 && dY_To.Hour < 24)
                                 {
-                                    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay - 1);
+                                    dY_To = addSubDay(dX, iRuHeToDay-1);
                                 }
                                 else if (dX.Hour >= 0 && dX.Hour < 12 && dY_To.Hour >= 0 && dY_To.Hour < 12)
                                 {
-                                    dY_To = Convert.ToDateTime(dX).AddDays(iRuHeToDay);
+                                    dY_To = addSubDay(dX, iRuHeToDay);
                                 }
                             }
 
@@ -172,6 +206,13 @@ namespace Logic
                             dY_To = Convert.ToDateTime(dY_To.ToString("yyyy-MM-dd") + " " + strRuHeToTime);
                             if (dTempRuhe > dEnd&& dTempRuhe < DateTime.Now)//如果得到的入荷时间起大于最后获取入库时间，且小于当前时间，那么证明需要获取
                             {
+                                //if (dTempRuhe.ToString("yyyy/MM/dd HH:mm:ss") == "2021/06/03 16:00:00")
+                                //{
+                                //    int a =1;
+                                //    a = 2;
+                                //}
+
+
                                 BcTask task = new BcTask();
                                 
                                 DateTime dTimeTemp_NaQi = new DateTime();//计算具体纳期时间
@@ -179,20 +220,28 @@ namespace Logic
                                 int iAddDay = dN.Hour < dX.Hour ? 1 : 0;//如果纳期起比发注起要小，证明跨天了
                                 if (strX_WorkType == "白")
                                 {
-                                    dTimeTemp_NaQi= dEnd_Index.AddDays(iNaQiFromDay + iAddDay);
+                                    //dTimeTemp_NaQi= dEnd_Index.AddDays(iNaQiFromDay + iAddDay);
+                                    dTimeTemp_NaQi = addSubDay(dEnd_Index, iNaQiFromDay );
+                                    //dTimeTemp_NaQi = dEnd_Index.AddDays(iAddDay);
                                     dTimeTemp_NaQi = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd") + " " + strNaQiFromTime);
                                 }
                                 else
                                 { //夜班
                                     if (dX.Hour>12)//当天的夜班
                                     {
-                                        dTimeTemp_NaQi = dEnd_Index.AddDays(iNaQiFromDay + iAddDay);
+                                        //dTimeTemp_NaQi = dEnd_Index.AddDays(iNaQiFromDay + iAddDay);
+
+                                        dTimeTemp_NaQi = addSubDay(dEnd_Index, iNaQiFromDay);
+                                        //dTimeTemp_NaQi = dEnd_Index.AddDays(iAddDay);
                                         dTimeTemp_NaQi = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd") + " " + strNaQiFromTime);
                                     }
                                     else //昨天的夜班(即凌晨)
                                     {
 
-                                        dTimeTemp_NaQi = dEnd_Index.AddDays(iNaQiFromDay + iAddDay);
+                                        //dTimeTemp_NaQi = dEnd_Index.AddDays(iNaQiFromDay + iAddDay);
+
+                                        dTimeTemp_NaQi = addSubDay(dEnd_Index, iNaQiFromDay);
+                                        //dTimeTemp_NaQi = dEnd_Index.AddDays(iAddDay);
                                         dTimeTemp_NaQi = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd") + " " + strNaQiFromTime);
 
                                         ///begin 这块之所以取白班区间，是因为不能判断哪天是否是白班，因为这时候纳期是哪天还不确定///
@@ -203,7 +252,8 @@ namespace Logic
                                         ///end///
                                         if (temp >= dBaiStart && temp <= dBaiEnd)//如果纳期起是白班，这种用户会在纳期维护+1，实际上还是当天，则需要减去-1
                                         {
-                                            dTimeTemp_NaQi = dTimeTemp_NaQi.AddDays(-1);
+                                            //dTimeTemp_NaQi = dTimeTemp_NaQi.AddDays(-1);
+                                            dTimeTemp_NaQi = addSubDay(dTimeTemp_NaQi, -1);
                                         }
                                     }
                                 }
@@ -228,7 +278,7 @@ namespace Logic
                                         findIndex++;
 
                                         if (findIndex > MAX_FIND)//向后找，也没找到维护的稼动日，则报错
-                                            throw new Exception("包材纳期在向后找稼动日时，向后找超过" + MAX_FIND + "天都没找到稼动日");
+                                            throw new Exception("包材纳期在向后找稼动日时，向后找超过" + MAX_FIND + "天都没找到稼动日，最后查找日期" + dTimeTemp_NaQi.ToString("yyyy-MM-dd"));
                                         string strBanZhiLast = getPackBanZhi(dTimeTemp_NaQi.ToString("yyyy-MM"), dTimeTemp_NaQi.Day);
                                         if (strBanZhiLast == "双值" || strBanZhiLast == "白")
                                         {
@@ -268,7 +318,7 @@ namespace Logic
                                 dTimeTemp_NaQi_To = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd") + " " + strNaQiToTime);
 
                                 task.strBCName = dTimeTemp_NaQi.ToString("yyyy-MM-dd") + " " + strBianCi;
-                                //if (task.strBCName == "2021-04-10 外注纸箱 白值1便")
+                                //if (task.strBCName == "2021-06-07 外注纸箱 白值1便")
                                 //{
                                 //    int a = 0;
                                 //    a = 1;
@@ -291,6 +341,47 @@ namespace Logic
             }
         }
         #endregion
+
+        #region 从当前时间向前或者向后找指定的工作日，返回指定日期
+        public DateTime addSubDay(DateTime dIndexDay, int iAddDays)
+        {
+            int findIndex = 0;//找的次数，最长不能大于找30天
+            int MAX_FIND = 30;//最多向后找30天
+            int iTurn = 0;//每一回合向前或者向后找一天
+            if (iAddDays > 0)
+                iTurn = 1;//大于0，则向后找稼动日
+            else if (iAddDays < 0)
+                iTurn = -1;//大于0，则往之前找稼动日
+            else if (iAddDays == 0)
+                return dIndexDay;
+
+            while (true)//找纳期是否稼动，如果不是稼动，则往后找一天最早班值的第一便次
+            {
+                dIndexDay = dIndexDay.AddDays(iTurn);
+                findIndex++;
+
+                if (findIndex > MAX_FIND)//向后找，也没找到维护的稼动日，则报错
+                    throw new Exception("包材纳期在向后找稼动日时，向后找超过" + MAX_FIND + "天都没找到稼动日，最后查找日期"+ dIndexDay.ToString("yyyy-MM-dd"));
+                string strBanZhiLast = getPackBanZhi(dIndexDay.ToString("yyyy-MM"), dIndexDay.Day);
+                if (strBanZhiLast == "双值" || strBanZhiLast == "白")
+                {
+                    iAddDays = iAddDays - iTurn;
+                }
+                else if (strBanZhiLast == "夜")
+                {
+                    iAddDays = iAddDays - iTurn;
+                }
+                else if (strBanZhiLast == "非稼动")
+                {
+                    //不做任何加减
+                }
+                if (iAddDays == 0)
+                    break;
+            }
+            return dIndexDay;
+        }
+        #endregion
+
 
         /// <summary>
         /// 取第一个便次,小时差距离白夜起最近的，即为第一便次
@@ -642,6 +733,25 @@ namespace Logic
         }
         #endregion
 
+        #region 校验邮箱格式是否正确
+        /// <summary>
+        /// 校验收件人信息能否被添加
+        /// </summary>
+        /// <param name="strEmail"></param>
+        /// <returns>true：可以添加，反之则false</returns>
+        public bool CheckEmailFormat(object strEmail, object disPlayName)
+        {
+            try
+            {
+                new System.Net.Mail.MailAddress(strEmail.ToString().Trim(), disPlayName.ToString().Trim(), Encoding.UTF8);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        #endregion
     }
     public class BcTask
     {
@@ -651,6 +761,8 @@ namespace Logic
         public DateTime dRuheToDate;
         public DateTime dNaqiToDate;
     }
+
+
 
     public class BZTime
     {

@@ -68,7 +68,7 @@ namespace DataAccess
                 stringBuilder.AppendLine("on a.vcPart_id=b.vcPart_id and a.vcKBOrderNo=b.vcKBOrderNo and a.vcKBLFNo=b.vcKBLFNo and a.vcSR=b.vcSR");
                 stringBuilder.AppendLine("left join");
                 stringBuilder.AppendLine("(select * from tCheckMethod_Master where vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "')c");
-                stringBuilder.AppendLine("on a.vcPart_id=c.vcPartId and a.vcSupplier_id=b.vcSupplier_id");
+                stringBuilder.AppendLine("on a.vcPart_id=c.vcPartId and a.vcSupplier_id=c.vcSupplierId");
                 stringBuilder.AppendLine("left join");
                 stringBuilder.AppendLine("(SELECT * FROM [tCheckQf] ");
                 stringBuilder.AppendLine("where [vcTimeFrom]<='" + scanTime + "'  and [vcTimeTo]>='" + scanTime + "' )d");

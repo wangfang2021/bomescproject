@@ -4319,7 +4319,7 @@ namespace Logic
                 apt = new SqlDataAdapter();
                 apt.InsertCommand = cmd;
                 apt.Update(dt);
-                updateEDParts();
+                //updateEDParts();
             }
             return msg;
         }

@@ -34,8 +34,6 @@ namespace SPPSApi.Controllers.P01
     P00003_Logic P00003_Logic = new P00003_Logic();
     ComFunction comFunction = new ComFunction();
     #region 激活验证解锁权限
-    //ValidateUserRoleApi
-
     [HttpPost]
     [EnableCors("any")]
     public string ValidateUserRoleApi([FromBody] dynamic data)
@@ -87,23 +85,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region 根据入库指示书判断是否可以包装,返回到前台验证看板
-    //ValidateInvApi
     [HttpPost]
     [EnableCors("any")]
     public string ValidateInvApi([FromBody] dynamic data)
@@ -189,25 +173,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region 定时更新能率
-
-    //GetEffiApi
-    //decimal effi = P00001_Logic.getOperEfficacyInfo("H2", opearteId, pointNo);
-
     [HttpPost]
     [EnableCors("any")]
     public string GetEffiApi([FromBody] dynamic data)
@@ -258,24 +226,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region  暂停运行
-    //PauseApi
-
     [HttpPost]
     [EnableCors("any")]
     public string PauseApi([FromBody] dynamic data)
@@ -340,22 +293,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region 更新箱号时间
-    //UpdateCaseTimeApi
     [HttpPost]
     [EnableCors("any")]
     public string UpdateCaseTimeApi([FromBody] dynamic data)
@@ -390,26 +330,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region  获取箱号列表
-    //GetCaseListApi
-
     [HttpPost]
     [EnableCors("any")]
     public string GetCaseListApi([FromBody] dynamic data)
@@ -493,19 +416,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
     #endregion
 
-
-
-
-
-
     #region  获得用户信息,获取箱号
-
     [HttpPost]
     [EnableCors("any")]
     public string GetUserInfoApi([FromBody] dynamic data)
@@ -563,29 +476,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
-
-
     #region 销毁页面或退出系统时候更新总时间,重新登录需要将当前箱号状态设置为不可用,需要更改机器状态为未登录
-    //UpdateTimeApi
     public string UpdateTimeApi([FromBody] dynamic data)
     {
       string strToken = Request.Headers["X-Token"];
@@ -729,27 +622,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
-
-
     #endregion
 
-
-
-
-
-
-
     #region  验证时间
-
-    //GenTimeApi
-
     public string GenTimeApi([FromBody] dynamic data)
     {
       string strToken = Request.Headers["X-Token"];
@@ -865,17 +740,7 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
     #endregion
-
-
-
-
 
     #region 验证看板数据
     public string ValidateKanbanApi([FromBody] dynamic data)
@@ -907,13 +772,22 @@ namespace SPPSApi.Controllers.P01
         DataTable getInno = P00003_Logic.GetQuantity(kanbanOrderNo, kanbanSerial, partId, dock);
         DataTable getInputQuantity = P00003_Logic.GetInputQuantity(kanbanOrderNo, kanbanSerial, partId, dock);
         DataTable validateData = P00003_Logic.ValidateData(partId, scanTime);
+        DataTable validateCase = P00003_Logic.ValidateCase(partId, kanbanOrderNo, kanbanSerial, dock, caseNo);
+        if (validateCase.Rows.Count>0) {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "箱号"+caseNo+"中已经存在品番"+partId+"数据，请更换箱号进行装箱";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+
+
         if (getInno.Rows.Count == 1 && getInputQuantity.Rows.Count == 1 && validateData.Rows.Count == 1)
         {
           string inputNo = getInno.Rows[0][1].ToString();
           string quantity = getInputQuantity.Rows[0][0].ToString();
           if (validateSJ.Rows.Count == 0 && validateSJ1.Rows.Count == 0 && validateInv1.Rows.Count == 1)//没有进行检查或包装看板,需要判断前工程
           {
-            DataTable getCheckType = P00003_Logic.GetCheckType(partId, scanTime);//获得检查区分
+            string supplier_id = validateData.Rows[0][1].ToString();
+            DataTable getCheckType = P00003_Logic.GetCheckType(partId, scanTime,supplier_id);//获得检查区分
             if (getCheckType.Rows.Count == 1)
             {
               string checkType = getCheckType.Rows[0][0].ToString();
@@ -1135,9 +1009,9 @@ namespace SPPSApi.Controllers.P01
           else if (validateSJ.Rows.Count > 0 && validateSJ1.Rows.Count == 0 && validateInv1.Rows.Count == 1)//进行了包装不装箱  包装数量为0 装箱数量为数量 不需要包装数量
 
           {
-
+            string supplier_id = validateData.Rows[0][1].ToString();
             #region 之前进行包装不装箱的数据
-            DataTable getCheckType = P00003_Logic.GetCheckType(partId, scanTime);//获得检查区分
+            DataTable getCheckType = P00003_Logic.GetCheckType(partId, scanTime,supplier_id);//获得检查区分
             if (getCheckType.Rows.Count == 1)
             {
               string checkType = getCheckType.Rows[0][0].ToString();
@@ -1362,6 +1236,7 @@ namespace SPPSApi.Controllers.P01
             #region 进行了劈票,需要验证待出货数量
             int packQuantity1 = 0;
             int zxQuantity = 0;
+            string supplier_id = validateData.Rows[0][1].ToString();
             for (int i = 0; i < validateSJ.Rows.Count; i++)
             {
               packQuantity1 += int.Parse(validateSJ.Rows[i][0].ToString());
@@ -1376,7 +1251,7 @@ namespace SPPSApi.Controllers.P01
             {
 
               #region  可以进行包装装箱作业
-              DataTable getCheckType = P00003_Logic.GetCheckType(partId, scanTime);//获得检查区分
+              DataTable getCheckType = P00003_Logic.GetCheckType(partId, scanTime,supplier_id);//获得检查区分
               if (getCheckType.Rows.Count == 1)
               {
                 string checkType = getCheckType.Rows[0][0].ToString();
@@ -1646,17 +1521,7 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
     #endregion
-
-
-
-
 
     #region 登出前更新信息
     public string ReloginApi([FromBody] dynamic data)
@@ -1692,15 +1557,7 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
     #endregion
-
 
     #region 打印装箱单
     public string PrintCaseListApi([FromBody] dynamic data)
@@ -1718,6 +1575,15 @@ namespace SPPSApi.Controllers.P01
         dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
         string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//箱号
         string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
+        DataTable getPoint = P00003_Logic.GetPoingNo(iP);                                                                                        //0605
+        if (getPoint.Rows.Count != 1)
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "当前点位信息异常，请检查！";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+        }
+        string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
         string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
         DataTable getCase2 = P00003_Logic.GetCaseInfo(caseNo);
         DataTable getCase3 = P00003_Logic.GetCaseInfo1(caseNo);
@@ -1748,7 +1614,7 @@ namespace SPPSApi.Controllers.P01
               //插入到箱号List,插入作业实绩,修改入出库履历
               DataTable validateInv = P00003_Logic.ValidateInv(inputNo);
               // DataTable validateOpr1 = P00003_Logic.ValidateSJ1(partId, dock, kanbanOrderNo, kanbanSerial);
-              DataTable getCheckType = P00003_Logic.GetCheckType(partId, serverTime);
+              DataTable getCheckType = P00003_Logic.GetCheckType(partId, serverTime,supplier_id);
               DataTable getPartsName = P00003_Logic.GetPartsName(serverTime, partId);
               if (getPartsName.Rows.Count == 1 && getCheckType.Rows.Count == 1 && validateInv.Rows.Count == 1 && int.Parse(quantity) <= (int.Parse(validateInv.Rows[0][0].ToString())))
               {
@@ -1760,7 +1626,7 @@ namespace SPPSApi.Controllers.P01
                 string cpdAddress = "天津塘沽开发区第九大街";
                 string partsName = getPartsName.Rows[0][0].ToString();
                 byte[] vs = P00003_Logic.GenerateQRCode(caseNo);
-                int sjResultIn = P00003_Logic.InsertSj(supplier_id, supplierGQ, bZUnit, checkType, labelStart, labelEnd, inoutFlag, checkStatus, bzPlant, inputNo, quantity, partId, kanbanOrderNo, kanbanSerial, dock, opearteId, serverTime, serverTime, iP, sHF, quantity, caseNo);//此处需要改动
+                int sjResultIn = P00003_Logic.InsertSj(supplier_id, supplierGQ, bZUnit, checkType, labelStart, labelEnd, inoutFlag, checkStatus, bzPlant, inputNo, quantity, partId, kanbanOrderNo, kanbanSerial, dock, opearteId, serverTime, serverTime, iP, sHF, quantity, caseNo,pointType);//此处需要改动
                 int invResultUp = P00003_Logic.UpdateInv1(partId, kanbanOrderNo, kanbanSerial, quantity);
                 int caseResultIn = P00003_Logic.InsertCase(sHF, cpdName, cpdAddress, caseNo, inputNo, partId, quantity, partsName, opearteId, serverTime, iP, vs, labelStart, labelEnd);
                 int caseResultUp1 = P00003_Logic.UpdateCase5(iP, caseNo);
@@ -1883,13 +1749,7 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
     #endregion
-
 
     #region 获得箱号使用信息 是否出荷,是否绑定信息
     public string GetCaseInfoApi([FromBody] dynamic data)
@@ -1919,9 +1779,7 @@ namespace SPPSApi.Controllers.P01
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
     }
-
     #endregion
-
 
     #region  验证箱号是否可用
     public string ValidateCaseNoApi([FromBody] dynamic data)
@@ -1945,8 +1803,6 @@ namespace SPPSApi.Controllers.P01
         DataTable validateCaseNo2 = P00003_Logic.ValidateCaseNo2(caseNo);//验证箱号在发货明细书表中是否使用
         DataTable validateCaseNo3 = P00003_Logic.ValidateCaseNo3(caseNo);//验证箱号在作业实绩中是否有装箱数据
         DataTable validateCaseNo4 = P00003_Logic.ValidateCaseNo4(caseNo);//验证箱号在作业实绩中是否有装箱数据
-
-
         if (validateCaseNo4.Rows.Count > 0)
         {
 
@@ -2057,19 +1913,7 @@ namespace SPPSApi.Controllers.P01
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
     }
-
-
-
     #endregion
-
-
-
-
-
-
-
-
-
 
     #region  包装装箱
     public string PackWithEnchaseApi([FromBody] dynamic data)
@@ -2097,6 +1941,17 @@ namespace SPPSApi.Controllers.P01
         string timeStart = dataForm.TimeStart == null ? "" : dataForm.TimeStart;
         string timeEnd = dataForm.TimeEnd == null ? "" : dataForm.TimeEnd;
         string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
+        DataTable getPoint = P00003_Logic.GetPoingNo(iP);
+        if (getPoint.Rows.Count != 1)
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "当前点位信息异常，请检查！";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+        }
+        string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+
+
         string checkType = dataForm.CheckType == null ? "" : dataForm.CheckType;//检查区分
         string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//箱号
         string formatDate = serverTime.Substring(0, 10).Replace("-", "");
@@ -2139,8 +1994,8 @@ namespace SPPSApi.Controllers.P01
 
         }
         DataTable getPartsName = P00003_Logic.GetPartsName(scanTime, partId);
-        DataTable validateCase = P00003_Logic.ValidateCase(partId,kanbanOrderNo,kanbanSerial,dock,caseNo);
-        if (validateOpr.Rows.Count == 1 && validateInv.Rows.Count == 1 && getPartsName.Rows.Count == 1 && validateCase.Rows.Count == 0)
+
+        if (validateOpr.Rows.Count == 1 && validateInv.Rows.Count == 1 && getPartsName.Rows.Count == 1 )
         {
           if (packQuantity == "0")//只进行装箱作业
 
@@ -2313,7 +2168,7 @@ namespace SPPSApi.Controllers.P01
 
             // int qbResultIn = P00003_Logic.Insert(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, trolleyNo, sHF, inputNo);//插入实绩情报表
             int invResult = P00003_Logic.UpdateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, serverTime, opearteId);                                                                                                                    //更新入出库履历表
-            int oprReusultIn = P00003_Logic.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, bZUnit, sHF, dock, checkType, labelStart, labelEnd, checkStatus, opearteId, timeStart, timeEnd, iP);//插入作业实际表
+            int oprReusultIn = P00003_Logic.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, bZUnit, sHF, dock, checkType, labelStart, labelEnd, checkStatus, opearteId, timeStart, timeEnd, iP,pointType);//插入作业实际表
             #region 对包材进行操作,消耗实绩,消减在库
 
             DataTable getPack = P00003_Logic.GetPackData1(partId, serverTime);
@@ -2480,13 +2335,7 @@ namespace SPPSApi.Controllers.P01
 
 
 
-        } else if (validateCase.Rows.Count>0) {
-
-          apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "品番" + partId + "在箱号"+caseNo+"中已经存在数据，请检查！!";
-          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-        }
+        } 
 
 
 
@@ -2533,7 +2382,6 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
     private byte[] GenerateQRCode(string content)
     {
       var generator = new QRCodeGenerator();
@@ -2545,16 +2393,9 @@ namespace SPPSApi.Controllers.P01
       bitmapImg.Save(stream, ImageFormat.Jpeg);
       return stream.GetBuffer();
     }
-
     #endregion
 
-
-
-
-
-
     #region  包装不装箱
-
     public string PackWithoutEnchaseApi([FromBody] dynamic data)
     {
       string strToken = Request.Headers["X-Token"];
@@ -2576,6 +2417,17 @@ namespace SPPSApi.Controllers.P01
         string scanTime = dataForm.ScanTime == null ? "" : dataForm.ScanTime;//客户端时间
         string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
         string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
+        //0605
+        DataTable getPoint = P00003_Logic.GetPoingNo(iP);                                                                                        //0605
+        if (getPoint.Rows.Count != 1)
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "当前点位信息异常，请检查！";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+        }
+        string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+
         string checkType = dataForm.CheckType == null ? "" : dataForm.CheckType;
         string timeStart = dataForm.TimeStart == null ? "" : dataForm.TimeStart;
         string timeEnd = dataForm.TimeEnd == null ? "" : dataForm.TimeEnd;
@@ -2714,7 +2566,7 @@ namespace SPPSApi.Controllers.P01
 
           //int qbResultIn = P00003_Logic.Insert(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, trolleyNo, sHF, inputNo);//插入实绩情报表
           int invResult = P00003_Logic.UpdateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, serverTime, opearteId);                                                                                                                    //更新入出库履历表
-          int oprReusultIn = P00003_Logic.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, bZUnit, sHF, dock, checkType, labelStart, labelEnd, checkStatus, opearteId, timeStart, timeEnd, iP);//插入作业实际表
+          int oprReusultIn = P00003_Logic.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, bZUnit, sHF, dock, checkType, labelStart, labelEnd, checkStatus, opearteId, timeStart, timeEnd, iP,pointType);//插入作业实际表
           #region 对包材进行操作,消耗实绩,消减在库
 
           DataTable getPack = P00003_Logic.GetPackData1(partId, serverTime);
@@ -2884,14 +2736,9 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
     #endregion
 
     #region  获得包装数据
-    //GetCheckDataApi
     public string GetCheckDataApi([FromBody] dynamic data)
     {
       string strToken = Request.Headers["X-Token"];
@@ -2978,17 +2825,7 @@ namespace SPPSApi.Controllers.P01
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
     }
-
-
     #endregion 
-
-
-
-
-
-
-
-
   }
 
 }

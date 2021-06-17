@@ -1,20 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
-using System.Text.Json;
-using System.Threading;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.HttpOverrides;
-using System.Net;
 using DataEntity;
 
 
@@ -67,13 +57,6 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
         }
-
-
-
-
-
-
-
       }
       catch (Exception ex)
       {

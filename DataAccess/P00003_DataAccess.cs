@@ -179,7 +179,7 @@ namespace DataAccess
     public DataTable GetTime(string formatDate, string opearteId)
     {
       StringBuilder GetTimeSql = new StringBuilder();
-      GetTimeSql.Append("  select vcTotalTime,iFrequency,vcEffiency,dStartTime,ISNULL(vcPackTotalTime,0) from TOperateSJ_Effiency where vcOperatorID='" + opearteId + "' and vcDate='" + formatDate + "'");
+      GetTimeSql.Append("  select vcTotalTime,iFrequency,vcEffiency,dStartTime,ISNULL(vcPackTotalTime,0) as dPackTime from TOperateSJ_Effiency where vcOperatorID='" + opearteId + "' and vcDate='" + formatDate + "'");
       return excute.ExcuteSqlWithSelectToDT(GetTimeSql.ToString());
 
     }

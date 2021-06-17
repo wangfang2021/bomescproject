@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Net;
 using DataEntity;
 using Microsoft.AspNetCore.StaticFiles;
 using System.IO;
@@ -465,7 +464,7 @@ namespace SPPSApi.Controllers.P01
                 drInfo_SJ_Temp["vcLabelStart"] = lblStart;
                 drInfo_SJ_Temp["vcLabelEnd"] = lblEnd;
                 drInfo_SJ_Temp["vcUnlocker"] = "";
-                drInfo_SJ_Temp["dUnlockTime"] = "";
+                drInfo_SJ_Temp["dUnlockTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
                 drInfo_SJ_Temp["vcSellNo"] = "";
                 drInfo_SJ_Temp["vcOperatorID"] = opearteId;
                 drInfo_SJ_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
@@ -641,7 +640,7 @@ namespace SPPSApi.Controllers.P01
                 drInfo_SJ_Temp["vcLabelStart"] = lblStart;
                 drInfo_SJ_Temp["vcLabelEnd"] = lblEnd;
                 drInfo_SJ_Temp["vcUnlocker"] = "";
-                drInfo_SJ_Temp["dUnlockTime"] = DBNull.Value;
+                drInfo_SJ_Temp["dUnlockTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
                 drInfo_SJ_Temp["vcSellNo"] = "";
                 drInfo_SJ_Temp["vcOperatorID"] = opearteId;
                 drInfo_SJ_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");

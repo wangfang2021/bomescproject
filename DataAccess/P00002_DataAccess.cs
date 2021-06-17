@@ -191,7 +191,7 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("           ,@vcLabelStart");
                 strSql_modinfo.AppendLine("           ,@vcLabelEnd");
                 strSql_modinfo.AppendLine("           ,@vcUnlocker");
-                strSql_modinfo.AppendLine("           ,@dUnlockTime");
+                strSql_modinfo.AppendLine("           ,null");
                 strSql_modinfo.AppendLine("           ,@vcSellNo");
                 strSql_modinfo.AppendLine("           ,@vcOperatorID");
                 strSql_modinfo.AppendLine("           ,GETDATE()");
@@ -222,7 +222,7 @@ namespace DataAccess
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcLabelStart", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcLabelEnd", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcUnlocker", "");
-                sqlCommand_modinfo.Parameters.AddWithValue("@dUnlockTime", "");
+               // sqlCommand_modinfo.Parameters.AddWithValue("@dUnlockTime", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcSellNo", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcOperatorID", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcHostIp", "");
@@ -255,7 +255,7 @@ namespace DataAccess
                     sqlCommand_modinfo.Parameters["@vcLabelStart"].Value = item["vcLabelStart"].ToString();
                     sqlCommand_modinfo.Parameters["@vcLabelEnd"].Value = item["vcLabelEnd"].ToString();
                     sqlCommand_modinfo.Parameters["@vcUnlocker"].Value = item["vcUnlocker"].ToString();
-                    sqlCommand_modinfo.Parameters["@dUnlockTime"].Value = item["dUnlockTime"].ToString();
+                   // sqlCommand_modinfo.Parameters["@dUnlockTime"].Value = item["dUnlockTime"].ToString();
                     sqlCommand_modinfo.Parameters["@vcSellNo"].Value = item["vcSellNo"].ToString();
                     sqlCommand_modinfo.Parameters["@vcOperatorID"].Value = item["vcOperatorID"].ToString();
                     sqlCommand_modinfo.Parameters["@vcHostIp"].Value = item["vcHostIp"].ToString();

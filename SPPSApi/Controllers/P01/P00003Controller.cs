@@ -1,20 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
-using System.Text.Json;
-using System.Threading;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.HttpOverrides;
-using System.Net;
 using DataEntity;
 using QRCoder;
 using System.Drawing;
@@ -54,24 +44,15 @@ namespace SPPSApi.Controllers.P01
         DataTable getUserRole = P00003_Logic.GetUserRole(user);
         if (getUserRole.Rows.Count == 1)
         {
-          P00003_DataEntity.active = getUserRole.Rows[0][0].ToString();
+          P00003_DataEntity.active = getUserRole.Rows[0]["vcPackUnLock"].ToString();
           apiResult.data = P00003_DataEntity;
-
-
-
         }
         else
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "用户在权限表中不存在有效数据!";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
         }
-
-
-
-
       }
       catch (Exception ex)
       {
@@ -80,9 +61,6 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "验证解锁权限失败!";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
-
-
-
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -99,7 +77,6 @@ namespace SPPSApi.Controllers.P01
       }
       LoginInfo loginInfo = getLoginByToken(strToken);
       string opearteId = loginInfo.UserId;
-
       ApiResult apiResult = new ApiResult();
       try
       {
@@ -115,30 +92,18 @@ namespace SPPSApi.Controllers.P01
         {
           for (int i = 0; i < getPackQuantity.Rows.Count; i++)
           {
-            packSum += int.Parse(getPackQuantity.Rows[i][0].ToString());
-
+            packSum += int.Parse(getPackQuantity.Rows[i]["iQuantity"].ToString());
           }
-
         }
-
-
-
-
-        if (getInputQuantity.Rows.Count == 1 && (int.Parse(getInputQuantity.Rows[0][4].ToString()) - packSum >= int.Parse(quantity))
-
+        if (getInputQuantity.Rows.Count == 1 && (int.Parse(getInputQuantity.Rows[0]["iQuantity"].ToString()) - packSum >= int.Parse(quantity))
           )
         {
           //vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR,iQuantity
-          P00003_DataEntity.partId = getInputQuantity.Rows[0][0].ToString();
-          P00003_DataEntity.kanbanOrderNo = getInputQuantity.Rows[0][1].ToString();
-          P00003_DataEntity.kanbanSerial = getInputQuantity.Rows[0][2].ToString();
-          P00003_DataEntity.dock = getInputQuantity.Rows[0][3].ToString();
-
+          P00003_DataEntity.partId = getInputQuantity.Rows[0]["vcPart_id"].ToString();
+          P00003_DataEntity.kanbanOrderNo = getInputQuantity.Rows[0]["vcKBOrderNo"].ToString();
+          P00003_DataEntity.kanbanSerial = getInputQuantity.Rows[0]["vcKBLFNo"].ToString();
+          P00003_DataEntity.dock = getInputQuantity.Rows[0]["vcSR"].ToString();
           apiResult.data = P00003_DataEntity;
-
-
-
-
         }
         else if (getInputQuantity.Rows.Count != 1)
         {
@@ -154,12 +119,6 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
         }
-
-
-
-
-
-
       }
       catch (Exception ex)
       {
@@ -168,9 +127,6 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "获取入库信息失败!";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
-
-
-
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -187,32 +143,26 @@ namespace SPPSApi.Controllers.P01
       }
       LoginInfo loginInfo = getLoginByToken(strToken);
       string opearteId = loginInfo.UserId;
-
       ApiResult apiResult = new ApiResult();
       try
       {
         dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
         string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
         DataTable getPoint = P00003_Logic.GetPoint(iP);
         DataTable getStanTime = P00003_Logic.GetStanTime();
         if (getPoint.Rows.Count == 1 && getStanTime.Rows.Count == 1)
         {
-          string pointNo = getPoint.Rows[0][0].ToString();
+          string pointNo = getPoint.Rows[0]["vcPointNo"].ToString();
           decimal[] effi = P00003_Logic.getOperEfficacyInfo("H2", opearteId, pointNo);
           if (!(effi[0] < 0))
           {
             int effiResult = P00003_Logic.UpdateEffi1(pointNo, effi[2]);
             P00003_DataEntity.totalTime = effi[1].ToString();
             P00003_DataEntity.effiEncy = (effi[2] * 100).ToString();
-            P00003_DataEntity.stanTime = getStanTime.Rows[0][0].ToString();
+            P00003_DataEntity.stanTime = getStanTime.Rows[0]["decObjective"].ToString();
             apiResult.data = P00003_DataEntity;
           }
-
         }
-
-
-
       }
       catch (Exception ex)
       {
@@ -221,9 +171,6 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "更改状态失败!";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
-
-
-
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -240,7 +187,6 @@ namespace SPPSApi.Controllers.P01
       }
       LoginInfo loginInfo = getLoginByToken(strToken);
       string opearteId = loginInfo.UserId;
-
       ApiResult apiResult = new ApiResult();
       try
       {
@@ -253,33 +199,23 @@ namespace SPPSApi.Controllers.P01
         DataTable getStatus2 = P00003_Logic.GetStatus2(iP, opearteId);
         if (getStatus2.Rows.Count == 1)
         {
-          string pointNo = getStatus2.Rows[0][1].ToString();
-          if ((status == "False" || status == "") && getStatus2.Rows[0][0].ToString() == "正常")//将状态修改为暂停
+          string pointNo = getStatus2.Rows[0]["vcPointNo"].ToString();
+          if ((status == "False" || status == "") && getStatus2.Rows[0]["vcState"].ToString() == "正常")//将状态修改为暂停
           {
             int statusResultUp = P00003_Logic.UpdateStatus4(pointNo, opearteId);
-
-
-
-
-
           }
-          else if (status == "True" && getStatus2.Rows[0][0].ToString() == "暂停" && stopTime != "")//将状态修改为正常
+          else if (status == "True" && getStatus2.Rows[0]["vcState"].ToString() == "暂停" && stopTime != "")//将状态修改为正常
           {
-
             int statusResultUp = P00003_Logic.UpdateStatus5(pointNo, opearteId);
             int effiResultUp = P00003_Logic.UpdateEffi(formatDate, opearteId, stopTime);
           }
-
         }
         else
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "点位信息异常,请检查!";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
         }
-
       }
       catch (Exception ex)
       {
@@ -288,9 +224,6 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "更改状态失败!";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
-
-
-
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -315,8 +248,6 @@ namespace SPPSApi.Controllers.P01
         string caseNo = dataForm.Case == null ? "" : dataForm.Case;//品番
         string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
         int caseResultUp = P00003_Logic.UpdateCase2(caseNo, serverTime);
-
-
       }
       catch (Exception ex)
       {
@@ -325,9 +256,6 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "获取用户信息失败!";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
-
-
-
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -344,7 +272,6 @@ namespace SPPSApi.Controllers.P01
       }
       LoginInfo loginInfo = getLoginByToken(strToken);
       string opearteId = loginInfo.UserId;
-
       ApiResult apiResult = new ApiResult();
       try
       {
@@ -353,46 +280,36 @@ namespace SPPSApi.Controllers.P01
         {
           if (getCaseList.Rows.Count == 1)
           {
-            P00003_DataEntity.caseNo = getCaseList.Rows[0][0].ToString();
+            P00003_DataEntity.caseNo = getCaseList.Rows[0]["vcBoxNo"].ToString();
             P00003_DataEntity.caseNo1 = "";
             P00003_DataEntity.caseNo2 = "";
             P00003_DataEntity.caseNo3 = "";
             apiResult.data = P00003_DataEntity;
-
-
           }
           else if (getCaseList.Rows.Count == 2)
           {
-
-            P00003_DataEntity.caseNo = getCaseList.Rows[0][0].ToString();
-            P00003_DataEntity.caseNo1 = getCaseList.Rows[1][0].ToString();
+            P00003_DataEntity.caseNo = getCaseList.Rows[0]["vcBoxNo"].ToString();
+            P00003_DataEntity.caseNo1 = getCaseList.Rows[1]["vcBoxNo"].ToString();
             P00003_DataEntity.caseNo2 = "";
             P00003_DataEntity.caseNo3 = "";
             apiResult.data = P00003_DataEntity;
           }
           else if (getCaseList.Rows.Count == 3)
           {
-
-            P00003_DataEntity.caseNo = getCaseList.Rows[0][0].ToString();
-            P00003_DataEntity.caseNo1 = getCaseList.Rows[1][0].ToString();
-            P00003_DataEntity.caseNo2 = getCaseList.Rows[2][0].ToString();
+            P00003_DataEntity.caseNo = getCaseList.Rows[0]["vcBoxNo"].ToString();
+            P00003_DataEntity.caseNo1 = getCaseList.Rows[1]["vcBoxNo"].ToString();
+            P00003_DataEntity.caseNo2 = getCaseList.Rows[2]["vcBoxNo"].ToString();
             P00003_DataEntity.caseNo3 = "";
             apiResult.data = P00003_DataEntity;
           }
           else if (getCaseList.Rows.Count == 4)
           {
-
-            P00003_DataEntity.caseNo = getCaseList.Rows[0][0].ToString();
-            P00003_DataEntity.caseNo1 = getCaseList.Rows[1][0].ToString();
-            P00003_DataEntity.caseNo2 = getCaseList.Rows[2][0].ToString();
-            P00003_DataEntity.caseNo3 = getCaseList.Rows[3][0].ToString();
+            P00003_DataEntity.caseNo = getCaseList.Rows[0]["vcBoxNo"].ToString();
+            P00003_DataEntity.caseNo1 = getCaseList.Rows[1]["vcBoxNo"].ToString();
+            P00003_DataEntity.caseNo2 = getCaseList.Rows[2]["vcBoxNo"].ToString();
+            P00003_DataEntity.caseNo3 = getCaseList.Rows[3]["vcBoxNo"].ToString();
             apiResult.data = P00003_DataEntity;
           }
-
-
-
-
-
         }
         else
         {
@@ -400,9 +317,6 @@ namespace SPPSApi.Controllers.P01
           apiResult.data = "当前箱号列表中没有有效的箱号!";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
-
-
-
       }
       catch (Exception ex)
       {
@@ -411,9 +325,6 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "获取用户信息失败!";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
-
-
-
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -432,37 +343,25 @@ namespace SPPSApi.Controllers.P01
       string opearteId = loginInfo.UserId;
       string banZhi = loginInfo.BanZhi;
       string userName = loginInfo.UserName;
-
       ApiResult apiResult = new ApiResult();
       try
       {
         string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
         DataTable getCaseNo = P00003_Logic.GetCaseNo(iP);
-
         if (getCaseNo.Rows.Count > 0)
         {
-          string caseNo = getCaseNo.Rows[0][0].ToString(); ;
+          string caseNo = getCaseNo.Rows[0]["vcBoxNo"].ToString(); ;
           DataTable validateCaseNo3 = P00003_Logic.ValidateCaseNo3(caseNo);
           P00003_DataEntity.caseNo = caseNo;
           P00003_DataEntity.kanbanQuantity = validateCaseNo3.Rows.Count.ToString();
-
         }
         else
         {
-
-
           P00003_DataEntity.caseNo = "";
-
         }
-
-
-
         P00003_DataEntity.userName = userName;
         P00003_DataEntity.banZhi = banZhi;
         apiResult.data = P00003_DataEntity;
-
-
-
       }
       catch (Exception ex)
       {
@@ -471,9 +370,6 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "获取用户信息失败!";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
-
-
-
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -500,57 +396,31 @@ namespace SPPSApi.Controllers.P01
         DataTable getTime = P00003_Logic.GetTime(formatDate, opearteId);
         DataTable getCase1 = P00003_Logic.GetCase1(caseNo);
         DataTable getStatus1 = P00003_Logic.GetStatus1(iP, opearteId);
-
-
-
         if (getTime.Rows.Count == 1 && getStatus1.Rows.Count == 1)
         {
           #region 退出登录更新箱号状态
           int caseResultUp = P00003_Logic.UpdateCase3(caseNo);
-
-
-
-
           #endregion
-
           #region 退出登录需要更改状态为未登录
           string pointNo = getStatus1.Rows[0][0].ToString();
           int statusResultUp = P00003_Logic.UpdateStatus3(pointNo, opearteId);
-
-
-
-
-
-
           #endregion
-
-
-
-
           //返回时间格式 2021/3/20 17:06:38
           string startTime = getTime.Rows[0][3].ToString();
           string totalTime1 = getTime.Rows[0][0].ToString();
-
-
-
           string getYearData = startTime.Split(" ")[0];
           string getTimeData = startTime.Split(" ")[1];
-
           int beforeYear = int.Parse(getYearData.Split("/")[0]);
           int beforeMonth = int.Parse(getYearData.Split("/")[1]);
           int beforeDate = int.Parse(getYearData.Split("/")[2]);
           int beforeHours = int.Parse(getTimeData.Split(":")[0]);
           int beforeMinutes = int.Parse(getTimeData.Split(":")[1]);
           int beforeSeconds = int.Parse(getTimeData.Split(":")[2]);
-
-
           string getYearData1 = time.Split(" ")[0];
           string getTimeData1 = time.Split(" ")[1];
-
           int afterYear = int.Parse(getYearData1.Split("-")[0]);
           int afterMonth = int.Parse(getYearData1.Split("-")[1]);
           int afterDate = int.Parse(getYearData1.Split("-")[2]);
-
           int afterHours = int.Parse(getTimeData1.Split(":")[0]);
           int afterMinutes = int.Parse(getTimeData1.Split(":")[1]);
           int afterSeconds = int.Parse(getTimeData1.Split(":")[2]);
@@ -559,53 +429,29 @@ namespace SPPSApi.Controllers.P01
             (afterMonth - beforeMonth) * 30 * 24 * 60 * 60 +
             (afterDate - beforeDate) * 24 * 60 * 60 +
             (afterHours - beforeHours) * 60 * 60 + (afterMinutes - beforeMinutes) * 60 + (afterSeconds - beforeSeconds) + int.Parse(totalTime1);
-
           if (totalTime >= 0)
           {
             int freResultUp = P00003_Logic.UpdateFre1(totalTime, opearteId, formatDate);
-
-
-
-
-
-
-
           }
           else if (getStatus1.Rows.Count != 1)
           {
             apiResult.code = ComConstant.ERROR_CODE;
             apiResult.data = "点位信息异常,请检查!";
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
           }
           else
           {
-
             apiResult.code = ComConstant.ERROR_CODE;
             apiResult.data = "结束时间小于开始时间,请检查!";
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
           }
-
-
-
-
-
-
-
         }
         else
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "当前用户在效率表中不存在有效信息,请检查!";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
-
-
         }
-
       }
       catch (Exception ex)
       {
@@ -614,12 +460,6 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "更新时间失败";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
-
-
-
-
-
-
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -646,84 +486,56 @@ namespace SPPSApi.Controllers.P01
         DataTable getTime = P00003_Logic.GetTime(formatDate, opearteId);
         DataTable getCase = P00003_Logic.GetCase(opearteId);
         DataTable getBanZhi = P00003_Logic.GetBanZhi(serverTime);
-
-
-
         if (getCase.Rows.Count == 1)
         {
-          P00003_DataEntity.caseNo = getCase.Rows[0][0].ToString();
-
+          P00003_DataEntity.caseNo = getCase.Rows[0]["vcBoxNo"].ToString();
         }
         else
         {
           P00003_DataEntity.caseNo = "";
-
         }
         string effiEncy = "0";
         if (getTime.Rows.Count == 0 && getBanZhi.Rows.Count == 1)
         {
-          string date = getBanZhi.Rows[0][0].ToString();
-          string banZhi = getBanZhi.Rows[0][1].ToString();
+          string date = getBanZhi.Rows[0]["dHosDate"].ToString();
+          string banZhi = getBanZhi.Rows[0]["vcBanZhi"].ToString();
           int freResultIn = P00003_Logic.InsertFre(time, formatDate, effiEncy, opearteId, serverTime, iP, date, banZhi);
           getTime = P00003_Logic.GetTime(formatDate, opearteId);
-
           int freResultUp = P00003_Logic.UpdateFre(time, serverTime, formatDate, opearteId);
-
-
-
-
-
-
-          P00003_DataEntity.totalTime = getTime.Rows[0][0].ToString();
-          P00003_DataEntity.freQuency = getTime.Rows[0][1].ToString();
-          P00003_DataEntity.effiEncy = getTime.Rows[0][2].ToString();
-          P00003_DataEntity.startTime = getTime.Rows[0][3].ToString();
-          P00003_DataEntity.packTotalTime = getTime.Rows[0][4].ToString();
+          P00003_DataEntity.totalTime = getTime.Rows[0]["vcTotalTime"].ToString();
+          P00003_DataEntity.freQuency = getTime.Rows[0]["iFrequency"].ToString();
+          P00003_DataEntity.effiEncy = getTime.Rows[0]["vcEffiency"].ToString();
+          P00003_DataEntity.startTime = getTime.Rows[0]["dStartTime"].ToString();
+          P00003_DataEntity.packTotalTime = getTime.Rows[0]["dPackTime"].ToString();
           P00003_DataEntity.userName = userName;
           apiResult.data = P00003_DataEntity;
-
         }
         else if (getBanZhi.Rows.Count != 1)
         {
-
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "获取班值失败";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
         }
         else if (getTime.Rows.Count == 1)
         {
-
-          string totalTime = getTime.Rows[0][0].ToString();
-          string startTime = getTime.Rows[0][3].ToString();
-
-
+          string totalTime = getTime.Rows[0]["vcTotalTime"].ToString();
+          string startTime = getTime.Rows[0]["dStartTime"].ToString();
           int freResultUp = P00003_Logic.UpdateFre(time, serverTime, formatDate, opearteId);
-
           getTime = P00003_Logic.GetTime(formatDate, opearteId);
-
-          P00003_DataEntity.totalTime = getTime.Rows[0][0].ToString();
-          P00003_DataEntity.startTime = getTime.Rows[0][3].ToString();
-          P00003_DataEntity.freQuency = getTime.Rows[0][1].ToString();
-          P00003_DataEntity.effiEncy = getTime.Rows[0][2].ToString();
-          P00003_DataEntity.packTotalTime = getTime.Rows[0][4].ToString();
+          P00003_DataEntity.totalTime = getTime.Rows[0]["vcTotalTime"].ToString();
+          P00003_DataEntity.startTime = getTime.Rows[0]["dStartTime"].ToString();
+          P00003_DataEntity.freQuency = getTime.Rows[0]["iFrequency"].ToString();
+          P00003_DataEntity.effiEncy = getTime.Rows[0]["vcEffiency"].ToString();
+          P00003_DataEntity.packTotalTime = getTime.Rows[0]["dPackTime"].ToString();
           P00003_DataEntity.userName = userName;
           apiResult.data = P00003_DataEntity;
         }
         else
         {
-
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "当前用户在效率表中存在多条数据,请检查!";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
         }
-
-
-
-
-
       }
       catch (Exception ex)
       {
@@ -732,12 +544,6 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "验证时间失败!";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
-
-
-
-
-
-
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -1549,12 +1355,6 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "更新信息失败";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
-
-
-
-
-
-
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -1575,7 +1375,7 @@ namespace SPPSApi.Controllers.P01
         dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
         string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//箱号
         string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
-        DataTable getPoint = P00003_Logic.GetPoingNo(iP);                                                                                        //0605
+        DataTable getPoint = P00003_Logic.GetPointNo(iP);                                                                                        //0605
         if (getPoint.Rows.Count != 1)
         {
           apiResult.code = ComConstant.ERROR_CODE;
@@ -1583,7 +1383,7 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
         }
-        string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+        string pointType = getPoint.Rows[0]["vcPointType"].ToString() + getPoint.Rows[0]["vcPointNo"].ToString();
         string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
         DataTable getCase2 = P00003_Logic.GetCaseInfo(caseNo);
         DataTable getCase3 = P00003_Logic.GetCaseInfo1(caseNo);
@@ -1592,50 +1392,40 @@ namespace SPPSApi.Controllers.P01
           //vcInstructionNo,vcPart_id,vcOrderNo,vcLianFanNo,iQuantity
           for (int i = 0; i < getCase2.Rows.Count; i++)
           {
-            string inputNo = getCase2.Rows[i][0].ToString();
-            string partId = getCase2.Rows[i][1].ToString();
-            string kanbanOrderNo = getCase2.Rows[i][2].ToString();
-            string kanbanSerial = getCase2.Rows[i][3].ToString();
-            string quantity = getCase2.Rows[i][4].ToString();
-            string dock = getCase2.Rows[i][5].ToString();
+            string inputNo = getCase2.Rows[i]["vcInstructionNo"].ToString();
+            string partId = getCase2.Rows[i]["vcPart_id"].ToString();
+            string kanbanOrderNo = getCase2.Rows[i]["vcOrderNo"].ToString();
+            string kanbanSerial = getCase2.Rows[i]["vcLianFanNo"].ToString();
+            string quantity = getCase2.Rows[i]["iQuantity"].ToString();
+            string dock = getCase2.Rows[i]["vcSR"].ToString();
             DataTable validateOpr = P00003_Logic.ValidateOpr1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
             if (validateOpr.Rows.Count == 1)
             {
-
-              string supplier_id = validateOpr.Rows[0][0].ToString();//供应商代码
-              string supplierGQ = validateOpr.Rows[0][1].ToString();//供应商工区
-              string bZUnit = validateOpr.Rows[0][2].ToString();//包装单位
-
-              string labelStart = validateOpr.Rows[0][4].ToString();//标签起
-              string labelEnd = validateOpr.Rows[0][5].ToString();//标签止
-              string inoutFlag = validateOpr.Rows[0][6].ToString();//内外区分
+              string supplier_id = validateOpr.Rows[0]["vcSupplier_id"].ToString();//供应商代码
+              string supplierGQ = validateOpr.Rows[0]["vcSupplierGQ"].ToString();//供应商工区
+              string bZUnit = validateOpr.Rows[0]["vcBZUnit"].ToString();//包装单位
+              string labelStart = validateOpr.Rows[0]["vcLabelStart"].ToString();//标签起
+              string labelEnd = validateOpr.Rows[0]["vcLabelEnd"].ToString();//标签止
+              string inoutFlag = validateOpr.Rows[0]["vcIOType"].ToString();//内外区分
               string checkStatus = "OK";//检查状态
-
               //插入到箱号List,插入作业实绩,修改入出库履历
               DataTable validateInv = P00003_Logic.ValidateInv(inputNo);
               // DataTable validateOpr1 = P00003_Logic.ValidateSJ1(partId, dock, kanbanOrderNo, kanbanSerial);
               DataTable getCheckType = P00003_Logic.GetCheckType(partId, serverTime,supplier_id);
               DataTable getPartsName = P00003_Logic.GetPartsName(serverTime, partId);
-              if (getPartsName.Rows.Count == 1 && getCheckType.Rows.Count == 1 && validateInv.Rows.Count == 1 && int.Parse(quantity) <= (int.Parse(validateInv.Rows[0][0].ToString())))
+              if (getPartsName.Rows.Count == 1 && getCheckType.Rows.Count == 1 && validateInv.Rows.Count == 1 && int.Parse(quantity) <= (int.Parse(validateInv.Rows[0]["iDZX"].ToString())))
               {
-                //
-                string bzPlant = validateInv.Rows[0][2].ToString();
-                string sHF = validateInv.Rows[0][3].ToString();
-                string checkType = getCheckType.Rows[0][0].ToString();
+                string bzPlant = validateInv.Rows[0]["vcBZPlant"].ToString();
+                string sHF = validateInv.Rows[0]["vcSHF"].ToString();
+                string checkType = getCheckType.Rows[0]["vcCheckP"].ToString();
                 string cpdName = "一汽丰田";
                 string cpdAddress = "天津塘沽开发区第九大街";
-                string partsName = getPartsName.Rows[0][0].ToString();
+                string partsName = getPartsName.Rows[0]["vcPartENName"].ToString();
                 byte[] vs = P00003_Logic.GenerateQRCode(caseNo);
                 int sjResultIn = P00003_Logic.InsertSj(supplier_id, supplierGQ, bZUnit, checkType, labelStart, labelEnd, inoutFlag, checkStatus, bzPlant, inputNo, quantity, partId, kanbanOrderNo, kanbanSerial, dock, opearteId, serverTime, serverTime, iP, sHF, quantity, caseNo,pointType);//此处需要改动
                 int invResultUp = P00003_Logic.UpdateInv1(partId, kanbanOrderNo, kanbanSerial, quantity);
                 int caseResultIn = P00003_Logic.InsertCase(sHF, cpdName, cpdAddress, caseNo, inputNo, partId, quantity, partsName, opearteId, serverTime, iP, vs, labelStart, labelEnd);
                 int caseResultUp1 = P00003_Logic.UpdateCase5(iP, caseNo);
-
-
-
-
-
-
               }
               else if (getPartsName.Rows.Count != 1)
               {
@@ -1643,96 +1433,58 @@ namespace SPPSApi.Controllers.P01
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "品番" + partId + "在品番基础数据中没有有效数据!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
               }
               else if (getCheckType.Rows.Count != 1)
               {
-
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "品番" + partId + "在检查区分表中没有有效数据!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
               }
-
               else if (validateInv.Rows.Count != 1)
               {
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "品番" + partId + "在入出库履历表中没有有效数据!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
               }
-
-
-
-
-
-
             }
             else
             {
-
               apiResult.code = ComConstant.ERROR_CODE;
               apiResult.data = "品番" + partId + "在作业实绩中没有有效数据!";
               return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
-
             }
-
-
           }
-
           //循环结束为止
           #region 循环结束之后需要更新打印时间,需要更新总的数量
           DataTable getCaseList = P00003_Logic.GetCaseList(iP, caseNo);
-          string count = getCaseList.Rows[0][0].ToString();
+          string count = getCaseList.Rows[0]["count"].ToString();
           if (int.Parse(count) > 0)
           {
-            string sum = getCaseList.Rows[0][1].ToString();
+            string sum = getCaseList.Rows[0]["sum"].ToString();
             int caseResultUp = P00003_Logic.UpdateCase(count, sum, caseNo);
             int caResultIn = P00003_Logic.InsertTP(iP, opearteId, serverTime, caseNo);
             int boxResultUp = P00003_Logic.UpdateBox(caseNo, serverTime);
-
-
-
           }
           else
           {
-
             apiResult.code = ComConstant.ERROR_CODE;
             apiResult.data = "没有需要打印的数据!";
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
           }
-
-
-
           #endregion
-
-
-
         }
         else if (getCase3.Rows.Count > 0)
         {
-
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "该箱号已经打印装箱单!";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
         }
         else if (getCase2.Rows.Count == 0)
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "没有需要打印的数据!";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
         }
-
       }
       catch (Exception ex)
       {
@@ -1741,12 +1493,6 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "打印装箱单失败";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
-
-
-
-
-
-
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -1766,8 +1512,6 @@ namespace SPPSApi.Controllers.P01
       {
         dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
         string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//箱号
-
-
       }
       catch (Exception ex)
       {
@@ -1819,7 +1563,7 @@ namespace SPPSApi.Controllers.P01
             string shebeiNo = validateCaseNo.Rows[0][1].ToString();
             string hostIp = validateCaseNo.Rows[0][2].ToString();
             string user = validateCaseNo.Rows[0][3].ToString();
-            DataTable getpointNo = P00003_Logic.GetPoingNo(hostIp);
+            DataTable getpointNo = P00003_Logic.GetPointNo(hostIp);
             if (getpointNo.Rows.Count == 1)
             {
               string machineType = getpointNo.Rows[0][0].ToString();
@@ -1941,7 +1685,7 @@ namespace SPPSApi.Controllers.P01
         string timeStart = dataForm.TimeStart == null ? "" : dataForm.TimeStart;
         string timeEnd = dataForm.TimeEnd == null ? "" : dataForm.TimeEnd;
         string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
-        DataTable getPoint = P00003_Logic.GetPoingNo(iP);
+        DataTable getPoint = P00003_Logic.GetPointNo(iP);
         if (getPoint.Rows.Count != 1)
         {
           apiResult.code = ComConstant.ERROR_CODE;
@@ -2418,7 +2162,7 @@ namespace SPPSApi.Controllers.P01
         string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
         string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
         //0605
-        DataTable getPoint = P00003_Logic.GetPoingNo(iP);                                                                                        //0605
+        DataTable getPoint = P00003_Logic.GetPointNo(iP);                                                                                        //0605
         if (getPoint.Rows.Count != 1)
         {
           apiResult.code = ComConstant.ERROR_CODE;
@@ -2748,10 +2492,6 @@ namespace SPPSApi.Controllers.P01
       }
       LoginInfo loginInfo = getLoginByToken(strToken);
       string opearteId = loginInfo.UserId;
-
-
-
-
       ApiResult apiResult = new ApiResult();
       try
       {
@@ -2764,32 +2504,24 @@ namespace SPPSApi.Controllers.P01
         string scanTime = dataForm.ScanTime == null ? "" : dataForm.ScanTime;//客户端时间
         DataTable getPackData = P00003_Logic.GetPackData(partId, scanTime);//从包材构成数据获得包材区分
         DataTable getPM = P00003_Logic.GetPM(dock, partId);
-
         DataTable getData = P00003_Logic.GetData(partId, dock, kanbanOrderNo, kanbanSerial);
         if (getPackData.Rows.Count > 0 && getPM.Rows.Count == 1 && getData.Rows.Count == 1)
         {
-
           #region 构造返回数据
           P00003_DataEntity.NZ = getPackData.Rows[0][1].ToString();
           P00003_DataEntity.GZ = getPackData.Rows[1][1].ToString();
           int sum = 0;
           for (int i = 2; i < getPackData.Rows.Count; i++)
           {
-
             String j = getPackData.Rows[i][1].ToString();
             sum += int.Parse(j);
-
           }
           P00003_DataEntity.other = sum.ToString();
           P00003_DataEntity.PM = getPM.Rows[0][0].ToString();
           P00003_DataEntity.DW = getData.Rows[0][0].ToString();
           P00003_DataEntity.checkType = getData.Rows[0][1].ToString();
           P00003_DataEntity.quantity = quantity.Replace("0", "");
-
-
           apiResult.data = P00003_DataEntity;
-
-
           #endregion
         }
         else if (getPackData.Rows.Count == 0)
@@ -2797,23 +2529,19 @@ namespace SPPSApi.Controllers.P01
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "品番" + partId + "在包材基础数据中没有对应数据,请检查!";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
         }
         else if (getPM.Rows.Count != 1)
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "品番" + partId + "在品目信息表中没有有效或多条数据,请检查!";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
         }
         else if (getData.Rows.Count != 1)
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "品番" + partId + "在作业实绩表中没有对应数据或有多条数据,请检查!";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
         }
-
       }
       catch (Exception ex)
       {

@@ -1,11 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
 using DataAccess;
-using System.Collections;
-using System.Net;
 using QRCoder;
 using System.Drawing;
 using System.IO;
@@ -684,7 +679,7 @@ namespace Logic
       return P00003_DataAccess.UpdateBox(caseNo, serverTime);
     }
 
-    public DataTable GetPoingNo(string iP)
+    public DataTable GetPointNo(string iP)
     {
       return P00003_DataAccess.GetPointNo(iP);
     }

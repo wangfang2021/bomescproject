@@ -1631,7 +1631,7 @@ namespace SPPSApi.Controllers.P01
         if (dsCheckDb.Tables[0].Rows.Count > 0)
         {
           apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "看板订单号" + kanbanOrderNo + "看板连番" + kanbanSerial + "品番" + partId + "已经入库";
+          apiResult.data = "看板订单号" + kanbanOrderNo + "看板连番" + kanbanSerial + "品番" + partId + "已经扫描";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         if (dsCheckDb.Tables[1].Rows.Count != 1)

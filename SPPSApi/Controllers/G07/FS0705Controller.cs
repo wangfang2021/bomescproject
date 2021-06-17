@@ -149,7 +149,6 @@ namespace SPPSApi.Controllers.G07
                  * 包材构成表：TPackItem
                  */
 
-
                 #region 校验当前计算的发注逻辑下是否存在有效包材构成
                 /*
                  * 修改时间：2021-5-10
@@ -219,11 +218,11 @@ namespace SPPSApi.Controllers.G07
                         }
                         else
                         {
-                            receiverDT.Columns.Add("address");
                             receiverDT.Columns.Add("displayName");
+                            receiverDT.Columns.Add("address");
                             DataRow dr = receiverDT.NewRow();
-                            dr["address"] = EmailInformation.Rows[0]["receiverEmail"] != null ? EmailInformation.Rows[0]["receiverEmail"].ToString().Trim() : "";
-                            dr["displayName"] = EmailInformation.Rows[0]["receiverName"] != null ? EmailInformation.Rows[0]["receiverName"].ToString().Trim() : "";
+                            dr["displayName"] = displayName.Trim();
+                            dr["address"] = address.Trim();
                             receiverDT.Rows.Add(dr);
                         }
                         //生成附件

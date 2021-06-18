@@ -2134,7 +2134,8 @@ namespace DataAccess
         strSql_addinfo.AppendLine("INSERT INTO [dbo].[TOperateSJ_InOutput]");
         strSql_addinfo.AppendLine("           ([vcBZPlant]");
         strSql_addinfo.AppendLine("           ,[vcSHF]");
-        strSql_addinfo.AppendLine("           ,[vcInputNo]");
+        strSql_addinfo.AppendLine("           ,[vcSR]");
+                strSql_addinfo.AppendLine("           ,[vcInputNo]");
         strSql_addinfo.AppendLine("           ,[vcKBOrderNo]");
         strSql_addinfo.AppendLine("           ,[vcKBLFNo]");
         strSql_addinfo.AppendLine("           ,[vcPart_id]");
@@ -2147,12 +2148,13 @@ namespace DataAccess
         strSql_addinfo.AppendLine("           ,[dOperatorTime])");
         strSql_addinfo.AppendLine("select vcBZPlant,");
         strSql_addinfo.AppendLine("vcCpdCompany,");
+        strSql_addinfo.AppendLine("vcSR,");
         strSql_addinfo.AppendLine("vcInputNo,");
-        strSql_addinfo.AppendLine("vcKBOrderNo,");
+                strSql_addinfo.AppendLine("vcKBOrderNo,");
         strSql_addinfo.AppendLine("vcKBLFNo,");
         strSql_addinfo.AppendLine("vcPart_id,");
         strSql_addinfo.AppendLine("iQuantity,");
-        strSql_addinfo.AppendLine("0,");
+        strSql_addinfo.AppendLine("iQuantity,");
         strSql_addinfo.AppendLine("0,");
         strSql_addinfo.AppendLine("0,");
         strSql_addinfo.AppendLine("dScanTime,");
@@ -2180,7 +2182,8 @@ namespace DataAccess
         strSql_modinfo.AppendLine("           ,[iNo]");
         strSql_modinfo.AppendLine("           ,[vcPackingpartsno]");
         strSql_modinfo.AppendLine("           ,[vcPackinggroup]");
-        strSql_modinfo.AppendLine("           ,[vcInno]");
+        strSql_modinfo.AppendLine("           ,[vcDistinguish]");
+                strSql_modinfo.AppendLine("           ,[vcInno]");
         strSql_modinfo.AppendLine("           ,[dQty]");
         strSql_modinfo.AppendLine("           ,[vcPackingpartslocation]");
         strSql_modinfo.AppendLine("           ,[dDaddtime]");
@@ -2198,8 +2201,9 @@ namespace DataAccess
         strSql_modinfo.AppendLine("           ,null");
         strSql_modinfo.AppendLine("           ,@vcPackingpartsno");
         strSql_modinfo.AppendLine("           ,@vcPackinggroup");
+        strSql_modinfo.AppendLine("           ,@vcDistinguish");
         strSql_modinfo.AppendLine("           ,@vcInno");
-        strSql_modinfo.AppendLine("           ,@dQty");
+                strSql_modinfo.AppendLine("           ,@dQty");
         strSql_modinfo.AppendLine("           ,@vcPackingpartslocation");
         strSql_modinfo.AppendLine("           ,@dDaddtime");
         strSql_modinfo.AppendLine("           ,@vcPcname");
@@ -2215,7 +2219,8 @@ namespace DataAccess
         sqlCommand_modinfo.Parameters.AddWithValue("@vcLotid", "");
         sqlCommand_modinfo.Parameters.AddWithValue("@vcPackingpartsno", "");
         sqlCommand_modinfo.Parameters.AddWithValue("@vcPackinggroup", "");
-        sqlCommand_modinfo.Parameters.AddWithValue("@vcInno", "");
+        sqlCommand_modinfo.Parameters.AddWithValue("@vcDistinguish", "");
+                sqlCommand_modinfo.Parameters.AddWithValue("@vcInno", "");
         sqlCommand_modinfo.Parameters.AddWithValue("@dQty", "");
         sqlCommand_modinfo.Parameters.AddWithValue("@vcPackingpartslocation", "");
         sqlCommand_modinfo.Parameters.AddWithValue("@dDaddtime", "");
@@ -2233,6 +2238,7 @@ namespace DataAccess
           sqlCommand_modinfo.Parameters["@vcLotid"].Value = item["vcLotid"].ToString();
           sqlCommand_modinfo.Parameters["@vcPackingpartsno"].Value = item["vcPackingpartsno"].ToString();
           sqlCommand_modinfo.Parameters["@vcPackinggroup"].Value = item["vcPackinggroup"].ToString();
+          sqlCommand_modinfo.Parameters["@vcDistinguish"].Value = item["vcDistinguish"].ToString();
           sqlCommand_modinfo.Parameters["@vcInno"].Value = item["vcInno"].ToString();
           sqlCommand_modinfo.Parameters["@dQty"].Value = item["dQty"].ToString();
           sqlCommand_modinfo.Parameters["@vcPackingpartslocation"].Value = item["vcPackingpartslocation"].ToString();

@@ -1234,6 +1234,7 @@ namespace SPPSApi.Controllers.P01
           drPackList_Temp["vcPackingpartsno"] = dtPackInfo.Rows[j]["vcPackNo"].ToString();
           //0613修改包材品番获取
           drPackList_Temp["vcPackinggroup"] = dtPackInfo.Rows[j]["vcPackinggroup"].ToString();
+          drPackList_Temp["vcDistinguish"] = dtPackInfo.Rows[j]["vcDistinguish"].ToString();
           drPackList_Temp["vcInno"] = dtPackInfo.Rows[j]["vcInno"].ToString();
           drPackList_Temp["dQty"] = dtPackInfo.Rows[j]["dQty"].ToString();
           drPackList_Temp["vcPackingpartslocation"] = dtPackInfo.Rows[j]["vcPackingpartslocation"].ToString();

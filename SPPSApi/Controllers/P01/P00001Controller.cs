@@ -421,7 +421,7 @@ namespace SPPSApi.Controllers.P01
           if (getStatus.Rows.Count == 1)
           {
             P00001_Logic.UpdateStatus5(pointNo);
-            P00001_Logic.UpdateCase(iP);
+            //P00001_Logic.UpdateCase(iP);
           }
           else
           {

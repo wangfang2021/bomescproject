@@ -253,7 +253,7 @@ namespace DataAccess
 
                 if (strSupplierCode.Count > 0)
                 {
-                    strSql.AppendLine(" T_2.vcSupplierCode in (     ");
+                    strSql.AppendLine(" and  T_2.vcSupplierCode in (     ");
                     for (int i = 0; i < strSupplierCode.Count; i++)
                     {
                         if (strSupplierCode.Count - i == 1)
@@ -508,37 +508,166 @@ namespace DataAccess
                     else
                         sql.AppendLine("   '" + listInfoData.Rows[i]["iHySOQN2"].ToString() + "',   \n");
 
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD1"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD2"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD3"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD4"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD5"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD6"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD7"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD8"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD9"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD10"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD11"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD12"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD13"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD14"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD15"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD16"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD17"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD18"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD19"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD20"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD21"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD22"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD23"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD24"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD25"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD26"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD27"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD28"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD29"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD30"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["iD31"].ToString() + "',   \n");
+
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD1"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD1"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD2"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD2"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD3"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD3"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD4"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD4"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD5"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD5"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD6"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD6"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD7"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD7"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD8"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD8"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD9"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD9"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD10"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD10"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+
+
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD11"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD11"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD12"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD12"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD13"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD13"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD14"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD14"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD15"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD15"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD16"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD16"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD17"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD17"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD18"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD18"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD19"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD19"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD20"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD20"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+
+
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD21"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD21"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD22"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD22"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD23"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD23"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD24"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD24"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD25"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD25"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD26"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD26"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD27"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD27"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD28"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD28"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD29"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD29"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD30"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD30"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+                    if (!string.IsNullOrEmpty(listInfoData.Rows[i]["iD31"].ToString()))
+                        sql.AppendLine("   '" + listInfoData.Rows[i]["iD31"].ToString() + "',   \n");
+                    else
+                        sql.AppendLine("  0.00000,   \n");
+
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD2"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD3"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD4"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD5"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD6"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD7"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD8"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD9"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD10"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD11"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD12"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD13"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD14"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD15"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD16"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD17"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD18"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD19"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD20"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD21"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD22"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD23"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD24"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD25"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD26"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD27"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD28"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD29"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD30"].ToString() + "',   \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["iD31"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["dZCTime"].ToString() + "',   \n");
                     sql.AppendLine("   '0', \n");
                     sql.AppendLine("   '0', \n");

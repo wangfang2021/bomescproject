@@ -443,8 +443,10 @@ namespace SPPSApi.Controllers.P01
                     boxNo = getCaseNo.Rows[0]["vcBoxNo"].ToString(); //截位
                 }
                 DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
-                P00003_DataEntity.kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
-                apiResult.data = P00003_DataEntity;
+                string kanbanQuantity = "0";
+                if(dtCaseNoInfo.Rows.Count>0)
+                    kanbanQuantity= dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                P00003_DataEntity.kanbanQuantity = kanbanQuantity;
                 P00003_DataEntity.caseNo = caseNo;
                 P00003_DataEntity.boxNo = boxNo;
                 P00003_DataEntity.userName = userName;
@@ -621,7 +623,7 @@ namespace SPPSApi.Controllers.P01
                 }
                 strPrinterName = dtPrintName.Rows[0]["vcPrinterName"].ToString();
                 //1.获取看板信息
-                DataTable dtKanBanInfo = P00003_Logic.GetKanBanInfo(partId, dock, kanbanOrderNo, kanbanSerial, scanTime);
+                DataTable dtKanBanInfo = P00003_Logic.GetKanBanInfo(partId, kanbanOrderNo, kanbanSerial, dock, scanTime);
                 //2.检验看板信息
                 if (dtKanBanInfo.Rows.Count == 0)
                 {
@@ -694,7 +696,10 @@ namespace SPPSApi.Controllers.P01
                 P00003_Logic.setPrintLable(iP, strInvNo, strPrinterName, opearteId);
                 //5.获取箱号已装箱
                 DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
-                P00003_DataEntity.kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                string kanbanQuantity = "0";
+                if (dtCaseNoInfo.Rows.Count > 0)
+                    kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                P00003_DataEntity.kanbanQuantity = kanbanQuantity;
 
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
@@ -1151,11 +1156,14 @@ namespace SPPSApi.Controllers.P01
                 string strCaseNo = caseNo;
                 string strHostIp = iP;
                 string strSheBeiNo = pointType;
-                string strPointState = "0";
+                string strPointState = "1";
                 string strOperatorID = opearteId;
                 P00003_Logic.SetCaseNoInfo(strBoxNo, strCaseNo, strHostIp, strSheBeiNo, strPointState, strOperatorID);
 
-                P00003_DataEntity.kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                string kanbanQuantity = "0";
+                if (dtCaseNoInfo.Rows.Count > 0)
+                    kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                P00003_DataEntity.kanbanQuantity = kanbanQuantity;
                 apiResult.data = P00003_DataEntity;
             }
             catch (Exception ex)
@@ -1228,7 +1236,10 @@ namespace SPPSApi.Controllers.P01
                 P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
 
                 DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
-                P00003_DataEntity.kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                string kanbanQuantity = "0";
+                if (dtCaseNoInfo.Rows.Count > 0)
+                    kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                P00003_DataEntity.kanbanQuantity = kanbanQuantity;
                 apiResult.data = P00003_DataEntity;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
@@ -1474,7 +1485,10 @@ namespace SPPSApi.Controllers.P01
                 P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
 
                 DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
-                P00003_DataEntity.kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                string kanbanQuantity = "0";
+                if (dtCaseNoInfo.Rows.Count > 0)
+                    kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                P00003_DataEntity.kanbanQuantity = kanbanQuantity;
                 apiResult.data = P00003_DataEntity;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 #region 作废代码

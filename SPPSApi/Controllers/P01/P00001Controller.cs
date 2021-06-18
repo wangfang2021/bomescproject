@@ -229,27 +229,40 @@ namespace SPPSApi.Controllers.P01
             ApiResult apiResult = new ApiResult();
             try
             {
-                DataTable validateUser = P00001_Logic.ValidateUser(opearteId);
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string pointtype = dataForm.pointtype == null ? "" : dataForm.pointtype;//设备类型
                 //ip插入位置
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
-                if (validateUser.Rows.Count == 1)
-                {
-                    string pointNo = validateUser.Rows[0]["vcPointNo"].ToString();
-                    DataTable getPointType = P00001_Logic.GetPointType(pointNo);
-                    if (getPointType.Rows.Count == 1)
-                    {
-                        string pointType = getPointType.Rows[0]["vcPointType"].ToString();
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "账号已经在" + pointType + pointNo + "登录";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
-                else if (validateUser.Rows.Count > 0)
+                //验证独占登录
+                DataTable dtPointState = P00001_Logic.GetPointState(opearteId);
+                if (dtPointState.Rows.Count > 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "账号信息异常,请联系管理员";
+                    apiResult.data = "账号已经在" + dtPointState.Rows[0]["vcPointType"].ToString() + dtPointState.Rows[0]["vcPointNo"].ToString() + "登录";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //验证打印机
+                DataTable dtPrintName = P00001_Logic.checkPrintName(iP, pointtype);
+                bool bCheckPrint = false;
+                if (pointtype == "COM")//扫描枪+一体机
+                {
+                    if (dtPrintName.Rows.Count != 2)
+                        bCheckPrint = true;
+                }
+                else//PAD
+                {
+                    if (dtPrintName.Rows.Count != 3)
+                        bCheckPrint = true;
+                }
+                if (bCheckPrint)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "该设备绑定打印机有误，请联系管理员设置。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //以IP更新箱号
+                P00001_Logic.setCaseState(iP);
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
@@ -258,80 +271,6 @@ namespace SPPSApi.Controllers.P01
                 apiResult.data = "验证账号失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        }
-        #endregion
-
-        #region 系统登录-登录前验证打印机(PAD,扫描枪)
-        [HttpPost]
-        [EnableCors("any")]
-        public string ValidatePrint1Api([FromBody] dynamic data)
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            string opearteId = loginInfo.UserId;
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
-                DataTable getPrint = P00001_Logic.GetPrint1(iP);
-                if (getPrint.Rows.Count != 2)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "当前机器没有正确绑定打印机,请联系管理员!";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-                }
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "验证打印机失败!";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        }
-        #endregion
-
-        #region 系统登录-登录前验证打印机(PAD)
-        [HttpPost]
-        [EnableCors("any")]
-        public string ValidatePrintApi([FromBody] dynamic data)
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            string opearteId = loginInfo.UserId;
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
-                DataTable getPrint = P00001_Logic.GetPrint(iP);
-                if (getPrint.Rows.Count != 3)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "当前机器没有正确绑定打印机,请联系管理员!";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-                }
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "验证打印机失败!";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -410,21 +349,21 @@ namespace SPPSApi.Controllers.P01
                     if (getStatus.Rows.Count == 1)
                     {
                         P00001_Logic.UpdateStatus4(pointNo, opearteId);
-                        #region 将当前绑定，未打印装箱单的箱号重新绑定
-                        DataTable getCase = P00001_Logic.GetCase(opearteId, iP);
-                        if (getCase.Rows.Count > 0)
-                        {
-                            for (int i = 0; i < getCase.Rows.Count; i++)
-                            {
-                                string caseNo = getCase.Rows[i]["vcBoxNo"].ToString();
-                                DataTable getCase1 = P00001_Logic.GetCase1(caseNo);
-                                if (getCase1.Rows.Count == 0)//未打印装箱单
-                                {
-                                    P00001_Logic.UpdateCase(iP, serverTime, opearteId, caseNo);
-                                }
-                            }
-                        }
-                        #endregion
+                        //#region 将当前绑定，未打印装箱单的箱号重新绑定
+                        //DataTable getCase = P00001_Logic.GetCase(opearteId, iP);
+                        //if (getCase.Rows.Count > 0)
+                        //{
+                        //    for (int i = 0; i < getCase.Rows.Count; i++)
+                        //    {
+                        //        string caseNo = getCase.Rows[i]["vcBoxNo"].ToString();
+                        //        DataTable getCase1 = P00001_Logic.GetCase1(caseNo);
+                        //        if (getCase1.Rows.Count == 0)//未打印装箱单
+                        //        {
+                        //            P00001_Logic.UpdateCase(iP, serverTime, opearteId, caseNo);
+                        //        }
+                        //    }
+                        //}
+                        //#endregion
                     }
                     else
                     {

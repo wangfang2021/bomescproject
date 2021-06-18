@@ -197,16 +197,43 @@ namespace DataAccess
 
 
                 strSql.AppendLine("  from    (  ");
+                strSql.AppendLine("   select      ");
+                strSql.AppendLine("    vcDXYM,vcPart_id,iPartNums,iQuantityPercontainer,     ");
+                strSql.AppendLine("    isnull(iD1,'') as iD1,isnull(iD2,'') as iD2,isnull(iD3,'') as iD3,isnull(iD4,'') as iD4,isnull(iD5,'') as iD5,     ");
+                strSql.AppendLine("    isnull(iD6,'') as iD6,isnull(iD7,'') as iD7,isnull(iD8,'') as iD8,isnull(iD9,'') as iD9,isnull(iD10,'') as iD10,     ");
+                strSql.AppendLine("    isnull(iD11,'') as iD11,isnull(iD12,'') as iD12,isnull(iD13,'') as iD13,isnull(iD14,'') as iD14,isnull(iD15,'') as iD15,     ");
+                strSql.AppendLine("    isnull(iD16,'') as iD16,isnull(iD17,'') as iD17,isnull(iD18,'') as iD18,isnull(iD19,'') as iD19,isnull(iD20,'') as iD20,     ");
+                strSql.AppendLine("    isnull(iD21,'') as iD21,isnull(iD22,'') as iD22,isnull(iD23,'') as iD23,isnull(iD24,'') as iD24,isnull(iD25,'') as iD25,     ");
+                strSql.AppendLine("    isnull(iD26,'') as iD26,isnull(iD27,'') as iD27,isnull(iD28,'') as iD28,isnull(iD29,'') as iD29,isnull(iD30,'') as iD30,     ");
+                strSql.AppendLine("    isnull(iD31,'') as iD31     ");
 
-                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN + "' and vcCLYM='" + strN_CL + "'      ");
+                strSql.AppendLine("   from TSoqReply where vcDXYM='" + strN + "' and vcCLYM='" + strN_CL + "'      ");
                 strSql.AppendLine("  )b      ");
                 strSql.AppendLine("  left join       ");
                 strSql.AppendLine("  (         ");
-                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN_1 + "'  and vcCLYM='" + strN_CL + "'      ");
+                strSql.AppendLine("   select      ");
+                strSql.AppendLine("    vcDXYM,vcPart_id,iPartNums,iQuantityPercontainer,     ");
+                strSql.AppendLine("    isnull(iD1,'') as iD1,isnull(iD2,'') as iD2,isnull(iD3,'') as iD3,isnull(iD4,'') as iD4,isnull(iD5,'') as iD5,     ");
+                strSql.AppendLine("    isnull(iD6,'') as iD6,isnull(iD7,'') as iD7,isnull(iD8,'') as iD8,isnull(iD9,'') as iD9,isnull(iD10,'') as iD10,     ");
+                strSql.AppendLine("    isnull(iD11,'') as iD11,isnull(iD12,'') as iD12,isnull(iD13,'') as iD13,isnull(iD14,'') as iD14,isnull(iD15,'') as iD15,     ");
+                strSql.AppendLine("    isnull(iD16,'') as iD16,isnull(iD17,'') as iD17,isnull(iD18,'') as iD18,isnull(iD19,'') as iD19,isnull(iD20,'') as iD20,     ");
+                strSql.AppendLine("    isnull(iD21,'') as iD21,isnull(iD22,'') as iD22,isnull(iD23,'') as iD23,isnull(iD24,'') as iD24,isnull(iD25,'') as iD25,     ");
+                strSql.AppendLine("    isnull(iD26,'') as iD26,isnull(iD27,'') as iD27,isnull(iD28,'') as iD28,isnull(iD29,'') as iD29,isnull(iD30,'') as iD30,     ");
+                strSql.AppendLine("    isnull(iD31,'') as iD31     ");
+                strSql.AppendLine("   from TSoqReply where vcDXYM='" + strN_1 + "'  and vcCLYM='" + strN_CL + "'      ");
                 strSql.AppendLine("  )c on b.vcPart_id=c.vcPart_id        ");
                 strSql.AppendLine("  left join       ");
                 strSql.AppendLine("   (          ");
-                strSql.AppendLine("   select * from TSoqReply where vcDXYM='" + strN_2 + "' and vcCLYM='" + strN_CL + "'        ");
+                strSql.AppendLine("   select      ");
+                strSql.AppendLine("    vcDXYM,vcPart_id,iPartNums,iQuantityPercontainer,     ");
+                strSql.AppendLine("    isnull(iD1,'') as iD1,isnull(iD2,'') as iD2,isnull(iD3,'') as iD3,isnull(iD4,'') as iD4,isnull(iD5,'') as iD5,     ");
+                strSql.AppendLine("    isnull(iD6,'') as iD6,isnull(iD7,'') as iD7,isnull(iD8,'') as iD8,isnull(iD9,'') as iD9,isnull(iD10,'') as iD10,     ");
+                strSql.AppendLine("    isnull(iD11,'') as iD11,isnull(iD12,'') as iD12,isnull(iD13,'') as iD13,isnull(iD14,'') as iD14,isnull(iD15,'') as iD15,     ");
+                strSql.AppendLine("    isnull(iD16,'') as iD16,isnull(iD17,'') as iD17,isnull(iD18,'') as iD18,isnull(iD19,'') as iD19,isnull(iD20,'') as iD20,     ");
+                strSql.AppendLine("    isnull(iD21,'') as iD21,isnull(iD22,'') as iD22,isnull(iD23,'') as iD23,isnull(iD24,'') as iD24,isnull(iD25,'') as iD25,     ");
+                strSql.AppendLine("    isnull(iD26,'') as iD26,isnull(iD27,'') as iD27,isnull(iD28,'') as iD28,isnull(iD29,'') as iD29,isnull(iD30,'') as iD30,     ");
+                strSql.AppendLine("    isnull(iD31,'') as iD31     ");
+                strSql.AppendLine("    from TSoqReply where vcDXYM='" + strN_2 + "' and vcCLYM='" + strN_CL + "'        ");
                 strSql.AppendLine("   )d on b.vcPart_id=d.vcPart_id      ");
                 strSql.AppendLine("   left join      ");
                 strSql.AppendLine("   (      ");

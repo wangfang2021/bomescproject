@@ -531,32 +531,7 @@ namespace DataAccess
       }
     }
 
-    public void UpdateStatus5(string pointNo)
-    {
-      StringBuilder UpdateStatusSql = new StringBuilder();
-      UpdateStatusSql.Append("update TPointState set vcState='未登录',vcOperater='' where vcPointNo='" + pointNo + "' and vcPlant='H2'");
-      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-      DataSet ds = new DataSet();
-      try
-      {
-        ConnSql.Open();
-        string strSQL = UpdateStatusSql.ToString();
-        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-        da.Fill(ds);
-      }
-      catch (Exception ex)
-      {
-        throw ex;
-      }
-      finally
-      {
-        if (ConnectionState.Open == ConnSql.State)
-        {
-          ConnSql.Close();
-        }
-      }
-    }
-
+   
     public DataTable GetBanZhi(string serverTime)
     {
       StringBuilder GetBanZhiSql = new StringBuilder();
@@ -819,7 +794,7 @@ namespace DataAccess
     public DataTable GetCase(string opearteId, string iP)
     {
       StringBuilder GetCaseSql = new StringBuilder();
-      GetCaseSql.Append("select vcBoxNo from TCaseInfo where vcHostIp='" + iP + "' and vcOperatorID='" + opearteId + "' order by dOperatorTime desc");
+      GetCaseSql.Append("select vcCaseNo from TCaseInfo where vcHostIp='" + iP + "' and vcOperatorID='" + opearteId + "' order by dOperatorTime desc");
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
       DataSet ds = new DataSet();
       try
@@ -873,7 +848,7 @@ namespace DataAccess
     public void UpdateCase(string iP, string serverTime, string opearteId, string caseNo)
     {
       StringBuilder UpdateCaseSql = new StringBuilder();
-      UpdateCaseSql.Append("update TCaseInfo set vcHostIp='" + iP + "',vcStatus='0',dOperatorTime='" + serverTime + "' where vcBoxNo='" + caseNo + "' and vcOperatorID='" + opearteId + "'");
+      UpdateCaseSql.Append("update TCaseInfo set vcHostIp='" + iP + "',vcPointState='1',dOperatorTime='" + serverTime + "' where vcCaseNo='" + caseNo + "' and vcOperatorID='" + opearteId + "'");
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
       DataSet ds = new DataSet();
       try
@@ -1504,8 +1479,46 @@ namespace DataAccess
     }
 
 
-    //========================================================================重写========================================================================
-    public DataSet getCheckQBandSJInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packingSpot, string scanTime, string strType)
+        //========================================================================重写========================================================================
+        public void setSysExit(string strIP)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("update b set b.vcState='未登录',decEfficacy='0.00' from ");
+            stringBuilder.AppendLine("(select * from TPointInfo where vcPointIp='"+ strIP + "')a");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(select * from TPointState)b");
+            stringBuilder.AppendLine("on a.vcPointNo=b.vcPointNo and a.vcPlant=b.vcPlant");
+            stringBuilder.AppendLine("declare @uuid varchar(100)");
+            stringBuilder.AppendLine("select top(1)@uuid=b.UUID from ");
+            stringBuilder.AppendLine("(select * from TPointInfo where vcPointIp='"+ strIP + "')a");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(select * from TPointDetails where dDestroyTime is null)b");
+            stringBuilder.AppendLine("on a.vcPlant=b.vcPlant and a.vcPointNo=b.vcPointNo");
+            stringBuilder.AppendLine("order by b.dOperateDate desc");
+            stringBuilder.AppendLine("update TPointDetails set dDestroyTime=GETDATE() where UUID=@uuid");
+            stringBuilder.AppendLine("update TCaseInfo set vcPointState='0',dOperatorTime=GETDATE() where vcHostIp='"+ strIP + "' and vcPointState='1' and dBoxPrintTime is null");
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
+        public DataSet getCheckQBandSJInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packingSpot, string scanTime, string strType)
     {
       StringBuilder stringBuilder = new StringBuilder();
       if (strType == "QB")

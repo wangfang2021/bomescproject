@@ -341,6 +341,10 @@ namespace Logic
         }
 
         //========================================================================重写========================================================================
+        public static void setSysExit(string strIP)
+        {
+            P00001_DataAccess.setSysExit(strIP);
+        }
         public static DataSet getCheckQBandSJInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packingSpot, string scanTime, string strType)
         {
             return P00001_DataAccess.getCheckQBandSJInfo(partId, kanbanOrderNo, kanbanSerial, dock, packingSpot, scanTime, strType);

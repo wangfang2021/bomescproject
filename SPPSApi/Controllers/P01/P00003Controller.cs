@@ -175,7 +175,7 @@ namespace SPPSApi.Controllers.P01
         }
         #endregion
 
-        #region 定时更新能率
+        #region 包装-登录到包装页面第二步-定时更新能率
         [HttpPost]
         [EnableCors("any")]
         public string GetEffiApi([FromBody] dynamic data)
@@ -208,11 +208,7 @@ namespace SPPSApi.Controllers.P01
                         P00003_DataEntity.stanTime = getStanTime.Rows[0][0].ToString();
                         apiResult.data = P00003_DataEntity;
                     }
-
                 }
-
-
-
             }
             catch (Exception ex)
             {
@@ -418,7 +414,7 @@ namespace SPPSApi.Controllers.P01
         }
         #endregion
 
-        #region  获得用户信息,获取箱号
+        #region  包装-登录到包装页面第二步-绑定箱号
         [HttpPost]
         [EnableCors("any")]
         public string GetUserInfoApi([FromBody] dynamic data)
@@ -432,37 +428,29 @@ namespace SPPSApi.Controllers.P01
             string opearteId = loginInfo.UserId;
             string banZhi = loginInfo.BanZhi;
             string userName = loginInfo.UserName;
-
             ApiResult apiResult = new ApiResult();
             try
             {
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
-                DataTable getCaseNo = P00003_Logic.GetCaseNo(iP);
-
+                //vcPointState 1:当前登录中  0：已经退出
+                string strPointState = "1";
+                string caseNo = "";
+                string boxNo = "";
+                DataTable getCaseNo = P00003_Logic.getOperCaseNo(iP, strPointState,opearteId);
                 if (getCaseNo.Rows.Count > 0)
                 {
-                    string caseNo = getCaseNo.Rows[0][0].ToString(); ;
-                    DataTable validateCaseNo3 = P00003_Logic.ValidateCaseNo3(caseNo);
-                    P00003_DataEntity.caseNo = caseNo;
-                    P00003_DataEntity.kanbanQuantity = validateCaseNo3.Rows.Count.ToString();
-
+                    caseNo = getCaseNo.Rows[0]["vcCaseNo"].ToString();//全位
+                    boxNo = getCaseNo.Rows[0]["vcBoxNo"].ToString(); //截位
                 }
-                else
-                {
-
-
-                    P00003_DataEntity.caseNo = "";
-
-                }
-
-
-
+                DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
+                P00003_DataEntity.kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                apiResult.data = P00003_DataEntity;
+                P00003_DataEntity.caseNo = caseNo;
+                P00003_DataEntity.boxNo = boxNo;
                 P00003_DataEntity.userName = userName;
                 P00003_DataEntity.banZhi = banZhi;
                 apiResult.data = P00003_DataEntity;
-
-
-
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
@@ -471,156 +459,6 @@ namespace SPPSApi.Controllers.P01
                 apiResult.data = "获取用户信息失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        }
-        #endregion
-
-        #region 销毁页面或退出系统时候更新总时间,重新登录需要将当前箱号状态设置为不可用,需要更改机器状态为未登录
-        public string UpdateTimeApi([FromBody] dynamic data)
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            string opearteId = loginInfo.UserId;
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                string time = dataForm.Time == null ? "" : dataForm.Time;//品番
-                string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//箱号
-                string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
-                string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
-                string formatDate = time.Substring(0, 10).Replace("-", "");
-                DataTable getTime = P00003_Logic.GetTime(formatDate, opearteId);
-                DataTable getCase1 = P00003_Logic.GetCase1(caseNo);
-                DataTable getStatus1 = P00003_Logic.GetStatus1(iP, opearteId);
-
-
-
-                if (getTime.Rows.Count == 1 && getStatus1.Rows.Count == 1)
-                {
-                    #region 退出登录更新箱号状态
-                    int caseResultUp = P00003_Logic.UpdateCase3(caseNo);
-
-
-
-
-                    #endregion
-
-                    #region 退出登录需要更改状态为未登录
-                    string pointNo = getStatus1.Rows[0][0].ToString();
-                    int statusResultUp = P00003_Logic.UpdateStatus3(pointNo, opearteId);
-
-
-
-
-
-
-                    #endregion
-
-
-
-
-                    //返回时间格式 2021/3/20 17:06:38
-                    string startTime = getTime.Rows[0][3].ToString();
-                    string totalTime1 = getTime.Rows[0][0].ToString();
-
-
-
-                    string getYearData = startTime.Split(" ")[0];
-                    string getTimeData = startTime.Split(" ")[1];
-
-                    int beforeYear = int.Parse(getYearData.Split("/")[0]);
-                    int beforeMonth = int.Parse(getYearData.Split("/")[1]);
-                    int beforeDate = int.Parse(getYearData.Split("/")[2]);
-                    int beforeHours = int.Parse(getTimeData.Split(":")[0]);
-                    int beforeMinutes = int.Parse(getTimeData.Split(":")[1]);
-                    int beforeSeconds = int.Parse(getTimeData.Split(":")[2]);
-
-
-                    string getYearData1 = time.Split(" ")[0];
-                    string getTimeData1 = time.Split(" ")[1];
-
-                    int afterYear = int.Parse(getYearData1.Split("-")[0]);
-                    int afterMonth = int.Parse(getYearData1.Split("-")[1]);
-                    int afterDate = int.Parse(getYearData1.Split("-")[2]);
-
-                    int afterHours = int.Parse(getTimeData1.Split(":")[0]);
-                    int afterMinutes = int.Parse(getTimeData1.Split(":")[1]);
-                    int afterSeconds = int.Parse(getTimeData1.Split(":")[2]);
-
-                    int totalTime = (afterYear - beforeYear) * 365 * 24 * 60 * 60 +
-                      (afterMonth - beforeMonth) * 30 * 24 * 60 * 60 +
-                      (afterDate - beforeDate) * 24 * 60 * 60 +
-                      (afterHours - beforeHours) * 60 * 60 + (afterMinutes - beforeMinutes) * 60 + (afterSeconds - beforeSeconds) + int.Parse(totalTime1);
-
-                    if (totalTime >= 0)
-                    {
-                        int freResultUp = P00003_Logic.UpdateFre1(totalTime, opearteId, formatDate);
-
-
-
-
-
-
-
-                    }
-                    else if (getStatus1.Rows.Count != 1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "点位信息异常,请检查!";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-                    }
-                    else
-                    {
-
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "结束时间小于开始时间,请检查!";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
-                    }
-
-
-
-
-
-
-
-                }
-                else
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "当前用户在效率表中不存在有效信息,请检查!";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
-
-
-                }
-
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "更新时间失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-
-
-
-
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 

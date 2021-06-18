@@ -842,6 +842,32 @@ namespace DataAccess
             return excute.ExcuteSqlWithStringOper(InsertOprSql.ToString());
         }
         //========================================================================重写========================================================================
+        public DataTable getOperCaseNo(string iP, string strPointState, string strOperatorID)
+        {
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("select * from TCaseInfo where vcPointState='" + strPointState + "' and vcHostIp='" + iP + "' and dBoxPrintTime is null order by dOperatorTime desc");
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
         public DataTable GetCaseNoInfo(string strCaseNo)
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();

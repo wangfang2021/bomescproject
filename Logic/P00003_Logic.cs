@@ -734,6 +734,17 @@ namespace Logic
             return P00003_DataAccess.ValidateCaseNo(partId, kanbanOrderNo, kanbanSerial, dock, caseNo);
         }
         //========================================================================重写========================================================================
+        public DataTable getOperCaseNo(string iP, string strPointState, string strOperatorID)
+        {
+            try
+            {
+                return P00003_DataAccess.getOperCaseNo(iP, strPointState, strOperatorID);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public DataTable GetCaseNoInfo(string strCaseNo)
         {
             try

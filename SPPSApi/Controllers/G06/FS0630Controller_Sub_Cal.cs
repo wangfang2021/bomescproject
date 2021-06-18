@@ -223,9 +223,9 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtMaxCLResult= fs0630_Logic.GetMaxCLResult(vcCLYM);
                 for (int i = 0; i < plantList.Count; i++)
                 {
-                    DataRow[] drs_dxny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcDXYM + "' and vcStatus='已请求'  ");
-                    DataRow[] drs_nsny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcNSYM + "' and vcStatus='已请求'  ");
-                    DataRow[] drs_nnsny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcNNSYM + "' and vcStatus='已请求'  ");
+                    DataRow[] drs_dxny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcDXYM + "' and vcStatus in ('已请求','P')  ");
+                    DataRow[] drs_nsny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcNSYM + "' and vcStatus in ('已请求','P')  ");
+                    DataRow[] drs_nnsny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcNNSYM + "' and vcStatus in ('已请求','P')  ");
                     if (drs_dxny.Length > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

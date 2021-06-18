@@ -120,11 +120,6 @@ namespace Logic
             P00001_DataAccess.UpdateDetail(uuid, serverTime);
         }
 
-        public static void UpdateStatus5(string pointNo)
-        {
-            P00001_DataAccess.UpdateStatus5(pointNo);
-        }
-
         public static DataTable GetBanZhi(string serverTime)
         {
             return P00001_DataAccess.GetBanZhi(serverTime);

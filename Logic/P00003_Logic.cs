@@ -756,5 +756,71 @@ namespace Logic
                 throw ex;
             }
         }
+        public DataTable GetKanBanInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string scanTime)
+        {
+            try
+            {
+                return P00003_DataAccess.GetKanBanInfo(partId, kanbanOrderNo, kanbanSerial, dock, scanTime);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable GetPackList(string strInno)
+        {
+            try
+            {
+                return P00003_DataAccess.GetPackList(strInno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setPrintLable(string strIP, string strInvNo, string strPrinterName, string strOperId)
+        {
+            try
+            {
+                P00003_DataAccess.setPrintLable(strIP, strInvNo, strPrinterName, strOperId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getPackInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packQuantity)
+        {
+            try
+            {
+                return P00003_DataAccess.getPackInfo(partId, kanbanOrderNo, kanbanSerial, dock, packQuantity);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataSet getTableFromDB()
+        {
+            try
+            {
+                return P00003_DataAccess.getTableFromDB();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public bool setPackAndZxInfo(string strIP, string strPointName, string strType, string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packQuantity, string caseno, string boxno, string scanTime, DataTable dtPackList, string strOperId)
+        {
+            try
+            {
+                return P00003_DataAccess.setPackAndZxInfo(strIP, strPointName, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseno, boxno, scanTime, dtPackList, strOperId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

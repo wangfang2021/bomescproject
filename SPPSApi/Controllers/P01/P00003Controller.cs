@@ -764,471 +764,101 @@ namespace SPPSApi.Controllers.P01
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//当前箱号
-
-                #region 验证看板信息
-                //1
-                DataTable validateSJ = P00003_Logic.ValidateSJ(partId, dock, kanbanOrderNo, kanbanSerial);//验证包装数量
-                //2
-                DataTable validateSJ1 = P00003_Logic.ValidateSJ2(partId, dock, kanbanOrderNo, kanbanSerial);//验证装箱数量
-                //3
-                DataTable validateInv1 = P00003_Logic.ValidateInv1(partId, kanbanOrderNo, kanbanSerial);
-                //4
-                DataTable getInno = P00003_Logic.GetQuantity(kanbanOrderNo, kanbanSerial, partId, dock);
-                //5
-                DataTable getInputQuantity = P00003_Logic.GetInputQuantity(kanbanOrderNo, kanbanSerial, partId, dock);
-                //6
-                DataTable validateData = P00003_Logic.ValidateData(partId, scanTime);
-                //7
-                DataTable validateCase = P00003_Logic.ValidateCase(partId, kanbanOrderNo, kanbanSerial, dock, caseNo);
-                if (validateCase.Rows.Count > 0)
+                //0.检验IP所属点位信息
+                DataTable getPoint = P00001_Logic.GetPointNo(iP);
+                if (getPoint.Rows.Count != 1)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "箱号" + caseNo + "中已经存在品番" + partId + "数据，请更换箱号进行装箱";
+                    apiResult.data = "当前点位信息异常，请检查！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //发生入荷+入荷数量+品番信息完整
-                if (getInno.Rows.Count == 1 && getInputQuantity.Rows.Count == 1 && validateData.Rows.Count == 1)
+                string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+                DataTable dtPrintName = P00001_Logic.GetPrintName(iP);
+                string strPrinterName = "";
+                if (dtPrintName.Rows.Count == 0)
                 {
-                    string inputNo = getInno.Rows[0][1].ToString();
-                    string quantity = getInputQuantity.Rows[0][0].ToString();
-                    //未发生过包装+未发生过装箱+入出履历数据完整
-                    if (validateSJ.Rows.Count == 0 && validateSJ1.Rows.Count == 0 && validateInv1.Rows.Count == 1)//没有进行检查或包装看板,需要判断前工程
-                    {
-                        string supplier_id = validateData.Rows[0][1].ToString();
-                        //获取检查区分
-                        DataTable getCheckType = P00003_Logic.GetCheckType(partId, scanTime, supplier_id);//获得检查区分
-                        if (getCheckType.Rows.Count == 1)
-                        {
-                            string checkType = getCheckType.Rows[0][0].ToString();
-                            if (checkType == "免检")//免检品验证入库信息返回数据
-                            {
-                                //获取入荷信息
-                                DataTable validateSJ2 = P00003_Logic.ValidateOpr1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//02为包装单位
-                                //获取品目信息
-                                DataTable getPM = P00003_Logic.GetPM(dock, partId);//00为品目
-                                //获取品番收容数
-                                DataTable validateData1 = P00003_Logic.ValidateData1(partId, scanTime);//00为收容数
-
-                                if (validateSJ2.Rows.Count == 1 && getPM.Rows.Count == 1 && validateData1.Rows.Count == 1)
-                                {
-                                    string packingQuatity = validateSJ2.Rows[0][2].ToString();//包装单位
-                                    string pinmu = getPM.Rows[0][0].ToString();//品目
-                                    string packQuantity = validateData1.Rows[0][0].ToString();//收容数
-                                    //获取使用的包材信息
-                                    DataTable getPackInfo = P00003_Logic.GetPackInfo(partId, scanTime, packingQuatity, quantity);
-                                    if (getPackInfo.Rows.Count > 0)
-                                    {
-                                        P00003_DataEntity.packParts = getPackInfo;//包材list
-                                        P00003_DataEntity.caseQuantity = quantity;//装箱数
-                                        P00003_DataEntity.packQuantity = quantity;//包装数
-                                        P00003_DataEntity.PM = pinmu;//品目消息
-                                        P00003_DataEntity.packingQuatity = packingQuatity;//包装单位
-                                        P00003_DataEntity.checkType = checkType;
-                                        P00003_DataEntity.partId = partId;
-                                        P00003_DataEntity.kanbanOrderNo = kanbanOrderNo;
-                                        P00003_DataEntity.kanbanSerial = kanbanSerial;
-                                        P00003_DataEntity.kanban = kanbanOrderNo + " " + kanbanSerial;
-                                        P00003_DataEntity.photo = "../../static/checkphoto/52119F292900.jpg";
-                                        P00003_DataEntity.dock = dock;
-                                        P00003_DataEntity.quantity = quantity;
-                                        apiResult.data = P00003_DataEntity;
-
-                                        #region 打印标签,根据入库单号进行区分
-                                        //获取标签信息
-                                        DataTable getLabel = P00003_Logic.GetLabel(inputNo);
-                                        //获取打印机信息
-                                        DataTable getPrintName = P00003_Logic.GetPrintName(iP);
-
-                                        if (getLabel.Rows.Count > 0 && getPrintName.Rows.Count == 1)
-                                        {
-                                            if (getLabel.Rows[0][0].ToString() == "")
-                                            {
-                                                string printName = getPrintName.Rows[0][0].ToString();
-                                                int lbResultIn = P00003_Logic.InsertTP1(iP, opearteId, serverTime, inputNo, printName);
-                                            }
-                                        }
-                                        else if (getPrintName.Rows.Count != 1)
-                                        {
-                                            apiResult.code = ComConstant.ERROR_CODE;
-                                            apiResult.data = "打印机表中没有有效的标签打印机,请联系管理员!";
-                                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                        }
-                                        #endregion
-                                    }
-                                    else
-                                    {
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "品番" + partId + "包材构成数据中不存在有效数据,请检查";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                }
-                                else if (validateSJ2.Rows.Count != 1)
-                                {
-                                    apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "品番" + partId + "不存在或存在多条入库数据,请检查";
-                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                }
-                                else if (getPM.Rows.Count != 1)
-                                {
-                                    apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "品番" + partId + "获取不到对应品目信息,请检查";
-                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                }
-                                else if (validateData1.Rows.Count != 1)
-                                {
-                                    apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "品番" + partId + "在当前日期不存在或存在多条有效数据,请检查";
-                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                }
-                            }
-                            else//抽检或全检验证检查信息,必须为OK
-                            {
-                                //判断检查状态+包装单位
-                                DataTable validateSJ3 = P00003_Logic.ValidateOpr(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//02为包装单位
-                                //获取品目信息
-                                DataTable getPM = P00003_Logic.GetPM(dock, partId);//00为品目
-                                //获取包装数量
-                                DataTable validateData1 = P00003_Logic.ValidateData1(partId, scanTime);//00为收容数
-
-                                if (validateSJ3.Rows.Count == 1 && getPM.Rows.Count == 1 && validateData1.Rows.Count == 1)
-                                {
-                                    string packingQuatity = validateSJ3.Rows[0][2].ToString();//包装单位
-                                    string pinmu = getPM.Rows[0][0].ToString();//品目
-                                    string packQuantity = validateData1.Rows[0][0].ToString();//收容数
-                                    //获取包材信息
-                                    DataTable getPackInfo = P00003_Logic.GetPackInfo(partId, scanTime, packingQuatity, quantity);//vcPackNo,vcDistinguish,iBiYao 
-                                    if (getPackInfo.Rows.Count > 0)
-                                    {
-                                        P00003_DataEntity.packParts = getPackInfo;//包材list
-                                        P00003_DataEntity.caseQuantity = quantity;//装箱数
-                                        P00003_DataEntity.packQuantity = quantity;//包装数
-                                        P00003_DataEntity.PM = pinmu;//品目消息
-                                        P00003_DataEntity.packingQuatity = packingQuatity;//包装单位
-                                        P00003_DataEntity.checkType = checkType;
-                                        P00003_DataEntity.partId = partId;
-                                        P00003_DataEntity.kanbanOrderNo = kanbanOrderNo;
-                                        P00003_DataEntity.kanbanSerial = kanbanSerial;
-                                        P00003_DataEntity.kanban = kanbanOrderNo + " " + kanbanSerial;
-                                        P00003_DataEntity.photo = "../../static/checkphoto/52119F292900.jpg";
-                                        P00003_DataEntity.dock = dock;
-                                        P00003_DataEntity.quantity = quantity;
-                                        #region 打印标签,根据入库单号进行区分
-                                        DataTable getLabel = P00003_Logic.GetLabel(inputNo);
-                                        DataTable getPrintName = P00003_Logic.GetPrintName(iP);
-                                        if (getLabel.Rows.Count > 0 && getPrintName.Rows.Count == 1)
-                                        {
-                                            if (getLabel.Rows[0][0].ToString() == "")
-                                            {
-                                                string printName = getPrintName.Rows[0][0].ToString();
-                                                int lbResultIn = P00003_Logic.InsertTP1(iP, opearteId, serverTime, inputNo, printName);
-                                            }
-                                        }
-                                        else if (getPrintName.Rows.Count != 1)
-                                        {
-                                            apiResult.code = ComConstant.ERROR_CODE;
-                                            apiResult.data = "打印机表中没有有效的标签打印机,请联系管理员!";
-                                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                        }
-                                        #endregion
-                                        apiResult.data = P00003_DataEntity;
-                                    }
-                                    else
-                                    {
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "品番" + partId + "包材构成数据中不存在有效数据,请检查";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                }
-                                else if (validateSJ3.Rows.Count != 1)
-                                {
-                                    apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "品番" + partId + "不存在检查数据或检查结果为NG,请检查";
-                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                }
-                                else if (getPM.Rows.Count != 1)
-                                {
-                                    apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "品番" + partId + "获取不到对应品目信息,请检查";
-                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                }
-                                else if (validateData1.Rows.Count != 1)
-                                {
-                                    apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "品番" + partId + "在当前日期不存在或存在多条有效数据,请检查";
-                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "品番" + partId + "在检查区分表不存在或在当前日期存在多条有效数据,请检查";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                    }
-                    else if (validateSJ.Rows.Count > 0 && validateSJ1.Rows.Count == 0 && validateInv1.Rows.Count == 1)//进行了包装不装箱  包装数量为0 装箱数量为数量 不需要包装数量
-                    {
-                        string supplier_id = validateData.Rows[0][1].ToString();
-                        #region 之前进行包装不装箱的数据
-                        DataTable getCheckType = P00003_Logic.GetCheckType(partId, scanTime, supplier_id);//获得检查区分
-                        if (getCheckType.Rows.Count == 1)
-                        {
-                            string checkType = getCheckType.Rows[0][0].ToString();
-                            DataTable validateSJ2 = null;
-                            if (checkType == "免检")
-                            {
-                                validateSJ2 = P00003_Logic.ValidateOpr5(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
-                            }
-                            else
-                            {
-                                validateSJ2 = P00003_Logic.ValidateOpr4(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//02为包装单位 08为已包装数量
-                            }
-                            if (validateSJ2.Rows.Count == 1 && validateInv1.Rows.Count == 1)
-                            {
-                                #region 进行包装不装箱之后包装数量为零,装箱数量为之前数量,包装的时候继续判断
-                                DataTable getPM = P00003_Logic.GetPM(dock, partId);//00为品目
-                                DataTable validateData1 = P00003_Logic.ValidateData1(partId, scanTime);//00为收容数
-
-                                if (getPM.Rows.Count == 1 && validateData1.Rows.Count == 1)
-                                {
-                                    string packingQuatity = validateSJ2.Rows[0][2].ToString();//包装单位
-                                    string pinmu = getPM.Rows[0][0].ToString();//品目
-                                    string packQuantity = validateData1.Rows[0][0].ToString();//收容数
-
-                                    DataTable getPackInfo = P00003_Logic.GetPackInfo(partId, scanTime, packingQuatity, quantity);//vcPackNo,vcDistinguish,iBiYao 
-                                    if (getPackInfo.Rows.Count > 0)
-                                    {
-                                        P00003_DataEntity.packParts = getPackInfo;//包材list
-                                        P00003_DataEntity.caseQuantity = quantity;//装箱数
-                                        P00003_DataEntity.packQuantity = "0";//包装数
-                                        P00003_DataEntity.PM = pinmu;//品目消息
-                                        P00003_DataEntity.packingQuatity = packingQuatity;//包装单位
-                                        P00003_DataEntity.checkType = checkType;
-                                        P00003_DataEntity.partId = partId;
-                                        P00003_DataEntity.kanbanOrderNo = kanbanOrderNo;
-                                        P00003_DataEntity.kanbanSerial = kanbanSerial;
-                                        P00003_DataEntity.kanban = kanbanOrderNo + " " + kanbanSerial;
-                                        P00003_DataEntity.photo = "../../static/checkphoto/52119F292900.jpg";
-                                        P00003_DataEntity.dock = dock;
-                                        P00003_DataEntity.quantity = quantity;
-                                        apiResult.data = P00003_DataEntity;
-                                    }
-                                    else
-                                    {
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "品番" + partId + "包材构成数据中不存在有效数据,请检查";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                }
-                                else if (getPM.Rows.Count != 1)
-                                {
-                                    apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "品番" + partId + "获取不到对应品目信息,请检查";
-                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                }
-                                else if (validateData1.Rows.Count != 1)
-                                {
-                                    apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "品番" + partId + "在当前日期不存在或存在多条有效数据,请检查";
-                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                }
-                                #endregion
-                            }
-                            else if (validateSJ2.Rows.Count != 1)
-                            {
-                                apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = "品番" + partId + "在作业实绩表中不存在有效数据,请检查";
-                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                            }
-                            else if (validateInv1.Rows.Count != 1)
-                            {
-                                apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = "品番" + partId + "在入出库履历表中没有有效数据,请检查";
-                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                            }
-                        }
-                        else
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "品番" + partId + "在检查区分表中没有有效数据,请检查";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        #endregion
-                    }
-                    else if (validateSJ.Rows.Count > 0 && validateInv1.Rows.Count == 1 && validateSJ1.Rows.Count > 0)//进行了劈票
-                    {
-                        #region 进行了劈票,需要验证待出货数量
-                        int packQuantity1 = 0;
-                        int zxQuantity = 0;
-                        string supplier_id = validateData.Rows[0][1].ToString();
-                        for (int i = 0; i < validateSJ.Rows.Count; i++)
-                        {
-                            packQuantity1 += int.Parse(validateSJ.Rows[i][0].ToString());
-                        }
-                        for (int j = 0; j < validateSJ1.Rows.Count; j++)
-                        {
-                            zxQuantity += int.Parse(validateSJ1.Rows[j][0].ToString());
-                        }
-                        int dbz = int.Parse(validateInv1.Rows[0][0].ToString());
-                        int dzx = int.Parse(validateInv1.Rows[0][1].ToString());
-                        if ((int.Parse(quantity) - packQuantity1 <= dbz) || (int.Parse(quantity) - zxQuantity <= dzx))
-                        {
-
-                            #region  可以进行包装装箱作业
-                            DataTable getCheckType = P00003_Logic.GetCheckType(partId, scanTime, supplier_id);//获得检查区分
-                            if (getCheckType.Rows.Count == 1)
-                            {
-                                string checkType = getCheckType.Rows[0][0].ToString();
-                                if (checkType == "免检")//免检品验证入库信息返回数据
-                                {
-                                    DataTable validateSJ2 = P00003_Logic.ValidateOpr1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//02为包装单位 08为已包装数量
-                                    DataTable getPM = P00003_Logic.GetPM(dock, partId);//00为品目
-                                    DataTable validateData1 = P00003_Logic.ValidateData1(partId, scanTime);//00为收容数
-
-                                    if (validateSJ2.Rows.Count == 1 && getPM.Rows.Count == 1 && validateData1.Rows.Count == 1)
-                                    {
-                                        string packingQuatity = validateSJ2.Rows[0][2].ToString();//包装单位
-                                        string quantity1 = validateSJ2.Rows[0][2].ToString();
-                                        string pinmu = getPM.Rows[0][0].ToString();//品目
-                                        string packQuantity = validateData1.Rows[0][0].ToString();//收容数
-
-
-                                        DataTable getPackInfo = P00003_Logic.GetPackInfo(partId, scanTime, packingQuatity, quantity);//vcPackNo,vcDistinguish,iBiYao 
-                                        if (getPackInfo.Rows.Count > 0)
-                                        {
-
-                                            P00003_DataEntity.packParts = getPackInfo;//包材list
-                                            P00003_DataEntity.caseQuantity = (int.Parse(quantity) - zxQuantity).ToString();//装箱数
-                                            P00003_DataEntity.packQuantity = (int.Parse(quantity) - packQuantity1).ToString();//包装数
-                                            P00003_DataEntity.PM = pinmu;//品目消息
-                                            P00003_DataEntity.packingQuatity = packingQuatity;//包装单位
-                                            P00003_DataEntity.checkType = checkType;
-                                            P00003_DataEntity.partId = partId;
-                                            P00003_DataEntity.kanbanOrderNo = kanbanOrderNo;
-                                            P00003_DataEntity.kanbanSerial = kanbanSerial;
-                                            P00003_DataEntity.kanban = kanbanOrderNo + " " + kanbanSerial;
-                                            P00003_DataEntity.photo = "../../static/checkphoto/52119F292900.jpg";
-                                            P00003_DataEntity.dock = dock;
-                                            apiResult.data = P00003_DataEntity;
-                                            //插入数据
-                                        }
-                                        else
-                                        {
-                                            apiResult.code = ComConstant.ERROR_CODE;
-                                            apiResult.data = "品番" + partId + "包材构成数据中不存在有效数据,请检查";
-                                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                        }
-                                    }
-                                    else if (validateSJ2.Rows.Count != 1)
-                                    {
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "品番" + partId + "不存在或存在多条入库数据,请检查";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                    else if (getPM.Rows.Count != 1)
-                                    {
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "品番" + partId + "获取不到对应品目信息,请检查";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                    else if (validateData1.Rows.Count != 1)
-                                    {
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "品番" + partId + "在当前日期不存在或存在多条有效数据,请检查";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                }
-                                else//抽检或全检验证检查信息,必须为OK
-                                {
-                                    DataTable validateSJ3 = P00003_Logic.ValidateOpr(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//02为包装单位
-                                    DataTable getPM = P00003_Logic.GetPM(dock, partId);//00为品目
-                                    DataTable validateData1 = P00003_Logic.ValidateData1(partId, scanTime);//00为收容数
-                                    if (validateSJ3.Rows.Count == 1 && getPM.Rows.Count == 1 && validateData1.Rows.Count == 1)
-                                    {
-                                        string packingQuatity = validateSJ3.Rows[0][2].ToString();//包装单位
-                                        string pinmu = getPM.Rows[0][0].ToString();//品目
-                                        string packQuantity = validateData1.Rows[0][0].ToString();//收容数
-                                        DataTable getPackInfo = P00003_Logic.GetPackInfo(partId, scanTime, packingQuatity, quantity);//vcPackNo,vcDistinguish,iBiYao 
-                                        if (getPackInfo.Rows.Count > 0)
-                                        {
-                                            P00003_DataEntity.packParts = getPackInfo;//包材list
-                                            P00003_DataEntity.caseQuantity = (int.Parse(quantity) - zxQuantity).ToString();//装箱数
-                                            P00003_DataEntity.packQuantity = (int.Parse(quantity) - packQuantity1).ToString();//包装数
-                                            P00003_DataEntity.PM = pinmu;//品目消息
-                                            P00003_DataEntity.packingQuatity = packingQuatity;//包装单位
-                                            P00003_DataEntity.checkType = checkType;
-                                            P00003_DataEntity.partId = partId;
-                                            P00003_DataEntity.kanbanOrderNo = kanbanOrderNo;
-                                            P00003_DataEntity.kanbanSerial = kanbanSerial;
-                                            P00003_DataEntity.kanban = kanbanOrderNo + " " + kanbanSerial;
-                                            P00003_DataEntity.photo = "../../static/checkphoto/52119F292900.jpg";
-                                            P00003_DataEntity.dock = dock;
-                                            //插入数据
-                                            apiResult.data = P00003_DataEntity;
-                                        }
-                                        else
-                                        {
-                                            apiResult.code = ComConstant.ERROR_CODE;
-                                            apiResult.data = "品番" + partId + "包材构成数据中不存在有效数据,请检查";
-                                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                        }
-                                    }
-                                    else if (validateSJ3.Rows.Count != 1)
-                                    {
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "品番" + partId + "不存在检查数据或检查结果为NG,请检查";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                    else if (getPM.Rows.Count != 1)
-                                    {
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "品番" + partId + "获取不到对应品目信息,请检查";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                    else if (validateData1.Rows.Count != 1)
-                                    {
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "品番" + partId + "在当前日期不存在或存在多条有效数据,请检查";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = "品番" + partId + "在检查区分表中不存在有效数据,请检查";
-                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                            }
-                        }
-                        else
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "当前看板数量不符合设定的规则,请检查!";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        #endregion
-                        #endregion
-                    }
-                    else
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "该点位标签打印机未进行设置，请设置后重试。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                strPrinterName = dtPrintName.Rows[0]["vcPrinterName"].ToString();
+                //1.获取看板信息
+                DataTable dtKanBanInfo = P00003_Logic.GetKanBanInfo(partId, dock, kanbanOrderNo, kanbanSerial, scanTime);
+                //2.检验看板信息
+                if (dtKanBanInfo.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "该看板未进行入荷操作，请入荷后再试。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string strPart_id_InOut = dtKanBanInfo.Rows[0]["vcPart_id_InOut"].ToString();
+                if (strPart_id_InOut == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "该看板入出库履历数据异常，请联系管理员确认后再试。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string strSmallPM = dtKanBanInfo.Rows[0]["vcSmallPM"].ToString();
+                if (strSmallPM == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "该看板品番品目信息未维护，请维护后再试。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string strCheckP = dtKanBanInfo.Rows[0]["vcCheckP"].ToString();
+                if (strCheckP == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "该看板没有检查区分信息，请维护后再试。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string strCheckStatus = dtKanBanInfo.Rows[0]["vcCheckStatus"].ToString();
+                if (strCheckP == "抽检" || strCheckP == "全检")
+                {
+                    if (strCheckStatus != "OK")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "当前看板没有进行检查作业,请确认!";
+                        apiResult.data = "该看板未进行检查操作，请检查后再试。";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    #endregion
                 }
-                else if (validateData.Rows.Count != 1)
+                string strInvNo = dtKanBanInfo.Rows[0]["vcInputNo"].ToString();
+                string strBZUnit = dtKanBanInfo.Rows[0]["vcBZUnit"].ToString();
+                string strPicUrl = dtKanBanInfo.Rows[0]["vcPicUrl"].ToString();
+                DataTable dtPackList = P00003_Logic.GetPackList(strInvNo);
+                string strQuantity = dtKanBanInfo.Rows[0]["iQuantity"].ToString();
+                string strQuantity_bz = dtKanBanInfo.Rows[0]["iQuantity_bz"].ToString();
+                string strQuantity_zx = dtKanBanInfo.Rows[0]["iQuantity_zx"].ToString();
+                int iQuantity_Fbz = Convert.ToInt32(strQuantity) - Convert.ToInt32(strQuantity_bz);
+                int iQuantity_Fzx = Convert.ToInt32(strQuantity) - Convert.ToInt32(strQuantity_zx);
+                if (iQuantity_Fzx <= 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "品番" + partId + "在品番基础数据中不存在有效数据";
+                    apiResult.data = "该看板已经全部完成装箱，请确认后再试。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                else
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "品番" + partId + "在作业实绩表中不存在有效数据";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                //3.向前台返回必要数据
+                P00003_DataEntity.packParts = dtPackList;//包材list
+                P00003_DataEntity.caseQuantity = iQuantity_Fzx.ToString();//待装箱数
+                P00003_DataEntity.packQuantity = iQuantity_Fzx.ToString();//待包装数
+                P00003_DataEntity.PM = strSmallPM;//品目消息
+                P00003_DataEntity.packingQuatity = strBZUnit;//包装单位
+                P00003_DataEntity.checkType = strCheckP;
+                P00003_DataEntity.partId = partId;
+                P00003_DataEntity.kanbanOrderNo = kanbanOrderNo;
+                P00003_DataEntity.kanbanSerial = kanbanSerial;
+                P00003_DataEntity.kanban = kanbanOrderNo + " " + kanbanSerial;
+                P00003_DataEntity.photo = strPicUrl;
+                P00003_DataEntity.dock = dock;
+                P00003_DataEntity.quantity = strQuantity;
+                apiResult.data = P00003_DataEntity;
+                //4.打印标签
+                P00003_Logic.setPrintLable(iP, strInvNo, strPrinterName, opearteId);
+                //5.获取箱号已装箱
+                DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
+                P00003_DataEntity.kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
@@ -1237,7 +867,6 @@ namespace SPPSApi.Controllers.P01
                 apiResult.data = "验证看板信息失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -1702,7 +1331,7 @@ namespace SPPSApi.Controllers.P01
         }
         #endregion
 
-        #region  包装装箱
+        #region  包装-包装装箱操作
         public string PackWithEnchaseApi([FromBody] dynamic data)
         {
             string strToken = Request.Headers["X-Token"];
@@ -1716,10 +1345,9 @@ namespace SPPSApi.Controllers.P01
 
             try
             {
-
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 string partId = dataForm.PartId == null ? "" : dataForm.PartId;//品番
-                string quantity = dataForm.Quantity == null ? "" : dataForm.Quantity;//数量
+                string quantity = dataForm.Quantity == null ? "" : dataForm.Quantity;//本次要装箱数量
                 string dock = dataForm.Dock == null ? "" : dataForm.Dock;//受入
                 string kanbanOrderNo = dataForm.KanbanOrderNo == null ? "" : dataForm.KanbanOrderNo;//看板订单号
                 string kanbanSerial = dataForm.KanbanSerial == null ? "" : dataForm.KanbanSerial;//看板连番
@@ -1728,22 +1356,49 @@ namespace SPPSApi.Controllers.P01
                 string timeStart = dataForm.TimeStart == null ? "" : dataForm.TimeStart;
                 string timeEnd = dataForm.TimeEnd == null ? "" : dataForm.TimeEnd;
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
-                DataTable getPoint = P00003_Logic.GetPoingNo(iP);
+                //0.检验IP所属点位信息
+                DataTable getPoint = P00001_Logic.GetPointNo(iP);
                 if (getPoint.Rows.Count != 1)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "当前点位信息异常，请检查！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
                 }
                 string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
-
 
                 string checkType = dataForm.CheckType == null ? "" : dataForm.CheckType;//检查区分
                 string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//箱号
                 string formatDate = serverTime.Substring(0, 10).Replace("-", "");
-                string packQuantity = dataForm.PackQuantity == null ? "" : dataForm.PackQuantity;//包装数量
-                DataTable validateOpr;//验证作业实绩
+                string packQuantity = dataForm.PackQuantity == null ? "" : dataForm.PackQuantity;//本次要包装数量
+                //包装装箱
+                //1.插入作业实绩TOperateSJ
+                //2.插入装箱实绩TBoxMaster
+                //3.更新入出库履历TOperateSJ_InOutput
+                //4.插入包材履历TPackWork
+                //5.更新包材在库TPackZaiKu
+                string strType = "包装装箱";
+                string boxno = caseNo;
+                if (caseNo.Split('*').Length > 1)
+                {
+                    boxno = caseNo.Split('*')[1];
+                }
+                if (packQuantity == "0")
+                {
+                    strType = "只装箱";
+                }
+                DataTable dtPackWork = P00003_Logic.getPackInfo(partId, kanbanOrderNo, kanbanSerial, dock, packQuantity);
+                P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
+
+                DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
+                P00003_DataEntity.kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                apiResult.data = P00003_DataEntity;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                #region  作废代码
+                /*
+                if (packQuantity == 0)
+
+                    DataTable validateOpr;//验证作业实绩
                 DataTable validateOpr1;
                 DataTable validateInv;//验证入出库履历
                 if (checkType == "")//检查类型为空,无法判断前工程,报错退出
@@ -1754,38 +1409,23 @@ namespace SPPSApi.Controllers.P01
                 }
                 else if (checkType == "免检")//免检品的前工程为入库
                 {
-
-                    // validateHtrst = P00003_Logic.ValidateHtrst2(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//验证实绩情报表中有没有入荷数据
-                    //validateHtrst1 = P00003_Logic.ValidateHtrst1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//验证实绩情报表中有没有包装数据
                     validateOpr1 = P00003_Logic.ValidateOpr2(partId, quantity, dock, kanbanOrderNo, kanbanSerial);                                                                                                //从作业实际取入荷数据
                     validateOpr = P00003_Logic.ValidateOpr1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
                     //从入出库履历取入荷数据
                     validateInv = P00003_Logic.ValidateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
-                    //校验品番的有效性
-                    // validateData = P00003_Logic.ValidateData(partId, scanTime, dock);
-
-
                 }
                 else//其他类型的前工程为检查
-
                 {
-
-                    // validateHtrst = P00003_Logic.ValidateHtrst(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//验证实绩情报表中有没有检查数据
-                    // validateHtrst1 = P00003_Logic.ValidateHtrst1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//验证实绩情报表中有没有包装数据
                     validateOpr1 = P00003_Logic.ValidateOpr3(partId, quantity, dock, kanbanOrderNo, kanbanSerial);                                                                                             //从作业实际取入荷数据
                     validateOpr = P00003_Logic.ValidateOpr(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
                     //从入出库履历取入荷数据
                     validateInv = P00003_Logic.ValidateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
-                    //校验品番的有效性
-                    // validateData = P00003_Logic.ValidateData(partId, scanTime, dock);
-
                 }
                 DataTable getPartsName = P00003_Logic.GetPartsName(scanTime, partId);
 
                 if (validateOpr.Rows.Count == 1 && validateInv.Rows.Count == 1 && getPartsName.Rows.Count == 1)
                 {
                     if (packQuantity == "0")//只进行装箱作业
-
                     {
                         string bzPlant = validateInv.Rows[0][0].ToString();//包装场
                         string sHF = validateInv.Rows[0][1].ToString();//收货方
@@ -1793,175 +1433,59 @@ namespace SPPSApi.Controllers.P01
                         string dBZ = validateInv.Rows[0][3].ToString();//待包装
                         string dZX = validateInv.Rows[0][4].ToString();//待装箱
                         string dCH = validateInv.Rows[0][5].ToString();//待出荷
-
-
                         string supplier_id = validateOpr.Rows[0][0].ToString();//供应商代码
                         string supplierGQ = validateOpr.Rows[0][1].ToString();//供应商工区
                         string bZUnit = validateOpr.Rows[0][2].ToString();//包装单位
-
                         string labelStart = validateOpr.Rows[0][4].ToString();//标签起
                         string labelEnd = validateOpr.Rows[0][5].ToString();//标签止
                         string inoutFlag = validateOpr.Rows[0][6].ToString();//内外区分
                         string checkStatus = validateOpr.Rows[0][7].ToString();//检查状态
 
                         string partsName = getPartsName.Rows[0][0].ToString();
-
-
-
-                        // DataTable getTime = P00003_Logic.GetTime(formatDate, opearteId);
-                        // P00003_DataEntity.packTotalTime = getTime.Rows[0][4].ToString();
-                        // int qbResultIn = P00003_Logic.Insert(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, trolleyNo, sHF, inputNo);//插入实绩情报表
-                        // int invResult = P00003_Logic.UpdateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, serverTime, opearteId);                                                                                                                    //更新入出库履历表
-                        //  int oprReusultIn = P00003_Logic.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, bZUnit, sHF, dock, checkType, labelStart, labelEnd, checkStatus, opearteId, timeStart, timeEnd);//插入作业实际表
-                        //  #region 打印标签,根据入库单号进行区分
-
-                        // int lbResultIn = P00003_Logic.InsertTP1(iP, opearteId, serverTime, inputNo);
-
-
-
-
-
-
-
-
-
-
-                        // #endregion
-
-
-
-
-
-
-
-
-
-                        //int qbResultIn1 = P00003_Logic.Insert1(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, trolleyNo, sHF, inputNo,caseNo);//插入实绩情报表
-                        // int invResultUp = P00003_Logic.UpdateInv1(partId, kanbanOrderNo, kanbanSerial, dBZ, dCH, "", quantity);                                                                                                                 //更新入出库履历表
-                        // byte[] vs = GenerateQRCode(caseNo);                                                                                                                                                                                                                       // int oprReusultIn1 = P00003_Logic.InsertOpr1(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, bZUnit, sHF, dock, checkType, labelStart, labelEnd, checkStatus, caseNo);//插入作业实际表
-                        // int caseResultIn = P00003_Logic.InsertCase(sHF, cpdName, cpdAddress, caseNo, inputNo, partId, quantity, partsName, opearteId, serverTime, iP, vs, labelStart, labelEnd);
-                        //int sjResultIn = P00003_Logic.InsertSj1(supplier_id, supplierGQ, bZUnit, checkType, labelStart, labelEnd, inoutFlag, checkStatus, bzPlant, inputNo, quantity, partId, kanbanOrderNo, kanbanSerial, dock, opearteId, scanTime, serverTime, iP, sHF,  caseNo);
-
-
-                        // int sjResultIn = P00003_Logic.InsertSj(supplier_id, supplierGQ, bZUnit, checkType, labelStart, labelEnd, inoutFlag, checkStatus, bzPlant, inputNo, quantity, partId, kanbanOrderNo, kanbanSerial, dock, opearteId, scanTime, serverTime, iP, sHF, quantity, caseNo);//此处需要改动
-                        //int invResultUp = P00003_Logic.UpdateInv1(partId, kanbanOrderNo, kanbanSerial, quantity);
                         DataTable getQuantity = P00003_Logic.GetQuantity(kanbanOrderNo, kanbanSerial, partId, dock);
-
                         if (getQuantity.Rows.Count == 1)
                         {
                             string rhQuantity = getQuantity.Rows[0][0].ToString();
-
-
                             int boxResultIn = P00003_Logic.InsertBox(caseNo, inputNo, partId, kanbanOrderNo, kanbanSerial, quantity, opearteId, scanTime, labelStart, labelEnd, rhQuantity, serverTime, dock);
-
-
                         }
                         else
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "品番" + partId + "在作业实绩表中不存在有效数据,请检查!";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
                         }
-
-
-
-
-
-
-
 
                         DataTable validateCaseNo3 = P00003_Logic.ValidateCaseNo3(caseNo);
                         P00003_DataEntity.kanbanQuantity = validateCaseNo3.Rows.Count.ToString();
-
                         apiResult.data = P00003_DataEntity;
-
-
-
-
-
-
-
-
-
-
                     }
                     else
                     {
-                        /*
-                        #region   根据开始结束时间算出时间差
-
-                        string getYearData = timeStart.Split(" ")[0];
-                        string getTimeData = timeStart.Split(" ")[1];
-
-                        int beforeYear = int.Parse(getYearData.Split("-")[0]);
-                        int beforeMonth = int.Parse(getYearData.Split("-")[1]);
-                        int beforeDate = int.Parse(getYearData.Split("-")[2]);
-                        int beforeHours = int.Parse(getTimeData.Split(":")[0]);
-                        int beforeMinutes = int.Parse(getTimeData.Split(":")[1]);
-                        int beforeSeconds = int.Parse(getTimeData.Split(":")[2]);
-
-
-                        string getYearData1 = timeEnd.Split(" ")[0];
-                        string getTimeData1 = timeEnd.Split(" ")[1];
-
-                        int afterYear = int.Parse(getYearData1.Split("-")[0]);
-                        int afterMonth = int.Parse(getYearData1.Split("-")[1]);
-                        int afterDate = int.Parse(getYearData1.Split("-")[2]);
-
-                        int afterHours = int.Parse(getTimeData1.Split(":")[0]);
-                        int afterMinutes = int.Parse(getTimeData1.Split(":")[1]);
-                        int afterSeconds = int.Parse(getTimeData1.Split(":")[2]);
-
-
-                        int totalTime = (afterYear - beforeYear) * 365 * 24 * 60 * 60 +
-                          (afterMonth - beforeMonth) * 30 * 24 * 60 * 60 +
-                          (afterDate - beforeDate) * 24 * 60 * 60 +
-                          (afterHours - beforeHours) * 60 * 60 + (afterMinutes - beforeMinutes) * 60 + (afterSeconds - beforeSeconds);
-
-                        int timeResultUp = P00003_Logic.UpdateTime(formatDate, totalTime, opearteId);
-
-
-                        DataTable getTime = P00003_Logic.GetTime(formatDate, opearteId);
-                        P00003_DataEntity.packTotalTime = getTime.Rows[0][4].ToString();
-
-
-                        #endregion
-                        */
-
                         string bzPlant = validateInv.Rows[0][0].ToString();//包装场
                         string sHF = validateInv.Rows[0][1].ToString();//收货方
                         string inputNo = validateInv.Rows[0][2].ToString();//入库单号
                         string dBZ = validateInv.Rows[0][3].ToString();//待包装
                         string dZX = validateInv.Rows[0][4].ToString();//待装箱
                         string dCH = validateInv.Rows[0][5].ToString();//待出荷
-
-
                         string supplier_id = validateOpr.Rows[0][0].ToString();//供应商代码
                         string supplierGQ = validateOpr.Rows[0][1].ToString();//供应商工区
                         string bZUnit = validateOpr.Rows[0][2].ToString();//包装单位
-
                         string labelStart = validateOpr.Rows[0][4].ToString();//标签起
                         string labelEnd = validateOpr.Rows[0][5].ToString();//标签止
                         string inoutFlag = validateOpr.Rows[0][6].ToString();//内外区分
                         string checkStatus = validateOpr.Rows[0][7].ToString();//检查状态
-
                         string partsName = getPartsName.Rows[0][0].ToString();
-
                         string cpdName = "一汽丰田";
                         string cpdAddress = "天津塘沽开发区第九大街";
-
-
-                        // int qbResultIn = P00003_Logic.Insert(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, trolleyNo, sHF, inputNo);//插入实绩情报表
+                        //更新作业履历 ==待包装==待装箱
                         int invResult = P00003_Logic.UpdateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, serverTime, opearteId);                                                                                                                    //更新入出库履历表
+                        //插入包装实际表
                         int oprReusultIn = P00003_Logic.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, bZUnit, sHF, dock, checkType, labelStart, labelEnd, checkStatus, opearteId, timeStart, timeEnd, iP, pointType);//插入作业实际表
                         #region 对包材进行操作,消耗实绩,消减在库
 
                         DataTable getPack = P00003_Logic.GetPackData1(partId, serverTime);
                         if (getPack.Rows.Count > 0)
                         {
-
                             for (int i = 0; i < getPack.Rows.Count; i++)
                             {
                                 string packNo = getPack.Rows[i][0].ToString();
@@ -1971,13 +1495,11 @@ namespace SPPSApi.Controllers.P01
                                 if (getPackbase.Rows.Count == 1)
                                 {
                                     string packsupplier = getPackbase.Rows[0][0].ToString() + getPackbase.Rows[0][1].ToString();
-
                                     int packResultIn = P00003_Logic.InsertPackWork(packNo, gpsNo, packsupplier, bZUnit, biYao, opearteId, serverTime, quantity);
                                     DataTable getZaiKu = P00003_Logic.GetZaiKu(packNo, gpsNo, packsupplier);
                                     if (getZaiKu.Rows.Count == 0)
                                     {
                                         int zaikuResultIn = P00003_Logic.InsertZaiKu(packNo, gpsNo, packsupplier, opearteId, serverTime);
-
                                     }
                                     getZaiKu = P00003_Logic.GetZaiKu(packNo, gpsNo, packsupplier);
 
@@ -1990,151 +1512,46 @@ namespace SPPSApi.Controllers.P01
                                         apiResult.code = ComConstant.ERROR_CODE;
                                         apiResult.data = "包材品番" + packNo + "在在库表中不存在有效数据,请检查!";
                                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
                                     }
-
-
                                 }
                                 else
                                 {
-
                                     apiResult.code = ComConstant.ERROR_CODE;
                                     apiResult.data = "包材品番" + packNo + "在包材基础中不存在有效数据,请检查!";
                                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
                                 }
-
-
-
-
                             }
-
-
-
-
-
                         }
                         else
                         {
-
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "品番" + partId + "在包材构成中不存在有效数据,请检查!";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
-
-                        }
-
-
-
-
-
-
-
-
-
-
-                        #endregion
-
-
-
-
-
-                        /*
-                        #region 打印标签,根据入库单号进行区分
-
-                        DataTable getLabel = P00003_Logic.GetLabel(inputNo);
-                        if (getLabel.Rows.Count>0) { 
-                        if (getLabel.Rows[0][0].ToString()=="") {
-                          int lbResultIn = P00003_Logic.InsertTP1(iP, opearteId, serverTime, inputNo);
-                        }
                         }
                         #endregion
-                         */
-
-
                         DataTable getQuantity = P00003_Logic.GetQuantity(kanbanOrderNo, kanbanSerial, partId, dock);
                         if (getQuantity.Rows.Count == 1)
                         {
                             string rhQuantity = getQuantity.Rows[0][0].ToString();
-
-
                             int boxResultIn = P00003_Logic.InsertBox(caseNo, inputNo, partId, kanbanOrderNo, kanbanSerial, quantity, opearteId, scanTime, labelStart, labelEnd, rhQuantity, serverTime, dock);
-
-
                         }
                         else
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "品番" + partId + "在作业实绩表中不存在有效数据,请检查!";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
                         }
-
-
-
-
-
-                        //int qbResultIn1 = P00003_Logic.Insert1(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, trolleyNo, sHF, inputNo,caseNo);//插入实绩情报表
-                        // int invResultUp = P00003_Logic.UpdateInv1(partId, kanbanOrderNo, kanbanSerial, dBZ, dCH, "", quantity);                                                                                                                 //更新入出库履历表
-                        // byte[] vs = GenerateQRCode(caseNo);                                                                                                                                                                                                                       // int oprReusultIn1 = P00003_Logic.InsertOpr1(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, bZUnit, sHF, dock, checkType, labelStart, labelEnd, checkStatus, caseNo);//插入作业实际表
-                        //  int caseResultIn = P00003_Logic.InsertCase(sHF, cpdName, cpdAddress, caseNo, inputNo, partId, quantity, partsName, opearteId, serverTime, iP, vs, labelStart, labelEnd);
-                        //int sjResultIn = P00003_Logic.InsertSj1(supplier_id, supplierGQ, bZUnit, checkType, labelStart, labelEnd, inoutFlag, checkStatus, bzPlant, inputNo, quantity, partId, kanbanOrderNo, kanbanSerial, dock, opearteId, scanTime, serverTime, iP, sHF,  caseNo);
-
-
-                        // int sjResultIn = P00003_Logic.InsertSj(supplier_id, supplierGQ, bZUnit, checkType, labelStart, labelEnd, inoutFlag, checkStatus, bzPlant, inputNo, quantity, partId, kanbanOrderNo, kanbanSerial, dock, opearteId, scanTime, serverTime, iP, sHF, quantity, caseNo);//此处需要改动
-                        //int invResultUp = P00003_Logic.UpdateInv1(partId, kanbanOrderNo, kanbanSerial, quantity);
-
-
                         DataTable validateCaseNo3 = P00003_Logic.ValidateCaseNo3(caseNo);
                         P00003_DataEntity.kanbanQuantity = validateCaseNo3.Rows.Count.ToString();
-
                         apiResult.data = P00003_DataEntity;
-
-
-
-
-
-
-
-
-
-
-                        //int qbResultIn = P00003_Logic.Insert(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime,trolleyNo,sHF,inputNo);//插入实绩情报表
-                        // int invResult = P00003_Logic.UpdateInv(partId,quantity,dock,kanbanOrderNo,kanbanSerial,scanTime,serverTime);                                                                                                                    //更新入出库履历表
-                        //int oprReusultIn = P00003_Logic.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, bZUnit, sHF, dock, checkType, labelStart, labelEnd,checkStatus);//插入作业实际表
-
-
-
-
-
-
-
                     }
-
-
-
-
-
-
-
-
-
-
                 }
-
-
-
-
                 else if (getPartsName.Rows.Count != 1)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "品番" + partId + "在品番基础数据里面没有有效或存在多条数据,请检查!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
                 }
-
                 else if (validateOpr.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -2147,15 +1564,8 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "品番" + partId + "在入出库履历中没有对应数据,请检查!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-
-
-
-
-
-
-
-
+                */
+                #endregion
             }
             catch (Exception ex)
             {
@@ -2164,11 +1574,9 @@ namespace SPPSApi.Controllers.P01
                 apiResult.data = "包装装箱失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
+        #endregion
+
         private byte[] GenerateQRCode(string content)
         {
             var generator = new QRCodeGenerator();
@@ -2180,9 +1588,8 @@ namespace SPPSApi.Controllers.P01
             bitmapImg.Save(stream, ImageFormat.Jpeg);
             return stream.GetBuffer();
         }
-        #endregion
 
-        #region  包装不装箱
+        #region  包装-包装不装箱操作
         public string PackWithoutEnchaseApi([FromBody] dynamic data)
         {
             string strToken = Request.Headers["X-Token"];
@@ -2197,14 +1604,43 @@ namespace SPPSApi.Controllers.P01
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 string partId = dataForm.PartId == null ? "" : dataForm.PartId;//品番
-                string quantity = dataForm.Quantity == null ? "" : dataForm.Quantity;//数量
+                string quantity = dataForm.Quantity == null ? "" : dataForm.Quantity;//本次要装箱数量
                 string dock = dataForm.Dock == null ? "" : dataForm.Dock;//受入
                 string kanbanOrderNo = dataForm.KanbanOrderNo == null ? "" : dataForm.KanbanOrderNo;//看板订单号
                 string kanbanSerial = dataForm.KanbanSerial == null ? "" : dataForm.KanbanSerial;//看板连番
                 string scanTime = dataForm.ScanTime == null ? "" : dataForm.ScanTime;//客户端时间
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
-                                                                                                             //0605
+                //0.检验IP所属点位信息
+                DataTable getPoint = P00001_Logic.GetPointNo(iP);
+                if (getPoint.Rows.Count != 1)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "当前点位信息异常，请检查！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+
+                string checkType = dataForm.CheckType == null ? "" : dataForm.CheckType;//检查区分
+                string caseNo = "";//箱号
+                string formatDate = serverTime.Substring(0, 10).Replace("-", "");
+                string packQuantity = quantity;//本次要包装数量
+                //包装不装箱
+                //1.插入作业实绩TOperateSJ
+                //3.更新入出库履历TOperateSJ_InOutput
+                //4.插入包材履历TPackWork
+                //5.更新包材在库TPackZaiKu
+                string strType = "包装不装箱";
+                string boxno = caseNo;
+                DataTable dtPackWork = P00003_Logic.getPackInfo(partId, kanbanOrderNo, kanbanSerial, dock, packQuantity);
+                P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
+
+                DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
+                P00003_DataEntity.kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                apiResult.data = P00003_DataEntity;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                #region 作废代码
+                /*
                 DataTable getPoint = P00003_Logic.GetPoingNo(iP);                                                                                        //0605
                 if (getPoint.Rows.Count != 1)
                 {
@@ -2239,98 +1675,25 @@ namespace SPPSApi.Controllers.P01
                 }
                 else if (checkType == "免检")//免检品的前工程为入库
                 {
-
-
-
-
-
-                    // validateHtrst = P00003_Logic.ValidateHtrst2(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//验证实绩情报表中有没有入荷数据
-                    // validateHtrst1 = P00003_Logic.ValidateHtrst1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//验证实绩情报表中有没有包装数据
-                    // validateOpr1 = P00003_Logic.ValidateOpr2(partId, quantity, dock, kanbanOrderNo, kanbanSerial);                                                                                              //从作业实际取入荷数据
                     validateOpr = P00003_Logic.ValidateOpr1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
                     //从入出库履历取入荷数据
                     validateInv = P00003_Logic.ValidateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
-                    //校验品番的有效性
-                    // validateData = P00003_Logic.ValidateData(partId, scanTime, dock);
 
 
                 }
                 else//其他类型的前工程为检查
-
                 {
-
-                    // validateHtrst = P00003_Logic.ValidateHtrst(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//验证实绩情报表中有没有检查数据
-                    // validateHtrst1 = P00003_Logic.ValidateHtrst1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);//验证实绩情报表中有没有包装数据
-                    // validateOpr1 = P00003_Logic.ValidateOpr3(partId, quantity, dock, kanbanOrderNo, kanbanSerial);                                                                                                //从作业实际取入荷数据
                     validateOpr = P00003_Logic.ValidateOpr(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
                     //从入出库履历取入荷数据
                     validateInv = P00003_Logic.ValidateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
-                    //校验品番的有效性
-                    //  validateData = P00003_Logic.ValidateData(partId, scanTime, dock);
-
-
                 }
                 bool a = (validateOpr.Rows.Count == 1);
                 bool b = (validateInv.Rows.Count == 1);
                 bool c = (int.Parse(validateInv.Rows[0][4].ToString()) >= int.Parse(quantity));
 
-
                 if (validateOpr.Rows.Count == 1 && validateInv.Rows.Count == 1
                   && (int.Parse(validateInv.Rows[0][3].ToString()) >= int.Parse(quantity)))
                 {
-
-                    //int stanTotalTime = int.Parse(validateTime.Rows[0][0].ToString());
-                    /*
-                      #region   根据开始结束时间算出时间差
-
-                      string getYearData = timeStart.Split(" ")[0];
-                      string getTimeData = timeStart.Split(" ")[1];
-
-                      int beforeYear = int.Parse(getYearData.Split("-")[0]);
-                      int beforeMonth = int.Parse(getYearData.Split("-")[1]);
-                      int beforeDate = int.Parse(getYearData.Split("-")[2]);
-                      int beforeHours = int.Parse(getTimeData.Split(":")[0]);
-                      int beforeMinutes = int.Parse(getTimeData.Split(":")[1]);
-                      int beforeSeconds = int.Parse(getTimeData.Split(":")[2]);
-
-
-                      string getYearData1 = timeEnd.Split(" ")[0];
-                      string getTimeData1 = timeEnd.Split(" ")[1];
-
-                      int afterYear = int.Parse(getYearData1.Split("-")[0]);
-                      int afterMonth = int.Parse(getYearData1.Split("-")[1]);
-                      int afterDate = int.Parse(getYearData1.Split("-")[2]);
-
-                      int afterHours = int.Parse(getTimeData1.Split(":")[0]);
-                      int afterMinutes = int.Parse(getTimeData1.Split(":")[1]);
-                      int afterSeconds = int.Parse(getTimeData1.Split(":")[2]);
-
-
-                      int totalTime = (afterYear - beforeYear) * 365 * 24 * 60 * 60 +
-                        (afterMonth - beforeMonth) * 30 * 24 * 60 * 60 +
-                        (afterDate - beforeDate) * 24 * 60 * 60 +
-                        (afterHours - beforeHours) * 60 * 60 + (afterMinutes - beforeMinutes) * 60 + (afterSeconds - beforeSeconds);
-
-                      int timeResultUp = P00003_Logic.UpdateTime(formatDate,totalTime,opearteId);
-
-
-
-                      DataTable getTime = P00003_Logic.GetTime(formatDate, opearteId);
-                      P00003_DataEntity.packTotalTime = getTime.Rows[0][4].ToString();
-
-
-                      #endregion
-
-
-                      */
-
-
-
-
-
-
-
-
 
                     string bzPlant = validateInv.Rows[0][0].ToString();//包装场
                     string sHF = validateInv.Rows[0][1].ToString();//收货方
@@ -2338,8 +1701,6 @@ namespace SPPSApi.Controllers.P01
                     string dBZ = validateInv.Rows[0][3].ToString();//待包装
                     string dZX = validateInv.Rows[0][4].ToString();//待装箱
                     string dCH = validateInv.Rows[0][5].ToString();//待出荷
-
-
 
                     string supplier_id = validateOpr.Rows[0][0].ToString();//供应商代码
                     string supplierGQ = validateOpr.Rows[0][1].ToString();//供应商工区
@@ -2350,8 +1711,6 @@ namespace SPPSApi.Controllers.P01
                     string inoutFlag = validateOpr.Rows[0][6].ToString();//内外区分
                     string checkStatus = validateOpr.Rows[0][7].ToString();//检查状态
 
-
-                    //int qbResultIn = P00003_Logic.Insert(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, trolleyNo, sHF, inputNo);//插入实绩情报表
                     int invResult = P00003_Logic.UpdateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, serverTime, opearteId);                                                                                                                    //更新入出库履历表
                     int oprReusultIn = P00003_Logic.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, bZUnit, sHF, dock, checkType, labelStart, labelEnd, checkStatus, opearteId, timeStart, timeEnd, iP, pointType);//插入作业实际表
                     #region 对包材进行操作,消耗实绩,消减在库
@@ -2389,101 +1748,25 @@ namespace SPPSApi.Controllers.P01
                                     apiResult.code = ComConstant.ERROR_CODE;
                                     apiResult.data = "包材品番" + packNo + "在在库表中不存在有效数据,请检查!";
                                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
                                 }
-
                             }
                             else
                             {
-
                                 apiResult.code = ComConstant.ERROR_CODE;
                                 apiResult.data = "包材品番" + packNo + "在包材基础中不存在有效数据,请检查!";
                                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                             }
-
-
-
-
                         }
-
-
-
-
-
                     }
                     else
                     {
-
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在包材构成中不存在有效数据,请检查!";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
-
                     }
-
-
-
-
-
-
-
-
-
-
                     #endregion
-
-
-
-
-
-                    /*
-                              #region 打印标签,根据入库单号进行区分
-                              //用入库单号去查询标签表,如果第一次打印时间不为空进行插入打印标签
-                              DataTable getLabel = P00003_Logic.GetLabel(inputNo);
-
-                              if (getLabel.Rows.Count > 0)
-                              {
-
-
-
-
-                                if (getLabel.Rows[0][0].ToString() == "")
-                                {
-                                  int lbResultIn = P00003_Logic.InsertTP1(iP, opearteId, serverTime, inputNo);
-                                }
-
-
-
-                              }
-
-
-
-
-
-
-
-
-
-
-                              #endregion
-                    */
-
-
-
-
-                    // P00003_DataEntity.freQuency = validateEffi.Rows[0][1].ToString();
-                    //  P00003_DataEntity.effiEncy = (double.Parse(validateEffi.Rows[0][2].ToString()) * 100).ToString() + "%";
                     apiResult.data = P00003_DataEntity;
-
-                    //int qbResultIn = P00003_Logic.Insert(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime,trolleyNo,sHF,inputNo);//插入实绩情报表
-                    // int invResult = P00003_Logic.UpdateInv(partId,quantity,dock,kanbanOrderNo,kanbanSerial,scanTime,serverTime);                                                                                                                    //更新入出库履历表
-                    //int oprReusultIn = P00003_Logic.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, bZUnit, sHF, dock, checkType, labelStart, labelEnd,checkStatus);//插入作业实际表
-
-
-
-
                 }
 
                 else if (validateOpr.Rows.Count == 0)
@@ -2498,30 +1781,16 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "品番" + partId + "在入出库履历中没有对应数据,请检查!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-
-
-
-
-
-
-
-
-
-
-
-
+                */
+                #endregion
             }
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "包装失败";
+                apiResult.data = "包装不装箱失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 

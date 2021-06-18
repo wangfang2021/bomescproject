@@ -909,6 +909,557 @@ namespace DataAccess
                 }
             }
         }
+        public DataTable GetKanBanInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string scanTime)
+        {
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("select a.vcPart_id--入荷品番");
+            stringBuilder.Append("		,a.vcKBOrderNo");
+            stringBuilder.Append("		,a.vcKBLFNo");
+            stringBuilder.Append("		,a.vcSR");
+            stringBuilder.Append("		,a.vcSupplier_id");
+            stringBuilder.Append("		,a.iQuantity");
+            stringBuilder.Append("		,a.vcBZUnit");
+            stringBuilder.Append("		,b.vcCheckP--检查区分");
+            stringBuilder.Append("		,c.vcCheckStatus--检查状态");
+            stringBuilder.Append("		,d.vcPart_id as vcPart_id_InOut--入库履历校验");
+            stringBuilder.Append("		,isnull(d.iDBZ,0) as iDBZ--待包装");
+            stringBuilder.Append("		,isnull(d.iDZX,0) as iDZX--待装箱");
+            stringBuilder.Append("		,isnull(d.iDCH,0) as iDCH--待出荷");
+            stringBuilder.Append("		,a.vcInputNo--指令书号");
+            stringBuilder.Append("		,isnull(g.vcPicUrl,'暂无图像.jpg') as vcPicUrl--四分图");
+            stringBuilder.Append("		,h.vcSmallPM--小品目");
+            stringBuilder.Append("		,a.vcBZUnit--包装单位");
+            stringBuilder.Append("		,isnull(e.iQuantity,0) as iQuantity_bz--包装数量");
+            stringBuilder.Append("		,isnull(f.iQuantity,0) as iQuantity_zx--装箱数量");
+            stringBuilder.Append("from ");
+            stringBuilder.Append("(select * from TOperateSJ ");
+            stringBuilder.Append("where vcPart_id='" + partId + "' and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcSR='" + dock + "' and vcZYType='S0')a");
+            stringBuilder.Append("left join");
+            stringBuilder.Append("(	select t1.vcPartId,t1.vcSupplierId,t2.vcCheckP from ");
+            stringBuilder.Append("	(select * from tCheckMethod_Master where vcPartId='521590Z91700' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "')t1");
+            stringBuilder.Append("	left join");
+            stringBuilder.Append("	(SELECT * FROM [tCheckQf] ");
+            stringBuilder.Append("	where [vcTimeFrom]<='" + scanTime + "'  and [vcTimeTo]>='" + scanTime + "' )t2");
+            stringBuilder.Append("	ON t1.vcPartId=t2.vcPartId AND t1.vcSupplierId=t2.[vcSupplierCode])b");
+            stringBuilder.Append("on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId");
+            stringBuilder.Append("left join");
+            stringBuilder.Append("(select * from TOperateSJ ");
+            stringBuilder.Append("vcPart_id='" + partId + "' and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcSR='" + dock + "' and vcZYType='S1')c");
+            stringBuilder.Append("on a.vcPart_id=c.vcPart_id and a.vcKBOrderNo=c.vcKBOrderNo and a.vcKBLFNo=c.vcKBLFNo and a.vcSR=c.vcSR");
+            stringBuilder.Append("left join");
+            stringBuilder.Append("(select * from TOperateSJ_InOutput ");
+            stringBuilder.Append("where vcPart_id='" + partId + "' and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcSR='" + dock + "' )d");
+            stringBuilder.Append("on a.vcPart_id=d.vcPart_id and a.vcKBOrderNo=d.vcKBOrderNo and a.vcKBLFNo=d.vcKBLFNo and a.vcSR=d.vcSR");
+            stringBuilder.Append("left join");
+            stringBuilder.Append("(select vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR,SUM(CAST(iQuantity as int)) as iQuantity from TOperateSJ ");
+            stringBuilder.Append("where vcPart_id='" + partId + "' and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcSR='" + dock + "' and vcZYType='S2'");
+            stringBuilder.Append("group by vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR)e");
+            stringBuilder.Append("on a.vcPart_id=e.vcPart_id and a.vcKBOrderNo=e.vcKBOrderNo and a.vcKBLFNo=e.vcKBLFNo and a.vcSR=e.vcSR");
+            stringBuilder.Append("left join");
+            stringBuilder.Append("(select vcPart_id,vcOrderNo,vcLianFanNo,vcSR,SUM(CAST(iQuantity as int)) as iQuantity from TBoxMaster ");
+            stringBuilder.Append("where vcPart_id='" + partId + "' and vcOrderNo='" + kanbanOrderNo + "' and vcLianFanNo='" + kanbanSerial + "' and vcSR='" + dock + "'");
+            stringBuilder.Append("group by vcPart_id,vcOrderNo,vcLianFanNo,vcSR)f");
+            stringBuilder.Append("on a.vcPart_id=f.vcPart_id and a.vcKBOrderNo=f.vcOrderNo and a.vcKBLFNo=f.vcLianFanNo and a.vcSR=f.vcSR");
+            stringBuilder.Append("left join");
+            stringBuilder.Append("(select * from TPackOperImage)g");
+            stringBuilder.Append("on a.vcBZPlant=g.vcPlant and a.vcPart_id=g.vcPartId");
+            stringBuilder.Append("left join");
+            stringBuilder.Append("(select * from TPackageMaster where vcPart_id='" + partId + "' and  dTimeFrom<='" + scanTime + "'  and dTimeTo>='" + scanTime + "' )h");
+            stringBuilder.Append("on a.vcPart_id=h.vcPart_id and a.vcSHF=h.vcReceiver and a.vcSupplier_id=h.vcSupplierId and a.vcSR=h.vcSR and a.vcBZPlant=h.vcBZPlant");
+            stringBuilder.Append("");
+            stringBuilder.Append("");
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
+        public DataTable GetPackList(string strInno)
+        {
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("select vcPackingpartsno as vcPackNo,vcDistinguish as vcDistinguish,sum(cast(dQty as decimal(16,5))) as sum from TPackList ");
+            stringBuilder.Append("where vcInno='" + strInno + "'");
+            stringBuilder.Append("group by vcPackingpartsno,vcDistinguish");
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
+        public bool setPrintLable(string strIP, string strInvNo, string strPrinterName, string strOperId)
+        {
+            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+            sqlConnection.Open();
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+            try
+            {
+                #region 写入数据库
+
+                #region 11.sqlCommand_printinfo
+                SqlCommand sqlCommand_printinfo = sqlConnection.CreateCommand();
+                sqlCommand_printinfo.Transaction = sqlTransaction;
+                sqlCommand_printinfo.CommandType = CommandType.Text;
+                StringBuilder strSql_printinfo = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_printinfo.AppendLine("INSERT INTO [dbo].[TPrint_Temp]");
+                strSql_printinfo.AppendLine("           ([vcTableName]");
+                strSql_printinfo.AppendLine("           ,[vcReportName]");
+                strSql_printinfo.AppendLine("           ,[vcClientIP]");
+                strSql_printinfo.AppendLine("           ,[vcPrintName]");
+                strSql_printinfo.AppendLine("           ,[vcKind]");
+                strSql_printinfo.AppendLine("           ,[vcOperatorID]");
+                strSql_printinfo.AppendLine("           ,[dOperatorTime]");
+                strSql_printinfo.AppendLine("           ,[vcCaseNo]");
+                strSql_printinfo.AppendLine("           ,[vcSellNo]");
+                strSql_printinfo.AppendLine("           ,[vcLotid]");
+                strSql_printinfo.AppendLine("           ,[vcSupplierId]");
+                strSql_printinfo.AppendLine("           ,[vcInno]");
+                strSql_printinfo.AppendLine("           ,[vcFlag])");
+                strSql_printinfo.AppendLine("		   select distinct 'TLabelList'");
+                strSql_printinfo.AppendLine("		   ,'SPR06LBIP'");
+                strSql_printinfo.AppendLine("		   ,@IP");
+                strSql_printinfo.AppendLine("		   ,'" + strPrinterName + "'");
+                strSql_printinfo.AppendLine("		   ,'6'");
+                strSql_printinfo.AppendLine("		   ,'" + strOperId + "'");
+                strSql_printinfo.AppendLine("		   ,GETDATE()");
+                strSql_printinfo.AppendLine("		   ,null");
+                strSql_printinfo.AppendLine("		   ,null");
+                strSql_printinfo.AppendLine("		   ,null");
+                strSql_printinfo.AppendLine("		   ,null");
+                strSql_printinfo.AppendLine("		   ,@InvNo");
+                strSql_printinfo.AppendLine("		   ,'0'");
+                sqlCommand_printinfo.CommandText = strSql_printinfo.ToString();
+                sqlCommand_printinfo.Parameters.AddWithValue("@IP", strIP);
+                sqlCommand_printinfo.Parameters.AddWithValue("@InvNo", strInvNo);
+                #endregion
+                sqlCommand_printinfo.ExecuteNonQuery();
+                #endregion
+
+                //提交事务
+                sqlTransaction.Commit();
+                sqlConnection.Close();
+                return true;
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                //0613记录日志
+
+                ComMessage.GetInstance().ProcessMessage("P00001", "M03UE0901", ex, "000000");
+                //回滚事务
+                if (sqlTransaction != null && sqlConnection != null)
+                {
+                    sqlTransaction.Rollback();
+                    sqlConnection.Close();
+                }
+                return false;
+            }
+        }
+        public DataTable getPackInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packQuantity)
+        {
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("select  '2' as vcZuoYeQuFen");
+            stringBuilder.AppendLine("		,a.vcInputNo as vcOrderNo");
+            stringBuilder.AppendLine("		,b.vcPackNo as vcPackNo");
+            stringBuilder.AppendLine("		,b.vcPackGPSNo as vcPackGPSNo");
+            stringBuilder.AppendLine("		,a.vcSupplier_id as vcSupplierID");
+            stringBuilder.AppendLine("		,a.vcBZPlant as vcPackSpot");
+            stringBuilder.AppendLine("		,cast(cast(b.iBiYao as decimal(16,5))*cast('" + packQuantity + "' as int)/cast(d.vcBZUnit as decimal(16,5)) as decimal(16,5)) as dQty");
+            stringBuilder.AppendLine("		from ");
+            stringBuilder.AppendLine("(select * from TOperateSJ where vcPart_id='" + partId + "' and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcSR='" + dock + "' and vcZYType='S0')a");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(select * from TPackItem)b");
+            stringBuilder.AppendLine("on a.vcPart_id = b.vcPartsNo and b.dUsedFrom<=a.dstart and b.dUsedTo>=a.dstart");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(select * from TPackBase)c");
+            stringBuilder.AppendLine("on b.vcPackNo=c.vcPackNo and a.vcBZPlant=c.vcPackSpot and c.dPackFrom<=a.dstart and c.dPackTo>=a.dstart");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(select * from TPackageMaster)d");
+            stringBuilder.AppendLine("on a.vcPart_id=d.vcPart_id and d.dTimeFrom<=a.dstart and d.dTimeTo>=a.dstart");
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
+        public DataSet getTableFromDB()
+        {
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("--查询包材履历");
+            stringBuilder.AppendLine("SELECT TOP (1)*  FROM [TPackWork]");
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
+        public bool setPackAndZxInfo(string strIP, string strPointName, string strType, string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packQuantity, string caseno, string boxno, string scanTime, DataTable dtPackList, string strOperId)
+        {
+            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+            sqlConnection.Open();
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+            try
+            {
+                if (strType != "包装不装箱")
+                {
+                    #region 2.插入装箱实绩TBoxMaster  sqlCommand_add_bm
+                    SqlCommand sqlCommand_add_bm = sqlConnection.CreateCommand();
+                    sqlCommand_add_bm.Transaction = sqlTransaction;
+                    sqlCommand_add_bm.CommandType = CommandType.Text;
+                    StringBuilder strSql_add_bm = new StringBuilder();
+
+                    #region SQL and Parameters
+                    strSql_add_bm.AppendLine("declare @flag int");
+                    strSql_add_bm.AppendLine("set @flag=(select count(*) from TBoxMaster where vcCaseNo=@CaseNo and vcPart_id=@Part_id and vcOrderNo=@KBOrderNo and vcLianFanNo=@KBLFNo and vcSR=@SR AND vcDelete='0')");
+                    strSql_add_bm.AppendLine("if(@flag=0)");
+                    strSql_add_bm.AppendLine("begin");
+                    strSql_add_bm.AppendLine("INSERT INTO [dbo].[TBoxMaster]");
+                    strSql_add_bm.AppendLine("           ([vcStatus]");
+                    strSql_add_bm.AppendLine("           ,[vcCaseNo]");
+                    strSql_add_bm.AppendLine("           ,[vcBoxNo]");
+                    strSql_add_bm.AppendLine("           ,[vcInstructionNo]");
+                    strSql_add_bm.AppendLine("           ,[vcPart_id]");
+                    strSql_add_bm.AppendLine("           ,[vcOrderNo]");
+                    strSql_add_bm.AppendLine("           ,[vcLianFanNo]");
+                    strSql_add_bm.AppendLine("           ,[iQuantity]");
+                    strSql_add_bm.AppendLine("           ,[dBZID]");
+                    strSql_add_bm.AppendLine("           ,[dBZTime]");
+                    strSql_add_bm.AppendLine("           ,[dZXID]");
+                    strSql_add_bm.AppendLine("           ,[dZXTime]");
+                    strSql_add_bm.AppendLine("           ,[vcOperatorID]");
+                    strSql_add_bm.AppendLine("           ,[dOperatorTime]");
+                    strSql_add_bm.AppendLine("           ,[iRHQuantity]");
+                    strSql_add_bm.AppendLine("           ,[vcLabelStart]");
+                    strSql_add_bm.AppendLine("           ,[vcLabelEnd]");
+                    strSql_add_bm.AppendLine("           ,[vcDelete]");
+                    strSql_add_bm.AppendLine("           ,[dPrintBoxTime]");
+                    strSql_add_bm.AppendLine("           ,[vcSR])");
+                    strSql_add_bm.AppendLine("select top(1)");
+                    strSql_add_bm.AppendLine("		'' as vcStatus");
+                    strSql_add_bm.AppendLine("		,@CaseNo");
+                    strSql_add_bm.AppendLine("		,@BoxNo");
+                    strSql_add_bm.AppendLine("		,vcInputNo as vcInstructionNo");
+                    strSql_add_bm.AppendLine("		,vcPart_id as vcPart_id");
+                    strSql_add_bm.AppendLine("		,vcKBOrderNo as vcOrderNo");
+                    strSql_add_bm.AppendLine("		,vcKBLFNo as vcLianFanNo");
+                    strSql_add_bm.AppendLine("		,@Quantity");
+                    strSql_add_bm.AppendLine("		,@OperId");
+                    strSql_add_bm.AppendLine("		,GETDATE()");
+                    strSql_add_bm.AppendLine("		,@OperId");
+                    strSql_add_bm.AppendLine("		,GETDATE()");
+                    strSql_add_bm.AppendLine("		,@OperId");
+                    strSql_add_bm.AppendLine("		,GETDATE()");
+                    strSql_add_bm.AppendLine("		,iQuantity");
+                    strSql_add_bm.AppendLine("		,vcLabelStart");
+                    strSql_add_bm.AppendLine("		,vcLabelEnd");
+                    strSql_add_bm.AppendLine("		,'0' as vcDelete");
+                    strSql_add_bm.AppendLine("		,null as dPrintBoxTime");
+                    strSql_add_bm.AppendLine("		,vcSR");
+                    strSql_add_bm.AppendLine("		from TOperateSJ ");
+                    strSql_add_bm.AppendLine("		where vcPart_id=@Part_id and vcKBOrderNo=@KBOrderNo and vcKBLFNo=@KBLFNo and vcSR=@SR and vcZYType in ('S0','S1') order by iAutoId desc");
+                    strSql_add_bm.AppendLine("end");
+                    strSql_add_bm.AppendLine("else");
+                    strSql_add_bm.AppendLine("begin");
+                    strSql_add_bm.AppendLine("UPDATE [TBoxMaster] SET iQuantity=iQuantity+@Quantity,dBZID=@OperId,dBZTime=GETDATE(),dZXID=@OperId,dZXTime=GETDATE(),vcOperatorID=@OperId,dOperatorTime=GETDATE()");
+                    strSql_add_bm.AppendLine("where vcCaseNo=@CaseNo and vcPart_id=@Part_id and vcOrderNo=@KBOrderNo and vcLianFanNo=@KBLFNo and vcSR=@SR AND vcDelete='0'");
+                    strSql_add_bm.AppendLine("end");
+
+                    sqlCommand_add_bm.CommandText = strSql_add_bm.ToString();
+                    sqlCommand_add_bm.Parameters.AddWithValue("@CaseNo", caseno);
+                    sqlCommand_add_bm.Parameters.AddWithValue("@BoxNo", boxno);
+                    sqlCommand_add_bm.Parameters.AddWithValue("@Quantity", packQuantity);
+                    sqlCommand_add_bm.Parameters.AddWithValue("@OperId", strOperId);
+                    sqlCommand_add_bm.Parameters.AddWithValue("@Part_id", partId);
+                    sqlCommand_add_bm.Parameters.AddWithValue("@KBOrderNo", kanbanOrderNo);
+                    sqlCommand_add_bm.Parameters.AddWithValue("@KBLFNo", kanbanSerial);
+                    sqlCommand_add_bm.Parameters.AddWithValue("@SR", dock);
+                    #endregion
+                    sqlCommand_add_bm.ExecuteNonQuery();
+                    #endregion
+                }
+                if (strType!="只装箱")
+                {
+                    #region 1.插入作业实绩TOperateSJ  sqlCommand_add_sj
+                    SqlCommand sqlCommand_add_sj = sqlConnection.CreateCommand();
+                    sqlCommand_add_sj.Transaction = sqlTransaction;
+                    sqlCommand_add_sj.CommandType = CommandType.Text;
+                    StringBuilder strSql_add_sj = new StringBuilder();
+
+                    #region SQL and Parameters
+                    strSql_add_sj.AppendLine("INSERT INTO [dbo].[TOperateSJ]");
+                    strSql_add_sj.AppendLine("           ([vcZYType]");
+                    strSql_add_sj.AppendLine("           ,[vcBZPlant]");
+                    strSql_add_sj.AppendLine("           ,[vcInputNo]");
+                    strSql_add_sj.AppendLine("           ,[vcKBOrderNo]");
+                    strSql_add_sj.AppendLine("           ,[vcKBLFNo]");
+                    strSql_add_sj.AppendLine("           ,[vcPart_id]");
+                    strSql_add_sj.AppendLine("           ,[vcIOType]");
+                    strSql_add_sj.AppendLine("           ,[vcSupplier_id]");
+                    strSql_add_sj.AppendLine("           ,[vcSupplierGQ]");
+                    strSql_add_sj.AppendLine("           ,[dStart]");
+                    strSql_add_sj.AppendLine("           ,[dEnd]");
+                    strSql_add_sj.AppendLine("           ,[iQuantity]");
+                    strSql_add_sj.AppendLine("           ,[vcBZUnit]");
+                    strSql_add_sj.AppendLine("           ,[vcSHF]");
+                    strSql_add_sj.AppendLine("           ,[vcSR]");
+                    strSql_add_sj.AppendLine("           ,[vcBoxNo]");
+                    strSql_add_sj.AppendLine("           ,[vcSheBeiNo]");
+                    strSql_add_sj.AppendLine("           ,[vcCheckType]");
+                    strSql_add_sj.AppendLine("           ,[iCheckNum]");
+                    strSql_add_sj.AppendLine("           ,[vcCheckStatus]");
+                    strSql_add_sj.AppendLine("           ,[vcLabelStart]");
+                    strSql_add_sj.AppendLine("           ,[vcLabelEnd]");
+                    strSql_add_sj.AppendLine("           ,[vcUnlocker]");
+                    strSql_add_sj.AppendLine("           ,[dUnlockTime]");
+                    strSql_add_sj.AppendLine("           ,[vcSellNo]");
+                    strSql_add_sj.AppendLine("           ,[vcOperatorID]");
+                    strSql_add_sj.AppendLine("           ,[dOperatorTime]");
+                    strSql_add_sj.AppendLine("           ,[vcHostIp]");
+                    strSql_add_sj.AppendLine("           ,[packingcondition]");
+                    strSql_add_sj.AppendLine("           ,[vcPackingPlant])");
+                    strSql_add_sj.AppendLine("select top(1)'S2' AS vcZYType,");
+                    strSql_add_sj.AppendLine("vcBZPlant,");
+                    strSql_add_sj.AppendLine("vcInputNo,");
+                    strSql_add_sj.AppendLine("vcKBOrderNo,");
+                    strSql_add_sj.AppendLine("vcKBLFNo,");
+                    strSql_add_sj.AppendLine("vcPart_id,");
+                    strSql_add_sj.AppendLine("vcIOType,");
+                    strSql_add_sj.AppendLine("vcSupplier_id as vcSupplierId,");
+                    strSql_add_sj.AppendLine("vcSupplierGQ as vcSupplierPlant,");
+                    strSql_add_sj.AppendLine("@Start,");
+                    strSql_add_sj.AppendLine("getdate(),");
+                    strSql_add_sj.AppendLine("@Quantity,");
+                    strSql_add_sj.AppendLine("vcBZUnit,");
+                    strSql_add_sj.AppendLine("vcSHF,");
+                    strSql_add_sj.AppendLine("vcSR,");
+                    strSql_add_sj.AppendLine("null as vcBoxNo,");
+                    strSql_add_sj.AppendLine("@PointName,");
+                    strSql_add_sj.AppendLine("vcCheckType,");
+                    strSql_add_sj.AppendLine("iCheckNum,");
+                    strSql_add_sj.AppendLine("vcCheckStatus,");
+                    strSql_add_sj.AppendLine("vcLabelStart,");
+                    strSql_add_sj.AppendLine("vcLabelEnd,");
+                    strSql_add_sj.AppendLine("null,");
+                    strSql_add_sj.AppendLine("null,");
+                    strSql_add_sj.AppendLine("null,");
+                    strSql_add_sj.AppendLine("@OperId,");
+                    strSql_add_sj.AppendLine("getdate(),");
+                    strSql_add_sj.AppendLine("@IP,");
+                    strSql_add_sj.AppendLine("1,");
+                    strSql_add_sj.AppendLine("vcPackingPlant from");
+                    strSql_add_sj.AppendLine("TOperateSJ where vcPart_id=@Part_id and vcKBOrderNo=@KBOrderNo and vcKBLFNo=@KBLFNo and vcSR=@SR and vcZYType in ('S0','S1')");
+                    strSql_add_sj.AppendLine("order by iAutoId desc");
+
+                    sqlCommand_add_sj.CommandText = strSql_add_sj.ToString();
+                    sqlCommand_add_sj.Parameters.AddWithValue("@Start", scanTime);
+                    sqlCommand_add_sj.Parameters.AddWithValue("@Quantity", packQuantity);
+                    sqlCommand_add_sj.Parameters.AddWithValue("@PointName", strPointName);
+                    sqlCommand_add_sj.Parameters.AddWithValue("@OperId", strOperId);
+                    sqlCommand_add_sj.Parameters.AddWithValue("@IP", strIP);
+                    sqlCommand_add_sj.Parameters.AddWithValue("@Part_id", partId);
+                    sqlCommand_add_sj.Parameters.AddWithValue("@KBOrderNo", kanbanOrderNo);
+                    sqlCommand_add_sj.Parameters.AddWithValue("@KBLFNo", kanbanSerial);
+                    sqlCommand_add_sj.Parameters.AddWithValue("@SR", dock);
+                    #endregion
+                    sqlCommand_add_sj.ExecuteNonQuery();
+                    #endregion
+
+                    #region 3.更新入出库履历TOperateSJ_InOutput    sqlCommand_mod_io
+                    SqlCommand sqlCommand_mod_io = sqlConnection.CreateCommand();
+                    sqlCommand_mod_io.Transaction = sqlTransaction;
+                    sqlCommand_mod_io.CommandType = CommandType.Text;
+                    StringBuilder strSql_mod_io = new StringBuilder();
+
+                    #region SQL and Parameters
+                    strSql_mod_io.AppendLine("update TOperateSJ_InOutput set iDBZ=iDBZ-@Quantity,iDZX=iDZX+@Quantity,vcOperatorID=@Quantity,dOperatorTime=GETDATE() ");
+                    strSql_mod_io.AppendLine("where vcPart_id=@Part_id and vcKBOrderNo=@KBOrderNo and vcKBLFNo=@KBLFNo and vcSR=@SR");
+                    sqlCommand_mod_io.CommandText = strSql_mod_io.ToString();
+                    sqlCommand_mod_io.Parameters.AddWithValue("@Quantity", packQuantity);
+                    sqlCommand_mod_io.Parameters.AddWithValue("@Part_id", partId);
+                    sqlCommand_mod_io.Parameters.AddWithValue("@KBOrderNo", kanbanOrderNo);
+                    sqlCommand_mod_io.Parameters.AddWithValue("@KBLFNo", kanbanSerial);
+                    sqlCommand_mod_io.Parameters.AddWithValue("@SR", dock);
+                    #endregion
+                    sqlCommand_mod_io.ExecuteNonQuery();
+
+                    #endregion
+
+                    #region 4.插入包材履历TPackWork-TPackZaiKu   sqlCommand_add_pw
+                    SqlCommand sqlCommand_add_pw = sqlConnection.CreateCommand();
+                    sqlCommand_add_pw.Transaction = sqlTransaction;
+                    sqlCommand_add_pw.CommandType = CommandType.Text;
+                    StringBuilder strSql_add_pw = new StringBuilder();
+
+                    #region SQL and Parameters
+                    strSql_add_pw.AppendLine("INSERT INTO [dbo].[TPackWork]");
+                    strSql_add_pw.AppendLine("           ([vcZuoYeQuFen]");
+                    strSql_add_pw.AppendLine("           ,[vcOrderNo]");
+                    strSql_add_pw.AppendLine("           ,[vcPackNo]");
+                    strSql_add_pw.AppendLine("           ,[vcPackGPSNo]");
+                    strSql_add_pw.AppendLine("           ,[vcSupplierID]");
+                    strSql_add_pw.AppendLine("           ,[vcPackSpot]");
+                    strSql_add_pw.AppendLine("           ,[iNumber]");
+                    strSql_add_pw.AppendLine("           ,[dBuJiTime]");
+                    strSql_add_pw.AppendLine("           ,[vcOperatorID]");
+                    strSql_add_pw.AppendLine("           ,[dOperatorTime])");
+                    strSql_add_pw.AppendLine("     VALUES");
+                    strSql_add_pw.AppendLine("           (@vcZuoYeQuFen");
+                    strSql_add_pw.AppendLine("           ,@vcOrderNo");
+                    strSql_add_pw.AppendLine("           ,@vcPackNo");
+                    strSql_add_pw.AppendLine("           ,@vcPackGPSNo");
+                    strSql_add_pw.AppendLine("           ,@vcSupplierID");
+                    strSql_add_pw.AppendLine("           ,@vcPackSpot");
+                    strSql_add_pw.AppendLine("           ,@iNumber");
+                    strSql_add_pw.AppendLine("           ,GETDATE()");
+                    strSql_add_pw.AppendLine("           ,@OperId");
+                    strSql_add_pw.AppendLine("           ,GETDATE())");
+                    strSql_add_pw.AppendLine("declare @flag int ");
+                    strSql_add_pw.AppendLine("set @flag=(select count(*) from TPackZaiKu where vcPackNo = @vcPackNo and vcPackGPSNo = @vcPackGPSNo and vcSupplierID = @vcSupplierID)");
+                    strSql_add_pw.AppendLine("if(@flag=0)");
+                    strSql_add_pw.AppendLine("begin ");
+                    strSql_add_pw.AppendLine("INSERT INTO [dbo].[TPackZaiKu]");
+                    strSql_add_pw.AppendLine("           ([vcPackSpot]");
+                    strSql_add_pw.AppendLine("           ,[vcPackNo]");
+                    strSql_add_pw.AppendLine("           ,[vcPackGPSNo]");
+                    strSql_add_pw.AppendLine("           ,[vcSupplierID]");
+                    strSql_add_pw.AppendLine("           ,[iLiLun]");
+                    strSql_add_pw.AppendLine("           ,[iAnQuan]");
+                    strSql_add_pw.AppendLine("           ,[dChange]");
+                    strSql_add_pw.AppendLine("           ,[vcOperatorID]");
+                    strSql_add_pw.AppendLine("           ,[dOperatorTime])");
+                    strSql_add_pw.AppendLine("     VALUES");
+                    strSql_add_pw.AppendLine("           (@vcPackSpot");
+                    strSql_add_pw.AppendLine("           ,@vcPackNo");
+                    strSql_add_pw.AppendLine("           ,@vcPackGPSNo");
+                    strSql_add_pw.AppendLine("           ,@vcSupplierID");
+                    strSql_add_pw.AppendLine("           ,-1*cast(@iNumber as decimal(16,5))");
+                    strSql_add_pw.AppendLine("           ,0");
+                    strSql_add_pw.AppendLine("           ,-1*cast(@iNumber as decimal(16,5))");
+                    strSql_add_pw.AppendLine("           ,@OperId");
+                    strSql_add_pw.AppendLine("           ,GETDATE())");
+                    strSql_add_pw.AppendLine("end");
+                    strSql_add_pw.AppendLine("else");
+                    strSql_add_pw.AppendLine("begin");
+                    strSql_add_pw.AppendLine("update [TPackZaiKu] set [iLiLun]=[iLiLun]-cast(@iNumber as decimal(16,5)),[dChange]=[dChange]-cast(@iNumber as decimal(16,5)) ");
+                    strSql_add_pw.AppendLine("where vcPackNo = @vcPackNo and vcPackGPSNo = @vcPackGPSNo and vcSupplierID = @vcSupplierID");
+                    strSql_add_pw.AppendLine("end");
+
+                    sqlCommand_add_pw.CommandText = strSql_add_pw.ToString();
+                    sqlCommand_add_pw.Parameters.AddWithValue("@vcZuoYeQuFen", "");
+                    sqlCommand_add_pw.Parameters.AddWithValue("@vcOrderNo", "");
+                    sqlCommand_add_pw.Parameters.AddWithValue("@vcPackNo", "");
+                    sqlCommand_add_pw.Parameters.AddWithValue("@vcPackGPSNo", "");
+                    sqlCommand_add_pw.Parameters.AddWithValue("@vcSupplierID", "");
+                    sqlCommand_add_pw.Parameters.AddWithValue("@vcPackSpot", "");
+                    sqlCommand_add_pw.Parameters.AddWithValue("@iNumber", "");
+                    #endregion
+                    foreach (DataRow item in dtPackList.Rows)
+                    {
+                        #region Value
+                        sqlCommand_add_pw.Parameters["@vcZuoYeQuFen"].Value = item["vcZuoYeQuFen"].ToString();
+                        sqlCommand_add_pw.Parameters["@vcOrderNo"].Value = item["vcOrderNo"].ToString();
+                        sqlCommand_add_pw.Parameters["@vcPackNo"].Value = item["vcPackNo"].ToString();
+                        sqlCommand_add_pw.Parameters["@vcPackGPSNo"].Value = item["vcPackGPSNo"].ToString();
+                        sqlCommand_add_pw.Parameters["@vcSupplierID"].Value = item["vcSupplierID"].ToString();
+                        sqlCommand_add_pw.Parameters["@vcPackSpot"].Value = item["vcPackSpot"].ToString();
+                        sqlCommand_add_pw.Parameters["@iNumber"].Value = item["iNumber"].ToString();
+                        #endregion
+                        sqlCommand_add_pw.ExecuteNonQuery();
+                    }
+                    #endregion
+                }
+                #region 写入数据库
+
+                //提交事务
+                sqlTransaction.Commit();
+                sqlConnection.Close();
+                return true;
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                //0613记录日志
+
+                ComMessage.GetInstance().ProcessMessage("P00001", "M03UE0901", ex, "000000");
+                //回滚事务
+                if (sqlTransaction != null && sqlConnection != null)
+                {
+                    sqlTransaction.Rollback();
+                    sqlConnection.Close();
+                }
+                return false;
+            }
+        }
+
+
+
 
     }
 }

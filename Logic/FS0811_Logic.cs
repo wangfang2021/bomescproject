@@ -533,6 +533,12 @@ namespace Logic
                         }
                     }
                 }
+                dtDailyPaper_M.Columns.Add("vcMonth");
+                for (int i = 0; i < dtDailyPaper_M.Rows.Count; i++)
+                {
+                    dtDailyPaper_M.Rows[i]["vcMonth"] = strMonth;
+                }
+
                 return dtDailyPaper_M;
             }
             catch (Exception ex)
@@ -572,27 +578,27 @@ namespace Logic
                                     drDailyPaper_A["C"] = dtDailyList_00.Rows[i]["C"].ToString();//入荷实绩
                                     drDailyPaper_A["D"] = dtDailyList_00.Rows[i]["D"].ToString();//包装实绩
                                     drDailyPaper_A["E"] = dtDailyList_00.Rows[i]["E"].ToString();//包装差额
-                                    drDailyPaper_A["F"] = dtDailyList_00.Rows[i]["F"].ToString();//包装计划工时(H)
-                                    drDailyPaper_A["G"] = dtDailyList_00.Rows[i]["G"].ToString();//实行计划工时(H)
+                                    drDailyPaper_A["F"] = Convert.ToDecimal(dtDailyList_00.Rows[i]["F"].ToString()).ToString("#0.0");//包装计划工时(H)
+                                    drDailyPaper_A["G"] = Convert.ToDecimal(dtDailyList_00.Rows[i]["G"].ToString()).ToString("#0.0");//实行计划工时(H)
                                     //品目别实绩在线工时SS
                                     drDailyPaper_A["H"] = 0;//实绩在线工时(H)
-                                    decimal[] decOnline = getOperOnLineInfo(strPackPlant, strHosDate, strBanZhi, strPartItem);
-                                    if (decOnline[0] == 0)
-                                    {
-                                        if (decOnline[1] != 0)
-                                        {
-                                            drDailyPaper_A["H"] = decOnline[1] / Convert.ToDecimal(3600.00);
-                                        }
-                                    }
-                                    if (strPartItem != "合计")
-                                    {
-                                        decH_total = decH_total + Convert.ToDecimal(drDailyPaper_A["H"].ToString());
-                                    }
-                                    else
-                                    {
-                                        drDailyPaper_A["H"] = decH_total;
-                                    }
-                                    drDailyPaper_A["I"] = dtDailyList_00.Rows[i]["I"].ToString(); //实绩包装工时(H)
+                                    //decimal[] decOnline = getOperOnLineInfo(strPackPlant, strHosDate, strBanZhi, strPartItem);
+                                    //if (decOnline[0] == 0)
+                                    //{
+                                    //    if (decOnline[1] != 0)
+                                    //    {
+                                    //        drDailyPaper_A["H"] = Convert.ToDecimal(decOnline[1] / Convert.ToDecimal(3600.00)).ToString("#0.0");
+                                    //    }
+                                    //}
+                                    //if (strPartItem != "合计")
+                                    //{
+                                    //    decH_total = decH_total + Convert.ToDecimal(drDailyPaper_A["H"].ToString());
+                                    //}
+                                    //else
+                                    //{
+                                    //    drDailyPaper_A["H"] = decH_total;
+                                    //}
+                                    drDailyPaper_A["I"] = Convert.ToDecimal(dtDailyList_00.Rows[i]["I"].ToString()).ToString("#0.0"); //实绩包装工时(H)
                                     drDailyPaper_A["J"] = "0.00%";//工时完成率
                                     if (Convert.ToDecimal(drDailyPaper_A["G"].ToString()) != 0)
                                     {
@@ -618,6 +624,13 @@ namespace Logic
                 }
                 //统计合计值
                 dtDailyPaper_T = getHeJiInfo(dtDailyPaper_T, dtDailyPaper, ref dtMessage);
+
+                dtDailyPaper_T.Columns.Add("vcHosDate");
+                for (int i = 0; i < dtDailyPaper_T.Rows.Count; i++)
+                {
+                    dtDailyPaper_T.Rows[i]["vcHosDate"] = strHosDate;
+                }
+
                 return dtDailyPaper_T;
             }
             catch (Exception ex)

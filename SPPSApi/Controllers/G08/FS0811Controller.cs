@@ -388,7 +388,7 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string[] fields = { "vcPartItem", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+                string[] fields = { "vcPartItem", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "vcHosDate" };
 
                 string filepath = ComFunction.generateExcelWithXlt(dtDailyPaper, fields, _webHostEnvironment.ContentRootPath, "DailyPaper.xlsx", 1, 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
@@ -458,7 +458,7 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string[] fields = { "vcPartItem", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+                string[] fields = { "vcPartItem", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "vcHosDate" };
 
                 string filepath = ComFunction.generateExcelWithXlt(dtDailyPaper, fields, _webHostEnvironment.ContentRootPath, "DailyPaper.xlsx", 1, 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
@@ -528,7 +528,7 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string[] fields = { "vcPartItem", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+                string[] fields = { "vcPartItem", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "vcMonth" };
 
                 string filepath = ComFunction.generateExcelWithXlt(dtDailyPaper, fields, _webHostEnvironment.ContentRootPath, "MonthPaper.xlsx", 1, 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")

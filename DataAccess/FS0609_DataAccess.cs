@@ -100,7 +100,7 @@ namespace DataAccess
                         }
                         catch
                         {
-                            strSql.AppendLine("NULL,");
+                            strSql.AppendLine("'0',");
                         }
                     }
                 }

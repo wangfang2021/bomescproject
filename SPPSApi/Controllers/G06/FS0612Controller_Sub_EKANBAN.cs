@@ -196,7 +196,7 @@ namespace SPPSApi.Controllers.G06
                 for (int i = 0; i < plantList.Count; i++)
                 {
                     string strPlant = plantList[i];
-                    DataRow[] drs_dxny = dtMaxCLResult.Select("vcPlant='" + strPlant + "' and vcStatus='已请求'  ");
+                    DataRow[] drs_dxny = dtMaxCLResult.Select("vcPlant='" + strPlant + "' and vcStatus in ('已请求','P')  ");
                     if (drs_dxny.Length > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

@@ -925,7 +925,7 @@ namespace DataAccess
                 strSql.AppendLine("      ,dOperatorTime=getDate() ");
                 strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
                 strSql.AppendLine("      ,iTzhSOQN=null,iTzhSOQN1=null,iTzhSOQN2=null,iHySOQN=null,iHySOQN1=null,iHySOQN2=null      \n");
-                strSql.AppendLine("      ,dExpectTime=null,dOpenTime=null,vcOpenUser=null,dSReplyTime=null,vcSReplyUser=null,dReplyTime=null       \n");
+                //strSql.AppendLine("      ,dExpectTime=null,dOpenTime=null,vcOpenUser=null,dSReplyTime=null,vcSReplyUser=null,dReplyTime=null       \n");
                 strSql.AppendLine(" WHERE vcYearMonth='" + strYearMonth + "' ");
                 //筛选条件：对应状态
                 if (!string.IsNullOrEmpty(strDyState))

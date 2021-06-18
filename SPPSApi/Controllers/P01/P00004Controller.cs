@@ -1,20 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
-using System.Text.Json;
-using System.Threading;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.HttpOverrides;
-using System.Net;
 using DataEntity;
 
 
@@ -67,13 +57,6 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
         }
-
-
-
-
-
-
-
       }
       catch (Exception ex)
       {
@@ -322,7 +305,7 @@ namespace SPPSApi.Controllers.P01
                   string inoutFlag = getQBData.Rows[0][14].ToString();//内外区分
                   DataTable validateData = P00004_Logic.ValidateData(partId, scanTime, dock);//验证品番基础数据,获得收货方
                   DataTable validateInv = P00004_Logic.ValidateInv(partId, kanbanOrderNo, kanbanSerial);
-                  DataTable validatePrice = P00004_Logic.ValidatePrice(partId, scanTime);//验证单价
+                  DataTable validatePrice = P00004_Logic.ValidatePrice(partId, scanTime,cpdCompany,supplierId);//验证单价
                   #region 验证订单
                   DataTable validateOrd1 = P00004_Logic.ValidateOrd1(partId);//验证订单有效性 
 
@@ -505,17 +488,6 @@ namespace SPPSApi.Controllers.P01
           int toolResult = P00004_Logic.InsertTool(sellNo, opearteId, scanTime, hUQuantity, hUQuantity1, bPQuantity, pCQuantity, cBQuantity, bianCi);
 
         }
-
-
-
-
-
-
-
-
-
-
-
         if (bianCi == "cx")
         {
           string tmpString = "SHPCX";
@@ -529,16 +501,6 @@ namespace SPPSApi.Controllers.P01
           bianCiSeqNo = getSeqNo.Rows[0][0].ToString();
           int seqNoNew = int.Parse(bianCiSeqNo) + 1;
           int seqResultUp = P00004_Logic.UpdateSeqNo(seqNoNew, formatDate, tmpString);
-
-
-
-
-
-
-
-
-
-
           int sumResultIn = P00004_Logic.InsertSum(bianCiSeqNo, sellNo, truckNo, caseSum, bianCi, opearteId, serverTime, date, banzhi, qianFen);
 
 
@@ -596,7 +558,7 @@ namespace SPPSApi.Controllers.P01
             string caseNo = getQBData1.Rows[j][15].ToString();//箱号
             string inputNo = getQBData1.Rows[j][16].ToString();//入库单号
             DataTable getOprData = P00004_Logic.GetOprData(caseNo, inputNo);//验证作业实绩
-            DataTable getPrice = P00004_Logic.ValidatePrice(partId, scanTime);
+            DataTable getPrice = P00004_Logic.ValidatePrice(partId, scanTime,cpdCompany,supplierId);
             DataTable validateData = P00004_Logic.ValidateData(partId, scanTime, dock);//验证品番基础数据,获得收货方
             DataTable validateInv = P00004_Logic.ValidateInv(partId, kanbanOrderNo, kanbanSerial);
             DataTable validateOrd1 = P00004_Logic.ValidateOrd1(partId);//验证订单有效性 
@@ -613,10 +575,23 @@ namespace SPPSApi.Controllers.P01
               string price = getPrice.Rows[0][0].ToString();
               string invoiceNo = sellNo.Substring(4, 10);
               string dCH = validateInv.Rows[0][0].ToString();
+              DataTable getPoint = P00004_Logic.GetPoint(iP);
+              if (getPoint.Rows.Count != 1)
+              {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "当前点位信息异常，请检查！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+              }
+              string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+
+
+
+
               if (int.Parse(dCH) >= int.Parse(quantity) && (int.Parse(validateInv.Rows[0][0].ToString()) >= int.Parse(quantity)) && (int.Parse(validateOrd1.Rows[0][0].ToString()) - int.Parse(getCount.Rows[0][0].ToString()) >= int.Parse(quantity)))
               {
 
-                int sjReultIn = P00004_Logic.InsertSj(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuatity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, checkStatus, caseNo, sellNo);
+                int sjReultIn = P00004_Logic.InsertSj(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuatity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, checkStatus, caseNo, sellNo,iP,pointType);
 
                 int sellResultIn = P00004_Logic.InsertSell(bianCiSeqNo, sellNo, truckNo, cpdCompany, partId, kanbanOrderNo, kanbanSerial, invoiceNo, caseNo, partsNameEn, quantity, bianCi, opearteId, scanTime, supplierId, lblStart, lblEnd, price);
 
@@ -637,7 +612,7 @@ namespace SPPSApi.Controllers.P01
                 int SumQuantity = int.Parse(quantity);
                 int newSum = 0;
                 #region  更新订单表
-                for (int o = 0; j < validateOrd.Rows.Count; j++)
+                for (int o = 0; o < validateOrd.Rows.Count; o++)
                 {
                   string targetMonth = validateOrd.Rows[o][0].ToString();
                   string orderType = validateOrd.Rows[o][1].ToString();

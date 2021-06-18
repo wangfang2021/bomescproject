@@ -184,9 +184,9 @@ namespace Logic
       return P00004_DataAccess.UpdateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial, serverTime);
     }
 
-    public static DataTable ValidatePrice(string partId, string scanTime)
+    public static DataTable ValidatePrice(string partId, string scanTime, string cpdCompany, string supplierId)
     {
-      return P00004_DataAccess.ValidatePrice(partId, scanTime);
+      return P00004_DataAccess.ValidatePrice(partId, scanTime,cpdCompany,supplierId);
     }
 
     public static int Insert(string trolley, string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial, string scanTime, string iP, string serverTime, string cpdCompany, string inno, string opearteId, string packingSpot, string packingQuatity, string lblStart, string lblEnd, string supplierId, string supplierPlant, string lotId, string inoutFlag, string checkType, string caseNo, string dockSell)
@@ -281,9 +281,9 @@ namespace Logic
       return P00004_DataAccess.GetOprData(caseNo, inputNo);
     }
 
-    public int InsertSj(string packingSpot, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inoutFlag, string supplierId, string supplierPlant, string scanTime, string serverTime, string quantity, string packingQuatity, string cpdCompany, string dock, string checkType, string lblStart, string lblEnd, string opearteId, string checkStatus, string caseNo, string sellNo)
+    public int InsertSj(string packingSpot, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inoutFlag, string supplierId, string supplierPlant, string scanTime, string serverTime, string quantity, string packingQuatity, string cpdCompany, string dock, string checkType, string lblStart, string lblEnd, string opearteId, string checkStatus, string caseNo, string sellNo, string iP, string pointType)
     {
-      return P00004_DataAccess.InsertSj(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuatity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, checkStatus, caseNo, sellNo);
+      return P00004_DataAccess.InsertSj(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuatity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, checkStatus, caseNo, sellNo,iP,pointType);
     }
 
     public int InsertSell(string seqNo, string sellNo, string truckNo, string cpdCompany, string partId, string kanbanOrderNo, string kanbanSerial, string invoiceNo, string caseNo, string partsNameEn, string quantity, string bianCi, string opearteId, string scanTime, string supplierId, string lblStart, string lblEnd, string price)
@@ -536,6 +536,11 @@ namespace Logic
     public int UpdateQB(string dockSell)
     {
       return P00004_DataAccess.UpdateQB(dockSell);
+    }
+
+    public DataTable GetPoint(string iP)
+    {
+      return P00004_DataAccess.GetPoint(iP);
     }
   }
 }

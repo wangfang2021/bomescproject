@@ -1760,7 +1760,8 @@ namespace DataAccess
       stringBuilder.AppendLine("		,d.vcSCSName as [vcSuppliername]");
       stringBuilder.AppendLine("		,d.vcSCSAdress as [vcSupplieraddress]");
       stringBuilder.AppendLine("		,d.vcZXBZNo as [vcExecutestandard]");
-      stringBuilder.AppendLine("		,b.vcCarfamilyCode as [vcCartype]");
+      stringBuilder.AppendLine("		,d.vcCarTypeName as [vcCartype]");
+      //stringBuilder.AppendLine("		,b.vcCarfamilyCode as [vcCartype]");
       stringBuilder.AppendLine("		,c.vcBZQF");
       stringBuilder.AppendLine("		,a.vcLabelStart");
       stringBuilder.AppendLine("		,a.vcLabelEnd");
@@ -1773,7 +1774,7 @@ namespace DataAccess
       stringBuilder.AppendLine("(select * from TPackageMaster where dTimeFrom<='" + serverTime + "' and dTimeTo>='" + serverTime + "')c");
       stringBuilder.AppendLine("on a.vcPart_id=c.vcPart_id");
       stringBuilder.AppendLine("left join");
-      stringBuilder.AppendLine("(select vcPart_Id,vcCPDCompany,vcSupplier_id,vcPartNameCN,vcSCSName,vcSCSAdress,vcZXBZNo from  TtagMaster where dTimeFrom<='" + serverTime + "' and dTimeTo>='" + serverTime + "')d");
+      stringBuilder.AppendLine("(select vcPart_Id,vcCPDCompany,vcSupplier_id,vcPartNameCN,vcCarTypeName,vcSCSName,vcSCSAdress,vcZXBZNo from  TtagMaster where dTimeFrom<='" + serverTime + "' and dTimeTo>='" + serverTime + "')d");
       stringBuilder.AppendLine("on a.vcPart_id=d.vcPart_id and a.vcCpdCompany=d.vcCPDCompany and a.vcSupplierId=d.vcSupplier_id");
       stringBuilder.AppendLine("order by a.dScanTime");
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();

@@ -1,20 +1,12 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Data;
-using System.Text.Json;
-using System.Threading;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.HttpOverrides;
-using System.Net;
 using DataEntity;
 using Microsoft.AspNetCore.StaticFiles;
 using System.IO;
@@ -55,18 +47,18 @@ namespace SPPSApi.Controllers.P01
                 DataTable validateOpr2 = P00001_Logic.ValidateOpr2(inno);
                 if (validateOpr1.Rows.Count == 1 && validateOpr2.Rows.Count == 0)
                 {
-                    string partId = validateOpr1.Rows[0][0].ToString();
-                    string kanbanOrderNo = validateOpr1.Rows[0][2].ToString();
-                    string kanbanSerial = validateOpr1.Rows[0][3].ToString();
-                    string dock = validateOpr1.Rows[0][1].ToString();
-                    string supplierId = validateOpr1.Rows[0][5].ToString();
-                    string quantity = validateOpr1.Rows[0][4].ToString();
+                    string partId = validateOpr1.Rows[0]["vcPart_id"].ToString();
+                    string kanbanOrderNo = validateOpr1.Rows[0]["vcKBOrderNo"].ToString();
+                    string kanbanSerial = validateOpr1.Rows[0]["vcKBLFNo"].ToString();
+                    string dock = validateOpr1.Rows[0]["vcSR"].ToString();
+                    string supplierId = validateOpr1.Rows[0]["vcSupplier_id"].ToString();
+                    string quantity = validateOpr1.Rows[0]["iQuantity"].ToString();
                     DataTable getCheckType = P00002_Logic.GetCheckType(partId, kanbanOrderNo, kanbanSerial, dock, scanTime, supplierId);
                     DataTable getSPIS = P00002_Logic.GetSPIS(partId, scanTime, supplierId);
                     if (getCheckType.Rows.Count == 1 && getSPIS.Rows.Count == 1)
                     {
-                        string checkType = getCheckType.Rows[0][0].ToString();
-                        string tjsx = getCheckType.Rows[0][1].ToString();
+                        string checkType = getCheckType.Rows[0]["vcCheckP"].ToString();
+                        string tjsx = getCheckType.Rows[0]["vcTJSX"].ToString();
                         P00002_DataEntity.checkType = checkType;
                         P00002_DataEntity.tjsx = tjsx;
                         P00002_DataEntity.partId = partId;
@@ -139,11 +131,11 @@ namespace SPPSApi.Controllers.P01
                 if (getInnoData.Rows.Count == 1)
                 {
                     #region 构造返回数据
-                    P00002_DataEntity.partId = getInnoData.Rows[0][0].ToString();
-                    P00002_DataEntity.dock = getInnoData.Rows[0][1].ToString();
-                    P00002_DataEntity.quantity = getInnoData.Rows[0][2].ToString();
-                    P00002_DataEntity.kanbanOrderNo = getInnoData.Rows[0][3].ToString();
-                    P00002_DataEntity.kanbanSerial = getInnoData.Rows[0][4].ToString();
+                    P00002_DataEntity.partId = getInnoData.Rows[0]["vcPart_id"].ToString();
+                    P00002_DataEntity.dock = getInnoData.Rows[0]["vcSR"].ToString();
+                    P00002_DataEntity.quantity = getInnoData.Rows[0]["iQuantity"].ToString();
+                    P00002_DataEntity.kanbanOrderNo = getInnoData.Rows[0]["vcKBOrderNo"].ToString();
+                    P00002_DataEntity.kanbanSerial = getInnoData.Rows[0]["vcKBLFNo"].ToString();
                     apiResult.data = P00002_DataEntity;
                     #endregion
                 }
@@ -472,7 +464,7 @@ namespace SPPSApi.Controllers.P01
                 drInfo_SJ_Temp["vcLabelStart"] = lblStart;
                 drInfo_SJ_Temp["vcLabelEnd"] = lblEnd;
                 drInfo_SJ_Temp["vcUnlocker"] = "";
-                drInfo_SJ_Temp["dUnlockTime"] = "";
+                drInfo_SJ_Temp["dUnlockTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
                 drInfo_SJ_Temp["vcSellNo"] = "";
                 drInfo_SJ_Temp["vcOperatorID"] = opearteId;
                 drInfo_SJ_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
@@ -648,7 +640,7 @@ namespace SPPSApi.Controllers.P01
                 drInfo_SJ_Temp["vcLabelStart"] = lblStart;
                 drInfo_SJ_Temp["vcLabelEnd"] = lblEnd;
                 drInfo_SJ_Temp["vcUnlocker"] = "";
-                drInfo_SJ_Temp["dUnlockTime"] = "";
+                drInfo_SJ_Temp["dUnlockTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
                 drInfo_SJ_Temp["vcSellNo"] = "";
                 drInfo_SJ_Temp["vcOperatorID"] = opearteId;
                 drInfo_SJ_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");

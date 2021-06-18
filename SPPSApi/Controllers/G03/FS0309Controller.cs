@@ -210,7 +210,7 @@ namespace SPPSApi.Controllers.G03
                 ,"vcSupplier_Name","dProjectBeginStr","dProjectEndStr","vcHaoJiu_Name","dJiuBeginStr","dJiuEndStr","dJiuBeginSustainStr","vcPriceChangeInfo_Name"
                 ,"vcPriceState_Name","dPriceStateDateStr","vcPriceGS_Name","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebeginStr","dPriceEndStr"
                 ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
-                ,"vcOriginCompany_Name"
+                ,"vcOriginCompany_Name","vcNote"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 1,loginInfo.UserId,FunctionID  );
                 if (filepath == "")
@@ -276,12 +276,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"变更事项","品番","使用开始","使用结束","内外","供应商代码","供应商名称","开始","结束","号旧","TNP含税","价格开始","价格结束","收货方","所属原单位"},
-                                                {"vcChange","vcPart_id","dUseBegin","dUseEnd","vcProjectType","vcSupplier_id","vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu","decPriceTNPWithTax","dPricebegin","dPriceEnd","vcReceiver","vcOriginCompany"},
-                                                {"",FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"","","",FieldCheck.Date,FieldCheck.Date,"","","","","","" },
-                                                {"25","12","0","0","0","4","50","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"0","10","1","1","1","1","1","1","1","1","0","0","0","1","1"},//最小长度设定,可以为空用0
-                                                {"1","2","3","4","5","6","7","8","9","10","20","21","22","31","32"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"变更事项","品番"            ,"使用开始"     ,"使用结束"     ,"内外"         ,"供应商代码"   ,"供应商名称"     ,"开始"         ,"结束"         ,"号旧"    ,"TNP含税"           ,"价格开始"   ,"价格结束" ,"车型(开发)"  ,"车型(设计)"     ,"品名"       ,"OE=SP","防锈区分" ,"收货方"    ,"所属原单位"     ,"备注"  },
+                                                        {"vcChange","vcPart_id"       ,"dUseBegin"    ,"dUseEnd"      ,"vcProjectType","vcSupplier_id","vcSupplier_Name","dProjectBegin","dProjectEnd"  ,"vcHaoJiu","decPriceTNPWithTax","dPricebegin","dPriceEnd","vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE" ,"vcStateFX","vcReceiver","vcOriginCompany","vcNote"},
+                                                        {""        ,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,""             ,""             ,""               ,FieldCheck.Date,FieldCheck.Date,""        ,""                  ,""           ,""         ,""            ,""               ,""           ,""     ,""         ,""          ,""               ,""      },
+                                                        {"25"      ,"12"              ,"0"            ,"0"            ,"0"            ,"4"            ,"50"             ,"0"            ,"0"            ,"0"       ,"0"                 ,"0"          ,"0"        ,"4"           ,"4"              ,"100"        ,"1"    ,"2"        ,"0"         ,"0"              ,"100"   },//最大长度设定,不校验最大长度用0
+                                                        {"0"       ,"10"              ,"1"            ,"1"            ,"1"            ,"1"            ,"1"              ,"1"            ,"1"            ,"1"       ,"0"                 ,"0"          ,"0"        ,"0"           ,"0"              ,"0"          ,"0"    ,"0"        ,"1"         ,"1"              ,"0"     },//最小长度设定,可以为空用0
+                                                        {"1"       ,"2"               ,"3"            ,"4"            ,"5"            ,"6"            ,"7"              ,"8"            ,"9"            ,"10"      ,"20"                ,"21"         ,"22"       ,"23"          ,"24"             ,"25"         ,"26"   ,"28"       ,"31"        ,"32"             ,"33"    }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { { "dUseBegin", "dUseEnd" }, { "dProjectBegin", "dProjectEnd" }, { "dJiuBegin", "dJiuEnd" }, { "dPricebegin", "dPriceEnd" } };

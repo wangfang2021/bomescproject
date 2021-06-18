@@ -1264,15 +1264,16 @@ namespace SPPSApi.Controllers.P01
           {
             string lblStart = dtLabelInfo.Rows[j]["vcLabelStart"].ToString();
             string lblEnd = dtLabelInfo.Rows[j]["vcLabelEnd"].ToString();
+            string partId = dtLabelInfo.Rows[j]["vcPart_id"].ToString();
             string date = lblStart.Substring(0, 6);//标签首
             int front = int.Parse(lblStart.Substring(6, 5));//开始
             int back = int.Parse(lblEnd.Substring(6, 5));//结束
             for (int a = front; a <= back; a++)
             {
-              string strPrintcount = date + a.ToString().PadLeft(5, '0');
+              string strPrintcount =partId+date + a.ToString().PadLeft(5, '0');
               string strLabel = "*" + strPrintcount + "*";
               string strContent = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=" + strPrintcount;
-              string strPrintcount1 = date + a.ToString().PadLeft(5, '0') + "B";
+              string strPrintcount1 =partId+date + a.ToString().PadLeft(5, '0') + "B";
               string strLabel1 = "*" + strPrintcount1 + "*";
               string strContent1 = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=" + strPrintcount1 + "B";
               byte[] Qrcode = P00001_Logic.GenerateQRCode(strContent);
@@ -1630,7 +1631,7 @@ namespace SPPSApi.Controllers.P01
         if (dsCheckDb.Tables[0].Rows.Count > 0)
         {
           apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "看板订单号" + kanbanOrderNo + "看板连番" + kanbanSerial + "品番" + partId + "已经入库";
+          apiResult.data = "看板订单号" + kanbanOrderNo + "看板连番" + kanbanSerial + "品番" + partId + "已经扫描";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         if (dsCheckDb.Tables[1].Rows.Count != 1)

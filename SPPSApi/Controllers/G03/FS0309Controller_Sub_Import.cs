@@ -67,11 +67,11 @@ namespace SPPSApi.Controllers.G03
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"ID","品番","使用开始","使用结束","变更履历", "公式", "原价","参考值","TNP含税","价格开始","价格结束"},
-                                                {"iAutoId","vcPart_id", "dUseBegin", "dUseEnd", "vcPriceChangeInfo","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"},
-                                                {"",FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Date,FieldCheck.Date},
-                                                {"0","12","0","0","50", "50", "0","0","0", "0", "0"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","1","0", "0", "0","0","0", "0", "0"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"ID"     ,"品番"               ,"使用开始"     ,"使用结束"     ,"变更履历"         , "公式"    , "原价"           ,"参考值"          ,"TNP含税"           ,"价格开始"     ,"价格结束"     ,"车型（开发）","车型（设计）"   ,"品名"       ,"OE=SP","防锈区分" ,"所属原单位"     ,"备注"  },
+                                                   {"iAutoId","vcPart_id"          ,"dUseBegin"    ,"dUseEnd"      ,"vcPriceChangeInfo","vcPriceGS","decPriceOrigin"  ,"decPriceAfter"   ,"decPriceTNPWithTax","dPricebegin"  ,"dPriceEnd"    ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE" ,"vcStateFX","vcOriginCompany","vcNote"},
+                                                   {""       ,FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,""                 ,""         ,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal  ,FieldCheck.Date,FieldCheck.Date,""            ,""               ,""           ,""     ,""         ,""               ,""      },
+                                                   {"0"      ,"12"                 ,"0"            ,"0"            ,"50"               ,"50"       ,"0"               ,"0"               ,"0"                 ,"0"            ,"0"            ,"4"           ,"4"              ,"100"        ,"1"    ,"2"        ,"50"             ,"100"   },//最大长度设定,不校验最大长度用0
+                                                   {"1"      ,"1"                  ,"1"            ,"1"            ,"0"                ,"0"        ,"0"               ,"0"               ,"0"                 ,"0"            ,"0"            ,"0"           ,"0"              ,"0"          ,"0"    ,"0"        ,"0"              ,"0"     }};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -131,6 +131,7 @@ namespace SPPSApi.Controllers.G03
 
                 List<FS0309_Logic.NameOrValue> lists = new List<FS0309_Logic.NameOrValue>();
                 lists.Add(new FS0309_Logic.NameOrValue() { strTitle = "公式", strHeader = "vcPriceGS", strCodeid = "C038", isNull = true });
+                lists.Add(new FS0309_Logic.NameOrValue() { strTitle = "OE=SP", strHeader = "vcOE", strCodeid = "C012", isNull = true });
                 string strErr = "";         //记录错误信息
                 importDt = fS0309_Logic.ConverDT(importDt, lists, ref strErr);
 

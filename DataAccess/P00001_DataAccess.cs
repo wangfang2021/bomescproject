@@ -1671,7 +1671,7 @@ namespace DataAccess
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("select b.vcPointType,b.vcPointNo from ");
+            stringBuilder.AppendLine("select b.vcPointType,b.vcPointNo,b.vcPointIp from ");
             stringBuilder.AppendLine("(select * from TPointState where vcOperater='" + strOperater + "' and vcState='正常')a");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select * from TPointInfo)b");

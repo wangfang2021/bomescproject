@@ -237,9 +237,12 @@ namespace SPPSApi.Controllers.P01
                 DataTable dtPointState = P00001_Logic.GetPointState(opearteId);
                 if (dtPointState.Rows.Count > 0)
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "账号已经在" + dtPointState.Rows[0]["vcPointType"].ToString() + dtPointState.Rows[0]["vcPointNo"].ToString() + "登录";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    if (dtPointState.Rows[0]["vcPointIp"].ToString() != iP)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "账号已经在" + dtPointState.Rows[0]["vcPointType"].ToString() + dtPointState.Rows[0]["vcPointNo"].ToString() + "登录";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 //验证打印机
                 DataTable dtPrintName = P00001_Logic.checkPrintName(iP, pointtype);

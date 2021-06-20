@@ -23,7 +23,7 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrWhiteSpace(dOperatorTime))
                 {
-                    sbr.Append(" AND Convert(varchar(10),dOperatorTime,120) = '" + dOperatorTime + "' \r\n");
+                    sbr.Append(" AND Convert(varchar(10),dUploadTime,120) = '" + dOperatorTime + "' \r\n");
                 }
 
                 sbr.Append(" ORDER BY vcState ASC, dOperatorTime desc  \r\n");

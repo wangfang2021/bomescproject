@@ -26,7 +26,7 @@ namespace DataAccess
                     sbr.Append(" AND Convert(varchar(10),dUploadTime,120) = '" + dOperatorTime + "' \r\n");
                 }
 
-                sbr.Append(" ORDER BY vcState ASC, dOperatorTime desc  \r\n");
+                sbr.Append(" ORDER BY vcState ASC, dUploadTime desc  \r\n");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception e)

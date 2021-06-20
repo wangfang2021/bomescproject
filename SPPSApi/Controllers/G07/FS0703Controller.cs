@@ -124,7 +124,7 @@ namespace SPPSApi.Controllers.G07
                 string strErrorPartId = "";
                 if (dt.Rows.Count > 0)
                 {
-                    FS0703_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorPartId);
+                    FS0703_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorPartId, SupplierCodeList);
                 }
 
                 //DataTable dtcheck = FS0703_Logic.SearchCheck();

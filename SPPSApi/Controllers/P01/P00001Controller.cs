@@ -360,21 +360,6 @@ namespace SPPSApi.Controllers.P01
                     if (getStatus.Rows.Count == 1)
                     {
                         P00001_Logic.UpdateStatus4(pointNo, opearteId);
-                        //#region 将当前绑定，未打印装箱单的箱号重新绑定
-                        //DataTable getCase = P00001_Logic.GetCase(opearteId, iP);
-                        //if (getCase.Rows.Count > 0)
-                        //{
-                        //    for (int i = 0; i < getCase.Rows.Count; i++)
-                        //    {
-                        //        string caseNo = getCase.Rows[i]["vcBoxNo"].ToString();
-                        //        DataTable getCase1 = P00001_Logic.GetCase1(caseNo);
-                        //        if (getCase1.Rows.Count == 0)//未打印装箱单
-                        //        {
-                        //            P00001_Logic.UpdateCase(iP, serverTime, opearteId, caseNo);
-                        //        }
-                        //    }
-                        //}
-                        //#endregion
                     }
                     else
                     {

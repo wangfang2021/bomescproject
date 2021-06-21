@@ -1514,14 +1514,9 @@ namespace DataAccess
                 }
             }
         }
-        public void setSysExit(string strIP,string strType)
+        public void setSysExit(string strIP, string strType)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("update b set b.vcState='未登录',decEfficacy='0.00',vcOperater=null from ");
-            stringBuilder.AppendLine("(select * from TPointInfo where vcPointIp='" + strIP + "')a");
-            stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select * from TPointState)b");
-            stringBuilder.AppendLine("on a.vcPointNo=b.vcPointNo and a.vcPlant=b.vcPlant");
             stringBuilder.AppendLine("declare @uuid varchar(100)");
             stringBuilder.AppendLine("select top(1)@uuid=b.UUID from ");
             stringBuilder.AppendLine("(select * from TPointInfo where vcPointIp='" + strIP + "')a");
@@ -1529,11 +1524,30 @@ namespace DataAccess
             stringBuilder.AppendLine("(select * from TPointDetails where dDestroyTime is null)b");
             stringBuilder.AppendLine("on a.vcPlant=b.vcPlant and a.vcPointNo=b.vcPointNo");
             stringBuilder.AppendLine("order by b.dOperateDate desc");
-            if (strType == "包装-重新登录"|| strType == "包装-返回导航")
+            if (strType == "包装-返回导航")
             {
                 stringBuilder.AppendLine("update TPointDetails set dDestroyTime=GETDATE() where UUID=@uuid");
             }
-            stringBuilder.AppendLine("update TCaseInfo set vcPointState='0',dOperatorTime=GETDATE() where vcHostIp='" + strIP + "' and vcPointState='1' and dBoxPrintTime is null");
+            else if (strType == "包装-重新登录")
+            {
+                stringBuilder.AppendLine("update b set b.vcState='未登录',decEfficacy='0.00',vcOperater=null from ");
+                stringBuilder.AppendLine("(select * from TPointInfo where vcPointIp='" + strIP + "')a");
+                stringBuilder.AppendLine("left join");
+                stringBuilder.AppendLine("(select * from TPointState)b");
+                stringBuilder.AppendLine("on a.vcPointNo=b.vcPointNo and a.vcPlant=b.vcPlant");
+                stringBuilder.AppendLine("update TPointDetails set dDestroyTime=GETDATE() where UUID=@uuid");
+                stringBuilder.AppendLine("update TCaseInfo set vcPointState='0',dOperatorTime=GETDATE() where vcHostIp='" + strIP + "' and vcPointState='1' and dBoxPrintTime is null");
+            }
+            else
+            {
+                stringBuilder.AppendLine("update b set b.vcState='未登录',decEfficacy='0.00',vcOperater=null from ");
+                stringBuilder.AppendLine("(select * from TPointInfo where vcPointIp='" + strIP + "')a");
+                stringBuilder.AppendLine("left join");
+                stringBuilder.AppendLine("(select * from TPointState)b");
+                stringBuilder.AppendLine("on a.vcPointNo=b.vcPointNo and a.vcPlant=b.vcPlant");
+                stringBuilder.AppendLine("update TCaseInfo set vcPointState='0',dOperatorTime=GETDATE() where vcHostIp='" + strIP + "' and vcPointState='1' and dBoxPrintTime is null");
+
+            }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             DataSet ds = new DataSet();
             try

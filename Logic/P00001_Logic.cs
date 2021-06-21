@@ -312,9 +312,16 @@ namespace Logic
         {
             return P00001_DataAccess.GetPointState(strOperater);
         }
-        public static void setSysExit(string strIP)
+        public static void setSysExit(string strIP, string strType)
         {
-            P00001_DataAccess.setSysExit(strIP);
+            try
+            {
+                P00001_DataAccess.setSysExit(strIP, strType);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         public static DataSet getCheckQBandSJInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packingSpot, string scanTime, string strType)
         {

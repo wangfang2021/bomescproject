@@ -1514,7 +1514,7 @@ namespace DataAccess
                 }
             }
         }
-        public void setSysExit(string strIP)
+        public void setSysExit(string strIP,string strType)
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("update b set b.vcState='未登录',decEfficacy='0.00',vcOperater=null from ");
@@ -1529,7 +1529,10 @@ namespace DataAccess
             stringBuilder.AppendLine("(select * from TPointDetails where dDestroyTime is null)b");
             stringBuilder.AppendLine("on a.vcPlant=b.vcPlant and a.vcPointNo=b.vcPointNo");
             stringBuilder.AppendLine("order by b.dOperateDate desc");
-            stringBuilder.AppendLine("update TPointDetails set dDestroyTime=GETDATE() where UUID=@uuid");
+            if (strType == "包装-重新登录"|| strType == "包装-返回导航")
+            {
+                stringBuilder.AppendLine("update TPointDetails set dDestroyTime=GETDATE() where UUID=@uuid");
+            }
             stringBuilder.AppendLine("update TCaseInfo set vcPointState='0',dOperatorTime=GETDATE() where vcHostIp='" + strIP + "' and vcPointState='1' and dBoxPrintTime is null");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             DataSet ds = new DataSet();

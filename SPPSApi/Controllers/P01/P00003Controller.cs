@@ -274,6 +274,88 @@ namespace SPPSApi.Controllers.P01
         }
         #endregion
 
+        #region 返回到导航页面（包装）
+        [HttpPost]
+        [EnableCors("any")]
+        public string ReturnPage([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            string opearteId = loginInfo.UserId;
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
+
+                //检验IP所属点位信息
+                DataTable getPoint = P00001_Logic.GetPointNo(iP);
+                if (getPoint.Rows.Count != 1)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "当前点位信息异常，请检查！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+                //更新点位在线履历
+                P00001_Logic.setSysExit(iP, "包装-返回导航");
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "更改状态失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+        #endregion
+
+        #region 重新登录（包装）
+        [HttpPost]
+        [EnableCors("any")]
+        public string ExitSystem([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            string opearteId = loginInfo.UserId;
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
+
+                //检验IP所属点位信息
+                DataTable getPoint = P00001_Logic.GetPointNo(iP);
+                if (getPoint.Rows.Count != 1)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "当前点位信息异常，请检查！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+                //更新点位在线履历
+                P00001_Logic.setSysExit(iP,"包装-重新登录");
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "更改状态失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+        #endregion
+
         #region  暂停运行
         [HttpPost]
         [EnableCors("any")]

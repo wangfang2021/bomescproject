@@ -315,7 +315,7 @@ namespace SPPSApi.Controllers.P01
                 //更新登录状态
                 //更新点位在线履历
                 //更新箱号占用信息
-                P00001_Logic.setSysExit(iP);
+                P00001_Logic.setSysExit(iP,"主页面、检查、出荷-重新登录");
             }
             catch (Exception ex)
             {

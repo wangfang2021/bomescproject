@@ -1076,7 +1076,7 @@ namespace DataAccess
                 stringBuilder.AppendLine("else");
                 stringBuilder.AppendLine("begin");
                 stringBuilder.AppendLine("update TSeqNo set SEQNO=SEQNO+" + iAddNum + "  where FLAG='" + tmpString + "' and DDATE='" + strHosDate + "' and FIELD1='" + strBanZhi + "'");
-                stringBuilder.AppendLine("select SEQNO as vcSeqNo  from TSeqNo   where FLAG='" + tmpString + "' DDATE='" + strHosDate + "' and FIELD1='" + strBanZhi + "'");
+                stringBuilder.AppendLine("select SEQNO as vcSeqNo  from TSeqNo   where FLAG='" + tmpString + "' and DDATE='" + strHosDate + "' and FIELD1='" + strBanZhi + "'");
                 stringBuilder.AppendLine("end");
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
@@ -1894,7 +1894,7 @@ namespace DataAccess
             stringBuilder.AppendLine("");
             stringBuilder.AppendLine("select vcToolName,iToolQuantity ");
             stringBuilder.AppendLine("from TSell_Tool");
-            stringBuilder.AppendLine("where vcYinQuType='" + strYinQuType + "' and  vcSellNo='" + strSellNo + "");
+            stringBuilder.AppendLine("where vcYinQuType='" + strYinQuType + "' and  vcSellNo='" + strSellNo + "'");
             DataSet ds = new DataSet();
             try
             {

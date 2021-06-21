@@ -1432,11 +1432,11 @@ namespace DataAccess
         public DataTable checkPrintName(string iP, string strPointType)
         {
             StringBuilder GetPrintSql = new StringBuilder();
-            if (strPointType == "COM")
+            if (strPointType == "COM" || strPointType == "PDA")
             {
                 GetPrintSql.Append("select vcUserFlag from TPrint where vcKind in ('LABEL PRINTER','LASEL PRINTER') and vcPrinterIp='" + iP + "'");
             }
-            else
+            if (strPointType == "PAD")//PAD
             {
                 GetPrintSql.Append("select vcUserFlag from TPrint where vcKind in ('LABEL PRINTER','LASEL PRINTER','DOT PRINTER') and vcPrinterIp='" + iP + "'");
             }
@@ -1466,7 +1466,7 @@ namespace DataAccess
         public void setCaseState(string strIP)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("update TCaseInfo set vcPointState='1' where vcHostIp='"+ strIP + "' and dBoxPrintTime is null");
+            stringBuilder.AppendLine("update TCaseInfo set vcPointState='1' where vcHostIp='" + strIP + "' and dBoxPrintTime is null");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             DataSet ds = new DataSet();
             try

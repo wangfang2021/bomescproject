@@ -20,7 +20,10 @@ namespace SPPSApi.Controllers.P01
         P00004_DataEntity P00004_DataEntity = new P00004_DataEntity();
         private readonly string FunctionID = "P00004";
         private readonly IWebHostEnvironment _webHostEnvironment;
-
+        public P00004Controller(IWebHostEnvironment webHostEnvironment)
+        {
+            _webHostEnvironment = webHostEnvironment;
+        }
         #region 出荷-初始化-尝试绑定Dock与叉车
         public string ValidateUserApi([FromBody] dynamic data)
         {
@@ -89,6 +92,12 @@ namespace SPPSApi.Controllers.P01
                 string dock = dataForm.Dock == null ? "" : dataForm.Dock;
                 string fork = dataForm.Fork == null ? "" : dataForm.Fork;
                 string scanTime = dataForm.ScanTime == null ? "" : dataForm.ScanTime;
+                if (dock.Length != 6)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "DOCK位数为六位，请修改后再试。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 //vcFlag 0:绑定中  1：已解绑
                 string strFlag = "0";
                 string strType = "绑定";
@@ -246,6 +255,7 @@ namespace SPPSApi.Controllers.P01
             ApiResult apiResult = new ApiResult();
             try
             {
+                string strRootPath = _webHostEnvironment.ContentRootPath;
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 string truckNo = dataForm.TruckNo == null ? "" : dataForm.TruckNo;//卡车号
                 string bian = dataForm.Bian == null ? "" : dataForm.Bian;//便次：成型--外注钣金
@@ -562,17 +572,21 @@ namespace SPPSApi.Controllers.P01
                             #endregion
                             for (int l = 0; l < array.Length; l++)
                             {
+                                int iJDayNum = 0;
                                 if (iSumQuantity - array[l] > 0)
                                 {
                                     newarray[l] = array[l];
-                                    iSumQuantity = iSumQuantity - array[l];
+                                    iJDayNum = iSumQuantity - array[l];
+                                    iSumQuantity = iJDayNum;
+                                    dtOrderInfo_check.Rows[j][l + 7 + 1] = 0;
                                 }
                                 else
                                 {
+                                    dtOrderInfo_check.Rows[j][l + 7 + 1] = array[l] - iSumQuantity;
                                     newarray[l] = iSumQuantity;
                                     iSumQuantity = 0;
+                                    break;
                                 }
-                                dtOrderInfo_check.Rows[j][l + 7 + 1] = Convert.ToInt32(dtOrderInfo_check.Rows[j][l + 7 + 1]) - array[l];
                             }
                             #endregion
                             for (int k = 0; k < newarray.Length; k++)
@@ -1231,6 +1245,7 @@ namespace SPPSApi.Controllers.P01
                     string[] head = new string[] { };
                     string[] field = new string[] { };
                     string msg = string.Empty;
+                    //string strRootPath = _webHostEnvironment.ContentRootPath;
                     head = new string[] { "inv_no", "inv_date", "part_no", "part_name", "case_no", "ord_no", "item_no", "dlr_no", "qty", "price" };
                     field = new string[] { "inv_no", "inv_date", "part_no", "part_name", "case_no", "ord_no", "item_no", "dlr_no", "qty", "price" };
                     path = P00004_Logic.DataTableToExcel(head, field, dtSellInfo, _webHostEnvironment.ContentRootPath, opearteId, "P00001", ref msg, strXSNo);
@@ -1289,6 +1304,7 @@ namespace SPPSApi.Controllers.P01
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 #endregion
+
                 P00004_DataEntity.shipResult = "发货成功";
                 apiResult.data = P00004_DataEntity;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

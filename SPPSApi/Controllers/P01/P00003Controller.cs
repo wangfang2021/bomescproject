@@ -810,7 +810,7 @@ namespace SPPSApi.Controllers.P01
                     if (strCheckStatus != "OK")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "该看板未进行检查操作，请检查后再试。";
+                        apiResult.data = "该看板检查作业结果为NG，请修改后再试。";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

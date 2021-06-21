@@ -807,7 +807,13 @@ namespace SPPSApi.Controllers.P01
                 string strCheckStatus = dtKanBanInfo.Rows[0]["vcCheckStatus"].ToString();
                 if (strCheckP == "抽检" || strCheckP == "全检")
                 {
-                    if (strCheckStatus != "OK")
+                    if (strCheckStatus == "")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "该看板未进行检查作业，请检查作业后再试。";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (strCheckStatus == "NG")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "该看板检查作业结果为NG，请修改后再试。";
@@ -990,7 +996,7 @@ namespace SPPSApi.Controllers.P01
                 //3.更新入出库履历TOperateSJ_InOutput
                 //4.插入包材履历TPackWork
                 //5.更新包材在库TPackZaiKu
-                if(Convert.ToInt32(packQuantity)<0)
+                if (Convert.ToInt32(packQuantity) < 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "包装数量异常，请联系管理员处理异常。";

@@ -354,7 +354,7 @@ namespace DataAccess
             stringBuilder.AppendLine("on a.vcPart_id=e.vcPart_id and a.vcKBOrderNo=e.vcKBOrderNo and a.vcKBLFNo=e.vcKBLFNo and a.vcSR=e.vcSR");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select vcPart_id,vcOrderNo,vcLianFanNo,vcSR,SUM(CAST(iQuantity as int)) as iQuantity from TBoxMaster ");
-            stringBuilder.AppendLine("where vcPart_id='" + partId + "' and vcOrderNo='" + kanbanOrderNo + "' and vcLianFanNo='" + kanbanSerial + "' and vcSR='" + dock + "'");
+            stringBuilder.AppendLine("where vcPart_id='" + partId + "' and vcOrderNo='" + kanbanOrderNo + "' and vcLianFanNo='" + kanbanSerial + "' and vcSR='" + dock + "' and vcDelete='0'");
             stringBuilder.AppendLine("group by vcPart_id,vcOrderNo,vcLianFanNo,vcSR)f");
             stringBuilder.AppendLine("on a.vcPart_id=f.vcPart_id and a.vcKBOrderNo=f.vcOrderNo and a.vcKBLFNo=f.vcLianFanNo and a.vcSR=f.vcSR");
             stringBuilder.AppendLine("left join");

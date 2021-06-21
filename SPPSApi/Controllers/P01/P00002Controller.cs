@@ -421,7 +421,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     if (strCheckP == "全检")
                         strSpotQty = quantity;
-                    else
+                    if (strCheckP == "免检")
                         strSpotQty = "0";
                 }
                 //4.收集上传数据

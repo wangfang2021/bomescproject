@@ -380,7 +380,7 @@ namespace SPPSApi.Controllers.P01
                             group t by new
                             {
                                 t1 = t.Field<string>("vcPart_id"),
-                                t2 = t.Field<string>("iQuantity_kck"),
+                                t2 = t.Field<int>("iQuantity_kck"),
                                 t3 = t.Field<string>("vcDockSell"),
                                 t4 = t.Field<string>("vcSHF")
                             } into m
@@ -390,7 +390,7 @@ namespace SPPSApi.Controllers.P01
                                 Quantity_kck = m.Key.t2,
                                 DockSell = m.Key.t3,
                                 SHF = m.Key.t4,
-                                rowSum = m.Sum(m => m.Field<int>("iQuantity_bcck")).ToString()
+                                rowSum = m.Sum(m => m.Field<int>("iQuantity_bcck"))
                             };
                 if (query.ToList().Count > 0)
                 {
@@ -441,7 +441,7 @@ namespace SPPSApi.Controllers.P01
                 DataTable dtSell_Sum_Temp = dsTableFromDB.Tables[5].Clone();
                 DataTable dtOrder_Temp = dsTableFromDB.Tables[6].Clone();
                 //获取订单信息表
-                DataTable dtOrderInfo = dsTableFromDB.Tables[7].Clone();
+                DataTable dtOrderInfo = dsTableFromDB.Tables[7];
                 foreach (DataRow drQuery in dtQuery.Rows)
                 {
                     DataTable dtDockInfo_clone = dtDockInfo.Clone();
@@ -451,6 +451,12 @@ namespace SPPSApi.Controllers.P01
                     for (int i = 0; i < drDockInfo.Length; i++)
                     {
                         dtDockInfo_clone.ImportRow(drDockInfo[i]);
+                    }
+                    DataRow[] drOrderInfo = dtOrderInfo.Select("vcPartNo='" + strPart_id + "' and vcCpdcompany='" + strSHF + "'");
+                    DataTable dtOrderInfo_check = dtOrderInfo.Clone();
+                    for (int j = 0; j < drOrderInfo.Length; j++)
+                    {
+                        dtOrderInfo_check.ImportRow(drOrderInfo[j]);
                     }
                     for (int i = 0; i < dtDockInfo_clone.Rows.Count; i++)
                     {
@@ -509,12 +515,6 @@ namespace SPPSApi.Controllers.P01
                         dtOperateSJ_InOutput_Temp.Rows.Add(drOperateSJ_InOutput_Temp);
                         #endregion
 
-                        DataRow[] drOrderInfo = dtOrderInfo.Select("vcPartNo='" + strPart_id + "' and vcCpdcompany='" + strSHF + "'");
-                        DataTable dtOrderInfo_check = dtOrderInfo.Clone();
-                        for (int j = 0; j < drOrderInfo.Length; j++)
-                        {
-                            dtOrderInfo_check.ImportRow(drOrderInfo[j]);
-                        }
                         int iSumQuantity = Convert.ToInt32(dtDockInfo_clone.Rows[i]["iQuantity_bcck"].ToString());
                         for (int j = 0; j < dtOrderInfo_check.Rows.Count; j++)
                         {
@@ -572,7 +572,7 @@ namespace SPPSApi.Controllers.P01
                                     newarray[l] = iSumQuantity;
                                     iSumQuantity = 0;
                                 }
-                                dtOrderInfo_check.Rows[j][l + 7] = iSumQuantity;
+                                dtOrderInfo_check.Rows[j][l + 7 + 1] = Convert.ToInt32(dtOrderInfo_check.Rows[j][l + 7 + 1]) - array[l];
                             }
                             #endregion
                             for (int k = 0; k < newarray.Length; k++)

@@ -234,25 +234,33 @@ namespace SPPSApi.Controllers.P01
                 //ip插入位置
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
                 //验证独占登录
-                DataTable dtPointState = P00001_Logic.GetPointState(opearteId);
-                if (dtPointState.Rows.Count > 0)
+                if (pointtype != "PDA")
                 {
-                    if (dtPointState.Rows[0]["vcPointIp"].ToString() != iP)
+                    DataTable dtPointState = P00001_Logic.GetPointState(opearteId);
+                    if (dtPointState.Rows.Count > 0)
                     {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "账号已经在" + dtPointState.Rows[0]["vcPointType"].ToString() + dtPointState.Rows[0]["vcPointNo"].ToString() + "登录";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        if (dtPointState.Rows[0]["vcPointIp"].ToString() != iP)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "账号已经在" + dtPointState.Rows[0]["vcPointType"].ToString() + dtPointState.Rows[0]["vcPointNo"].ToString() + "登录";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                     }
                 }
                 //验证打印机
                 DataTable dtPrintName = P00001_Logic.checkPrintName(iP, pointtype);
                 bool bCheckPrint = false;
-                if (pointtype == "COM")//扫描枪+一体机
+                if (pointtype == "PDA")//扫描枪
                 {
                     if (dtPrintName.Rows.Count != 2)
                         bCheckPrint = true;
                 }
-                else//PAD
+                if (pointtype == "COM")//一体机
+                {
+                    if (dtPrintName.Rows.Count != 2)
+                        bCheckPrint = true;
+                }
+                if (pointtype == "PAD")//PAD
                 {
                     if (dtPrintName.Rows.Count != 3)
                         bCheckPrint = true;

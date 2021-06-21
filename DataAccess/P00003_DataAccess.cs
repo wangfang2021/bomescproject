@@ -901,7 +901,7 @@ namespace DataAccess
             stringBuilder.AppendLine("on a.vcPart_id=b.vcPart_id and a.vcOrderNo=b.vcKBOrderNo and a.vcLianFanNo=b.vcKBLFNo and a.vcSR=b.vcSR");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select * from TOperateSJ_InOutput)c");
-            stringBuilder.AppendLine("on a.vcPart_id=c.vcPart_id and a.vcOrderNo=b.vcKBOrderNo and a.vcLianFanNo=c.vcKBLFNo and a.vcSR=c.vcSR");
+            stringBuilder.AppendLine("on a.vcPart_id=c.vcPart_id and a.vcOrderNo=c.vcKBOrderNo and a.vcLianFanNo=c.vcKBLFNo and a.vcSR=c.vcSR");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select vcPackingPlant,vcPartId,vcSupplierId,vcReceiver,vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace from TSPMaster WHERE dFromTime<='" + serverTime + "' and dToTime>='" + serverTime + "')d");
             stringBuilder.AppendLine("on b.vcPart_id = d.vcPartId and b.[vcSHF]=d.vcReceiver and b.[vcSupplier_id]=d.vcSupplierId");

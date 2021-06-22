@@ -1099,7 +1099,7 @@ namespace SPPSApi.Controllers.P01
                         apiResult.data = "品番" + partId + "在标签信息表中没有有效数据";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (dsCheckDb.Tables[7].Rows.Count != 1)
+                    if (dsCheckDb.Tables[9].Rows.Count != 1)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在价格中没有有效数据";
@@ -1544,6 +1544,7 @@ namespace SPPSApi.Controllers.P01
                 //dsCheckDb.Tables[6]  标签信息表，需要唯一  getTagInfo
                 //dsCheckDb.Tables[7]  订单表中的当前余量  validateOrd
                 //dsCheckDb.Tables[8]  实绩情报表中的当前品番已经入库数量 getCount
+                //dsCheckDb.Tables[9]  价格
                 //0611
                 if (dsCheckDb.Tables[0].Rows.Count > 0)
                 {
@@ -1577,7 +1578,7 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "品番" + partId + "在标签信息表中没有有效数据";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                if (dsCheckDb.Tables[7].Rows.Count != 1)
+                if (dsCheckDb.Tables[9].Rows.Count != 1)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "品番" + partId + "在价格中没有有效数据";

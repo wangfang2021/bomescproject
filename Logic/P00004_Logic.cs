@@ -10,6 +10,7 @@ using System.Net.Mail;
 using System.IO;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using Common;
 
 namespace Logic
 {
@@ -33,16 +34,16 @@ namespace Logic
             return P00004_DataAccess.GetToolInfo(sellNo);
         }
 
-        
+
 
         public static DataTable GetSellData(string timeFrom, string timeEnd, string type, string date, string banZhi)
         {
             return P00004_DataAccess.GetSellData(timeFrom, timeEnd, type, date, banZhi);
         }
 
-        
 
-        
+
+
 
         public DataTable GetBanZhi(string serverTime)
         {
@@ -54,7 +55,7 @@ namespace Logic
             return P00004_DataAccess.GetCode();
         }
 
-        
+
         //========================================================================重写========================================================================
         public DataTable getDockAndForkInfo(string dock, string fork, string strFlag)
         {
@@ -342,6 +343,47 @@ namespace Logic
                 throw ex;
             }
         }
+        public string setEmailBody(string strYingQuName, string truckNo, string strQianFengNo, DataTable dtSell_Sum, DataTable dtSell_Tool)
+        {
+            try
+            {
+                return P00004_DataAccess.setEmailBody(strYingQuName, truckNo, strQianFengNo, dtSell_Sum, dtSell_Tool);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string sendEmailInfo_FTMS(string strFRId, string strFRName, string strFRAddress, string strTheme, string strEmailBody, string strFilePath)
+        {
+            try
+            {
+                FS0602_DataAccess fs0602_DataAccess = new FS0602_DataAccess();
+                FS0603_DataAccess fs0603_DataAccess = new FS0603_DataAccess();
+                FS0603_Logic fs0603_Logic = new FS0603_Logic();
 
+                DataTable dtEmail = fs0602_DataAccess.getFTMSEmail();
+                DataTable dtToInfo = fs0603_Logic.createTable("mailaddress");
+                for (int j = 0; j < dtEmail.Rows.Count; j++)
+                {
+                    DataRow drToInfo = dtToInfo.NewRow();
+                    drToInfo["address"] = dtEmail.Rows[j]["vcEmail1"].ToString();
+                    drToInfo["displayName"] = dtEmail.Rows[j]["vcLXR1"].ToString();
+                    dtToInfo.Rows.Add(drToInfo);
+                }
+                DataTable dtCcInfo = null;
+                string result = ComFunction.SendEmailInfo(strFRAddress, strFRName, strEmailBody, dtToInfo, dtCcInfo, strTheme, strFilePath, false);
+                if (result != "Success")
+                {
+                    return "出荷已经完成但向销售公司发送发货邮件失败，请采取其他形式联络。";
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
     }
 }

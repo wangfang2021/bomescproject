@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using DataEntity;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
+using System.Text;
 
 namespace SPPSApi.Controllers.P01
 {
@@ -270,10 +271,17 @@ namespace SPPSApi.Controllers.P01
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
                 string strYinQuType = "";
+                string strYingQuName = "";
                 if (bian == "1")
+                {
                     strYinQuType = "cx";
+                    strYingQuName = "成型";
+                }
                 if (bian == "2")
+                {
                     strYinQuType = "wz";
+                    strYingQuName = "外注加钣金";
+                }
                 if (strYinQuType == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -291,6 +299,7 @@ namespace SPPSApi.Controllers.P01
                 string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
 
                 //1.验证DOCK中箱数与器具数一致
+                #region 前提数据校验
                 DataTable dtBoxList = P00004_Logic.getBoxList(dockSell, "");
                 int caseSum = int.Parse(bPQuantity) + int.Parse(cBQuantity) + int.Parse(hUQuantity) + int.Parse(hUQuantity1) + int.Parse(pCQuantity);
                 if (dtBoxList.Rows.Count != caseSum)
@@ -306,7 +315,10 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "班值信息获取失败，请重试。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                #endregion
+
                 //2.对于DOCK下箱号中的部品进行必要的出荷验证
+                #region 数据库数据校验
                 string strFlag = "0";//未完成出荷的箱號
                 DataSet dsDockInfo = P00004_Logic.getDockInfo(dockSell, "", strFlag, loginInfo.UnitCode);
                 if (dsDockInfo == null || dsDockInfo.Tables[0].Rows.Count == 0 || dsDockInfo.Tables[1].Rows.Count == 0)
@@ -378,7 +390,6 @@ namespace SPPSApi.Controllers.P01
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-
                 #region //2.7 本次出荷总量是否与订单总量匹配
                 DataTable dtQuery = new DataTable();
                 dtQuery.Columns.Add("vcDockSell");
@@ -430,14 +441,22 @@ namespace SPPSApi.Controllers.P01
                     }
                 }
                 #endregion
+                #endregion
 
                 //3.插入到出荷临时表中
+                #region 插入临时表数据
                 //以DOCK进行清空
                 //插入临时表
                 P00004_Logic.setOutPut_Temp(dockSell, "", strFlag, loginInfo.UnitCode, iP, opearteId);
+                #endregion
+
                 //4.取出本次出荷临时表中的待出荷数据
+                #region 提取临时表数据
                 DataSet dsTableFromDB = P00004_Logic.getTableInfoFromDB();
+                #endregion
+
                 //5.进行数据整理，对于订单数据进行循环消减订单并进行出荷品番拆分
+                #region 生成整理数据
                 //TOperateSJ
                 //TOperateSJ_InOutput
                 //SP_M_ORD
@@ -770,8 +789,10 @@ namespace SPPSApi.Controllers.P01
                 drSell_Tool_Temp_2HU["vcYinQuType"] = strYinQuType;
                 dtSell_Tool_Temp.Rows.Add(drSell_Tool_Temp_2HU);
                 #endregion
+                #endregion
 
                 //6.生成销售单号及便次号并整理数据，对于5.进行销售单号及便次号赋值
+                #region 销售单号及便次生成
                 //获取班值信息
                 //TSell_Tool-销售单号
                 //TSell_Sum-销售单号+便次号
@@ -826,7 +847,10 @@ namespace SPPSApi.Controllers.P01
                     dtOperateSJ_Temp.Rows[i]["vcSellNo"] = strXSNo;
                 }
                 #endregion
+                #endregion
+
                 //7.影响数据库后台
+                #region 后台处理
                 //插入更新5.6.
                 //按照DOCK更新TShip_Temp为已出荷
                 //按照DOCK解绑TSell_DockCar
@@ -839,404 +863,9 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "数据写入数据库失败，请联系管理员后再试。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //8.生成csv文件到指定目录
-
-                //9.发送带csv附件的邮件
-
-                #region 作废
-                /*
-                string seqNo = "";
-                string formatDate = serverTime.Substring(0, 10);
-                string formatDate1 = serverTime.Substring(0, 10).Replace("-", "");
-                string sellNo = "";
-                string bianCi = "";
-
-
-
-
-
-                if (caseSum == caseSum1)
-                {
-                    for (int i = 0; i < getCaseSum.Rows.Count; i++)
-                    {
-                        string caseNo = getCaseSum.Rows[i][0].ToString().Split("*")[1];
-                        //2.拿到箱号之后取出入库指令号和数量,验证信息无误后放到临时表中,验证临时表中是否有相关信息
-                        DataTable getSellInfo = P00004_Logic.GetSellInfo(caseNo);//装箱单数据
-                        DataTable getSellInfo1 = P00004_Logic.GetSellInfo1(caseNo);//出荷实绩数据S4
-                        DataTable getSellInfo2 = P00004_Logic.GetSellInfo2(caseNo);//吴凡使用的QB临时表
-                        if (getSellInfo.Rows.Count > 0 && getSellInfo1.Rows.Count == 0)
-                        {
-                            for (int j = 0; j < getSellInfo.Rows.Count; j++)
-                            {
-                                string inno = getSellInfo.Rows[j][0].ToString();//入库单号
-                                string quantity = getSellInfo.Rows[j][1].ToString();//数量
-                                DataTable getQBData = P00004_Logic.GetQBData(inno);//吴凡使用的QB临时表获取S0入荷临时数据
-
-                                if (getQBData.Rows.Count == 1)
-                                {
-                                    string trolley = getQBData.Rows[0][0].ToString(); //台车号
-                                    string partId = getQBData.Rows[0][1].ToString();//品番
-                                    string cpdCompany = getQBData.Rows[0][2].ToString();//收货方
-                                    string dock = getQBData.Rows[0][3].ToString();//受入
-                                    string kanbanOrderNo = getQBData.Rows[0][4].ToString();//看板订单号
-                                    string kanbanSerial = getQBData.Rows[0][5].ToString();//看板连番
-                                    string packingSpot = getQBData.Rows[0][6].ToString();//包装场
-                                    string packingQuatity = getQBData.Rows[0][7].ToString();//包装单位
-                                    string lblStart = getQBData.Rows[0][8].ToString();//标签开始
-                                    string lblEnd = getQBData.Rows[0][9].ToString();//标签结束
-                                    string supplierId = getQBData.Rows[0][10].ToString();//供应商代码
-                                    string supplierPlant = getQBData.Rows[0][11].ToString();//供应商工区
-                                    string lotId = getQBData.Rows[0][12].ToString();//段取指示号
-                                    string checkType = getQBData.Rows[0][13].ToString();//检查区分
-                                    string inoutFlag = getQBData.Rows[0][14].ToString();//内外区分
-
-                                    DataTable validateData = P00004_Logic.ValidateData(partId, scanTime, dock);//获取收货方
-                                    DataTable validateInv = P00004_Logic.ValidateInv(partId, kanbanOrderNo, kanbanSerial);//入出库履历获取待出荷数量
-                                    DataTable validatePrice = P00004_Logic.ValidatePrice(partId, scanTime, cpdCompany, supplierId);//验证是否有单价
-                                    #region 验证订单
-                                    DataTable validateOrd1 = P00004_Logic.ValidateOrd1(partId);//验证当前有可消减的订单
-                                    DataTable getCount = P00004_Logic.GetCount(partId);//吴凡使用的QB临时表获取本次已经插入到QB表的出荷数
-                                    #endregion
-
-
-
-
-                                    if (validateData.Rows.Count == 1
-                                        && validatePrice.Rows.Count == 1
-                                        && validateInv.Rows.Count == 1
-                                        && (int.Parse(validateInv.Rows[0][0].ToString()) >= int.Parse(quantity))
-                                        && (int.Parse(validateOrd1.Rows[0][0].ToString()) - int.Parse(getCount.Rows[0][0].ToString())
-                                        >= int.Parse(quantity)))
-                                    {
-                                        //插入到QB临时表
-                                        int qbResultIn = P00004_Logic.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packingQuatity, lblStart, lblEnd, supplierId, supplierPlant, lotId, inoutFlag, checkType, caseNo, dockSell);//插入实绩情报表
-
-                                    }
-                                    else if (validateData.Rows.Count != 1)
-                                    {
-                                        P00004_Logic.DelData(dockSell);
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "箱号" + caseNo + "中品番" + partId + "在品番基础数据中没有有效数据";//
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                    else if (validatePrice.Rows.Count != 1)
-                                    {
-                                        P00004_Logic.DelData(dockSell);
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "箱号" + caseNo + "中品番" + partId + "在销售单价表中没有有效数据";//
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                    else if (validateInv.Rows.Count != 1)
-                                    {
-                                        P00004_Logic.DelData(dockSell);
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "箱号" + caseNo + "中品番" + partId + "在入出库履历表中没有有效数据";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                    else if (int.Parse(validateInv.Rows[0][0].ToString()) < int.Parse(quantity))
-                                    {
-                                        P00004_Logic.DelData(dockSell);
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "箱号" + caseNo + "中品番" + partId + "在入出库履历中的待出荷数小于当前数量";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                    else if ((int.Parse(validateInv.Rows[0][0].ToString()) < int.Parse(quantity)) && (int.Parse(validateOrd1.Rows[0][0].ToString()) - int.Parse(getCount.Rows[0][0].ToString()) >= int.Parse(quantity)))
-                                    {
-                                        P00004_Logic.DelData(dockSell);
-                                        apiResult.code = ComConstant.ERROR_CODE;
-                                        apiResult.data = "箱号" + caseNo + "中品番" + partId + "在订单表中的出库数小于当前数量";
-                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                    }
-                                }
-                                else
-                                {
-                                    P00004_Logic.DelData(dockSell);
-                                    apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "箱号" + caseNo + "中入库指令书" + inno + "在实绩情报表中有多条数据!";//
-                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                                }
-                            }
-                        }
-                        else if (getSellInfo1.Rows.Count > 0 || getSellInfo2.Rows.Count > 0)
-                        {
-                            P00004_Logic.DelData(dockSell);
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "箱号" + caseNo + "已经出货,请检查!";//
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        else if (getSellInfo.Rows.Count == 0)
-                        {
-                            P00004_Logic.DelData(dockSell);
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "没有需要更新的数据!";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                    }
-                }
-                else
-                {
-
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "填写的箱数与实绩不匹配,当前" + dockSell + "共有" + caseSum1 + "箱";//
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-                }
-
-                string bianCiSeqNo = "";
-
-                //全部插入到实绩情报表之后执行更新操作
-                DataTable getQBData1 = P00004_Logic.GetQBData1(dockSell);//从QB中获取已经插入的临时出荷数据
-                DataTable getBanZhi = P00004_Logic.GetBanZhi(serverTime);//获取班值信息
-                string date = "";
-                string banzhi = "";
-                if (getBanZhi.Rows.Count == 1)
-                {
-                    date = getBanZhi.Rows[0][0].ToString();
-                    banzhi = getBanZhi.Rows[0][1].ToString();
-                }
-                else
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "获取班值失败!";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                if (bian == "1")
-                {
-                    bianCi = "cx";
-                }
-                else if (bian == "2")
-                {
-                    bianCi = "wz";
-                }
-                if (bianCi == "cx")//生成销售单
-                {
-                    string tmpString = "SHPH2";
-                    DataTable getSeqNo = P00004_Logic.GetSeqNo(tmpString, formatDate);
-                    if (getSeqNo.Rows.Count == 0)
-                    {
-                        int seqResultIn = P00004_Logic.InsertSeqNo(tmpString, formatDate);
-                    }
-                    getSeqNo = P00004_Logic.GetSeqNo(tmpString, formatDate);
-                    seqNo = getSeqNo.Rows[0][0].ToString();
-                    int seqNoNew = int.Parse(seqNo) + 1;
-                    int seqResultUp = P00004_Logic.UpdateSeqNo(seqNoNew, formatDate, tmpString);
-                    sellNo = "XS" + formatDate1 + "0" + seqNo.PadLeft(3, '0');
-                    int toolResult = P00004_Logic.InsertTool(sellNo, opearteId, scanTime, hUQuantity, hUQuantity1, bPQuantity, pCQuantity, cBQuantity, bianCi);
-                }
-                else if (bianCi == "wz")
-                {
-                    string tmpString = "SHPH2";
-                    DataTable getSeqNo = P00004_Logic.GetSeqNo(tmpString, formatDate);
-                    if (getSeqNo.Rows.Count == 0)
-                    {
-                        int seqResultIn = P00004_Logic.InsertSeqNo(tmpString, formatDate);
-                    }
-                    getSeqNo = P00004_Logic.GetSeqNo(tmpString, formatDate);
-                    seqNo = getSeqNo.Rows[0][0].ToString();
-                    int seqNoNew = int.Parse(seqNo) + 1;
-                    int seqResultUp = P00004_Logic.UpdateSeqNo(seqNoNew, formatDate, tmpString);
-                    sellNo = "XS" + formatDate1 + "0" + seqNo.PadLeft(3, '0');
-                    int toolResult = P00004_Logic.InsertTool(sellNo, opearteId, scanTime, hUQuantity, hUQuantity1, bPQuantity, pCQuantity, cBQuantity, bianCi);
-                }
-                if (bianCi == "cx")
-                {
-                    string tmpString = "SHPCX";
-                    DataTable getSeqNo = P00004_Logic.GetSeqNo(tmpString, formatDate);
-                    if (getSeqNo.Rows.Count == 0)
-                    {
-                        int seqResultIn = P00004_Logic.InsertSeqNo(tmpString, formatDate);
-                    }
-                    getSeqNo = P00004_Logic.GetSeqNo(tmpString, formatDate);
-                    bianCiSeqNo = getSeqNo.Rows[0][0].ToString();
-                    int seqNoNew = int.Parse(bianCiSeqNo) + 1;
-                    int seqResultUp = P00004_Logic.UpdateSeqNo(seqNoNew, formatDate, tmpString);
-                    int sumResultIn = P00004_Logic.InsertSum(bianCiSeqNo, sellNo, truckNo, caseSum, bianCi, opearteId, serverTime, date, banzhi, qianFen);
-                }
-                else if (bianCi == "wz")
-                {
-                    string tmpString = "SHPWZ";
-                    DataTable getSeqNo = P00004_Logic.GetSeqNo(tmpString, formatDate);
-                    if (getSeqNo.Rows.Count == 0)
-                    {
-                        int seqResultIn = P00004_Logic.InsertSeqNo(tmpString, formatDate);
-                    }
-                    getSeqNo = P00004_Logic.GetSeqNo(tmpString, formatDate);
-                    bianCiSeqNo = getSeqNo.Rows[0][0].ToString();
-                    int seqNoNew = int.Parse(bianCiSeqNo) + 1;
-                    int seqResultUp = P00004_Logic.UpdateSeqNo(seqNoNew, formatDate, tmpString);
-                    int sumResultIn = P00004_Logic.InsertSum(bianCiSeqNo, sellNo, truckNo, caseSum, bianCi, opearteId, serverTime, date, banzhi, qianFen);
-                }
-                if (getQBData1.Rows.Count > 0)
-                {
-                    for (int j = 0; j < getQBData1.Rows.Count; j++)
-                    {
-                        string trolley = getQBData1.Rows[j][0].ToString(); //台车号
-
-                        string partId = getQBData1.Rows[j][1].ToString();//品番
-                        string cpdCompany = getQBData1.Rows[j][2].ToString();//收货方
-                        string dock = getQBData1.Rows[j][3].ToString();//受入
-
-                        string kanbanOrderNo = getQBData1.Rows[j][4].ToString();//看板订单号
-                        string kanbanSerial = getQBData1.Rows[j][5].ToString();//看板连番
-
-                        string packingSpot = getQBData1.Rows[j][6].ToString();//包装场
-                        string packingQuatity = getQBData1.Rows[j][7].ToString();//包装单位
-                        string lblStart = getQBData1.Rows[j][8].ToString();//标签开始
-                        string lblEnd = getQBData1.Rows[j][9].ToString();//标签结束
-                        string supplierId = getQBData1.Rows[j][10].ToString();//供应商代码
-                        string supplierPlant = getQBData1.Rows[j][11].ToString();//供应商工区
-                        string lotId = getQBData1.Rows[j][12].ToString();//段取指示号
-                        string checkType = getQBData1.Rows[j][13].ToString();//检查区分
-                        string inoutFlag = getQBData1.Rows[j][14].ToString();//内外区分
-                        string caseNo = getQBData1.Rows[j][15].ToString();//箱号
-                        string inputNo = getQBData1.Rows[j][16].ToString();//入库单号
-                        DataTable getOprData = P00004_Logic.GetOprData(caseNo, inputNo);//验证作业实绩-装箱
-                        DataTable getPrice = P00004_Logic.ValidatePrice(partId, scanTime, cpdCompany, supplierId);//验证master--价格
-                        DataTable validateData = P00004_Logic.ValidateData(partId, scanTime, dock);//获取品名信息
-                        DataTable validateInv = P00004_Logic.ValidateInv(partId, kanbanOrderNo, kanbanSerial);//获取入出库履历-待出荷数量
-                        DataTable validateOrd1 = P00004_Logic.ValidateOrd1(partId);//获取可消减订单数量
-                        DataTable validateOrd = P00004_Logic.ValiateOrd2(partId);//获取订单明细
-                        DataTable getCount = P00004_Logic.GetCount(partId);//获取QB表中待出荷明细
-                        //DataTable getPartsName = P00004_Logic.GetPartsName1(partId,scanTime);
-
-                        if (getOprData.Rows.Count > 0 && validateData.Rows.Count == 1 && validateInv.Rows.Count == 1)
-                        {
-                            string quantity = getOprData.Rows[0][0].ToString();//装箱数量
-                            string checkStatus = getOprData.Rows[0][1].ToString();//检查结果
-                            string partsNameEn = validateData.Rows[0][0].ToString();
-                            string partsNameCn = validateData.Rows[0][1].ToString();
-                            string price = getPrice.Rows[0][0].ToString();
-                            string invoiceNo = sellNo.Substring(4, 10);
-                            string dCH = validateInv.Rows[0][0].ToString();
-
-
-
-
-                            if (int.Parse(dCH) >= int.Parse(quantity)
-                                && (int.Parse(validateInv.Rows[0][0].ToString()) >= int.Parse(quantity))
-                                && (int.Parse(validateOrd1.Rows[0][0].ToString()) - int.Parse(getCount.Rows[0][0].ToString()) >= int.Parse(quantity)))
-                            {
-                                //作业实绩表
-                                int sjReultIn = P00004_Logic.InsertSj(packingSpot, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplierId, supplierPlant, scanTime, serverTime, quantity, packingQuatity, cpdCompany, dock, checkType, lblStart, lblEnd, opearteId, checkStatus, caseNo, sellNo, iP, pointType);
-                                //销售表
-                                int sellResultIn = P00004_Logic.InsertSell(bianCiSeqNo, sellNo, truckNo, cpdCompany, partId, kanbanOrderNo, kanbanSerial, invoiceNo, caseNo, partsNameEn, quantity, bianCi, opearteId, scanTime, supplierId, lblStart, lblEnd, price);
-                                //入出库履历
-                                int invResultUp = P00004_Logic.UpdateInv1(partId, kanbanOrderNo, kanbanSerial, quantity);
-                                //发货明细书
-                                int shpResulIn = P00004_Logic.InsertShip1(cpdCompany, packingSpot, sellNo, partId, invoiceNo, bianCiSeqNo, quantity, caseNo, partsNameEn, opearteId, iP, partsNameCn, price, serverTime, supplierId);
-
-                                int SumQuantity = int.Parse(quantity);
-                                int newSum = 0;
-                                #region  更新订单表
-                                for (int o = 0; o < validateOrd.Rows.Count; o++)
-                                {
-                                    string targetMonth = validateOrd.Rows[o][0].ToString();
-                                    string orderType = validateOrd.Rows[o][1].ToString();
-                                    string orderNo = validateOrd.Rows[o][2].ToString();
-                                    string seqNo1 = validateOrd.Rows[o][3].ToString();
-                                    int d1 = int.Parse(validateOrd.Rows[o][4].ToString());
-                                    int d2 = int.Parse(validateOrd.Rows[o][5].ToString());
-                                    int d3 = int.Parse(validateOrd.Rows[o][6].ToString());
-                                    int d4 = int.Parse(validateOrd.Rows[o][7].ToString());
-                                    int d5 = int.Parse(validateOrd.Rows[o][8].ToString());
-                                    int d6 = int.Parse(validateOrd.Rows[o][9].ToString());
-                                    int d7 = int.Parse(validateOrd.Rows[o][10].ToString());
-                                    int d8 = int.Parse(validateOrd.Rows[o][11].ToString());
-                                    int d9 = int.Parse(validateOrd.Rows[o][12].ToString());
-                                    int d10 = int.Parse(validateOrd.Rows[o][13].ToString());
-                                    int d11 = int.Parse(validateOrd.Rows[o][14].ToString());
-                                    int d12 = int.Parse(validateOrd.Rows[o][15].ToString());
-                                    int d13 = int.Parse(validateOrd.Rows[o][16].ToString());
-                                    int d14 = int.Parse(validateOrd.Rows[o][17].ToString());
-                                    int d15 = int.Parse(validateOrd.Rows[o][18].ToString());
-                                    int d16 = int.Parse(validateOrd.Rows[o][19].ToString());
-                                    int d17 = int.Parse(validateOrd.Rows[o][20].ToString());
-                                    int d18 = int.Parse(validateOrd.Rows[o][21].ToString());
-                                    int d19 = int.Parse(validateOrd.Rows[o][22].ToString());
-                                    int d20 = int.Parse(validateOrd.Rows[o][23].ToString());
-                                    int d21 = int.Parse(validateOrd.Rows[o][24].ToString());
-                                    int d22 = int.Parse(validateOrd.Rows[o][25].ToString());
-                                    int d23 = int.Parse(validateOrd.Rows[o][26].ToString());
-                                    int d24 = int.Parse(validateOrd.Rows[o][27].ToString());
-                                    int d25 = int.Parse(validateOrd.Rows[o][28].ToString());
-                                    int d26 = int.Parse(validateOrd.Rows[o][29].ToString());
-                                    int d27 = int.Parse(validateOrd.Rows[o][30].ToString());
-                                    int d28 = int.Parse(validateOrd.Rows[o][31].ToString());
-                                    int d29 = int.Parse(validateOrd.Rows[o][32].ToString());
-                                    int d30 = int.Parse(validateOrd.Rows[o][33].ToString());
-                                    int d31 = int.Parse(validateOrd.Rows[o][34].ToString());
-                                    int[] array = {d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19, d20, d21,
-              d22,d23,d24,d25,d26,d27,d28,d29,d30,d31 };
-                                    int[] newarray = new int[31];
-                                    for (int l = 0; l < array.Length; l++)
-                                    {
-                                        if (SumQuantity - array[l] > 0)
-                                        {
-                                            newarray[l] = array[l];
-                                            SumQuantity = SumQuantity - array[l];
-
-                                        }
-                                        else
-                                        {
-                                            newarray[l] = SumQuantity;
-                                            SumQuantity = 0;
-
-                                        }
-                                    }
-                                    for (int k = 0; k < newarray.Length; k++)
-                                    {
-                                        newSum += newarray[k];
-                                    }
-                                    int updateOrd = P00004_Logic.UpdateOrd(targetMonth, orderNo, seqNo1, newarray[0], newarray[1], newarray[2], newarray[3], newarray[4], newarray[5], newarray[6], newarray[7], newarray[8], newarray[9], newarray[10],
-                                      newarray[11], newarray[12], newarray[13], newarray[14], newarray[15], newarray[16], newarray[17], newarray[18], newarray[19], newarray[20], newarray[21], newarray[22], newarray[23],
-                                      newarray[24], newarray[25], newarray[26], newarray[27], newarray[28], newarray[29], newarray[30], newSum, partId);
-                                    newSum = 0;
-                                }
-                                #endregion
-                            }
-                            else if ((int.Parse(validateInv.Rows[0][0].ToString()) < int.Parse(quantity)) && (int.Parse(validateOrd1.Rows[0][0].ToString()) - int.Parse(getCount.Rows[0][0].ToString()) >= int.Parse(quantity)))
-                            {
-                                apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = "箱号" + caseNo + "中品番" + partId + "在订单表中的出库数小于当前数量";
-                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                            }
-                            else
-                            {
-                                apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = "箱号" + caseNo + "中品番" + partId + "入出库履历中的待出荷数量大于当前数量";
-                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                            }
-                        }
-                        else if (getOprData.Rows.Count == 0)
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "箱号" + caseNo + "中品番" + partId + "在作业作业实绩表中没有有效的装箱数据!";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-
-                        else if (validateData.Rows.Count != 1)
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "箱号" + caseNo + "中品番" + partId + "在品番基础数据表中没有有效的装箱数据!";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        else if (validateInv.Rows.Count != 1)
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "箱号" + caseNo + "中品番" + partId + "在入出库履历表中没有有效数据";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                    }
-                }
-                else
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "没有需要更新的数据";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                */
                 #endregion
 
+                //8.生成csv文件到指定目录
                 #region 做成CSV文件
                 DataTable dtSellInfo = P00004_Logic.getSellInfo(strXSNo);
                 string path = "";
@@ -1250,57 +879,33 @@ namespace SPPSApi.Controllers.P01
                     field = new string[] { "inv_no", "inv_date", "part_no", "part_name", "case_no", "ord_no", "item_no", "dlr_no", "qty", "price" };
                     path = P00004_Logic.DataTableToExcel(head, field, dtSellInfo, _webHostEnvironment.ContentRootPath, opearteId, "P00001", ref msg, strXSNo);
                 }
-                #endregion
-
-                #region 发送邮件到销售公司
-                DataSet dsSumandToolOfSell = P00004_Logic.getSumandToolOfSell(strXSNo, strYinQuType);
-                DataTable getDataInfo = dsSumandToolOfSell.Tables[0];
-                DataTable getSellInfo3 = dsSumandToolOfSell.Tables[1];
-                //DataTable getDataInfo = P00004_Logic.GetDataInfo(sellNo, bianCi);
-
-                //DataTable getSellInfo3 = P00004_Logic.GetSellInfo3(sellNo, bianCi);
-
-                if (getDataInfo.Rows.Count == 1 && getSellInfo3.Rows.Count > 0)
-                {
-
-                    string bianci = getDataInfo.Rows[0][0].ToString();
-                    string truckNo1 = getDataInfo.Rows[0][1].ToString();
-                    string toolSum = getDataInfo.Rows[0][2].ToString();
-                    string yinQuType = getDataInfo.Rows[0][3].ToString();
-                    string banZhi = getDataInfo.Rows[0][4].ToString();
-                    string date1 = getDataInfo.Rows[0][5].ToString();
-                    string info = "";
-                    string yinQuType1 = "";
-                    if (yinQuType == "cx")
-                    {
-                        yinQuType1 = "成型";
-                    }
-                    else
-                    {
-                        yinQuType1 = "外注加钣金";
-                    }
-
-                    for (int i = 0; i < getSellInfo3.Rows.Count; i++)
-                    {
-                        info = info + getSellInfo3.Rows[i][0].ToString() + ":" + getSellInfo3.Rows[i][1].ToString() + "<br>";
-                    }
-                    //string path1 = @"C:\Users\Administrator\Desktop\laowu 0531修改\FILE\" + path;
-                    string path1 = path;
-                    string mail = "fqm_wufan@tftm.com.cn";
-                    string userName = "laowu";
-
-                    string emailBody = "FTMS各位相关同事:<br>大家好!<br>附件为销售数据,请查收!<br>发货日期:" + date1 + "<br>发货班值:" + strBanZhi + "<br>便次区分:" + yinQuType1 + "第" + bianci + "便<br>引取车牌照号:" + truckNo1 + "<br>合计数量" + toolSum + "个<br>器具明细:" + info + "<br>收货时请及时确认数量<br>以上";
-                    string subject = "发货";
-                    DataTable getCode = P00004_Logic.GetCode();
-                    if (getCode.Rows.Count > 0)
-                    {
-                        ComFunction.SendEmailInfo(mail, userName, emailBody, getCode, getCode, subject, path1, true);
-                    }
-                }
-                else
+                if (path == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "发货信息不存在,无法发送邮件";
+                    apiResult.data = "数据出荷成功，CSV文件生成异常。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
+
+                //9.发送带csv附件的邮件
+                #region 发送邮件到销售公司
+                DataSet dsSumandToolOfSell = P00004_Logic.getSumandToolOfSell(strXSNo, strYinQuType);
+                DataTable dtSell_Sum = dsSumandToolOfSell.Tables[0];
+                DataTable dtSell_Tool = dsSumandToolOfSell.Tables[1];
+                if (dtSell_Sum.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "数据出荷成功，邮件数据异常。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //生成邮件体
+                string strEmailBody = P00004_Logic.setEmailBody(strYingQuName, truckNo, qianFen, dtSell_Sum, dtSell_Tool);
+                string strTheme = "发货信息";
+                string strMessage = P00004_Logic.sendEmailInfo_FTMS(loginInfo.UserId, loginInfo.UserName, loginInfo.Email, strTheme, strEmailBody, path);
+                if(strMessage!="")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 #endregion
@@ -1317,6 +922,7 @@ namespace SPPSApi.Controllers.P01
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
+        
         #endregion
 
         #region 出荷-便次信息查询

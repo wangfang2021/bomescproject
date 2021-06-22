@@ -1574,39 +1574,61 @@ namespace DataAccess
             StringBuilder stringBuilder = new StringBuilder();
             if (strType == "QB")
             {
+                stringBuilder.AppendLine("--0.扫描重复");
                 stringBuilder.AppendLine("select vcPart_id from TOperatorQB where vcReflectFlag in ('0','1') and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcPart_id='" + partId + "' and vcSR='" + dock + "' and vcZYType='S0'");
+                stringBuilder.AppendLine("--1.检验包装区分");
                 stringBuilder.AppendLine("select  vcBZQF, vcRHQF, vcBZUnit from TPackageMaster where vcPart_id = '" + partId + "' and dTimeFrom <= '" + scanTime + "' and dTimeTo >= '" + scanTime + "' and vcBZQF is not null and vcRHQF is not null and vcBZUnit is not null");
+                stringBuilder.AppendLine("--2.检验受入");
                 stringBuilder.AppendLine("select vcReceiver, vcPackingPlant from TSPMaster_SufferIn where vcPackingPlant = 'TFTM' and vcPartId = '" + partId + "' and  dFromTime <= '" + scanTime + "' and dToTime >= '" + scanTime + "' and vcSufferIn = '" + dock + "'");
+                stringBuilder.AppendLine("--3.检验收容数");
                 stringBuilder.AppendLine("select iPackingQty,vcSupplierId,vcSupplierPlant from TSPMaster_Box where vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "'");
-                stringBuilder.AppendLine("select vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace	 from TSPMaster WHERE vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "'");
+                stringBuilder.AppendLine("--4.检验内外");
+                stringBuilder.AppendLine("select vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace from TSPMaster WHERE vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "'");
+                stringBuilder.AppendLine("--5.包材");
                 stringBuilder.AppendLine("select a.vcPackNo,a.iBiYao,b.vcPackLocation,b.vcDistinguish from ");
                 stringBuilder.AppendLine("(select vcPackNo,iBiYao from TPackItem where vcPartsNo='" + partId + "' and dUsedFrom<='" + scanTime + "' and dUsedTo>='" + scanTime + "')a");
                 stringBuilder.AppendLine("left join");
                 stringBuilder.AppendLine("(select vcPackLocation,vcDistinguish,vcPackNo from TPackBase where vcPackSpot='" + packingSpot + "' and dPackFrom<='" + scanTime + "' and dPackTo>='" + scanTime + "')b");
                 stringBuilder.AppendLine("on a.vcPackNo=b.vcPackNo");
+                stringBuilder.AppendLine("--6.标签");
                 stringBuilder.AppendLine("select vcPartNameCN, vcSCSName, vcSCSAdress, vcZXBZNo from TtagMaster where vcPart_Id = '" + partId + "' and dTimeFrom <= '" + scanTime + "' and dTimeTo >= '" + scanTime + "'");
+                stringBuilder.AppendLine("--7.订单量");
                 stringBuilder.AppendLine("select (ISNULL(SUM(CAST(vcPlantQtyDailySum as int)),0)-ISNULL(SUM(CAST(vcInputQtyDailySum as int)),0)) as sum from SP_M_ORD where ISNULL(vcPlantQtyDailySum,0)!=ISNULL(vcInputQtyDailySum,0) and vcPartNo='" + partId + "' and vcOrderNo!=''");
+                stringBuilder.AppendLine("--8.扫描总数");
                 stringBuilder.AppendLine("select ISNULL(sum(iQuantity), 0) as sum from TOperatorQB where vcZYType = 'S0' and vcPart_id = '" + partId + "' and vcReflectFlag = '0'");
+                stringBuilder.AppendLine("--9.价格");
                 stringBuilder.AppendLine("select b.decPriceOrigin_CW from");
                 stringBuilder.AppendLine("(select vcPartId,vcSupplierId,vcReceiver from TSPMaster where vcPartId='" + partId + "' )a left join");
                 stringBuilder.AppendLine("(select vcPart_id,vcSupplier_id,vcReceiver,decPriceOrigin_CW from TPrice where dPricebegin<='" + scanTime + "' and dPriceEnd>='" + scanTime + "') b");
                 stringBuilder.AppendLine("on a.vcPartId=b.vcPart_id and a.vcSupplierId=b.vcSupplier_id and a.vcReceiver=b.vcReceiver");
+                stringBuilder.AppendLine("where isnull(b.decPriceOrigin_CW,0) <>0");
             }
             if (strType == "SJ")
             {
+                stringBuilder.AppendLine("--0.上传重复");
                 stringBuilder.AppendLine("select * from TOperateSJ where vcSR='" + dock + "' and vcPart_id = '" + partId + "' and vcKBOrderNo = '" + kanbanOrderNo + "' and vcKBLFNo = '" + kanbanSerial + "'");
+                stringBuilder.AppendLine("--1.检验包装区分");
                 stringBuilder.AppendLine("select  vcBZQF, vcRHQF, vcBZUnit from TPackageMaster where vcPart_id = '" + partId + "' and dTimeFrom <= '" + scanTime + "' and dTimeTo >= '" + scanTime + "' and vcBZQF is not null and vcRHQF is not null and vcBZUnit is not null");
+                stringBuilder.AppendLine("--2.检验受入");
                 stringBuilder.AppendLine("select vcReceiver, vcPackingPlant from TSPMaster_SufferIn where vcPackingPlant = 'TFTM' and vcPartId = '" + partId + "' and  dFromTime <= '" + scanTime + "' and dToTime >= '" + scanTime + "' and vcSufferIn = '" + dock + "'");
+                stringBuilder.AppendLine("--3.检验收容数");
                 stringBuilder.AppendLine("select iPackingQty,vcSupplierId,vcSupplierPlant from TSPMaster_Box where vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "'");
+                stringBuilder.AppendLine("--4.检验内外");
                 stringBuilder.AppendLine("select vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace	 from TSPMaster WHERE vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "'");
+                stringBuilder.AppendLine("--5.包材");
                 stringBuilder.AppendLine("select vcPackNo,iBiYao from TPackItem where vcPartsNo='" + partId + "' and dUsedFrom<='" + scanTime + "' and dUsedTo>='" + scanTime + "'");
+                stringBuilder.AppendLine("--6.标签");
                 stringBuilder.AppendLine("select vcPartNameCN, vcSCSName, vcSCSAdress, vcZXBZNo from TtagMaster where vcPart_Id = '" + partId + "' and dTimeFrom <= '" + scanTime + "' and dTimeTo >= '" + scanTime + "'");
+                stringBuilder.AppendLine("--7.订单量");
                 stringBuilder.AppendLine("select (ISNULL(SUM(CAST(vcPlantQtyDailySum as int)),0)-ISNULL(SUM(CAST(vcInputQtyDailySum as int)),0)) as sum from SP_M_ORD where ISNULL(vcPlantQtyDailySum,0)!=ISNULL(vcInputQtyDailySum,0) and vcPartNo='" + partId + "' and vcOrderNo!=''");
+                stringBuilder.AppendLine("--8.扫描总数");
                 stringBuilder.AppendLine("select ISNULL(sum(iQuantity), 0) as sum from TOperatorQB where vcZYType = 'S0' and vcPart_id = '" + partId + "' and vcReflectFlag = '0'");
+                stringBuilder.AppendLine("--9.价格");
                 stringBuilder.AppendLine("select b.decPriceOrigin_CW from");
                 stringBuilder.AppendLine("(select vcPartId,vcSupplierId,vcReceiver from TSPMaster where vcPartId='" + partId + "' )a left join");
                 stringBuilder.AppendLine("(select vcPart_id,vcSupplier_id,vcReceiver,decPriceOrigin_CW from TPrice where dPricebegin<='" + scanTime + "' and dPriceEnd>='" + scanTime + "') b");
                 stringBuilder.AppendLine("on a.vcPartId=b.vcPart_id and a.vcSupplierId=b.vcSupplier_id and a.vcReceiver=b.vcReceiver");
+                stringBuilder.AppendLine("where isnull(b.decPriceOrigin_CW,0) <>0");
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
@@ -1718,7 +1740,7 @@ namespace DataAccess
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("--本次全部需要上传的数据");
+            stringBuilder.AppendLine("--0本次全部需要上传的数据");
             stringBuilder.AppendLine("select t1.*,isnull(t2.vcBZUnit,0) as vcBZUnit,vcPartENName,t2.vcBZQF from ");
             stringBuilder.AppendLine("(select * from TOperatorQB where vcReflectFlag='0' and vcZYType='S0' and vcHostIp='" + strIP + "')t1");
             stringBuilder.AppendLine("left join");
@@ -1728,27 +1750,27 @@ namespace DataAccess
             stringBuilder.AppendLine("(select vcPackingPlant,vcPartId,vcSupplierId,vcReceiver,vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace from TSPMaster WHERE dFromTime<='" + serverTime + "' and dToTime>='" + serverTime + "')b ");
             stringBuilder.AppendLine("on t1.vcPart_id = b.vcPartId and t1.vcCpdCompany=b.vcReceiver and t1.vcSupplierId=b.vcSupplierId  ");
             stringBuilder.AppendLine("order by t1.dScanTime ");
-            stringBuilder.AppendLine("--查询台车连番");
+            stringBuilder.AppendLine("--1查询台车连番");
             stringBuilder.AppendLine("select distinct vcTrolleySeqNo from TOperatorQB ");
             stringBuilder.AppendLine("where vcHostIp='" + strIP + "' and vcZYType='S0' and vcReflectFlag='0' order by vcTrolleySeqNo");
-            stringBuilder.AppendLine("--查询标签总个数");
+            stringBuilder.AppendLine("--2查询标签总个数");
             stringBuilder.AppendLine("select isnull(sum(cast(t1.iQuantity as int)/cast(isnull(t2.vcBZUnit,0 )as int)),0) as iTagNum from ");
             stringBuilder.AppendLine("(select * from TOperatorQB where vcReflectFlag='0' and vcZYType='S0' and vcHostIp='" + strIP + "')t1");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select * from TPackageMaster where dTimeFrom<='" + serverTime + "' and dTimeTo>='" + serverTime + "' )t2");
             stringBuilder.AppendLine("on t1.vcPart_id=t2.vcPart_id ");
             stringBuilder.AppendLine("where t2.vcBZQF<>'1'");
-            stringBuilder.AppendLine("--查询断取指示书表结构");
+            stringBuilder.AppendLine("--3查询断取指示书表结构");
             stringBuilder.AppendLine("SELECT TOP (1)*  FROM [TPackList]");
-            stringBuilder.AppendLine("--查询标签表结构");
+            stringBuilder.AppendLine("--4查询标签表结构");
             stringBuilder.AppendLine("SELECT TOP (1)*  FROM [TLabelList]");
-            stringBuilder.AppendLine("--查询订单表结构");
+            stringBuilder.AppendLine("--5查询订单表结构");
             stringBuilder.AppendLine("SELECT top(1)* FROM [dbo].[SP_M_ORD]");
-            stringBuilder.AppendLine("--查询档次入库品番合计数量");
+            stringBuilder.AppendLine("--6查询档次入库品番合计数量");
             stringBuilder.AppendLine("select vcPart_id,vcCpdCompany,vcSR,sum(iQuantity) as iSumQuantity from TOperatorQB");
             stringBuilder.AppendLine("where vcHostIp='" + strIP + "' and vcZYType='S0' and vcReflectFlag='0'");
             stringBuilder.AppendLine("group by vcPart_id,vcCpdCompany,vcSR");
-            stringBuilder.AppendLine("--查询入库指令书结构");
+            stringBuilder.AppendLine("--7查询入库指令书结构");
             stringBuilder.AppendLine("SELECT top(1)* FROM [dbo].[TInvList]");
             DataSet ds = new DataSet();
             try

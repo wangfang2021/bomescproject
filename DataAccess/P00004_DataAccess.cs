@@ -1888,12 +1888,10 @@ namespace DataAccess
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("select vcBianCi,vcTruckNo,iToolQuantity,vcYinQuType,vcBanZhi,vcDate ");
-            stringBuilder.AppendLine("from TSell_Sum ");
+            stringBuilder.AppendLine("select * from TSell_Sum ");
             stringBuilder.AppendLine("where vcYinQuType='" + strYinQuType + "' and  vcSellNo='" + strSellNo + "'");
             stringBuilder.AppendLine("");
-            stringBuilder.AppendLine("select vcToolName,iToolQuantity ");
-            stringBuilder.AppendLine("from TSell_Tool");
+            stringBuilder.AppendLine("select * from TSell_Tool");
             stringBuilder.AppendLine("where vcYinQuType='" + strYinQuType + "' and  vcSellNo='" + strSellNo + "'");
             DataSet ds = new DataSet();
             try
@@ -1936,7 +1934,47 @@ namespace DataAccess
             return excute.ExcuteSqlWithSelectToDT(GetCaseSumSql.ToString());
         }
 
+        public string setEmailBody(string strYingQuName, string truckNo, string strQianFengNo, DataTable dtSell_Sum, DataTable dtSell_Tool)
+        {
+            try
+            {
+                string strDateTime = dtSell_Sum.Rows[0]["vcDate"].ToString();
+                string strBanZhi = dtSell_Sum.Rows[0]["vcBanZhi"].ToString();
+                string strBianCi = dtSell_Sum.Rows[0]["vcBianCi"].ToString();
+                string strToolQuantity = dtSell_Sum.Rows[0]["iToolQuantity"].ToString();
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("<p>FTMS各位相关同事,大家好!</p>");
+                sbr.AppendLine("<p>非常感谢一直以来对TFTM补给业务的支持！</p>");
+                sbr.AppendLine("<p>附件为销售数据,请查收！</p>");
+                sbr.AppendLine("<p><br></p>");
+                sbr.AppendLine("<p>发货日期:<u style=\"color: rgb(230, 0, 0);\">" + strDateTime + "</u></p>");
+                sbr.AppendLine("<p>发货班值:<u style=\"color: rgb(230, 0, 0);\">" + strBanZhi + "</u></p>");
+                sbr.AppendLine("<p>便次区分:<u style=\"color: rgb(230, 0, 0);\">" + strYingQuName + "第" + strBianCi + "便</u></p>");
+                sbr.AppendLine("<p>引取车牌照号:<u style=\"color: rgb(230, 0, 0);\">" + truckNo + "</u></p>");
+                sbr.AppendLine("<p>铅封号：<u style=\"color: rgb(230, 0, 0);\">" + strQianFengNo + "</u></p>");
+                sbr.AppendLine("<p>器具明细:</p>");
+                for (int i = 0; i < dtSell_Tool.Rows.Count; i++)
+                {
+                    string strToolCode = dtSell_Tool.Rows[i]["vcToolCode"].ToString();
+                    string strQTY = dtSell_Tool.Rows[i]["iToolQuantity"].ToString();
+                    sbr.AppendLine("<p>" + strToolCode + "&nbsp;&nbsp;:" + strQTY + "</p>");
+                }
+                sbr.AppendLine("<p>合计数量:<u style=\"color: rgb(230, 0, 0);\">" + strToolQuantity + "</u>个</p>");
+                sbr.AppendLine("<p><br></p>");
+                sbr.AppendLine("<p>收货时请及时确认数量！</p>");
+                sbr.AppendLine("<p>请查收。</p>");
+                //sbr.AppendLine("<p>如有问题，请随时与我联络（联络方式：022-66230666-xxxx）。</p><p><br></p>");
+                sbr.AppendLine("<p>TFTM补给资材企管课</p><p><br></p>");
+                sbr.AppendLine("<p><br></p>");
+                sbr.AppendLine("<p>以上。</p><p><br></p>");
 
+                return sbr.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
 

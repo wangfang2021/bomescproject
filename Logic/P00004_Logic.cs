@@ -17,46 +17,29 @@ namespace Logic
     public class P00004_Logic
     {
         static P00004_DataAccess P00004_DataAccess = new P00004_DataAccess();
-
-
+        //========================================================================重写========================================================================
         public DataTable GetDockInfo(string opearteId)
         {
-            return P00004_DataAccess.getDockInfo(opearteId);
+            try
+            {
+                return P00004_DataAccess.getDockInfo(opearteId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
-
         public DataTable GetData(string dock, string fork)
         {
-            return P00004_DataAccess.GetData(dock, fork);
+            try
+            {
+                return P00004_DataAccess.GetData(dock, fork);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
-
-        public static DataTable GetToolInfo(string sellNo)
-        {
-            return P00004_DataAccess.GetToolInfo(sellNo);
-        }
-
-
-
-        public static DataTable GetSellData(string timeFrom, string timeEnd, string type, string date, string banZhi)
-        {
-            return P00004_DataAccess.GetSellData(timeFrom, timeEnd, type, date, banZhi);
-        }
-
-
-
-
-
-        public DataTable GetBanZhi(string serverTime)
-        {
-            return P00004_DataAccess.GetBanZhi(serverTime);
-        }
-
-        public DataTable GetCode()
-        {
-            return P00004_DataAccess.GetCode();
-        }
-
-
-        //========================================================================重写========================================================================
         public DataTable getDockAndForkInfo(string dock, string fork, string strFlag)
         {
             try
@@ -384,6 +367,28 @@ namespace Logic
                 throw ex;
             }
 
+        }
+        public static DataTable getSellInfo(string timeFrom, string timeEnd, string type, string date, string banZhi)
+        {
+            try
+            {
+                return P00004_DataAccess.getSellInfo(timeFrom, timeEnd, type, date, banZhi);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public static DataTable getToolInfo(string sellNo)
+        {
+            try
+            {
+                return P00004_DataAccess.getToolInfo(sellNo);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

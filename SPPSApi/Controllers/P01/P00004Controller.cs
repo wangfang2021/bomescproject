@@ -902,7 +902,7 @@ namespace SPPSApi.Controllers.P01
                 string strEmailBody = P00004_Logic.setEmailBody(strYingQuName, truckNo, qianFen, dtSell_Sum, dtSell_Tool);
                 string strTheme = "发货信息";
                 string strMessage = P00004_Logic.sendEmailInfo_FTMS(loginInfo.UserId, loginInfo.UserName, loginInfo.Email, strTheme, strEmailBody, path);
-                if(strMessage!="")
+                if (strMessage != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = strMessage;
@@ -922,7 +922,7 @@ namespace SPPSApi.Controllers.P01
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-        
+
         #endregion
 
         #region 出荷-便次信息查询
@@ -944,31 +944,24 @@ namespace SPPSApi.Controllers.P01
                 string timeEnd = dataForm.Timeend == null ? "" : dataForm.Timeend;
                 string type = dataForm.Type == null ? "" : dataForm.Type;
                 string time = dataForm.Time == null ? "" : dataForm.Time;
-                //根据客户端时间判断班值
-                DataTable getBanZhi = P00004_Logic.GetBanZhi(time);
-                if (getBanZhi.Rows.Count == 1)
-                {
-                    string date = getBanZhi.Rows[0][0].ToString();
-                    string banZhi = getBanZhi.Rows[0][1].ToString();
-                    DataTable GetSellData = P00004_Logic.GetSellData(timeFrom, timeEnd, type, date, banZhi);
-                    if (GetSellData.Rows.Count > 0)
-                    {
-                        P00004_DataEntity.sellList = GetSellData;
-                        apiResult.data = P00004_DataEntity;
-                    }
-                    else
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "当前班值没有出货数据,请检查!";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
-                else
+                DataTable dtTime = P00004_Logic.getBanZhiTime(loginInfo.BaoZhuangPlace, "1");
+                if (dtTime.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "获取班值失败!";
+                    apiResult.data = "班值信息获取失败，请重试。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                string strHosDate = dtTime.Rows[0]["dHosDate"].ToString();
+                string strBanZhi = dtTime.Rows[0]["vcBanZhi"].ToString();
+                DataTable dtSellData = P00004_Logic.getSellInfo(timeFrom, timeEnd, type, strHosDate, strBanZhi);
+                if (dtSellData.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "当前班值没有出货数据,请检查!";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                P00004_DataEntity.sellList = dtSellData;
+                apiResult.data = P00004_DataEntity;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -978,9 +971,6 @@ namespace SPPSApi.Controllers.P01
                 apiResult.data = "获取出货便次明细失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-
         }
         #endregion
 
@@ -1001,7 +991,7 @@ namespace SPPSApi.Controllers.P01
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 string sellNo = dataForm.SellNo == null ? "" : dataForm.SellNo;
 
-                DataTable getToolInfo = P00004_Logic.GetToolInfo(sellNo);
+                DataTable getToolInfo = P00004_Logic.getToolInfo(sellNo);
                 if (getToolInfo.Rows.Count == 5)
                 {
                     P00004_DataEntity.HUQuantity = getToolInfo.Rows[0][1].ToString();
@@ -1009,12 +999,8 @@ namespace SPPSApi.Controllers.P01
                     P00004_DataEntity.CBQuantity = getToolInfo.Rows[2][1].ToString();
                     P00004_DataEntity.HUQuantity1 = getToolInfo.Rows[3][1].ToString();
                     P00004_DataEntity.PCQuantity = getToolInfo.Rows[4][1].ToString();
-
                     apiResult.data = P00004_DataEntity;
-
-
-
-
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 else
                 {
@@ -1022,8 +1008,6 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "没有找到对应销售单号的器具信息!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -1032,10 +1016,6 @@ namespace SPPSApi.Controllers.P01
                 apiResult.data = "获取器具信息失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
         }
         #endregion        
     }

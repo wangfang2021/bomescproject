@@ -375,7 +375,7 @@ namespace SPPSApi.Controllers.G00
                         { 
                             if(dt.Columns[j].ToString()==key)
                             {
-                                dr[key] = listInfoData[i][key].ToString();
+                                dr[key] = listInfoData[i][key]==null?"": listInfoData[i][key].ToString();
                                 break;
                             }
                         }

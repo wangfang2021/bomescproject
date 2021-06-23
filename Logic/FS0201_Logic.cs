@@ -420,6 +420,7 @@ namespace Logic
             {
                 throw ex;
             }
+          
 
         }
 
@@ -2197,6 +2198,16 @@ namespace Logic
         public void importTFTM(DataTable dt, string strUserId)
         {
             fs0201_DataAccess.importTFTM(dt, strUserId);
+        }
+
+        public bool getState()
+        {
+            return fs0201_DataAccess.getState();
+        }
+
+        public void updateState(int flag)
+        {
+            fs0201_DataAccess.updateState(flag);
         }
 
     }

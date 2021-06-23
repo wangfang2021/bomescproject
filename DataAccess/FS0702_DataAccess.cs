@@ -319,7 +319,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,m.vcName as varChangedItem,d.vcBZPlant as vcPackSpot,a.vcPartsNo,   ");
                 strSql.AppendLine("    a.vcCar as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,substring(CONVERT(varchar, a.dFrom,120),0,11) as dFrom,substring(CONVERT(varchar, a.dTo,120),0,11) as dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
-                strSql.AppendLine("    ,b.vcName as vcShouhuofangID,'' as vcIsorNo,vcReTime from (       ");
+                strSql.AppendLine("    ,b.vcName as vcShouhuofangID,'' as vcIsorNo,substring(CONVERT(varchar, a.vcReTime,120),0,11) as vcReTime from (       ");
                 strSql.AppendLine("     select *,'0' as vcModFlag,'0' as vcAddFlag from TPackItem    ");
                 strSql.AppendLine("      WHERE");
                 strSql.AppendLine("      	1 = 1");
@@ -446,7 +446,8 @@ namespace DataAccess
                     }
                    
                     if (string.IsNullOrEmpty(listInfoData[i]["varChangedItem"].ToString())) {
-                        DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"] + "'and  varChangedItem is null and vcShouhuofangID='"+ listInfoData[i]["vcShouhuofangID"] + "'");
+                        //and  varChangedItem is null
+                        DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"] + "' and vcShouhuofangID='"+ listInfoData[i]["vcShouhuofangID"] + "'");
                         if (dr2.Length == 0)
                         {
                             dUserFrom = "1900-01-01";
@@ -477,7 +478,8 @@ namespace DataAccess
                         }
                     }
                     else {
-                        DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"] + "'and  varChangedItem='" + listInfoData[i]["varChangedItem"] + "'and vcShouhuofangID='" + listInfoData[i]["vcShouhuofangID"] + "'");
+                        //
+                        DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"] + "'and varChangedItem='" + listInfoData[i]["varChangedItem"] + "'and  vcShouhuofangID='" + listInfoData[i]["vcShouhuofangID"] + "'");
                         if (dr2.Length == 0)
                         {
                             dUserFrom = "1900-01-01";
@@ -537,8 +539,8 @@ namespace DataAccess
                         sql.AppendLine("     VALUES \r\n");
                         sql.AppendLine("     ( \r\n");
 
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"].ToString().Trim(), false) + ",\r\n");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"].ToString().Trim(), false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"].ToString().TrimEnd(), false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"].ToString().TrimEnd(), false) + ",\r\n");
                         sql.AppendLine(" '" + PackGPSNo + "',   \r\n");
                         sql.AppendLine(" '" + strSHFID + "',   \r\n");
                         sql.AppendLine(" '" + vcCar + "',   \r\n");
@@ -561,6 +563,9 @@ namespace DataAccess
                                 break;
                             case "5":
                                 sql.AppendLine(" '5:取说',\r\n");
+                                break;
+                            case "6":
+                                sql.AppendLine(" '6:双层包装',\r\n");
                                 break;
                             default:
                                 sql.AppendLine(" '',\r\n");
@@ -591,8 +596,8 @@ namespace DataAccess
 
                         sql.AppendLine("  UPDATE TPackItem");
                         sql.AppendLine("  SET ");
-                        sql.AppendLine($"   vcPartsNo = {ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"], false)},\r\n");
-                        sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false)},\r\n");
+                        sql.AppendLine($"   vcPartsNo = {ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"].ToString().TrimEnd(), false)},\r\n");
+                        sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"].ToString().TrimEnd(), false)},\r\n");
                         sql.AppendLine($"   vcPackGPSNo = '{PackGPSNo}',\r\n");
                         //sql.AppendLine($"   dPackTo = '{ComFunction.getSqlValue(listInfoData[i]["dPackTo"], true)}',\r\n");
                         sql.AppendLine($"   vcPackSpot = '{PackSpot}',\r\n");
@@ -618,6 +623,9 @@ namespace DataAccess
                                 break;
                             case "5":
                                 sql.AppendLine(" vcDistinguish ='5:取说',\r\n");
+                                break;
+                            case "6":
+                                sql.AppendLine(" vcDistinguish ='6:双层包装',\r\n");
                                 break;
                             default:
                                 sql.AppendLine(" vcDistinguish ='',\r\n");
@@ -795,8 +803,8 @@ namespace DataAccess
                         sql.AppendLine("     VALUES \r\n");
 
                         sql.AppendLine("     ( \r\n");
-                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPartsNo"], false) + ",\r\n");
-                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPartsNo"].ToString().TrimEnd(), false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"].ToString().TrimEnd(), false) + ",\r\n");
                         sql.AppendLine("'" + PackGPSNo + "',\r\n");
                         sql.AppendLine("     '" + dt.Rows[i]["vcShouhuofangID"].ToString() + "',  \r\n");
                         sql.AppendLine("'" + vcCar + "',\r\n");
@@ -835,6 +843,9 @@ namespace DataAccess
                             case "5":
                                 sql.AppendLine(" '5:取说',\r\n");
                                 break;
+                            case "6":
+                                sql.AppendLine(" '6:双层包装',\r\n");
+                                break;
                             default:
                                 sql.AppendLine(" '',\r\n");
                                 break;
@@ -867,8 +878,8 @@ namespace DataAccess
 
                         sql.AppendLine("  UPDATE TPackItem");
                         sql.AppendLine("  SET ");
-                        sql.AppendLine($"   vcPartsNo = {ComFunction.getSqlValue(dt.Rows[i]["vcPartsNo"], false)},\r\n");
-                        sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false)},\r\n");
+                        sql.AppendLine($"   vcPartsNo = {ComFunction.getSqlValue(dt.Rows[i]["vcPartsNo"].ToString().TrimEnd(), false)},\r\n");
+                        sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"].ToString().TrimEnd(), false)},\r\n");
                         sql.AppendLine($"   vcPackGPSNo = '{PackGPSNo}',\r\n");
                         //sql.AppendLine($"   dPackTo = '{ComFunction.getSqlValue(listInfoData[i]["dPackTo"], true)}',\r\n");
                         sql.AppendLine($"   vcPackSpot = '{dt.Rows[i]["vcPackSpot"].ToString()}',\r\n");

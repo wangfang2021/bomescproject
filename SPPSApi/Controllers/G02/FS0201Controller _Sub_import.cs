@@ -68,9 +68,32 @@ namespace SPPSApi.Controllers.G02
                 //0 SPI导入
                 if (flag == "0")
                 {
-                    //存储文件到共享文件夹
-                    SaveFile(fileSavePath, "SPI");
-                    fs0201_logic.importSPI(fileSavePath, loginInfo.UserId, ref strMsg);
+                    if (fs0201_logic.getState())
+                    {
+                        try
+                        {
+                            fs0201_logic.updateState(1);
+                            //存储文件到共享文件夹
+                            SaveFile(fileSavePath, "SPI");
+                            fs0201_logic.importSPI(fileSavePath, loginInfo.UserId, ref strMsg);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                        finally
+                        {
+                            fs0201_logic.updateState(0);
+                        }
+
+                    }
+                    else
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "数据正在处理中请不要重复点击。";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    
 
                 }
                 //1 导出导入
@@ -160,7 +183,7 @@ namespace SPPSApi.Controllers.G02
                 if (!string.IsNullOrWhiteSpace(strMsg))
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导入成功,但文件" + strMsg + "已上传过,本次不进行上传。";
+                    apiResult.data = "导入成功,但文件" + strMsg + "已上传或推送过,本次不进行上传。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 

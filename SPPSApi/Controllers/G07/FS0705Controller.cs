@@ -103,7 +103,7 @@ namespace SPPSApi.Controllers.G07
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M07UE0501", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "发注便次更新失败";
+                apiResult.data = "发注便次更新失败:"+ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -149,11 +149,11 @@ namespace SPPSApi.Controllers.G07
                  * 包材构成表：TPackItem
                  */
 
-
                 #region 校验当前计算的发注逻辑下是否存在有效包材构成
                 /*
                  * 修改时间：2021-5-10
                  * 修改人：董镇
+                 * 注：注意包材品番的有效时间
                  */
                 DataTable CheckFaZhuIDPackBase =  fs0705_Logic.getFaZhuIdPackCheckDT(strFaZhuID, loginInfo.BaoZhuangPlace);
                 if (CheckFaZhuIDPackBase==null || CheckFaZhuIDPackBase.Rows.Count<=0)
@@ -164,45 +164,108 @@ namespace SPPSApi.Controllers.G07
                 }
                 #endregion
 
-                #region 验证补给品番是否存在有效的包材构成
-                string[] strArray = fs0705_Logic.getPackCheckDT(strFaZhuID,loginInfo.BaoZhuangPlace,strRuHeToTime);
-
-                string strErr1 = "";
-                string strErr2 = "";
-
-                #region 校验是否有包材品番入库
-                if (!string.IsNullOrEmpty(strArray[2]))
+                #region 检验是否存在当前计算时间段内有部品品番无有效包材构成，如果有则发邮件提示
+                DataTable dt = fs0705_Logic.getInvalidPackNo(strFaZhuID, loginInfo.BaoZhuangPlace, strRuHeToTime);
+                if (dt!=null && dt.Rows.Count>0)
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = strArray[2];
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                #endregion
+                    #region 获取发件人名称、发件人邮箱、邮件主题、邮件模板、收件人DT、生成EXCEL附件，并记录错误信息
+                    DataTable EmailInformation = fs0705_Logic.getEmailInformation();
 
-
-                if (strArray[0] != "")
-                {
-                    foreach (var item in strArray[0].Split(","))
+                    string strErrMsg = "";
+                    string strUserName = "";
+                    string strUserEmail = "";
+                    string strSubject = "";
+                    string strEmailBody = "";
+                    DataTable receiverDT = new DataTable();
+                    string fileName = "";
+                    if (EmailInformation!=null && EmailInformation.Rows.Count>0)
                     {
-                        strErr1 += item + "<br/>";
+                        
+                        strUserName = EmailInformation.Rows[0]["strUserName"] != null ? EmailInformation.Rows[0]["strUserName"].ToString() : "";
+                        if (string.IsNullOrEmpty(strUserName))
+                        {
+                            strErrMsg += "发件人名称获取失败 ";
+                        }
+                        strUserEmail = EmailInformation.Rows[0]["strUserEmail"] != null ? EmailInformation.Rows[0]["strUserEmail"].ToString() : "";
+                        if (string.IsNullOrEmpty(strUserEmail))
+                        {
+                            strErrMsg += "发件人邮箱获取失败 ";
+                        }
+                        strSubject = EmailInformation.Rows[0]["strSubject"] != null ? EmailInformation.Rows[0]["strSubject"].ToString() : "";
+                        if (string.IsNullOrEmpty(strSubject))
+                        {
+                            strErrMsg += "邮件主题获取失败 ";
+                        }
+                        strEmailBody = EmailInformation.Rows[0]["strEmailBody"] != null ? EmailInformation.Rows[0]["strEmailBody"].ToString() : "";
+                        if (string.IsNullOrEmpty(strEmailBody))
+                        {
+                            strErrMsg += "邮件模板获取失败 ";
+                        }
+                        string address = EmailInformation.Rows[0]["receiverEmail"] != null ? EmailInformation.Rows[0]["receiverEmail"].ToString() : "";
+                        if (string.IsNullOrEmpty(address))
+                        {
+                            strErrMsg += "收件人邮箱获取失败 ";
+                        }
+                        string displayName = EmailInformation.Rows[0]["receiverName"] != null ? EmailInformation.Rows[0]["receiverName"].ToString() : "";
+                        if (string.IsNullOrEmpty(displayName))
+                        {
+                            strErrMsg += "收件人姓名获取失败 ";
+                        }
+                        //这里校验邮箱格式是否正确
+                        if (!fs0705_Logic.CheckEmailFormat(address, displayName))
+                        {
+                            strErrMsg += "收件人信息有误 ";
+                        }
+                        else
+                        {
+                            receiverDT.Columns.Add("displayName");
+                            receiverDT.Columns.Add("address");
+                            DataRow dr = receiverDT.NewRow();
+                            dr["displayName"] = displayName.Trim();
+                            dr["address"] = address.Trim();
+                            receiverDT.Rows.Add(dr);
+                        }
+                        //生成附件
+                        string[] head = { "品番", "数量" };
+                        string[] field = { "vcPart_id", "iQuantity" };
+                        string strMsg = "";
+                        fileName = ComFunction.DataTableToExcel(head, field, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
+                        fileName = _webHostEnvironment.ContentRootPath + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar + fileName;
+                        if (strMsg != "") //导出文件出错
+                        {
+                            strErrMsg += "导出生成附件失败：" + strMsg;
+                        }
                     }
-                    res.Add("errPart", "发注数量计算失败,以下品番无包材构成！"+ "<br/>" + strErr1);
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.flag = 1;
-                    apiResult.data = res;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                if (strArray[1] != "")
-                {
-                    foreach (var item in strArray[1].Split(","))
+                    #endregion
+
+                    #region 如果存在错误，则记录错误信息到日志表，无错误则执行发送邮件
+                    if (strErrMsg != "")      //有错误,记录错误
                     {
-                        strErr2 += item + "<br/>";
+                        MultiExcute me;
+                        me = new MultiExcute();
+                        System.Data.SqlClient.SqlParameter[] parameters = {
+                                    new System.Data.SqlClient.SqlParameter("@vcMessage",SqlDbType.NVarChar),
+                                    new System.Data.SqlClient.SqlParameter("@vcException",SqlDbType.NVarChar),
+                                    new System.Data.SqlClient.SqlParameter("@vcTrack",SqlDbType.NVarChar)
+                                };
+                        parameters[0].Value = strErrMsg;
+                        parameters[1].Value = "";
+                        parameters[2].Value = "";
+                        string strSql = "insert into SLog(UUID,vcFunctionID,vcLogType,vcUserID,vcMessage,vcException,vcTrack,dCreateTime) values(newid(),"
+                                                                    + "'FS0705',"
+                                                                    + "'E','"
+                                                                    + loginInfo.UserId + "',"
+                                                                    + "@vcMessage,"
+                                                                    + "@vcException,"
+                                                                    + "@vcTrack,"
+                                                                    + "CONVERT(varchar, GETDATE(),120))";
+                        me.ExcuteSqlWithStringOper(strSql, parameters);
                     }
-                    res.Add("errPart",  "发注数量计算失败,以下品番包材构成无效！"+ "<br/>" + strErr2);
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.flag = 1;
-                    apiResult.data = res;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    else
+                    {
+                        ComFunction.SendEmailInfo(strUserEmail, strUserName, strEmailBody, receiverDT, null, strSubject, fileName, false);
+                    }
+                    #endregion
                 }
                 #endregion
 
@@ -303,14 +366,14 @@ namespace SPPSApi.Controllers.G07
                 string strOrderNo = fs0705_Logic.getNewOrderNo();
                 
                 /*
-                 * 查询出最后一次计算结果中订单号为空的数据(订单号为空，说明没有生成发注数据),并且计算出的订购数量大于0(等于0不需要订购)
+                 * 查询出最后一次计算结果中订单号为空的数据(订单号为空，说明没有生成发注数据),并且计算出的订购数量大于0(等于0不需要订购),并且，去掉MBC的包材品番
                  */
                 DataTable JGDT = fs0705_Logic.SCFZDataSearchComputeJG(loginInfo.BaoZhuangPlace);
 
                 if (JGDT==null||JGDT.Rows.Count<=0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "没有找到需要订购的品番信息";
+                    apiResult.data = "没有找到需要订购的品番信息"; 
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
@@ -376,5 +439,7 @@ namespace SPPSApi.Controllers.G07
             }
         }
         #endregion
+
+
     }
 }

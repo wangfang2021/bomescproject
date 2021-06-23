@@ -458,5 +458,154 @@ namespace DataAccess
             }
         }
 
+
+        //============================================报表业务=============================================
+        //创建日报表结构
+        public DataTable createDailyPaper()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("SELECT vcPartItem");
+                strSql.AppendLine("		,0 as A");
+                strSql.AppendLine("		,0 as B");
+                strSql.AppendLine("		,0 as C");
+                strSql.AppendLine("		,0 as D");
+                strSql.AppendLine("		,0 as E");
+                strSql.AppendLine("		,0.00 as F");
+                strSql.AppendLine("		,0.00 as G");
+                strSql.AppendLine("		,0.00 as H");
+                strSql.AppendLine("		,0.00 as I");
+                strSql.AppendLine("		,'0.00%' as J");
+                strSql.AppendLine("		,'0.00%' as K");
+                strSql.AppendLine("		,0.00 as L FROM TInPutIntoOver ");
+                strSql.AppendLine("ORDER BY iOrderBy");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable createMonthPaper()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("SELECT vcPartItem,A,B,C,D,E,F,G,H,I,J,K,L  ");
+                strSql.AppendLine("FROM (");
+                strSql.AppendLine("SELECT vcPartItem,0 as A,0 as B,0 as C,0 as D,0 as E,0.00 as F,0.00 as G,0.00 as H,0.00 as I,'0.00%' as J,'0.00%' as K,0.00 as L");
+                strSql.AppendLine("		,1 as m,iOrderBy");
+                strSql.AppendLine("FROM TInPutIntoOver ");
+                strSql.AppendLine("union all");
+                strSql.AppendLine("SELECT vcPartItem,0 as A,0 as B,0 as C,0 as D,0 as E,0.00 as F,0.00 as G,0.00 as H,0.00 as I,'0.00%' as J,'0.00%' as K,0.00 as L");
+                strSql.AppendLine("		,2 as m,iOrderBy ");
+                strSql.AppendLine("FROM TInPutIntoOver ");
+                strSql.AppendLine("union all");
+                strSql.AppendLine("SELECT vcPartItem,0 as A,0 as B,0 as C,0 as D,0 as E,0.00 as F,0.00 as G,0.00 as H,0.00 as I,'0.00%' as J,'0.00%' as K,0.00 as L");
+                strSql.AppendLine("		,3 as m,iOrderBy ");
+                strSql.AppendLine("FROM TInPutIntoOver )TT");
+                strSql.AppendLine("ORDER BY M,iOrderBy");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        //获取当天出勤班值信息
+        public DataTable getDailyCalendarInfo(string strHosDate)
+        {
+            try
+            {
+                string strCDay = "vcD" + Convert.ToInt32(strHosDate.Substring(strHosDate.Length - 2, 2)).ToString();
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select vcYearMonth,vcType," + strCDay + " as vcDay ");
+                strSql.AppendLine("from TCalendar where vcYearMonth=convert(varchar(6),CAST('" + strHosDate + "' as datetime),112)");
+                strSql.AppendLine("order by " + strCDay + "");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        //获取品目别实绩数据
+        public DataTable getDailyList_00(string strPackPlant, string strHosDate, string strBanZhi)
+        {
+            try
+            {
+                SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+                SqlParameter[] pars = new SqlParameter[]{
+                    new SqlParameter("@Date", strHosDate),
+                    new SqlParameter("@PackPlant",strPackPlant),
+                    new SqlParameter("@BZ",strBanZhi)
+                };
+                string cmdText = "BSP0815_DailyList";
+                SqlDataAdapter sa = new SqlDataAdapter(cmdText, sqlConnection);
+                if (pars != null && pars.Length > 0)
+                {
+                    foreach (SqlParameter p in pars)
+                    {
+                        sa.SelectCommand.Parameters.Add(p);
+                    }
+                }
+                sa.SelectCommand.CommandTimeout = 0;
+                sa.SelectCommand.CommandType = CommandType.StoredProcedure;
+                DataTable dt = new DataTable();
+                sa.Fill(dt);
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        //获取品目别点位端登录履历
+        public DataSet getOperPointInfo(string strPackPlant, string strBanZhi, string strHosDate, string strPointName)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("--TBZTime_Rest_point	所在班值休息字典");
+                strSql.AppendLine("select ROW_NUMBER() OVER(PARTITION BY vcPackPlant,vcBanZhi ");
+                strSql.AppendLine("					ORDER BY dateadd(day,cast(vcBeforCross as int),cast('" + strHosDate + "' as datetime))+' '+tBeforTime) AS TANK");
+                strSql.AppendLine("		,vcPackPlant");
+                strSql.AppendLine("		,vcBanZhi");
+                strSql.AppendLine("		,dateadd(day,cast(vcBeforCross as int),cast('" + strHosDate + "' as datetime))+' '+tBeforTime as  tBeforTime");
+                strSql.AppendLine("		,dateadd(day,cast(vcLastCross as int),cast('" + strHosDate + "' as datetime))+' '+tLastTime  as  tLastTime");
+                strSql.AppendLine("		,iMinute");
+                strSql.AppendLine("from TBZTime_Rest_point where vcPackPlant='" + strPackPlant + "' and vcBanZhi='" + strBanZhi + "'");
+                strSql.AppendLine("--TPointDetails	点位登录履历");
+                strSql.AppendLine("select a.* from ");
+                strSql.AppendLine("(");
+                strSql.AppendLine("select dHosDate,vcPackPlant,vcBanZhi,vcPointNo,UUID,dEntryTime");
+                strSql.AppendLine("		,case when dDestroyTime is not null then dDestroyTime");
+                strSql.AppendLine("		else case when tToTime>dNowTime then dNowTime else tToTime end end as dDestroyTime");
+                strSql.AppendLine("		from ");
+                strSql.AppendLine("(select t1.dHosDate,t1.vcPlant as vcPackPlant,t1.vcBanZhi,t1.vcPointNo,t1.UUID,t1.dEntryTime,t1.dDestroyTime");
+                strSql.AppendLine("		,case when vcCross='1' then convert(varchar(10),dateadd(day,1,dateadd(DAY,0,t1.dHosDate)),23) ");
+                strSql.AppendLine("			else convert(varchar(10),dateadd(DAY,0,t1.dHosDate),23) end +' '+convert(varchar(10),t2.tToTime,24) as tToTime");
+                strSql.AppendLine("		,GETDATE() as dNowTime");
+                strSql.AppendLine("		from ");
+                strSql.AppendLine(" (select * from TPointDetails where vcPlant='" + strPackPlant + "' and vcBanZhi='" + strBanZhi + "' and dHosDate='" + strHosDate + "')t1");
+                strSql.AppendLine(" left join");
+                strSql.AppendLine(" (select * from TBZTime)t2");
+                strSql.AppendLine(" on t1.vcBanZhi=t2.vcBanZhi and t1.vcPlant=t2.vcPackPlant)t");
+                strSql.AppendLine(")a");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(select * from TPointInfo)b");
+                strSql.AppendLine("on a.vcPackPlant=b.vcPlant and a.vcPointNo=b.vcPointNo");
+                strSql.AppendLine("where b.vcPointName='" + strPointName + "'");
+                return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
     }
 }

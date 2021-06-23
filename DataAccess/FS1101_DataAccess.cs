@@ -22,7 +22,8 @@ namespace DataAccess
                 //strSql.AppendLine("select a.iAutoId, a.vcInno as vcInPutOrderNo,a.vcLotid as vcPackMaterNo,a.[vcTrolleyNo] AS vcTrolleyNo,a.vcPackingpartsno as vcPackPartId  ");
                 strSql.AppendLine("	from   ");
                 //strSql.AppendLine("		,cast(dQty as varchar(50)) as iQty,vcPackingpartslocation as vcLocation,a.vcPackinggroup,'1' as bSelectFlag 	from   ");
-                strSql.AppendLine("(select * from tpacklist  ");
+                //strSql.AppendLine("(select * from tpacklist  ");
+                strSql.AppendLine("(select * from TPackList_Temp  ");
                 if (strTrolleyNo != "")
                 {
                     strSql.AppendLine(" where iAutoId in (select MAX(iAutoId) as iAutoId from tpacklist where vcTrolleyNo='" + strTrolleyNo + "') ");
@@ -65,7 +66,8 @@ namespace DataAccess
                 strSql.AppendLine("		,convert(varchar(10),getdate(),23) as dPrintDate");
                 strSql.AppendLine("		,b.vcLabelStart,b.vcLabelEnd");
                 strSql.AppendLine("from");
-                strSql.AppendLine("(select * from tpacklist where vcLotid='"+ strPackMaterNo + "')a");
+                strSql.AppendLine("(select * from TPackList_Temp where vcLotid='" + strPackMaterNo + "')a");
+                //strSql.AppendLine("(select * from tpacklist where vcLotid='" + strPackMaterNo + "')a");
                 strSql.AppendLine("left join  ");
                 strSql.AppendLine("(select * from TOperateSJ where vcZYType='S0')b  ");
                 strSql.AppendLine("on a.vcInno=b.vcInputNo  ");

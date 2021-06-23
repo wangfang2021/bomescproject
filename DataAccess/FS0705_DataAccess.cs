@@ -286,43 +286,81 @@ namespace DataAccess
         }
         #endregion
 
-        #region 获取所有当前时间段内所有品番的包材信息和有效信息
-        public DataTable getPackCheckDT(string strFaZhuID,string strPackSpot,string strRuHeToTime) 
+        #region 读取此次计算时间段内入库的部品品番中没有有效包材构成的品番信息
+        public DataTable getInvalidPackNo(string strFaZhuID,string strPackSpot,string strEnd)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("       declare @dBegin datetime            \r\n");
-            strSql.Append("       declare @dEnd datetime            \r\n");
-            strSql.Append("       set @dBegin=(     \r\n");
-            strSql.Append("           select isnull(b.dEnd ,a.dFrom) as dEnd from                \r\n");
-            strSql.Append("            (                \r\n");
-            strSql.Append("                select distinct vcPackSpot,vcFaZhuID,dFrom from TPackFaZhuTime  where vcFaZhuID = '"+strFaZhuID+"' and vcPackSpot='"+strPackSpot+"' and (dFrom<GETDATE() and dTo>GETDATE() )    \r\n");
-            strSql.Append("            )a                \r\n");
-            strSql.Append("            left join                \r\n");
-            strSql.Append("            (                \r\n");
-            strSql.Append("                select a.vcPackSpot,a.vcFaZhuID,max(dEnd) as dEnd from TPackCompute_Time a           \r\n");
-            strSql.Append("                inner join           \r\n");
-            strSql.Append("                (           \r\n");
-            strSql.Append("                    select distinct vcFlag from TPackCompute where vcOrderNo is not null           \r\n");
-            strSql.Append("                )b on a.vcFlag=b.vcFlag           \r\n");
-            strSql.Append("            group by  vcPackSpot,vcFaZhuID                \r\n");
-            strSql.Append("            )b on   a.vcPackSpot=b.vcPackSpot and a.vcFaZhuID=b.vcFaZhuID      \r\n");
-            strSql.Append("       );          \r\n");
-            strSql.Append("       set @dEnd = '"+ strRuHeToTime + "';            \r\n");
-
-            strSql.Append("       --获取所有当前时间段内所有品番的包材信息和有效信息      \r\n");
-            strSql.Append("       select a.vcPart_id,b.vcPartsNo,b.vcPackNo,b.dUsedFrom,dUsedTo,b.vcBZPlant from       \r\n");
-            strSql.Append("       (      \r\n");
-            strSql.Append("           select distinct vcPart_id from TOperateSJ where vcBZPlant = '" + strPackSpot + "' and vcZYType='S0' and @dBegin<=dEnd and dEnd<=@dEnd      \r\n");
-            strSql.Append("       )a       \r\n");
-            strSql.Append("       left join       \r\n");
-            strSql.Append("       (      \r\n");
-            strSql.Append("          select vcPartsNo,vcPackNo,dUsedFrom,dUsedTo,vcBZPlant from TPackItem a      \r\n");
-            strSql.Append("          inner join        \r\n");
-            strSql.Append("          (      \r\n");
-            strSql.Append("              select vcPart_id,vcBZPlant from TPackageMaster where vcBZPlant  = '" + strPackSpot + "'      \r\n");
-            strSql.Append("          )  b  on a.vcPartsNo  = b.vcPart_id      \r\n");
-            strSql.Append("       )b on a.vcPart_id = b.vcPartsNo      \r\n");
-
+            strSql.AppendLine("       declare @dBegin datetime                  ");
+            strSql.AppendLine("       declare @dEnd datetime                  ");
+            strSql.AppendLine("       set @dBegin=(           ");
+            strSql.AppendLine("           select isnull(b.dEnd ,a.dFrom) as dEnd from                      ");
+            strSql.AppendLine("            (                      ");
+            strSql.AppendLine("                select distinct vcPackSpot,vcFaZhuID,dFrom from TPackFaZhuTime        ");
+            strSql.AppendLine("       		 where vcFaZhuID = '"+strFaZhuID+"' and vcPackSpot='"+strPackSpot+"' and (dFrom<GETDATE() and dTo>GETDATE() )        ");
+            strSql.AppendLine("            )a                      ");
+            strSql.AppendLine("            left join                      ");
+            strSql.AppendLine("            (                      ");
+            strSql.AppendLine("                select a.vcPackSpot,a.vcFaZhuID,max(dEnd) as dEnd from TPackCompute_Time a                 ");
+            strSql.AppendLine("                inner join                 ");
+            strSql.AppendLine("                (                 ");
+            strSql.AppendLine("                    select distinct vcFlag from TPackCompute where vcOrderNo is not null                 ");
+            strSql.AppendLine("                )b on a.vcFlag=b.vcFlag                 ");
+            strSql.AppendLine("            group by  vcPackSpot,vcFaZhuID                      ");
+            strSql.AppendLine("            )b on   a.vcPackSpot=b.vcPackSpot and a.vcFaZhuID=b.vcFaZhuID            ");
+            strSql.AppendLine("       );                ");
+            strSql.AppendLine("       set @dEnd = '"+strEnd+"';                  ");
+            strSql.AppendLine("             ");
+            strSql.AppendLine("       select vcPart_id,iQuantity,vcPartsNo,vcPackNo from       ");
+            strSql.AppendLine("       (      ");
+            strSql.AppendLine("       	select vcPart_id,iQuantity,vcPartsNo,vcPackNo from       ");
+            strSql.AppendLine("       	(      ");
+            strSql.AppendLine("       		select vcPart_id,SUM(iQuantity) as iQuantity       ");
+            strSql.AppendLine("       		from TOperateSJ       ");
+            strSql.AppendLine("       		where vcBZPlant = '"+strPackSpot+"' and vcZYType='S0' and @dBegin<=dEnd and dEnd<=@dEnd      ");
+            strSql.AppendLine("       		group by vcPart_id      ");
+            strSql.AppendLine("       	)a      ");
+            strSql.AppendLine("       	left join       ");
+            strSql.AppendLine("       	(      ");
+            strSql.AppendLine("       		select vcPartsNo,vcPackNo,vcBZPlant from      ");
+            strSql.AppendLine("       		(      ");
+            strSql.AppendLine("       			select vcPartsNo,vcPackNo       ");
+            strSql.AppendLine("       			from TPackItem      ");
+            strSql.AppendLine("       			where dUsedFrom<GETDATE() and GETDATE()<dUsedTo      ");
+            strSql.AppendLine("       		)a      ");
+            strSql.AppendLine("       		left join      ");
+            strSql.AppendLine("       		(      ");
+            strSql.AppendLine("       			select vcPart_id,vcBZPlant from TPackageMaster      ");
+            strSql.AppendLine("       		)b on a.vcPartsNo = b.vcPart_id      ");
+            strSql.AppendLine("       	)b on a.vcPart_id = b.vcPartsNo      ");
+            strSql.AppendLine("       	where vcPartsNo is null      ");
+            strSql.AppendLine("       	and b.vcBZPlant = '"+strPackSpot+"'      ");
+            strSql.AppendLine("       )a		--部品品番未维护包材构成      ");
+            strSql.AppendLine("       union all      ");
+            strSql.AppendLine("       select vcPart_id,iQuantity,vcPartsNo,vcPackNo from      ");
+            strSql.AppendLine("       (      ");
+            strSql.AppendLine("       	select vcPart_id,iQuantity,vcPartsNo,vcPackNo from       ");
+            strSql.AppendLine("       	(      ");
+            strSql.AppendLine("       		select vcPart_id,SUM(iQuantity) as iQuantity       ");
+            strSql.AppendLine("       		from TOperateSJ      ");
+            strSql.AppendLine("       		where vcBZPlant = '"+strPackSpot+"' and vcZYType='S0' and @dBegin<=dEnd and dEnd<=@dEnd      ");
+            strSql.AppendLine("       		group by vcPart_id      ");
+            strSql.AppendLine("       	)a      ");
+            strSql.AppendLine("       	left join       ");
+            strSql.AppendLine("       	(      ");
+            strSql.AppendLine("       		select vcPartsNo,vcPackNo,vcBZPlant from      ");
+            strSql.AppendLine("       		(      ");
+            strSql.AppendLine("       			select vcPartsNo,vcPackNo       ");
+            strSql.AppendLine("       			from TPackItem      ");
+            strSql.AppendLine("       			where dUsedFrom<GETDATE() and GETDATE()<dUsedTo      ");
+            strSql.AppendLine("       		)a      ");
+            strSql.AppendLine("       		left join      ");
+            strSql.AppendLine("       		(      ");
+            strSql.AppendLine("       			select vcPart_id,vcBZPlant from TPackageMaster      ");
+            strSql.AppendLine("       		)b on a.vcPartsNo = b.vcPart_id      ");
+            strSql.AppendLine("       	)b on a.vcPart_id = b.vcPartsNo      ");
+            strSql.AppendLine("       	where vcPackNo = 'MBC'      ");
+            strSql.AppendLine("       	and b.vcBZPlant = '"+strPackSpot+"'      ");
+            strSql.AppendLine("       )b		--部品品番维护的包材构成中含有MBC的包材品番      ");
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
         #endregion
@@ -345,6 +383,28 @@ namespace DataAccess
         }
         #endregion
 
+        #region 获取发邮件需要准备的数据
+        public DataTable getEmailInformation()
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendLine("       select * from      ");
+            strSql.AppendLine("       (      ");
+            strSql.AppendLine("       	select top 1 vcValue as 'strUserName',vcName as 'strUserEmail' from TCode       ");
+            strSql.AppendLine("       	where vcCodeId = 'C025'      ");
+            strSql.AppendLine("       )a      ");
+            strSql.AppendLine("       left join       ");
+            strSql.AppendLine("       (      ");
+            strSql.AppendLine("       	select top 1 vcValue3 as 'strSubject',vcValue4 as 'strEmailBody' from TOutCode       ");
+            strSql.AppendLine("       	where vcCodeId = 'C016' and vcIsColum = '0' and vcValue1 = 'FS0705' and vcValue2 = 'system'      ");
+            strSql.AppendLine("       )b on 1=1      ");
+            strSql.AppendLine("       left join      ");
+            strSql.AppendLine("       (      ");
+            strSql.AppendLine("       	select top 1 vcValue1 as 'receiverName',vcValue2 as 'receiverEmail' from TOutCode       ");
+            strSql.AppendLine("       	where vcCodeId = 'C020' and vcIsColum = '0'      ");
+            strSql.AppendLine("       )c on 1=1      ");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+        }
+        #endregion
 
         #region 检索计算结果
         public DataTable searchComputeJG(string strPackSpot,string strBianCi)
@@ -368,7 +428,7 @@ namespace DataAccess
             StringBuilder strSql = new StringBuilder();
             strSql.AppendLine("            declare @vcBianCi varchar(100)          ");
             strSql.AppendLine("            set @vcBianCi = (select top 1 vcBianCi from TPackCompute where vcPackSpot = '"+strPackSpot+"' group by vcBianCi order by vcBianCi desc )          ");
-            strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcBianCi = @vcBianCi and iF_DingGou >0         ");
+            strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcBianCi = @vcBianCi and iF_DingGou >0 and vcPackNo <> 'MBC'        ");
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
         #endregion

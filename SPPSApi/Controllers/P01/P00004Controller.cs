@@ -901,7 +901,7 @@ namespace SPPSApi.Controllers.P01
                 //生成邮件体
                 string strEmailBody = P00004_Logic.setEmailBody(strYingQuName, truckNo, qianFen, dtSell_Sum, dtSell_Tool);
                 string strTheme = "发货信息";
-                string strMessage = P00004_Logic.sendEmailInfo_FTMS(loginInfo.UserId, loginInfo.UserName, loginInfo.Email, strTheme, strEmailBody, path);
+                string strMessage = P00004_Logic.sendEmailInfo_FTMS_OutPut(loginInfo.UserId, loginInfo.UserName, loginInfo.Email, strTheme, strEmailBody, path);
                 if (strMessage != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

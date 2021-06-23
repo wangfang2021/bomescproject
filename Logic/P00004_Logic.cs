@@ -337,7 +337,7 @@ namespace Logic
                 throw ex;
             }
         }
-        public string sendEmailInfo_FTMS(string strFRId, string strFRName, string strFRAddress, string strTheme, string strEmailBody, string strFilePath)
+        public string sendEmailInfo_FTMS_OutPut(string strFRId, string strFRName, string strFRAddress, string strTheme, string strEmailBody, string strFilePath)
         {
             try
             {
@@ -345,7 +345,7 @@ namespace Logic
                 FS0603_DataAccess fs0603_DataAccess = new FS0603_DataAccess();
                 FS0603_Logic fs0603_Logic = new FS0603_Logic();
 
-                DataTable dtEmail = fs0602_DataAccess.getFTMSEmail();
+                DataTable dtEmail = fs0602_DataAccess.getFTMSEmail_OutPut();
                 DataTable dtToInfo = fs0603_Logic.createTable("mailaddress");
                 for (int j = 0; j < dtEmail.Rows.Count; j++)
                 {
@@ -368,6 +368,7 @@ namespace Logic
             }
 
         }
+
         public static DataTable getSellInfo(string timeFrom, string timeEnd, string type, string date, string banZhi)
         {
             try

@@ -234,19 +234,40 @@ namespace SPPSApi.Controllers.P01
                 //ip插入位置
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
                 //验证独占登录
-                if (pointtype != "PDA")
+                //如果PDA登录校验PDA下是否同时登录
+                //如果非PDA登录校验非PDA下是否同时登录
+                //记录数据库数据
+                DataTable dtSite = new P00001_Logic().getPointState_Site(opearteId, loginInfo.BaoZhuangPlace, iP);
+                if (dtSite.Rows.Count != 0)
                 {
-                    DataTable dtPointState = P00001_Logic.GetPointState(opearteId);
-                    if (dtPointState.Rows.Count > 0)
+                    DataRow[] drSite = null;
+                    if (pointtype == "PDA")
+                        drSite = dtSite.Select("vcSiteType='" + pointtype + "'");
+                    else
+                        drSite = dtSite.Select("vcSiteType<>'" + pointtype + "'");
+                    if (drSite != null && drSite.Length != 0)
                     {
-                        if (dtPointState.Rows[0]["vcPointIp"].ToString() != iP)
+                        if (drSite[0]["vcIP"].ToString() != iP)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "账号已经在" + dtPointState.Rows[0]["vcPointType"].ToString() + dtPointState.Rows[0]["vcPointNo"].ToString() + "登录";
+                            apiResult.data = "账号已经在" + drSite[0]["vcPointType"].ToString() + "-" + drSite[0]["vcPointNo"].ToString() + "登录";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                     }
                 }
+                //if (pointtype != "PDA")
+                //{
+                //    DataTable dtPointState = P00001_Logic.GetPointState(opearteId);
+                //    if (dtPointState.Rows.Count > 0)
+                //    {
+                //        if (dtPointState.Rows[0]["vcPointIp"].ToString() != iP)
+                //        {
+                //            apiResult.code = ComConstant.ERROR_CODE;
+                //            apiResult.data = "账号已经在" + dtPointState.Rows[0]["vcPointType"].ToString() + dtPointState.Rows[0]["vcPointNo"].ToString() + "登录";
+                //            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //        }
+                //    }
+                //}
                 //验证打印机
                 DataTable dtPrintName = P00001_Logic.checkPrintName(iP, pointtype);
                 bool bCheckPrint = false;
@@ -271,8 +292,56 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "该设备绑定打印机有误，请联系管理员设置。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //以IP更新箱号
+                //更新或者插入状态
+                new P00001_Logic().setPointState_Site(opearteId, loginInfo.BaoZhuangPlace, iP, pointtype, "登录");
+
                 P00001_Logic.setCaseState(iP);
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "验证账号失败!";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region hide页面操作
+        [HttpPost]
+        [EnableCors("any")]
+        public string HideAppApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            string opearteId = loginInfo.UserId;
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string pagetype = dataForm.pagetype == null ? "" : dataForm.pagetype;//页面（登录、主页、入荷、检查、包装、出荷）
+                string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
+                //凡是对于页面进行隐藏操作均视为完全退出
+                //所有功能需要添加
+                //new P00001_Logic().checkPointState(opearteId, loginInfo.BaoZhuangPlace, iP);
+                //返回值fasle继续，true需要提示并重新登录
+                //检验IP所属点位信息
+                DataTable getPoint = P00001_Logic.GetPointNo(iP);
+                if (getPoint.Rows.Count != 1)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "当前点位信息异常，请检查！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+                //更新点位在线履历
+                new P00001_Logic().setAppHide(iP, pagetype);
+
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -315,7 +384,7 @@ namespace SPPSApi.Controllers.P01
                 //更新登录状态
                 //更新点位在线履历
                 //更新箱号占用信息
-                P00001_Logic.setSysExit(iP,"主页面、检查、出荷-重新登录");
+                P00001_Logic.setSysExit(iP, "主页面、检查、出荷-重新登录");
             }
             catch (Exception ex)
             {

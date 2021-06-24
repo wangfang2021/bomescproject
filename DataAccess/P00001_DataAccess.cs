@@ -2973,7 +2973,7 @@ namespace DataAccess
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("SELECT *");
             stringBuilder.AppendLine("FROM [TPointState_Site]");
-            stringBuilder.AppendLine("WHERE [vcPlant]='" + strPlant + "' AND [vcOperater]='" + strOperater + "' AND [vcState]='登录中' and vcIP='" + strIP + "'");
+            stringBuilder.AppendLine("WHERE [vcOperater]='" + strOperater + "' AND [vcState]='登录中' and vcIP='" + strIP + "'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
             DataSet ds = new DataSet();
@@ -3004,7 +3004,7 @@ namespace DataAccess
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("SELECT *");
             stringBuilder.AppendLine("FROM [TPointState_Site]");
-            stringBuilder.AppendLine("WHERE [vcPlant]='" + strPlant + "' AND [vcOperater]='" + strOperater + "' AND [vcState]='登录中'");
+            stringBuilder.AppendLine("WHERE [vcOperater]='" + strOperater + "' AND [vcState]='登录中'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
             DataSet ds = new DataSet();
@@ -3033,14 +3033,14 @@ namespace DataAccess
         public void setPointState_Site(string strOperater, string strPlant, string strIP, string strSiteType, string strOperType)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("delete from [TPointState_Site] where [vcIP]='" + strIP + "' and vcPlant='" + strPlant + "'");
+            stringBuilder.AppendLine("delete from [TPointState_Site] where [vcIP]='" + strIP + "'");
             if (strOperType == "登录")
             {
                 stringBuilder.AppendLine("INSERT INTO [dbo].[TPointState_Site]");
                 stringBuilder.AppendLine("         ([vcPlant],[vcIP],[vcPointNo],[vcPointType],[vcSiteType],[vcState],[vcOperater],[dOperateTime])");
                 stringBuilder.AppendLine("select  vcPlant,vcPointIp,vcPointNo,vcPointType,'" + strSiteType + "' as vcSiteType,'登录中' as vcState,'" + strOperater + "' as vcOperater,GETDATE() as dOperateTime");
                 stringBuilder.AppendLine("from TPointInfo");
-                stringBuilder.AppendLine("where vcPointIp='" + strIP + "' and vcPlant='" + strPlant + "'");
+                stringBuilder.AppendLine("where vcPointIp='" + strIP + "'");
             }
             if (strOperType == "销毁")
             {

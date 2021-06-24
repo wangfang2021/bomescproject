@@ -1077,6 +1077,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "系统异常请联系管理员或退出后重新登录再试。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //2.2 检验IP所属点位信息
@@ -1087,6 +1088,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "当前点位信息异常，请检查！";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
@@ -1108,13 +1110,14 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "没有可上传的数据请确认";
-                    apiResult.type = "empty";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 if (dsInPutQBInfo.Tables[0].Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "没有可上传的数据请确认";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dtPrintName = P00001_Logic.GetPrintName(iP);
@@ -1123,6 +1126,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该点位标签打印机未进行设置，请设置后重试。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 strPrinterName = dtPrintName.Rows[0]["vcPrinterName"].ToString();
@@ -1140,12 +1144,14 @@ namespace SPPSApi.Controllers.P01
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "看板订单号" + kanbanOrderNo + "看板连番" + kanbanSerial + "品番" + partId + "已经入库";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (dsCheckDb.Tables[1].Rows.Count != 1)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在包装基础数据表中没有有效数据";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                     }
@@ -1154,24 +1160,28 @@ namespace SPPSApi.Controllers.P01
 
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在品番基础数据表中没有有效数据";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (dsCheckDb.Tables[5].Rows.Count == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在包材构成数据表中没有有效数据";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (dsCheckDb.Tables[6].Rows.Count == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在标签信息表中没有有效数据";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (dsCheckDb.Tables[9].Rows.Count != 1)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在价格中没有有效数据";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
@@ -1500,6 +1510,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "数据上传失败，请联系管理员或者重新登录再试。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //13.以上12全部OK 构内XML发送
@@ -1527,6 +1538,7 @@ namespace SPPSApi.Controllers.P01
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "更新入库数据失败";
+                    apiResult.type = "LS";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

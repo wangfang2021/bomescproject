@@ -286,6 +286,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "引取类型为空禁止操作，请检查！";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //0.检验IP所属点位信息
@@ -294,6 +295,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "当前点位信息异常，请检查！";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
@@ -306,6 +308,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "填写的器具数与DOCK总箱数不一致(箱数：" + dtBoxList.Rows.Count + "；器具数：" + caseSum + ")，请修改后重试。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dtTime = P00004_Logic.getBanZhiTime(loginInfo.BaoZhuangPlace, "1");
@@ -313,6 +316,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "班值信息获取失败，请重试。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 #endregion
@@ -325,6 +329,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "装箱数据异常，确保出荷数据准确，请联系管理员处理后再试[A]。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dtDockInfo = dsDockInfo.Tables[0];
@@ -332,6 +337,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "装箱数据异常，确保出荷数据准确，请联系管理员处理后再试[B]。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 for (int i = 0; i < dtDockInfo.Rows.Count; i++)
@@ -346,6 +352,7 @@ namespace SPPSApi.Controllers.P01
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "箱号：" + strBoxNo + "中的品番：" + strPart_id + "无有效的品番基础信息，请联系情报担当处理后再试。";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     //2.2   无有效的单价信息
@@ -354,6 +361,7 @@ namespace SPPSApi.Controllers.P01
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "箱号：" + strBoxNo + "中的品番：" + strPart_id + "无有效的单价信息，请联系情报担当处理后再试。";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     //2.3   未进行装箱处理
@@ -362,6 +370,7 @@ namespace SPPSApi.Controllers.P01
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "箱号：" + strBoxNo + "中的品番：" + strPart_id + "未进行装箱处理，请装箱后后再试。";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     //2.4   已进行出荷处理
@@ -370,6 +379,7 @@ namespace SPPSApi.Controllers.P01
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "箱号：" + strBoxNo + "已进行出荷处理，请删除箱号后再试。";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     //2.5   待出荷量不足
@@ -379,6 +389,7 @@ namespace SPPSApi.Controllers.P01
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "箱号：" + strBoxNo + "中的品番：" + strPart_id + "待出荷量不足，请联系管理员后再试。";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     //2.6   订单剩余量不足
@@ -387,6 +398,7 @@ namespace SPPSApi.Controllers.P01
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "箱号：" + strBoxNo + "中的品番：" + strPart_id + "订单剩余量不足，请联系管理员后再试。";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
@@ -437,6 +449,7 @@ namespace SPPSApi.Controllers.P01
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "收货方：" + strSHF + "；DOCK：" + strDockSell + "中的品番：" + strPart_id + "出荷总量大于订单余量，请联系管理员后再试。";
+                    apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
@@ -861,6 +874,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "数据写入数据库失败，请联系管理员后再试。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 #endregion
@@ -879,10 +893,12 @@ namespace SPPSApi.Controllers.P01
                     field = new string[] { "inv_no", "inv_date", "part_no", "part_name", "case_no", "ord_no", "item_no", "dlr_no", "qty", "price" };
                     path = P00004_Logic.DataTableToExcel(head, field, dtSellInfo, _webHostEnvironment.ContentRootPath, opearteId, "P00001", ref msg, strXSNo);
                 }
+                //path = "";
                 if (path == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "数据出荷成功，CSV文件生成异常。";
+                    apiResult.data = ".数据出荷成功，CSV文件生成异常。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 #endregion
@@ -895,7 +911,8 @@ namespace SPPSApi.Controllers.P01
                 if (dtSell_Sum.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "数据出荷成功，邮件数据异常。";
+                    apiResult.data = ".数据出荷成功，邮件数据异常。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //生成邮件体
@@ -919,6 +936,7 @@ namespace SPPSApi.Controllers.P01
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "发货失败";
+                    apiResult.type = "LS";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

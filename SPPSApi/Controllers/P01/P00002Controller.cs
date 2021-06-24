@@ -366,6 +366,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "系统异常请联系管理员或退出后重新登录再试。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable getPoint = P00001_Logic.GetPointNo(iP);
@@ -373,6 +374,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "当前点位信息缺失，请联系管理员处理。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
@@ -383,6 +385,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该看板未进行过入荷，请确认。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //3.2 是否已经经过检查
@@ -391,6 +394,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该看板已经进行过检查，请确认。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //3.3 是否有检查基础数据
@@ -399,6 +403,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该看板品番检查基础数据缺失，请确认。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //3.4 是否有检查区分
@@ -407,6 +412,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该看板品番检查频度缺失，请确认。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //3.5 在检查区分为【抽检】时是否有抽检个数
@@ -415,6 +421,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该看板品番抽检个数缺失，请确认。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 else
@@ -498,6 +505,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "NG操作失败";
+                    apiResult.type = "LS";
                 }
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
@@ -506,6 +514,7 @@ namespace SPPSApi.Controllers.P01
                 //ComMessage.GetInstance().ProcessMessage(FunctionID, "", ex, "system");
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "NG操作失败";
+                apiResult.type = "LS";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -542,6 +551,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "系统异常请联系管理员或退出后重新登录再试。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable getPoint = P00001_Logic.GetPointNo(iP);
@@ -549,6 +559,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "当前点位信息缺失，请联系管理员处理。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
@@ -559,6 +570,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该看板未进行过入荷，请确认。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //3.2 是否已经经过检查
@@ -567,6 +579,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该看板已经进行过检查，请确认。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //3.3 是否有检查基础数据
@@ -575,6 +588,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该看板品番检查基础数据缺失，请确认。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //3.4 是否有检查区分
@@ -583,6 +597,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该看板品番检查频度缺失，请确认。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //3.5 在检查区分为【抽检】时是否有抽检个数
@@ -591,6 +606,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该看板品番抽检个数缺失，请确认。";
+                    apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 else
@@ -660,6 +676,7 @@ namespace SPPSApi.Controllers.P01
                 else
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "LS";
                     apiResult.data = "OK操作失败";
                 }
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -668,6 +685,7 @@ namespace SPPSApi.Controllers.P01
             {
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "OK操作失败";
+                apiResult.type = "LS";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

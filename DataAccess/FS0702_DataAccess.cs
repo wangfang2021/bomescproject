@@ -889,7 +889,33 @@ namespace DataAccess
                         sql.AppendLine($"   dUsedTo ='" + dUserTo + "',\r\n");
                         sql.AppendLine($"   dFrom ={ComFunction.getSqlValue(dt.Rows[i]["dFrom"].ToString(), false)},\r\n");
                         sql.AppendLine($"   dTo = {ComFunction.getSqlValue(dt.Rows[i]["dTo"].ToString(), false)},\r\n");
-                        sql.AppendLine($"   vcDistinguish = {ComFunction.getSqlValue(dt.Rows[i]["vcDistinguish"], false)},\r\n");
+                        switch (dt.Rows[i]["vcDistinguish"].ToString().Substring(0, 1))
+                        {
+                            case "1":
+                                sql.AppendLine(" vcDistinguish ='1:个装',\r\n");
+                                break;
+                            case "2":
+                                sql.AppendLine(" vcDistinguish ='2:内装',\r\n");
+                                break;
+                            case "3":
+                                sql.AppendLine(" vcDistinguish ='3:外装',\r\n");
+                                break;
+                            case "4":
+                                sql.AppendLine(" vcDistinguish ='4:防锈',\r\n");
+                                break;
+                            case "5":
+                                sql.AppendLine(" vcDistinguish ='5:取说',\r\n");
+                                break;
+                            case "6":
+                                sql.AppendLine(" vcDistinguish ='6:双层包装',\r\n");
+                                break;
+                            default:
+                                sql.AppendLine(" vcDistinguish = '',\r\n");
+                                break;
+                        }
+
+
+                       // sql.AppendLine($"   vcDistinguish = {ComFunction.getSqlValue(dt.Rows[i]["vcDistinguish"], false)},\r\n");
                         if (dt.Rows[i]["iBiYao"].ToString() == "")
                         {
                             sql.AppendLine("   iBiYao = NULL,\r\n");

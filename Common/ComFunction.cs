@@ -1631,7 +1631,7 @@ namespace Common
                 MMge.From = new MailAddress(strUserEmail, strUserName, Encoding.UTF8);
 
                 //清除MMge
-                MMge.To.Clear();          //收件
+                MMge.To.Clear();//收件
                 MMge.Attachments.Clear(); //附件
                 //添加发件人
                 for (var i = 0; i < receiverDt.Rows.Count; i++)

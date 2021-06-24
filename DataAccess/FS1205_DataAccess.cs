@@ -59,30 +59,30 @@ namespace DataAccess
             for (int i = 1; i < 31 + 1; i++)
             {
                 if (i == 31)
-                    tmpE += "t2.vcD" + i + "b   as  ED" + i + "b,	t2.	vcD" + i + "y 	as	ED" + i + "y";
-                else tmpE += "t2.vcD" + i + "b 	as 	ED" + i + "b,	t2.vcD" + i + "y 	as	ED" + i + "y,";
+                    tmpE += "t2.vcD" + i + "b as ED" + i + "b,t2.vcD" + i + "y as ED" + i + "y";
+                else tmpE += "t2.vcD" + i + "b as ED" + i + "b,	t2.vcD" + i + "y as	ED" + i + "y,";
             }
             double daynum2 = (tim - tim.AddMonths(-1)).TotalDays;
             for (int i = 1; i < 31 + 1; i++)
             {
                 if (i == 31)
-                    tmpT += "t1.vcD" + i + "b as	TD" + i + "b,	t1.vcD" + i + "y 	as	TD" + i + "y";
-                else tmpT += "t1.vcD" + i + "b 	as	TD" + i + "b,	t1.vcD" + i + "y 	as	TD" + i + "y,";
+                    tmpT += "t1.vcD" + i + "b as TD" + i + "b, t1.vcD" + i + "y as TD" + i + "y";
+                else tmpT += "t1.vcD" + i + "b as TD" + i + "b,t1.vcD" + i + "y as TD" + i + "y,";
             }
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("    select t2.vcMonth ,t5.vcData2 as vcPlant, SUBSTRING(t2.vcPartsno,0,6)+'-'+SUBSTRING(t2.vcPartsno,6,5)+'-'+SUBSTRING(t2.vcPartsno,11,2) as vcPartsno ,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
+            sb.AppendLine("    select t2.vcMonth,t5.vcData2 as vcPlant, SUBSTRING(t2.vcPartsno,0,6)+'-'+SUBSTRING(t2.vcPartsno,6,5)+'-'+SUBSTRING(t2.vcPartsno,11,2) as vcPartsno ,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
             sb.AppendLine("   t3.vcPartNameCN as vcPartsNameCHN, t4.vcProName1 as vcProject1,t3.vcProType+'-'+t3.vcZB as vcProjectName, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal as vcMonTotal ,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("  from ( select  * from {0} where montouch is not null) t1 ", tablename);
+            sb.AppendFormat("  from ( select * from {0} where montouch is not null) t1 ", tablename);
             sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
             sb.AppendLine("  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
             sb.AppendLine("  left join (");
             sb.AppendLine("             select distinct vcMonth,vcPartNameCN,vcZB,s2.vcName as vcHJ,vcDock,vcCarType,vcPartsNo,vcProType,vcPlant,vcEDFlag from tPlanPartInfo s1 ");
             sb.AppendLine("             left join (select vcName, vcValue from tcode where vcCodeId='C004') s2 ");
-            sb.AppendLine("             on s1.vcHJ=s2.vcValue ");
+            sb.AppendLine("             on s1.vcHJ=s2.vcValue where s1.vcPartNameCN='w' ");
             sb.AppendLine("             ) t3 ");
-            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarType = t2.vcCarType and  t3.vcMonth = '" + mon + "' ");
+            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarType=t2.vcCarType and t3.vcMonth='" + mon + "' ");
             sb.AppendLine("  left join ProRuleMst t4");
             sb.AppendLine("  on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
             sb.AppendLine(" left join (select vcData1 ,vcData2 from ConstMst where vcDataId ='kbplant') t5");

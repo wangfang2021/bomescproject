@@ -1663,6 +1663,7 @@ namespace Common
             catch (Exception ex)
             {
                 MMge.Dispose();
+                ComMessage.GetInstance().ProcessMessage("邮件发送", "M11PE0201", ex, strUserName);
                 return "Error";
             }
             finally

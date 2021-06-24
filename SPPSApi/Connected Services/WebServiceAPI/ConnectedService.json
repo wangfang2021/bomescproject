@@ -6,7 +6,7 @@
   },
   "ExtendedData": {
     "inputs": [
-      "http://172.23.180.116:25011/WebServiceAPI.asmx"
+      "http://172.23.180.116:25012/WebServiceAPI.asmx"
     ],
     "collectionTypes": [
       "System.Array",

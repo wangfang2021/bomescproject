@@ -259,16 +259,23 @@ namespace SPPSApi.Controllers.G07
 
                 for (int s = 0; s < dt.Rows.Count; s++)
                 {
-                    if (string.IsNullOrEmpty(dt.Rows[s]["vcPackNo"].ToString())) {
+                    if (string.IsNullOrEmpty(dt.Rows[s]["vcPackNo"].ToString()))
+                    {
 
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = dt.Rows[s]["vcPartsno"].ToString()+ "没有维护完整！";
+                        apiResult.data = dt.Rows[s]["vcPartsno"].ToString() + "没有维护完整！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
 
+                if (dt.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "无计算数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
-                FS0707_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorName, strBegin, strEnd);
+                }
+                FS0707_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorName, strBegin, strEnd, OrderState);
 
                 DataTable dt2 = FS0707_Logic.Search();
                 for (int t = 0; t < dt2.Rows.Count; t++)
@@ -433,9 +440,10 @@ namespace SPPSApi.Controllers.G07
                             fieldsData[4 + x] = "vcD" + i + "yF";
                             x++;
                         }
-                        
+
                     }
-                    for (int j = 1; j <= 31; j++) {
+                    for (int j = 1; j <= 31; j++)
+                    {
 
                         if (dt.Rows[0]["vcD" + j + "bTShow"].ToString() == "true")
                         {
@@ -590,7 +598,8 @@ namespace SPPSApi.Controllers.G07
                 OrderState = dataForm.SupplierCode.ToObject<List<Object>>();
                 List<Object> OrderPartPlant = new List<object>();
                 OrderPartPlant = dataForm.PartPlant.ToObject<List<Object>>();
-                if (OrderState.Count==0) {
+                if (OrderState.Count == 0)
+                {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "请选择供应商！";
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
@@ -605,7 +614,8 @@ namespace SPPSApi.Controllers.G07
 
                     dt.Rows[t]["vcNum"] = (t + 1).ToString();
                 }
-                if (dt.Rows.Count==0) {
+                if (dt.Rows.Count == 0)
+                {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "请重新计算";
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
@@ -617,7 +627,7 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "请导出再发送！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                FS0707_Logic.Save(dt,loginInfo.UserId, ref strErrorPartId,strBegin, strEnd, strFromBeginBZ, strFromEndBZ, strKind, OrderState);
+                FS0707_Logic.Save(dt, loginInfo.UserId, ref strErrorPartId, strBegin, strEnd, strFromBeginBZ, strFromEndBZ, strKind, OrderState);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

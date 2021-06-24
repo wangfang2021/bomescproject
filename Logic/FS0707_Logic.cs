@@ -81,9 +81,9 @@ namespace Logic
         #endregion
 
         #region 保存
-        public void Save_GS(DataTable listInfoData, string strUserId, ref string strErrorName,string strBegin,string strEnd)
+        public void Save_GS(DataTable listInfoData, string strUserId, ref string strErrorName,string strBegin,string strEnd, List<Object> OrderState)
         {
-            FS0707_DataAccess.Save_GS(listInfoData, strUserId, ref strErrorName, strBegin, strEnd);
+            FS0707_DataAccess.Save_GS(listInfoData, strUserId, ref strErrorName, strBegin, strEnd,OrderState);
         }
 
         #endregion

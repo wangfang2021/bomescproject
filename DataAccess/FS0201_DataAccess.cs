@@ -54,6 +54,7 @@ namespace DataAccess
         {
             try
             {
+
                 //DataTable ChangeList = getChange();
                 //存储SPI
                 StringBuilder sbr = new StringBuilder();
@@ -82,8 +83,14 @@ namespace DataAccess
                     string vcSheetName = dt.Rows[i]["vcSheetName"].ToString();
                     string vcFileName = dt.Rows[i]["vcFileName"].ToString();
 
-                    sbr.Append(" INSERT INTO TSPIList(vcSPINo,vcPart_Id_old,vcPart_Id_new,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcChange,vcOldProj,vcOldProjTime,vcNewProj,vcNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcOperatorId,dOperatorTime) \r\n");
-                    sbr.Append(" VALUES( '" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcChange + "','" + vcOldProj + "','" + vcOldProjTime + "','" + vcNewProj + "','" + vcNewProjTime + "','" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + userId + "',GETDATE()) \r\n");
+                    sbr.Append(
+                        " INSERT INTO TSPIList(vcSPINo,vcPart_Id_old,vcPart_Id_new,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcChange,vcOldProj,vcOldProjTime,vcNewProj,vcNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcOperatorId,dOperatorTime) \r\n");
+                    sbr.Append(" VALUES( '" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "','" +
+                               vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" +
+                               vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcChange + "','" +
+                               vcOldProj + "','" + vcOldProjTime + "','" + vcNewProj + "','" + vcNewProjTime + "','" +
+                               vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" +
+                               userId + "',GETDATE()) \r\n");
 
                 }
 
@@ -93,6 +100,7 @@ namespace DataAccess
                 {
                     fileList.Add(dt.Rows[i]["vcFileName"].ToString());
                 }
+
                 fileList = fileList.Distinct().ToList();
                 for (int i = 0; i < fileList.Count; i++)
                 {
@@ -111,6 +119,7 @@ namespace DataAccess
             {
                 throw ex;
             }
+
         }
         #endregion
 
@@ -545,8 +554,56 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.Append("SELECT distinct vcFileName FROM TSPIList");
+                //sbr.Append("SELECT distinct vcFileName FROM TSPIList");
+                sbr.AppendLine("SELECT DISTINCT vcFileName FROM TSPIList");
+                sbr.AppendLine("UNION");
+                sbr.AppendLine("SELECT DISTINCT vcFileName FROM dbo.TSBManager");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region 获取上传状态
+
+        public bool getState()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcValue1 FROM TOutCode WHERE vcCodeId = 'C060' AND vcIsColum = '0'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                string flag = dt.Rows[0]["vcValue1"].ToString();
+                if (flag.Equals("0"))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region 修改上传状态
+
+        public void updateState(int flag)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("UPDATE TOutCode SET vcValue1='"+flag+"' WHERE vcCodeId = 'C060' AND vcIsColum = '0'");
+                excute.ExcuteSqlWithStringOper(sbr.ToString());
             }
             catch (Exception ex)
             {

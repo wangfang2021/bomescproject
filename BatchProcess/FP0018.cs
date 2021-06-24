@@ -55,7 +55,7 @@ namespace BatchProcess
             try
             {
                 DataTable dt = new DataTable();
-                string dtimenow = DateTime.Now.ToString("yyyy-MM-dd");
+                string dtimenow = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 StringBuilder sql = new StringBuilder();
                 sql.Append("  select   distinct      \n");
                 sql.Append("           temp.[vcPartsNo]                    \n");
@@ -299,8 +299,8 @@ namespace BatchProcess
 
                     sql.Append("   ) values  \n");
                     sql.Append("   ( \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["vcPartsNo"].ToString() + "',  \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["vcPackNo"].ToString() + "' ,  \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["vcPartsNo"].ToString().TrimEnd() + "',  \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["vcPackNo"].ToString().TrimEnd() + "' ,  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["vcPackGPSNo"].ToString() + "',    \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["vcShouhuofangID"].ToString() + "',   \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["vcCar"].ToString() + "',  \n");

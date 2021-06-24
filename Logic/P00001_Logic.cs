@@ -23,15 +23,6 @@ namespace Logic
             return P00001_DataAccess.GetUserRole(opearteId);
         }
 
-        public static DataTable GetPrint1(string iP)
-        {
-            return P00001_DataAccess.GetPrint1(iP);
-        }
-
-        public static DataTable GetPrint(string iP)
-        {
-            return P00001_DataAccess.GetPrint(iP);
-        }
 
         public static DataTable ValidateOpr2(string inno)
         {
@@ -43,10 +34,6 @@ namespace Logic
             return P00001_DataAccess.ValidateOpr1(inno);
         }
 
-        public static DataTable ValidateUser(string opearteId)
-        {
-            return P00001_DataAccess.ValidateUser(opearteId);
-        }
 
         public static DataTable GetPackQuantity(string inno)
         {
@@ -71,7 +58,7 @@ namespace Logic
 
         public static void DeleteTrolley(string trolley, string iP, string lotId)
         {
-             P00001_DataAccess.DeleteTrolley(trolley, iP, lotId);
+            P00001_DataAccess.DeleteTrolley(trolley, iP, lotId);
         }
 
         public static DataTable GetQuantity(string partId, string scanTime, string dock)
@@ -79,51 +66,28 @@ namespace Logic
             return P00001_DataAccess.GetQuantity(partId, scanTime, dock);
         }
 
-        public static DataTable GetSeqNo(string tmpString, string formatServerTime)
-        {
-            return P00001_DataAccess.GetSeqNo(tmpString, formatServerTime);
-        }
 
-        public static void InsertSeqNo(string tmpString, string formatServerTime)
-        {
-             P00001_DataAccess.InsertSeqNo(tmpString, formatServerTime);
-        }
 
         public static void InsertTrolley1(string seqNo, string trolley, string iP, string opearteId, string serverTime)
         {
-             P00001_DataAccess.InsertTrolley1(seqNo, trolley, iP, opearteId, serverTime);
+            P00001_DataAccess.InsertTrolley1(seqNo, trolley, iP, opearteId, serverTime);
         }
 
-        public static void UpdateSeqNo(string tmpString, string formatServerTime, int seqNoNew)
-        {
-             P00001_DataAccess.UpdateSeqNo(tmpString, formatServerTime, seqNoNew);
 
-        }
 
         public static DataTable GetTrolley(string opearteId, string iP)
         {
             return P00001_DataAccess.GetTrolley(opearteId, iP);
         }
 
-        public static DataTable GetDetail(string pointNo)
-        {
-            return P00001_DataAccess.GetDetail(pointNo);
-        }
+
 
         public static DataTable GetTrolleyInfo(string trolley, string iP, string lotId)
         {
             return P00001_DataAccess.GetTrolleyInfo(trolley, iP, lotId);
         }
 
-        public static void UpdateDetail(string uuid, string serverTime)
-        {
-            P00001_DataAccess.UpdateDetail(uuid, serverTime);
-        }
 
-        public static void UpdateStatus5(string pointNo)
-        {
-            P00001_DataAccess.UpdateStatus5(pointNo);
-        }
 
         public static DataTable GetBanZhi(string serverTime)
         {
@@ -138,12 +102,12 @@ namespace Logic
 
         public static void InsertDetail(string date, string banZhi, string pointNo, string uuid, string serverTime, string opearteId)
         {
-           P00001_DataAccess.InsertDetail(date, banZhi, pointNo, uuid, serverTime, opearteId);
+            P00001_DataAccess.InsertDetail(date, banZhi, pointNo, uuid, serverTime, opearteId);
         }
 
         public static void UpdateStatus3(string pointNo)
         {
-             P00001_DataAccess.UpdateStatus3(pointNo);
+            P00001_DataAccess.UpdateStatus3(pointNo);
         }
 
 
@@ -159,7 +123,7 @@ namespace Logic
 
         public static void UpdateStatus(string opearteId, string iP, string pointNo)
         {
-             P00001_DataAccess.UpdateStatus(opearteId, iP, pointNo);
+            P00001_DataAccess.UpdateStatus(opearteId, iP, pointNo);
         }
 
         public static DataTable GetKanBan(string iP, string trolley, string trolleySeqNo)
@@ -191,7 +155,7 @@ namespace Logic
 
         public static void InsertSeqNo(string packingSpot, string serverTime, string tmpString)
         {
-             P00001_DataAccess.InsertSeqNo(packingSpot, serverTime, tmpString);
+            P00001_DataAccess.InsertSeqNo(packingSpot, serverTime, tmpString);
         }
 
         public static int UpdateSeqNo(string packingSpot, string serverTime, int seqNoNew, string tmpString)
@@ -199,10 +163,7 @@ namespace Logic
             return P00001_DataAccess.UpdateSeqNo(packingSpot, serverTime, seqNoNew, tmpString);
         }
 
-        public static void UpdateCase(string iP)
-        {
-             P00001_DataAccess.UpdateCase(iP);
-        }
+
 
 
         public static void UpdateQB(string lotId, string iP, string trolley)
@@ -230,14 +191,11 @@ namespace Logic
 
         public static void UpdatePoint1(string pointNo)
         {
-             P00001_DataAccess.UpdatePoint1(pointNo);
+            P00001_DataAccess.UpdatePoint1(pointNo);
         }
 
 
-        public static DataTable GetPointType(string pointNo)
-        {
-            return P00001_DataAccess.GetPointType(pointNo);
-        }
+
 
         public static DataTable ValidateQB(string trolley)
         {
@@ -280,7 +238,7 @@ namespace Logic
 
         public static void UpdateTrolley1(string iP, string opearteId, string trolley, string lotId)
         {
-             P00001_DataAccess.UpdateTrolley1(iP, opearteId, trolley, lotId);
+            P00001_DataAccess.UpdateTrolley1(iP, opearteId, trolley, lotId);
         }
 
 
@@ -306,20 +264,17 @@ namespace Logic
 
 
 
-        public static DataTable GetPointNo(string iP)
-        {
-            return P00001_DataAccess.GetPointNo(iP);
-        }
 
 
-       
+
+
         public static DataTable GetSeqNo1(string iP, string kanbanOrderNo, string kanbanSerial, string dock, string partId)
         {
             return P00001_DataAccess.GetSeqNoSql(iP, kanbanOrderNo, kanbanSerial, dock, partId);
 
         }
 
-      
+
         public static DataTable GetSeqNo2(string iP, string kanbanOrderNo, string kanbanSerial, string dock, string partId)
         {
             return P00001_DataAccess.GetSeqNo2(iP, kanbanOrderNo, kanbanSerial, dock, partId);
@@ -337,17 +292,55 @@ namespace Logic
 
         public static void UpdateTrolley3(string trolley, string trolleySeqNo, string iP)
         {
-           P00001_DataAccess.UpdateTrolley3(trolley, trolleySeqNo, iP);
+            P00001_DataAccess.UpdateTrolley3(trolley, trolleySeqNo, iP);
         }
 
         //========================================================================重写========================================================================
+        public static DataTable GetPointNo(string iP)
+        {
+            return P00001_DataAccess.GetPointNo(iP);
+        }
+        public static DataTable checkPrintName(string iP, string strPointType)
+        {
+            return P00001_DataAccess.checkPrintName(iP, strPointType);
+        }
+        public static void setCaseState(string strIP)
+        {
+            P00001_DataAccess.setCaseState(strIP);
+        }
+        public static DataTable GetPointState(string strOperater)
+        {
+            return P00001_DataAccess.GetPointState(strOperater);
+        }
+        public static void setSysExit(string strIP, string strType)
+        {
+            try
+            {
+                P00001_DataAccess.setSysExit(strIP, strType);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setAppHide(string strIP, string strPage)
+        {
+            try
+            {
+                P00001_DataAccess.setAppHide(strIP, strPage);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public static DataSet getCheckQBandSJInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packingSpot, string scanTime, string strType)
         {
             return P00001_DataAccess.getCheckQBandSJInfo(partId, kanbanOrderNo, kanbanSerial, dock, packingSpot, scanTime, strType);
         }
         public static void Insert(string trolley, string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial, string scanTime, String iP, string serverTime, string cpdCompany, string inno, string opearteId, string packingSpot, string packQuantity, string lblSart, string lblEnd, string supplierId, string supplierPlant, string trolleySeqNo, string inoutFlag, string kanBan)
         {
-             P00001_DataAccess.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packQuantity, lblSart, lblEnd, supplierId, supplierPlant, trolleySeqNo, inoutFlag, kanBan);
+            P00001_DataAccess.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packQuantity, lblSart, lblEnd, supplierId, supplierPlant, trolleySeqNo, inoutFlag, kanBan);
         }
         public static DataSet getInputInfoFromDB(string strIP, string serverTime)
         {
@@ -393,6 +386,42 @@ namespace Logic
         public static DataTable GetPrintName(string iP)
         {
             return P00001_DataAccess.GetPrintName(iP);
+        }
+        public bool checkPointState(string strOperater, string strPlant, string strIP)
+        {
+            try
+            {
+                DataTable dataTable = P00001_DataAccess.checkPointState(strOperater, strPlant, strIP);
+                if (dataTable.Rows.Count == 0)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getPointState_Site(string strOperater, string strPlant, string strIP)
+        {
+            try
+            {
+                return P00001_DataAccess.getPointState_Site(strOperater, strPlant, strIP);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setPointState_Site(string strOperater, string strPlant, string strIP, string strSiteType, string strOperType)
+        {
+            try
+            {
+                P00001_DataAccess.setPointState_Site(strOperater, strPlant, strIP, strSiteType, strOperType);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

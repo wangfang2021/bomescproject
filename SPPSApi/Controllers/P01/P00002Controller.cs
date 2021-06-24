@@ -212,7 +212,7 @@ namespace SPPSApi.Controllers.P01
                 string kanbanOrderNo = dataForm.KanbanOrderNo == null ? "" : dataForm.KanbanOrderNo;//看板订单号
                 string kanbanSerial = dataForm.KanbanSerial == null ? "" : dataForm.KanbanSerial;//看板连番
                 string scanTime = dataForm.ScanTime == null ? "" : dataForm.ScanTime;//客户端时间
-                //2.必要录入字段的校验
+                                                                                     //2.必要录入字段的校验
                 DataTable dtCheckInfo = P00002_Logic.getCheckInfo(partId, kanbanOrderNo, kanbanSerial, dock, scanTime);
                 //2.1 是否已经入荷
                 if (dtCheckInfo.Rows.Count == 0)
@@ -350,7 +350,7 @@ namespace SPPSApi.Controllers.P01
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 //1.从前台接数据and定义变量
                 string partId = dataForm.PartId == null ? "" : dataForm.PartId;//品番
-                string quantity = dataForm.Quantity == null ? "" : dataForm.Quantity;//数量
+                string quantity = dataForm.Quantity == null ? "" : Convert.ToInt32(dataForm.Quantity).ToString();//数量
                 string dock = dataForm.Dock == null ? "" : dataForm.Dock;//受入
                 string kanbanOrderNo = dataForm.KanbanOrderNo == null ? "" : dataForm.KanbanOrderNo;//看板订单号
                 string kanbanSerial = dataForm.KanbanSerial == null ? "" : dataForm.KanbanSerial;//看板连番
@@ -421,7 +421,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     if (strCheckP == "全检")
                         strSpotQty = quantity;
-                    else
+                    if (strCheckP == "免检")
                         strSpotQty = "0";
                 }
                 //4.收集上传数据
@@ -529,7 +529,7 @@ namespace SPPSApi.Controllers.P01
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 //1.从前台接数据and定义变量
                 string partId = dataForm.PartId == null ? "" : dataForm.PartId;//品番
-                string quantity = dataForm.Quantity == null ? "" : dataForm.Quantity;//数量
+                string quantity = dataForm.Quantity == null ? "" : Convert.ToInt32(dataForm.Quantity).ToString();//数量
                 string dock = dataForm.Dock == null ? "" : dataForm.Dock;//受入
                 string kanbanOrderNo = dataForm.KanbanOrderNo == null ? "" : dataForm.KanbanOrderNo;//看板订单号
                 string kanbanSerial = dataForm.KanbanSerial == null ? "" : dataForm.KanbanSerial;//看板连番
@@ -537,7 +537,7 @@ namespace SPPSApi.Controllers.P01
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
                 string value = dataForm.value == null ? "" : dataForm.value;//检查结果
-                //2.获取点位IP并获得点位名称
+                                                                            //2.获取点位IP并获得点位名称
                 if (iP == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -597,7 +597,7 @@ namespace SPPSApi.Controllers.P01
                 {
                     if (strCheckP == "全检")
                         strSpotQty = quantity;
-                    else
+                    if (strCheckP == "免检")
                         strSpotQty = "0";
                 }
                 //4.收集上传数据

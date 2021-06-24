@@ -18,29 +18,9 @@ namespace Logic
         static P00003_DataAccess P00003_DataAccess = new P00003_DataAccess();
 
 
-
-
-
-
-        public DataTable ValidateOpr(string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial)
-        {
-            return P00003_DataAccess.ValidateOpr(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
-        }
-
-        public DataTable ValidateInv(string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial)
-        {
-            return P00003_DataAccess.ValidateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
-        }
-
         public static DataTable GetPackData(string partId, string scanTime)
         {
             return P00003_DataAccess.GetPackData(partId, scanTime);
-        }
-
-        public static DataTable ValidateCaseNo(string caseNo)
-        {
-            return P00003_DataAccess.ValidateCaseNo(caseNo);
-
         }
 
         public int UpdateCase1(string opearteId, string iP)
@@ -48,31 +28,9 @@ namespace Logic
             return P00003_DataAccess.UpdateCase1(opearteId, iP);
         }
 
-
-
-        public DataTable GetCaseList(string iP, string caseNo)
-        {
-            return P00003_DataAccess.GetCaseList(iP, caseNo);
-        }
-
-        public DataTable GetCaseList(string opearteId)
-        {
-            return P00003_DataAccess.GetCaseList(opearteId);
-        }
-
-        public DataTable ValidateSJ(string partId, string dock, string kanbanOrderNo, string kanbanSerial)
-        {
-            return P00003_DataAccess.ValidateSJ(partId, dock, kanbanOrderNo, kanbanSerial);
-        }
-
         public DataTable GetUserRole(string user)
         {
             return P00003_DataAccess.GetUserRole(user);
-        }
-
-        public DataTable ValidateSJ1(string partId, string dock, string kanbanOrderNo, string kanbanSerial)
-        {
-            return P00003_DataAccess.ValidateSJ1(partId, dock, kanbanOrderNo, kanbanSerial);
         }
 
         public DataTable GetPoint(string iP)
@@ -340,19 +298,9 @@ namespace Logic
             return P00003_DataAccess.GetStanTime();
         }
 
-        public DataTable GetCaseNo(string iP)
-        {
-            return P00003_DataAccess.GetCaseNo(iP);
-        }
-
         public DataTable GetStatus2(string iP, string opearteId)
         {
             return P00003_DataAccess.GetStatus2(iP, opearteId);
-        }
-
-        public int UpdateCase2(string caseNo, string serverTime)
-        {
-            return P00003_DataAccess.UpdateCase2(caseNo, serverTime);
         }
 
         public int UpdateStatus4(string pointNo, string opearteId)
@@ -380,211 +328,19 @@ namespace Logic
             return P00003_DataAccess.InsertFre(time, formatDate, effiEncy, opearteId, serverTime, iP, date, banZhi);
         }
 
-        public DataTable GetCheckType(string partId, string scanTime, string supplier_id)
-        {
-            return P00003_DataAccess.GetCheckType(partId, scanTime, supplier_id);
-        }
-
         public int UpdateFre(string time, string serverTime, string formatDate, string opearteId)
         {
             return P00003_DataAccess.UpdateFre(time, serverTime, formatDate, opearteId);
         }
-
-        public int InsertTP(string iP, string opearteId, string serverTime, string caseNo)
-        {
-            return P00003_DataAccess.InsertTP(iP, opearteId, serverTime, caseNo);
-        }
-
-        public DataTable ValidateData1(string partId, string scanTime)
-        {
-            return P00003_DataAccess.ValidateData1(partId, scanTime);
-        }
-
-        public DataTable GetPackInfo(string partId, string scanTime, string packingQuatity, string quantity)
-        {
-            return P00003_DataAccess.GetPackInfo(partId, scanTime, packingQuatity, quantity);
-        }
-
-        public int UpdateCase(string count, string sum, string caseNo)
-        {
-            return P00003_DataAccess.UpdateCase(count, sum, caseNo);
-        }
-
-        public static int InsertOpr(string bzPlant, string inputNo, string kanbanOrderNo, string kanbanSerial, string partId, string inoutFlag, string supplier_id, string supplierGQ, string scanTime, string serverTime, string quantity, string bZUnit, string sHF, string dock, string checkType, string labelStart, string labelEnd, string checkStatus, string opearteId, string timeStart, string timeEnd, string iP, string pointType)
-        {
-            return P00003_DataAccess.InsertOpr(bzPlant, inputNo, kanbanOrderNo, kanbanSerial, partId, inoutFlag, supplier_id, supplierGQ, scanTime, serverTime, quantity, int.Parse(bZUnit), sHF, dock, checkType, labelStart, labelEnd, checkStatus, opearteId, timeStart, timeEnd, iP, pointType);
-        }
-
-        public int UpdateFre1(int totalTime, string opearteId, string formatDate)
-        {
-            return P00003_DataAccess.UpdateFre1(totalTime, opearteId, formatDate);
-        }
-
-        public DataTable ValidateOpr1(string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial)
-        {
-            return P00003_DataAccess.ValidateOpr1(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
-        }
-
-        public static int UpdateInv(string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial, string scanTime, string serverTime, string opearteId)
-        {
-            return P00003_DataAccess.UpdateInv(partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, serverTime, opearteId);
-        }
-
-
-
-
-
-
-
-        public int UpdateCase(string opearteId, string caseNo)
-        {
-            return P00003_DataAccess.UpdateCase(opearteId, caseNo);
-        }
-
-        public DataTable ValidateCaseNo3(string caseNo)
-        {
-            return P00003_DataAccess.ValidateCaseNo3(caseNo);
-        }
-
-        public DataTable ValidateCaseNo2(string caseNo)
-        {
-            return P00003_DataAccess.ValidateCaseNo2(caseNo);
-        }
-
-        public DataTable ValidateCaseNo1(string caseNo)
-        {
-            return P00003_DataAccess.ValidateCaseNo1(caseNo);
-        }
-
-
-
-        public int UpdateCaseInfo(string caseNo, string opearteId, string iP, string serverTime)
-        {
-            return P00003_DataAccess.UpdateCaseInfo(caseNo, opearteId, iP, serverTime);
-        }
-
-        public int InsertCaseInfo(string caseNo, string opearteId, string iP, string serverTime)
-        {
-            return P00003_DataAccess.InsertCaseInfo(caseNo, opearteId, iP, serverTime);
-        }
-
-
-
-
-
-
-
-
-
-
 
         public static DataTable GetPM(string dock, string partId)
         {
             return P00003_DataAccess.GetPM(dock, partId);
         }
 
-
-
         public static DataTable GetData(string partId, string dock, string kanbanOrderNo, string kanbanSerial)
         {
             return P00003_DataAccess.GetData(partId, dock, kanbanOrderNo, kanbanSerial);
-        }
-
-        public static DataTable ValidateOpr2(string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial)
-        {
-            return P00003_DataAccess.ValidateOpr2(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
-        }
-
-        public DataTable ValidateOpr3(string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial)
-        {
-            return P00003_DataAccess.ValidateOpr3(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
-        }
-
-        public int InsertSj(string supplierId, string supplierPlant, string packingQuantity, string checkType, string lblStart, string lblEnd, string inOutFlag, string checkStatus, string packingSpot, string inputNo, string checkNum, string partId, string kanbanOrderNo, string kanbanSerial, string dock, string opearteId, string scanTime, string serverTime, string iP, string sHF, string quantity1, string caseNo, string pointType)
-        {
-            return P00003_DataAccess.InsertSj(supplierId, supplierPlant, packingQuantity, checkType, lblStart, lblEnd, inOutFlag, checkStatus, packingSpot, inputNo, checkNum, partId, kanbanOrderNo, kanbanSerial, dock, opearteId, scanTime, serverTime, iP, sHF, quantity1, caseNo, pointType);
-        }
-
-        public DataTable ValidateSJ2(string partId, string dock, string kanbanOrderNo, string kanbanSerial)
-        {
-            return P00003_DataAccess.ValidateSJ2(partId, dock, kanbanOrderNo, kanbanSerial);
-        }
-
-        public DataTable GetStatus1(string iP, string opearteId)
-        {
-            return P00003_DataAccess.GetStatus1(iP, opearteId);
-        }
-
-        public int UpdateCase3(string caseNo)
-        {
-            return P00003_DataAccess.UpdateCase3(caseNo);
-        }
-
-        public int UpdateStatus3(string pointNo, string opearteId)
-        {
-            return P00003_DataAccess.UpdateStatus3(pointNo, opearteId);
-        }
-
-        public DataTable GetCase1(string caseNo)
-        {
-            return P00003_DataAccess.GetCase1(caseNo);
-        }
-
-        public DataTable ValidateInv1(string partId, string kanbanOrderNo, string kanbanSerial)
-        {
-            return P00003_DataAccess.ValidateInv1(partId, kanbanOrderNo, kanbanSerial);
-        }
-
-        public int UpdateInv1(string partId, string kanbanOrderNo, string kanbanSerial, string quantity)
-        {
-            return P00003_DataAccess.UpdateInv1(partId, kanbanOrderNo, kanbanSerial, quantity);
-        }
-
-        public DataTable GetPartsName(string scanTime, string partId)
-        {
-            return P00003_DataAccess.GetPartsName(scanTime, partId);
-        }
-
-
-
-        public int InsertSj1(string supplier_id, string supplierGQ, string bZUnit, string checkType, string labelStart, string labelEnd, string inoutFlag, string checkStatus, string bzPlant, string inputNo, string quantity, string partId, string kanbanOrderNo, string kanbanSerial, string dock, string opearteId, string scanTime, string serverTime, string iP, string sHF, string caseNo)
-        {
-            return P00003_DataAccess.InsertSj1(supplier_id, supplierGQ, bZUnit, checkType, labelStart, labelEnd, inoutFlag, checkStatus, bzPlant, inputNo, quantity, partId, kanbanOrderNo, kanbanSerial, dock, opearteId, scanTime, serverTime, iP, sHF, caseNo);
-        }
-
-        public int InsertCase(string sHF, string cpdName, string cpdAddress, string caseNo, string inputNo, string partId, string quantity, string partsName, string opearteId, string serverTime, string iP, byte[] vs, string labelStart, string labelEnd)
-        {
-            return P00003_DataAccess.InsertCase(sHF, cpdName, cpdAddress, caseNo, inputNo, partId, quantity, partsName, opearteId, serverTime, iP, vs, labelStart, labelEnd);
-        }
-
-        public DataTable ValidateOpr4(string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial)
-        {
-            return P00003_DataAccess.ValidateOpr4(quantity, dock, kanbanOrderNo, kanbanSerial, partId);
-        }
-
-        public int InsertTP1(string iP, string opearteId, string serverTime, string inputNo, string printName)
-        {
-            return P00003_DataAccess.InsertTP1(iP, opearteId, serverTime, inputNo, printName);
-        }
-
-        public DataTable GetInputQuantity(string kanbanOrderNo, string kanbanSerial, string partId, string dock)
-        {
-            return P00003_DataAccess.GetInputQuantity(kanbanOrderNo, kanbanSerial, partId, dock);
-        }
-
-        public DataTable ValidateCaseNo4(string caseNo)
-        {
-            return P00003_DataAccess.ValidateCaseNo4(caseNo);
-        }
-
-        public DataTable ValidateOpr5(string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial)
-        {
-            return P00003_DataAccess.ValidateOpr5(partId, quantity, dock, kanbanOrderNo, kanbanSerial);
-        }
-
-        public DataTable ValidateTime(string partId, string dock)
-        {
-            return P00003_DataAccess.ValidateTime(partId, dock);
         }
 
         public DataTable GetCase(string opearteId)
@@ -592,79 +348,9 @@ namespace Logic
             return P00003_DataAccess.GetCase(opearteId);
         }
 
-        public int UpdateEffi(string formatDate, double effiencyNew, string opearteId, string serverTime)
-        {
-            return P00003_DataAccess.UpdateEffi(formatDate, effiencyNew, opearteId, serverTime);
-        }
-
-        public DataTable ValidateEffi(string opearteId, string formatDate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int UpdateTime(string formatDate, int totalTime, string opearteId)
-        {
-            return P00003_DataAccess.UpdateTime(formatDate, totalTime, opearteId);
-        }
-
-        public DataTable GetCaseList1(string caseNo)
-        {
-            return P00003_DataAccess.GetCaseList1(caseNo);
-        }
-
-        public DataTable ValidateInv(string inputNo)
-        {
-            return P00003_DataAccess.ValidateInv(inputNo);
-        }
-
-        public int UpdateInv(string inputNo, string quantity)
-        {
-            return P00003_DataAccess.UpdateInv(inputNo, quantity);
-        }
-
-        public DataTable ValidateData(string partId, string scanTime)
-        {
-            return P00003_DataAccess.ValidateData(partId, scanTime);
-        }
-
-        public DataTable GetStatus(string iP)
-        {
-            return P00003_DataAccess.GetStatus(iP);
-        }
-
-        public int UpdateStatus2(string iP, string opearteId, string pointNo)
-        {
-            return P00003_DataAccess.UpdateStatus2(iP, opearteId, pointNo);
-        }
-
         public DataTable GetBanZhi(string serverTime)
         {
             return P00003_DataAccess.GetBanZhi(serverTime);
-        }
-
-        public DataTable GetLabel(string inputNo)
-        {
-            return P00003_DataAccess.GetLabel(inputNo);
-        }
-
-        public DataTable GetQuantity(string kanbanOrderNo, string kanbanSerial, string partId, string dock)
-        {
-            return P00003_DataAccess.GetQuantity(kanbanOrderNo, kanbanSerial, partId, dock);
-        }
-
-        public int InsertBox(string caseNo, string inputNo, string partId, string kanbanOrderNo, string kanbanSerial, string quantity, string opearteId, string scanTime, string labelStart, string labelEnd, string rhQuantity, string serverTime, string dock)
-        {
-            return P00003_DataAccess.InsertBox(caseNo, inputNo, partId, kanbanOrderNo, kanbanSerial, quantity, opearteId, scanTime, labelStart, labelEnd, rhQuantity, serverTime, dock);
-        }
-
-        public DataTable GetCaseInfo(string caseNo)
-        {
-            return P00003_DataAccess.GetCaseInfo(caseNo);
-        }
-
-        public DataTable GetCaseInfo1(string caseNo)
-        {
-            return P00003_DataAccess.GetCaseInfo1(caseNo);
         }
 
         public byte[] GenerateQRCode(string content)
@@ -679,61 +365,18 @@ namespace Logic
             return stream.GetBuffer();
         }
 
-        public int UpdateBox(string caseNo, string serverTime)
-        {
-            return P00003_DataAccess.UpdateBox(caseNo, serverTime);
-        }
-
-        public DataTable GetPoingNo(string iP)
-        {
-            return P00003_DataAccess.GetPointNo(iP);
-        }
-
-        public DataTable GetPackData1(string partId, string serverTime)
-        {
-            return P00003_DataAccess.GetPackData1(partId, serverTime);
-        }
-
-        public DataTable GetPackBase(string packNo, string serverTime)
-        {
-            return P00003_DataAccess.GetPackBase(packNo, serverTime);
-        }
-
-        public int InsertPackWork(string packNo, string gpsNo, string packsupplier, string bZUnit, string biYao, string opearteId, string serverTime, string quantity)
-        {
-            return P00003_DataAccess.InsertPackWork(packNo, gpsNo, packsupplier, bZUnit, biYao, opearteId, serverTime, quantity);
-        }
-
-        public DataTable GetPrintName(string iP)
-        {
-            return P00003_DataAccess.GetPrintName(iP);
-        }
-
-        public int UpdateInv2(string packNo, string gpsNo, string packsupplier, string bZUnit, string biYao, string opearteId, string serverTime, string quantity)
-        {
-            return P00003_DataAccess.UpdateInv2(packNo, gpsNo, packsupplier, bZUnit, biYao, opearteId, serverTime, quantity);
-        }
-
-        public int UpdateCase5(string iP, string caseNo)
-        {
-            return P00003_DataAccess.UpdateCase5(iP, caseNo);
-        }
-
-        public DataTable GetZaiKu(string packNo, string gpsNo, string packsupplier)
-        {
-            return P00003_DataAccess.GetZaiKu(packNo, gpsNo, packsupplier);
-        }
-
-        public int InsertZaiKu(string packNo, string gpsNo, string packsupplier, string opearteId, string serverTime)
-        {
-            return P00003_DataAccess.InsertZaiKu(packNo, gpsNo, packsupplier, opearteId, serverTime);
-        }
-
-        public DataTable ValidateCase(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string caseNo)
-        {
-            return P00003_DataAccess.ValidateCaseNo(partId, kanbanOrderNo, kanbanSerial, dock, caseNo);
-        }
         //========================================================================重写========================================================================
+        public DataTable getOperCaseNo(string iP, string strPointState, string strOperatorID)
+        {
+            try
+            {
+                return P00003_DataAccess.getOperCaseNo(iP, strPointState, strOperatorID);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public DataTable GetCaseNoInfo(string strCaseNo)
         {
             try
@@ -750,6 +393,94 @@ namespace Logic
             try
             {
                 P00003_DataAccess.SetCaseNoInfo(strBoxNo, strCaseNo, strHostIp, strSheBeiNo, strPointState, strOperatorID);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable GetKanBanInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string scanTime)
+        {
+            try
+            {
+                return P00003_DataAccess.GetKanBanInfo(partId, kanbanOrderNo, kanbanSerial, dock, scanTime);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable GetPackList(string strInno)
+        {
+            try
+            {
+                return P00003_DataAccess.GetPackList(strInno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setPrintLable(string strIP, string strInvNo, string strPrinterName, string strOperId)
+        {
+            try
+            {
+                P00003_DataAccess.setPrintLable(strIP, strInvNo, strPrinterName, strOperId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getPackInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packQuantity)
+        {
+            try
+            {
+                return P00003_DataAccess.getPackInfo(partId, kanbanOrderNo, kanbanSerial, dock, packQuantity);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataSet getTableFromDB(string serverTime)
+        {
+            try
+            {
+                return P00003_DataAccess.getTableFromDB(serverTime);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public bool setPackAndZxInfo(string strIP, string strPointName, string strType, string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packQuantity, string caseno, string boxno, string scanTime, DataTable dtPackList, string strOperId)
+        {
+            try
+            {
+                return P00003_DataAccess.setPackAndZxInfo(strIP, strPointName, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseno, boxno, scanTime, dtPackList, strOperId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getBoxMasterInfo(string caseno, string serverTime)
+        {
+            try
+            {
+                return P00003_DataAccess.getBoxMasterInfo(caseno, serverTime);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public bool setCastListInfo(DataTable dtOperateSJ_Temp, DataTable dtCaseList_Temp, string strIP, string caseno, string boxno, string scanTime, string strOperId)
+        {
+            try
+            {
+                return P00003_DataAccess.setCastListInfo( dtOperateSJ_Temp,  dtCaseList_Temp,  strIP,  caseno,  boxno,  scanTime,  strOperId);
             }
             catch (Exception ex)
             {

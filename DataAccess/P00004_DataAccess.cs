@@ -133,7 +133,7 @@ namespace DataAccess
         {
             StringBuilder stringBuilder = new StringBuilder();
             //绑定中的
-            stringBuilder.AppendLine("select * from TSell_DockCar where vcDockSell='" + dock + "' and vcFlag='0'");
+            stringBuilder.AppendLine("select * from TSell_DockCar where vcDockSell='" + dock + "' and vcFlag IN ('0','1')");
             //已出货或者箱号已删除
             stringBuilder.AppendLine("select * from TShip_Temp where  vcDockSell='" + dock + "' and vcForkNo='" + fork + "' and vcFlag='0'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();

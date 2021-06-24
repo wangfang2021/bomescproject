@@ -159,9 +159,9 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "该叉车号绑定异常，请联系管理员处理。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dtDock = dsCheckDock.Tables[0];
+                DataRow [] drRDock = dsCheckDock.Tables[0].Select("vcFlag='0'");
                 DataTable dtShip = dsCheckDock.Tables[1];
-                if (dtDock.Rows.Count == 1 && dtShip.Rows.Count > 0)
+                if (drRDock.Length == 1 && dtShip.Rows.Count > 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "叉车号：" + dock + "为" + dock + "的最后一台叉车,禁止解绑。";

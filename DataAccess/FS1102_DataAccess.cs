@@ -28,7 +28,8 @@ namespace DataAccess
                 }
                 if (strCaseNo != "")
                 {
-                    strSql.AppendLine("AND cast(vcCaseNo as int)='" + strCaseNo + "'");
+                    //strSql.AppendLine("AND cast(vcCaseNo as int)='" + strCaseNo + "'");
+                    strSql.AppendLine("AND cast(vcCasebarcode as int)='" + strCaseNo + "'");
                 }
                 if (strTagId != "")
                 {
@@ -50,9 +51,11 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select vcCpdcode,vcCpdname,vcCpdaddress,vcCasenoIntact AS vcCaseno,SUBSTRING(vcCaseno,1,4)+'-'+SUBSTRING(vcCaseno,5,4) as vcCaseno_name,vcInno,vcPart_id,vcPartsname,iQty,iTotalcnt,iTotalpiece,CONVERT(varchar(23),GETDATE(),23) as dPrintDate");
+                strSql.AppendLine("select vcCpdcode,vcCpdname,vcCpdaddress,vcCasebarcode AS vcCaseno,SUBSTRING(vcCasebarcode,1,4)+'-'+SUBSTRING(vcCasebarcode,5,4) as vcCaseno_name,vcInno,vcPart_id,vcPartsname,iQty,iTotalcnt,iTotalpiece,CONVERT(varchar(23),GETDATE(),23) as dPrintDate");
+                //strSql.AppendLine("select vcCpdcode,vcCpdname,vcCpdaddress,vcCasenoIntact AS vcCaseno,SUBSTRING(vcCaseno,1,4)+'-'+SUBSTRING(vcCaseno,5,4) as vcCaseno_name,vcInno,vcPart_id,vcPartsname,iQty,iTotalcnt,iTotalpiece,CONVERT(varchar(23),GETDATE(),23) as dPrintDate");
                 strSql.AppendLine("from TCaseList");
-                strSql.AppendLine("where vcCpdcode='" + strReceiver + "' and vcCaseno='" + strCaseNo.Replace("-", "") + "'");
+                strSql.AppendLine("where vcCpdcode='" + strReceiver + "' and vcCasebarcode='" + strCaseNo.Replace("-", "") + "'");
+                //strSql.AppendLine("where vcCpdcode='" + strReceiver + "' and vcCaseno='" + strCaseNo.Replace("-", "") + "'");
                 strSql.AppendLine("order by iAutoId");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

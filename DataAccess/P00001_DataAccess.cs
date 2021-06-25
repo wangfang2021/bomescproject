@@ -1548,6 +1548,23 @@ namespace DataAccess
                 stringBuilder.AppendLine("(select vcPart_id,vcSupplier_id,vcReceiver,decPriceOrigin_CW from TPrice where dPricebegin<='" + scanTime + "' and dPriceEnd>='" + scanTime + "') b");
                 stringBuilder.AppendLine("on a.vcPartId=b.vcPart_id and a.vcSupplierId=b.vcSupplier_id and a.vcReceiver=b.vcReceiver");
                 stringBuilder.AppendLine("where isnull(b.decPriceOrigin_CW,0) <>0");
+                stringBuilder.AppendLine("--10.发注工厂");
+                stringBuilder.AppendLine("select a.vcPackingPlant,a.vcPartId,a.vcReceiver,a.vcSupplierId,b.vcSupplierPlant,c.vcOrderPlant from ");
+                stringBuilder.AppendLine("(select * from TSPMaster where vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "')a");
+                stringBuilder.AppendLine("left join");
+                stringBuilder.AppendLine("(SELECT vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+                stringBuilder.AppendLine("FROM [TSPMaster_SupplierPlant] ");
+                stringBuilder.AppendLine("WHERE cast(dFromTime as datetime)<='" + scanTime + "' AND cast(dToTime as datetime)>='" + scanTime + "')b");
+                stringBuilder.AppendLine("ON A.vcPackingPlant=B.vcPackingPlant AND A.vcPartId=B.vcPartId AND A.vcSupplierId=B.vcSupplierId AND A.vcReceiver=B.vcReceiver");
+                stringBuilder.AppendLine("left join");
+                stringBuilder.AppendLine("(select vcValue1 as [vcSupplierId]");
+                stringBuilder.AppendLine("		,vcValue2 as vcSupplierPlant");
+                stringBuilder.AppendLine("		,convert(varchar(10),cast(vcValue3 as datetime),23) as [dFromTime]");
+                stringBuilder.AppendLine("		,convert(varchar(10),cast(vcValue4 as datetime),23) as [dToTime]");
+                stringBuilder.AppendLine("		,vcValue5 as vcOrderPlant ");
+                stringBuilder.AppendLine("from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+                stringBuilder.AppendLine("and cast(vcValue3 as datetime)<='" + scanTime + "' AND cast(vcValue4 as datetime)>='" + scanTime + "')c");
+                stringBuilder.AppendLine("on a.vcSupplierId=c.vcSupplierId and b.vcSupplierPlant=c.vcSupplierPlant");
             }
             if (strType == "SJ")
             {
@@ -1575,6 +1592,23 @@ namespace DataAccess
                 stringBuilder.AppendLine("(select vcPart_id,vcSupplier_id,vcReceiver,decPriceOrigin_CW from TPrice where dPricebegin<='" + scanTime + "' and dPriceEnd>='" + scanTime + "') b");
                 stringBuilder.AppendLine("on a.vcPartId=b.vcPart_id and a.vcSupplierId=b.vcSupplier_id and a.vcReceiver=b.vcReceiver");
                 stringBuilder.AppendLine("where isnull(b.decPriceOrigin_CW,0) <>0");
+                stringBuilder.AppendLine("--10.发注工厂");
+                stringBuilder.AppendLine("select a.vcPackingPlant,a.vcPartId,a.vcReceiver,a.vcSupplierId,b.vcSupplierPlant,c.vcOrderPlant from ");
+                stringBuilder.AppendLine("(select * from TSPMaster where vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "')a");
+                stringBuilder.AppendLine("left join");
+                stringBuilder.AppendLine("(SELECT vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+                stringBuilder.AppendLine("FROM [TSPMaster_SupplierPlant] ");
+                stringBuilder.AppendLine("WHERE cast(dFromTime as datetime)<='" + scanTime + "' AND cast(dToTime as datetime)>='" + scanTime + "')b");
+                stringBuilder.AppendLine("ON A.vcPackingPlant=B.vcPackingPlant AND A.vcPartId=B.vcPartId AND A.vcSupplierId=B.vcSupplierId AND A.vcReceiver=B.vcReceiver");
+                stringBuilder.AppendLine("left join");
+                stringBuilder.AppendLine("(select vcValue1 as [vcSupplierId]");
+                stringBuilder.AppendLine("		,vcValue2 as vcSupplierPlant");
+                stringBuilder.AppendLine("		,convert(varchar(10),cast(vcValue3 as datetime),23) as [dFromTime]");
+                stringBuilder.AppendLine("		,convert(varchar(10),cast(vcValue4 as datetime),23) as [dToTime]");
+                stringBuilder.AppendLine("		,vcValue5 as vcOrderPlant ");
+                stringBuilder.AppendLine("from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+                stringBuilder.AppendLine("and cast(vcValue3 as datetime)<='" + scanTime + "' AND cast(vcValue4 as datetime)>='" + scanTime + "')c");
+                stringBuilder.AppendLine("on a.vcSupplierId=c.vcSupplierId and b.vcSupplierPlant=c.vcSupplierPlant");
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
@@ -1599,12 +1633,12 @@ namespace DataAccess
                 }
             }
         }
-        public void Insert(string trolley, string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial, string scanTime, String iP, string serverTime, string cpdCompany, string inno, string opearteId, string packingSpot, string packQuantity, string lblSart, string lblEnd, string supplierId, string supplierPlant, string trolleySeqNo, string inoutFlag, string kanBan)
+        public void Insert(string trolley, string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial, string scanTime, String iP, string serverTime, string cpdCompany, string inno, string opearteId, string packingSpot, string packQuantity, string lblSart, string lblEnd, string supplierId, string supplierPlant, string trolleySeqNo, string inoutFlag, string kanBan, string orderplant)
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append("INSERT INTO TOperatorQB(vcZYType,dScanTime,vcHtNo,vcTrolleyNo ,vcInputNo,vcPart_id,vcCpdCompany,vcSR ,vcBoxNo,iQuantity  \n");
-            stringBuilder.Append(" ,vcSeqNo,vcReflectFlag,dStart,dEnd,vcHostIp,vcKBOrderNo,vcKBLFNo,vcOperatorID ,dOperatorTime,vcBZPlant,iPackingQty,vcLabelStart,vcLabelEnd,vcSupplierId,vcSupplierPlant,vcLotid,vcIOType,vcCheckType,vcKanBan,vcTrolleySeqNo)  \n");
-            stringBuilder.Append("    VALUES('S0', '" + scanTime + "', '', '" + trolley + "', '" + inno + "', '" + partId + "', '" + cpdCompany + "', '" + dock + "', '', " + int.Parse(quantity) + ", '', '0', null, null, '" + iP + "', '" + kanbanOrderNo + "', '" + kanbanSerial + "', '" + opearteId + "', '" + serverTime + "','" + packingSpot + "'," + packQuantity + ",'" + lblSart + "','" + lblEnd + "','" + supplierId + "','" + supplierPlant + "','','" + inoutFlag + "','','" + kanBan + "','" + trolleySeqNo + "')");
+            stringBuilder.Append(" ,vcSeqNo,vcReflectFlag,dStart,dEnd,vcHostIp,vcKBOrderNo,vcKBLFNo,vcOperatorID ,dOperatorTime,vcBZPlant,iPackingQty,vcLabelStart,vcLabelEnd,vcSupplierId,vcSupplierPlant,vcLotid,vcIOType,vcCheckType,vcKanBan,vcTrolleySeqNo,vcPackingPlant)  \n");
+            stringBuilder.Append("    VALUES('S0', '" + scanTime + "', '', '" + trolley + "', '" + inno + "', '" + partId + "', '" + cpdCompany + "', '" + dock + "', '', " + int.Parse(quantity) + ", '', '0', null, null, '" + iP + "', '" + kanbanOrderNo + "', '" + kanbanSerial + "', '" + opearteId + "', '" + serverTime + "','" + packingSpot + "'," + packQuantity + ",'" + lblSart + "','" + lblEnd + "','" + supplierId + "','" + supplierPlant + "','','" + inoutFlag + "','','" + kanBan + "','" + trolleySeqNo + "','"+ orderplant + "')");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             DataSet ds = new DataSet();
             try

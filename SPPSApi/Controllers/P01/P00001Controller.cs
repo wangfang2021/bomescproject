@@ -29,7 +29,6 @@ namespace SPPSApi.Controllers.P01
 
         }
 
-
         #region 获取权限
         [HttpPost]
         [EnableCors("any")]
@@ -503,10 +502,6 @@ namespace SPPSApi.Controllers.P01
         }
         #endregion
 
-
-
-
-
         #region 退出应用需要更改状态为未用
         [HttpPost]
         [EnableCors("any")]
@@ -757,13 +752,6 @@ namespace SPPSApi.Controllers.P01
 
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
-
-
-
-
-
-
-
         #endregion
 
         #region 获得看板明细
@@ -960,8 +948,6 @@ namespace SPPSApi.Controllers.P01
 
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
-
-
         #endregion
 
         #region  删除台车
@@ -1144,14 +1130,14 @@ namespace SPPSApi.Controllers.P01
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "看板订单号" + kanbanOrderNo + "看板连番" + kanbanSerial + "品番" + partId + "已经入库";
-                    apiResult.type = "LS";
+                        apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (dsCheckDb.Tables[1].Rows.Count != 1)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在包装基础数据表中没有有效数据";
-                    apiResult.type = "LS";
+                        apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                     }
@@ -1160,28 +1146,36 @@ namespace SPPSApi.Controllers.P01
 
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在品番基础数据表中没有有效数据";
-                    apiResult.type = "LS";
+                        apiResult.type = "LS";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (dsCheckDb.Tables[10].Rows.Count == 0)
+                    {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "品番" + partId + "在品番发注工厂基础数据为空";
+                        apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (dsCheckDb.Tables[5].Rows.Count == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在包材构成数据表中没有有效数据";
-                    apiResult.type = "LS";
+                        apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (dsCheckDb.Tables[6].Rows.Count == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在标签信息表中没有有效数据";
-                    apiResult.type = "LS";
+                        apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (dsCheckDb.Tables[9].Rows.Count != 1)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番" + partId + "在价格中没有有效数据";
-                    apiResult.type = "LS";
+                        apiResult.type = "LS";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
@@ -1266,12 +1260,17 @@ namespace SPPSApi.Controllers.P01
                         int back = int.Parse(lblEnd.Substring(6, 5));//结束
                         for (int a = front; a <= back; a++)
                         {
+                            string strBarCode = new P00001_Logic().ChangeBarCode(partId);//一维码生成字符
+
                             string strPrintcount = partId + date + a.ToString().PadLeft(5, '0');
-                            string strLabel = "*" + strPrintcount + "*";
+                            //string strLabel = "*" + strPrintcount + "*";
+                            string strLabel = strBarCode;
                             string strContent = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=" + strPrintcount;
                             string strPrintcount1 = partId + date + a.ToString().PadLeft(5, '0') + "B";
-                            string strLabel1 = "*" + strPrintcount1 + "*";
-                            string strContent1 = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=" + strPrintcount1 + "B";
+                            //string strLabel1 = "*" + strPrintcount1 + "*";
+                            string strLabel1 = strBarCode;
+                            //string strContent1 = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=" + strPrintcount1 + "B";
+                            string strContent1 = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=" + strPrintcount1;
                             byte[] Qrcode = P00001_Logic.GenerateQRCode(strContent);
                             byte[] Qrcode1 = P00001_Logic.GenerateQRCode(strContent1);
                             #region addrows
@@ -1538,7 +1537,7 @@ namespace SPPSApi.Controllers.P01
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "更新入库数据失败";
-                    apiResult.type = "LS";
+                apiResult.type = "LS";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -1626,7 +1625,7 @@ namespace SPPSApi.Controllers.P01
                 //dsCheckDb.Tables[7]  订单表中的当前余量  validateOrd
                 //dsCheckDb.Tables[8]  实绩情报表中的当前品番已经入库数量 getCount
                 //dsCheckDb.Tables[9]  价格
-                //0611
+                //dsCheckDb.Tables[10] 发注工厂
                 if (dsCheckDb.Tables[0].Rows.Count > 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -1645,6 +1644,13 @@ namespace SPPSApi.Controllers.P01
 
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "品番" + partId + "在品番基础数据表中没有有效数据";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (dsCheckDb.Tables[10].Rows.Count == 0)
+                {
+
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "品番" + partId + "在品番发注工厂基础数据为空";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 if (dsCheckDb.Tables[5].Rows.Count == 0)
@@ -1676,6 +1682,7 @@ namespace SPPSApi.Controllers.P01
                 string packQuantity = dsCheckDb.Tables[3].Rows[0]["iPackingQty"].ToString();//收容数
                 string supplierId = dsCheckDb.Tables[3].Rows[0]["vcSupplierId"].ToString();
                 string supplierPlant = dsCheckDb.Tables[3].Rows[0]["vcSupplierPlant"].ToString();
+                string orderplant = dsCheckDb.Tables[10].Rows[0]["vcOrderPlant"].ToString();
                 string cpdCompany = dsCheckDb.Tables[2].Rows[0]["vcReceiver"].ToString();//收货方
                 string lblSart = "";
                 string lblEnd = "";
@@ -1703,7 +1710,6 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "品番" + partId + "在订单基础数据中待入库数小于当前数量,请检查!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
                 if (int.Parse(packingQuatity) == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -1725,7 +1731,7 @@ namespace SPPSApi.Controllers.P01
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 #endregion
-                P00001_Logic.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packingQuatity, lblSart, lblEnd, supplierId, supplierPlant, trolleySeqNo, inoutFlag, kanBan);//插入实绩情报表
+                P00001_Logic.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packingQuatity, lblSart, lblEnd, supplierId, supplierPlant, trolleySeqNo, inoutFlag, kanBan, orderplant);//插入实绩情报表
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
 
@@ -1737,6 +1743,6 @@ namespace SPPSApi.Controllers.P01
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
+        #endregion
     }
 }
-#endregion

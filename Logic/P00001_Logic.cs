@@ -338,9 +338,9 @@ namespace Logic
         {
             return P00001_DataAccess.getCheckQBandSJInfo(partId, kanbanOrderNo, kanbanSerial, dock, packingSpot, scanTime, strType);
         }
-        public static void Insert(string trolley, string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial, string scanTime, String iP, string serverTime, string cpdCompany, string inno, string opearteId, string packingSpot, string packQuantity, string lblSart, string lblEnd, string supplierId, string supplierPlant, string trolleySeqNo, string inoutFlag, string kanBan)
+        public static void Insert(string trolley, string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial, string scanTime, String iP, string serverTime, string cpdCompany, string inno, string opearteId, string packingSpot, string packQuantity, string lblSart, string lblEnd, string supplierId, string supplierPlant, string trolleySeqNo, string inoutFlag, string kanBan,string orderplant)
         {
-            P00001_DataAccess.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packQuantity, lblSart, lblEnd, supplierId, supplierPlant, trolleySeqNo, inoutFlag, kanBan);
+            P00001_DataAccess.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packQuantity, lblSart, lblEnd, supplierId, supplierPlant, trolleySeqNo, inoutFlag, kanBan, orderplant);
         }
         public static DataSet getInputInfoFromDB(string strIP, string serverTime)
         {
@@ -421,6 +421,85 @@ namespace Logic
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public string ChangeBarCode(string strPartsNo)
+        {
+            string strBarCode = "";
+            try
+            {
+                int lngBarCodeCount = 0;
+                int lngAscCode = 0;
+                if (strPartsNo.Substring(10, 2) == "00")
+                    strPartsNo = strPartsNo.Substring(0, 10) + "  ";
+                int PLen = strPartsNo.Length;
+                for (int i = 0; i < PLen; i++)
+                {
+                    char asc = char.Parse(strPartsNo.Substring(i, 1));
+                    lngAscCode = (int)asc;
+                    if (lngAscCode != 32)
+                    {
+                        if (lngAscCode < 65)
+                        {
+                            lngBarCodeCount = lngBarCodeCount + (lngAscCode - 48);
+                        }
+                        else
+                        {
+                            lngBarCodeCount = lngBarCodeCount + (lngAscCode - 55);
+                        }
+                    }
+                    else
+                    {
+                        lngBarCodeCount = lngBarCodeCount + 38;
+                    }
+                }
+                lngAscCode = lngBarCodeCount % 43;
+                if (lngAscCode < 10)
+                {
+                    strBarCode = Convert.ToChar(lngAscCode + 48).ToString();
+                }
+                else if (lngAscCode > 9 && lngAscCode < 36)
+                {
+                    strBarCode = Convert.ToChar(lngAscCode + 55).ToString();
+                }
+                else
+                {
+                    switch (lngAscCode)
+                    {
+                        case 36:
+                            strBarCode = "-";
+                            break;
+                        case 37:
+                            strBarCode = ".";
+                            break;
+                        case 38:
+                            strBarCode = " ";
+                            break;
+                        case 39:
+                            strBarCode = "$";
+                            break;
+                        case 40:
+                            strBarCode = "/";
+                            break;
+                        case 41:
+                            strBarCode = "+";
+                            break;
+                        case 42:
+                            strBarCode = "%";
+                            break;
+                        default:
+                            break;
+
+                    }
+                }
+                strBarCode = strPartsNo + strBarCode;
+                return "*" + strBarCode + "*";
+            }
+            catch (Exception ex)
+            {
+                strBarCode = strPartsNo + strBarCode;
+                return "*" + strBarCode + "*";
             }
         }
     }

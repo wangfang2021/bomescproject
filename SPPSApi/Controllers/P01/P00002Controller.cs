@@ -445,6 +445,7 @@ namespace SPPSApi.Controllers.P01
                 string cpdCompany = dtCheckInfo.Rows[0]["vcSHF"].ToString();//收货方
                 string lblStart = dtCheckInfo.Rows[0]["vcLabelStart"].ToString();//标签开始
                 string lblEnd = dtCheckInfo.Rows[0]["vcLabelEnd"].ToString();//标签结束
+                string strPackingPlant = dtCheckInfo.Rows[0]["vcPackingPlant"].ToString();
 
                 #region addrows
                 DataRow drInfo_SJ_Temp = dtInfo_SJ_Temp.NewRow();
@@ -477,7 +478,7 @@ namespace SPPSApi.Controllers.P01
                 drInfo_SJ_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
                 drInfo_SJ_Temp["vcHostIp"] = iP;
                 drInfo_SJ_Temp["packingcondition"] = "0";
-                drInfo_SJ_Temp["vcPackingPlant"] = "";
+                drInfo_SJ_Temp["vcPackingPlant"] = strPackingPlant;
                 dtInfo_SJ_Temp.Rows.Add(drInfo_SJ_Temp);
                 #endregion
 
@@ -630,6 +631,7 @@ namespace SPPSApi.Controllers.P01
                 string cpdCompany = dtCheckInfo.Rows[0]["vcSHF"].ToString();//收货方
                 string lblStart = dtCheckInfo.Rows[0]["vcLabelStart"].ToString();//标签开始
                 string lblEnd = dtCheckInfo.Rows[0]["vcLabelEnd"].ToString();//标签结束
+                string strPackingPlant = dtCheckInfo.Rows[0]["vcPackingPlant"].ToString();
 
                 #region addrows
                 DataRow drInfo_SJ_Temp = dtInfo_SJ_Temp.NewRow();
@@ -662,7 +664,7 @@ namespace SPPSApi.Controllers.P01
                 drInfo_SJ_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
                 drInfo_SJ_Temp["vcHostIp"] = iP;
                 drInfo_SJ_Temp["packingcondition"] = "0";
-                drInfo_SJ_Temp["vcPackingPlant"] = "";
+                drInfo_SJ_Temp["vcPackingPlant"] = strPackingPlant;
                 dtInfo_SJ_Temp.Rows.Add(drInfo_SJ_Temp);
                 #endregion
 

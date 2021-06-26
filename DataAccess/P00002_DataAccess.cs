@@ -116,7 +116,7 @@ namespace DataAccess
             stringBuilder.AppendLine(",d.vcTJSX");
             stringBuilder.AppendLine(",e.vcPicUrl");
             stringBuilder.AppendLine(",isnull(f.iSpotQty,0) as iSpotQty");
-            stringBuilder.AppendLine(",vcPackingPlant");
+            stringBuilder.AppendLine(",a.vcPackingPlant");
             stringBuilder.AppendLine("from ");
             stringBuilder.AppendLine("(select * from TOperateSJ ");
             stringBuilder.AppendLine("where vcPart_id='" + partId + "' and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcSR='" + dock + "' and vcZYType='S0')a");

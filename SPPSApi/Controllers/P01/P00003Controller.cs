@@ -804,6 +804,8 @@ namespace SPPSApi.Controllers.P01
                 if (dtCaseNoInfo.Rows.Count > 0)
                     kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
                 P00003_DataEntity.kanbanQuantity = kanbanQuantity;
+                P00003_DataEntity.boxNo = strBoxNo;
+                P00003_DataEntity.caseNo = strCaseNo;
                 apiResult.data = P00003_DataEntity;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }

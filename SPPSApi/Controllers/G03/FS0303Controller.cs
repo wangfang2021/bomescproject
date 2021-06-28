@@ -899,18 +899,11 @@ namespace SPPSApi.Controllers.G03
             List<string> autoIdlist = new List<string>();
             for (int i = 0; i < listInfoData.Count; i++)
             {
-                try
+                if (listInfoData[i].ContainsKey("iAutoId") && listInfoData[i]["iAutoId"] != null && listInfoData[i]["iAutoId"].ToString() != "")
                 {
-                    if (listInfoData[i]["iAutoId"] != null && listInfoData[i]["iAutoId"].ToString() != "")
-                    {
-                        autoIdlist.Add(listInfoData[i]["iAutoId"].ToString());
-                    }
-                    else
-                    {
-                        continue;
-                    }
+                    autoIdlist.Add(listInfoData[i]["iAutoId"].ToString());
                 }
-                catch (Exception ex)
+                else
                 {
                     continue;
                 }

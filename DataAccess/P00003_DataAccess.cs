@@ -493,7 +493,7 @@ namespace DataAccess
             stringBuilder.AppendLine("		,a.vcInputNo as vcOrderNo");
             stringBuilder.AppendLine("		,b.vcPackNo as vcPackNo");
             stringBuilder.AppendLine("		,b.vcPackGPSNo as vcPackGPSNo");
-            stringBuilder.AppendLine("		,a.vcSupplier_id as vcSupplierID");
+            stringBuilder.AppendLine("		,c.vcSupplierCode as vcSupplierID");
             stringBuilder.AppendLine("		,a.vcBZPlant as vcPackSpot");
             stringBuilder.AppendLine("		,cast(cast(b.iBiYao as decimal(16,5))*cast('" + packQuantity + "' as int)/cast(d.vcBZUnit as decimal(16,5)) as decimal(16,5)) as dQty");
             stringBuilder.AppendLine("		from ");

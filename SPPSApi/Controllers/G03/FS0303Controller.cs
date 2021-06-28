@@ -458,7 +458,7 @@ namespace SPPSApi.Controllers.G03
                 {
                     var varSQContent = listInfoData[i]["vcSQContent"];
                     if (varSQContent == null || varSQContent.ToString().Trim() == "")
-                    {   
+                    {
                         listInfoData[i]["vcSQState"] = null;//后续更新的时候，如果vcSQState为null，则不更新这个字段
                     }
                     else if (varSQContent.ToString().ToUpper().Contains("未确认"))
@@ -893,22 +893,22 @@ namespace SPPSApi.Controllers.G03
         /// <returns>true：存在重复  false:不存在重复</returns>
         public bool CheckAutoId(List<Dictionary<string, Object>> listInfoData)
         {
-            try
+            /*
+             * 只有编辑的数据有iAutoId列，增加的数据没有iAutoId列，这里做特殊处理：排除编辑状态为新增的数据
+             */
+            List<string> autoIdlist = new List<string>();
+            for (int i = 0; i < listInfoData.Count; i++)
             {
-                List<string> autoIdlist = new List<string>();
-                for (int i = 0; i < listInfoData.Count; i++)
+                if (listInfoData[i].ContainsKey("iAutoId") && listInfoData[i]["iAutoId"] != null && listInfoData[i]["iAutoId"].ToString() != "")
                 {
-                    if (listInfoData[i]["iAutoId"]!=null && listInfoData[i]["iAutoId"].ToString()!="")
-                    {
-                        autoIdlist.Add(listInfoData[i]["iAutoId"].ToString());
-                    }
+                    autoIdlist.Add(listInfoData[i]["iAutoId"].ToString());
                 }
-                return autoIdlist.GroupBy(obj => obj).Where(o => o.Count() > 1).Count() >= 1;
+                else
+                {
+                    continue;
+                }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return autoIdlist.GroupBy(obj => obj).Where(o => o.Count() > 1).Count() >= 1;
         }
         #endregion
     }

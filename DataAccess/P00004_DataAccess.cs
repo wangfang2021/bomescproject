@@ -133,7 +133,7 @@ namespace DataAccess
         {
             StringBuilder stringBuilder = new StringBuilder();
             //绑定中的
-            stringBuilder.AppendLine("select * from TSell_DockCar where vcDockSell='" + dock + "' and vcFlag='0'");
+            stringBuilder.AppendLine("select * from TSell_DockCar where vcDockSell='" + dock + "' and vcFlag IN ('0','1')");
             //已出货或者箱号已删除
             stringBuilder.AppendLine("select * from TShip_Temp where  vcDockSell='" + dock + "' and vcForkNo='" + fork + "' and vcFlag='0'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
@@ -256,6 +256,7 @@ namespace DataAccess
             stringBuilder.AppendLine("		,h.vcPartENName");
             stringBuilder.AppendLine("		,h.vcPartNameCn");
             stringBuilder.AppendLine("		,f.vcCaseNo as vcFlag_ck--是否已经出荷过");
+            stringBuilder.AppendLine("		,j.vcOrderPlant as vcOrderPlant--发注工厂");
             stringBuilder.AppendLine("from ");
             stringBuilder.AppendLine("(select * from TShip_Temp where vcDockSell='" + dock + "' and vcFlag='" + strFlag + "')a");
             stringBuilder.AppendLine("left join");
@@ -282,14 +283,36 @@ namespace DataAccess
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select * from TSPMaster where dFromTime<=GETDATE() and dToTime>=GETDATE() and vcPackingPlant='" + strPackingPlant + "')h");
             stringBuilder.AppendLine("on c.vcPart_id=h.vcPartId and c.vcSupplier_id=h.vcSupplierId and c.vcSHF=h.vcReceiver");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(select a.vcPackingPlant,a.vcPartId,a.vcReceiver,a.vcSupplierId,b.vcSupplierPlant,c.vcOrderPlant from ");
+            stringBuilder.AppendLine("(select * from TSPMaster where dFromTime<=CONVERT(VARCHAR(10),GETDATE(),23) and dToTime>=CONVERT(VARCHAR(10),GETDATE(),23))a");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(SELECT vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+            stringBuilder.AppendLine("FROM [TSPMaster_SupplierPlant] ");
+            stringBuilder.AppendLine("WHERE cast(dFromTime as datetime)<=CONVERT(VARCHAR(10),GETDATE(),23) AND cast(dToTime as datetime)>=CONVERT(VARCHAR(10),GETDATE(),23))b");
+            stringBuilder.AppendLine("ON A.vcPackingPlant=B.vcPackingPlant AND A.vcPartId=B.vcPartId AND A.vcSupplierId=B.vcSupplierId AND A.vcReceiver=B.vcReceiver");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(select vcValue1 as [vcSupplierId]");
+            stringBuilder.AppendLine("		,vcValue2 as vcSupplierPlant");
+            stringBuilder.AppendLine("		,convert(varchar(10),cast(vcValue3 as datetime),23) as [dFromTime]");
+            stringBuilder.AppendLine("		,convert(varchar(10),cast(vcValue4 as datetime),23) as [dToTime]");
+            stringBuilder.AppendLine("		,vcValue5 as vcOrderPlant ");
+            stringBuilder.AppendLine("from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+            stringBuilder.AppendLine("and cast(vcValue3 as datetime)<=CONVERT(VARCHAR(10),GETDATE(),23) AND cast(vcValue4 as datetime)>=CONVERT(VARCHAR(10),GETDATE(),23))c");
+            stringBuilder.AppendLine("on a.vcSupplierId=c.vcSupplierId and b.vcSupplierPlant=c.vcSupplierPlant)j");
+            stringBuilder.AppendLine("on c.vcPart_id=j.vcPartId and c.vcSupplier_id=j.vcSupplierId and c.vcSHF=j.vcReceiver");
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("");
             stringBuilder.AppendLine("--检验关联重复性");
             stringBuilder.AppendLine("select * from ");
             stringBuilder.AppendLine("(select * from TShip_Temp where vcDockSell='" + dock + "' and vcFlag='" + strFlag + "')a");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select * from TBoxMaster where dPrintBoxTime is not null)b");
             stringBuilder.AppendLine("on a.vcBoxNo=b.vcCaseNo");
-            stringBuilder.AppendLine("");
-            stringBuilder.AppendLine("");
+           
             DataSet ds = new DataSet();
             try
             {
@@ -1427,7 +1450,7 @@ namespace DataAccess
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("select * from TSell_Sum where vcYinQuType='" + type + "' and vcBanZhi='" + banZhi + "' and vcDate='" + date + "'");
+            stringBuilder.AppendLine("select vcBanZhi,FORMAT(vcDate,'yyyy-MM-dd') as vcDate,vcBianCi,vcSellNo,iToolQuantity,vcTruckNo,vcQianFen,vcOperatorID,FORMAT(dOperatorTime,'yyyy-MM-dd hh:mm:ss') as dOperatorTime from TSell_Sum where vcYinQuType='" + type + "' and vcBanZhi='" + banZhi + "' and vcDate='" + date + "'");
             DataSet ds = new DataSet();
             try
             {

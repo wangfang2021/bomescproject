@@ -358,7 +358,7 @@ namespace Logic
                 string result = ComFunction.SendEmailInfo(strFRAddress, strFRName, strEmailBody, dtToInfo, dtCcInfo, strTheme, strFilePath, false);
                 if (result != "Success")
                 {
-                    return "出荷已经完成但向销售公司发送发货邮件失败，请采取其他形式联络。";
+                    return "出荷已经完成，但向销售公司发送邮件失败，请采取其他形式联络。";
                 }
                 return "";
             }

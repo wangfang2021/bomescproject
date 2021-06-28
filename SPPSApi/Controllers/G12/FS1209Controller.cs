@@ -295,7 +295,7 @@ namespace SPPSApi.Controllers.G12
                 string printIme = System.DateTime.Now.ToString("yyyy-MM-dd");
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
                 string picnull = root + "Doc\\Image\\SPPartImage\\picnull.JPG";
-                string tmplatePath = "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
+                string tmplatePath = "\\Template\\FS160170.xlsx";//看板投放确认单Excel模板
                 string gud = "";
                 PrinterCR print = new PrinterCR();
                 DataTable dtPrint = new DataTable();
@@ -624,7 +624,8 @@ namespace SPPSApi.Controllers.G12
                                                     binding.OpenTimeout = TimeSpan.MaxValue;
                                                     binding.ReceiveTimeout = TimeSpan.MaxValue;
                                                     binding.SendTimeout = TimeSpan.MaxValue;
-                                                    EndpointAddress address = new EndpointAddress("http://localhost:25012/PrintTable.asmx");
+                                                    SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
+                                                    EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
                                                     PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                                     msg = client.PrintExcel_Confirmation(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                                 }
@@ -671,7 +672,7 @@ namespace SPPSApi.Controllers.G12
                                     string exdttt_msg = lg.CreateTempTable(exdttt, "FS1209_Excel_", out exdttt_tmp);//创建打印临时表
                                     string exdthj_msg = lg.CreateTempTable(exdthj, "FS1209_Excel_", out exdthj_tmp);//创建打印临时表                
                                     if (exdthj_msg.Length == 0)
-                                    {
+                                    { 
                                         try
                                         {
                                             BasicHttpBinding binding = new BasicHttpBinding();
@@ -679,13 +680,15 @@ namespace SPPSApi.Controllers.G12
                                             binding.OpenTimeout = TimeSpan.MaxValue;
                                             binding.ReceiveTimeout = TimeSpan.MaxValue;
                                             binding.SendTimeout = TimeSpan.MaxValue;
-                                            EndpointAddress address = new EndpointAddress("http://localhost:25012/PrintTable.asmx");
+                                            SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
+                                            EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
                                             PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                             exdthj_msg = client.PrintExcel_Confirmation(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                         }
                                         catch (Exception ex)
                                         {
-                                            msg = "打印看板确认单失败！";
+                                            //msg = "打印看板确认单失败！";
+                                            msg = ex.ToString();
                                             throw ex;
                                         }
                                         finally
@@ -1919,9 +1922,10 @@ namespace SPPSApi.Controllers.G12
                         binding.OpenTimeout = TimeSpan.MaxValue;
                         binding.ReceiveTimeout = TimeSpan.MaxValue;
                         binding.SendTimeout = TimeSpan.MaxValue;
-                        EndpointAddress address = new EndpointAddress("http://localhost:25012/PrintTable.asmx");
+                        SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
+                        EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
                         PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
-                        msg = client.PrintCR(tempTb, "vcNo1,vcNo2,vcNo3", strPrinterName, reportName, "172.23.238.178", "SPPSdb", "sa", "Sa123456");
+                        msg = client.PrintCR(tempTb, "vcNo1,vcNo2,vcNo3", strPrinterName, reportName, cn.DataSource, cn.InitialCatalog, cn.UserID, cn.Password);
                     }
                 }
                 else
@@ -1932,7 +1936,7 @@ namespace SPPSApi.Controllers.G12
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage("FS1209", "M00UE0006", ex, "");
-                msg = "打印看板失败！";
+                msg = ex.ToString();
             }
             finally
             {

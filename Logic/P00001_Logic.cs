@@ -382,13 +382,13 @@ namespace Logic
         {
             P00001_DataAccess.setInvToOperatorQB(dataTable, iP, serverTime, invSeqNo);
         }
-        public static bool setInputInfo(string strIP, string strPointName, string strPrinterName, DataTable dtPackList_Temp, DataTable dtLabelList_Temp, DataTable dtInv_Temp, DataTable dtOrder_Temp, string strOperId)
+        public static bool setInputInfo(string strIP, string strPointName, string strPrinterName, DataTable dtPackList_Temp, DataTable dtLabelList_Temp, DataTable dtInv_Temp, DataTable dtOrder_Temp, string strOperId, string strPackPrinterName)
         {
-            return P00001_DataAccess.setInputInfo(strIP, strPointName, strPrinterName, dtPackList_Temp, dtLabelList_Temp, dtInv_Temp, dtOrder_Temp, strOperId);
+            return P00001_DataAccess.setInputInfo(strIP, strPointName, strPrinterName, dtPackList_Temp, dtLabelList_Temp, dtInv_Temp, dtOrder_Temp, strOperId, strPackPrinterName);
         }
-        public static DataTable GetPrintName(string iP)
+        public static DataTable GetPrintName(string iP, string strKind)
         {
-            return P00001_DataAccess.GetPrintName(iP);
+            return P00001_DataAccess.GetPrintName(iP,strKind);
         }
         public bool checkPointState(string strOperater, string strPlant, string strIP)
         {

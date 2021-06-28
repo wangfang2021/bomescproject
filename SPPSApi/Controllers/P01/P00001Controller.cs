@@ -28,6 +28,54 @@ namespace SPPSApi.Controllers.P01
       _webHostEnvironment = webHostEnvironment;
 
     }
+    #region 获取入库打印机
+    [HttpPost]
+    [EnableCors("any")]
+    public string GetInPrinter([FromBody] dynamic data)
+    {
+      string strToken = Request.Headers["X-Token"];
+      if (!isLogin(strToken))
+      {
+        return error_login();
+      }
+      LoginInfo loginInfo = getLoginByToken(strToken);
+      string opearteId = loginInfo.UserId;
+      ApiResult apiResult = new ApiResult();
+      try
+      {
+        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        string pointtype = dataForm.pointtype == null ? "" : dataForm.pointtype;//设备类型
+        string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
+        DataTable dtPrintName = P00001_Logic.checkPrintName(iP, pointtype);
+        bool bCheckPrint = false;
+        if (pointtype == "PDA"|| pointtype == "PAD")//扫描枪,平板,成型电脑
+        {
+          if (dtPrintName.Rows.Count != 2)
+            bCheckPrint = true;
+        }
+        if (bCheckPrint)
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "该设备绑定打印机有误，请联系管理员设置。";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+
+
+
+      }
+      catch (Exception ex)
+      {
+        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+        apiResult.code = ComConstant.ERROR_CODE;
+        apiResult.data = "验证入库打印机失败!";
+        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+      }
+
+      return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+    }
+    #endregion
+
+
 
     #region 获取权限
     [HttpPost]
@@ -268,6 +316,7 @@ namespace SPPSApi.Controllers.P01
         //    }
         //}
         //验证打印机
+        /*
         DataTable dtPrintName = P00001_Logic.checkPrintName(iP, pointtype);
         bool bCheckPrint = false;
         if (pointtype == "PDA")//扫描枪
@@ -285,12 +334,14 @@ namespace SPPSApi.Controllers.P01
           if (dtPrintName.Rows.Count != 3)
             bCheckPrint = true;
         }
+
         if (bCheckPrint)
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "该设备绑定打印机有误，请联系管理员设置。";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
+        */
         //更新或者插入状态
         new P00001_Logic().setPointState_Site(opearteId, loginInfo.BaoZhuangPlace, iP, pointtype, "登录");
 
@@ -330,6 +381,7 @@ namespace SPPSApi.Controllers.P01
         //new P00001_Logic().checkPointState(opearteId, loginInfo.BaoZhuangPlace, iP);
         //返回值fasle继续，true需要提示并重新登录
         //检验IP所属点位信息
+        /*
         DataTable getPoint = P00001_Logic.GetPointNo(iP);
         if (getPoint.Rows.Count != 1)
         {
@@ -340,7 +392,7 @@ namespace SPPSApi.Controllers.P01
         string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
         //更新点位在线履历
         new P00001_Logic().setAppHide(iP, pagetype);
-
+        */
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
       catch (Exception ex)
@@ -1106,9 +1158,13 @@ namespace SPPSApi.Controllers.P01
           apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
-        DataTable dtPrintName = P00001_Logic.GetPrintName(iP);
+        string strKind = "LABEL PRINTER R";
+        string strKinkPac = "PAC PRINTER";
+        DataTable dtPrintName = P00001_Logic.GetPrintName(iP,strKind);
+        DataTable dtPackPrintName = P00001_Logic.GetPrintName(iP, strKinkPac);
         string strPrinterName = "";
-        if (dtPrintName.Rows.Count == 0)
+        string strPackPrinterName = "";
+        if (dtPrintName.Rows.Count == 0|| dtPackPrintName.Rows.Count==0)
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "该点位标签打印机未进行设置，请设置后重试。";
@@ -1116,6 +1172,7 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         strPrinterName = dtPrintName.Rows[0]["vcPrinterName"].ToString();
+        strPackPrinterName= dtPackPrintName.Rows[0]["vcPrinterName"].ToString();
         #region //7 再次校验扫描时的数据正确性（应该先于3，4，5操作进行）
         //Console.WriteLine("IP:" + iP + " 操作:再次校验扫描时的数据正确性begin");
         for (int i = 0; i < dsInPutQBInfo.Tables[0].Rows.Count; i++)
@@ -1504,7 +1561,7 @@ namespace SPPSApi.Controllers.P01
         //插入打印临时表-断取
         //插入打印临时表-标签
         //插入打印临时表-指定书
-        bool bResult = P00001_Logic.setInputInfo(iP, pointType, strPrinterName, dtPackList_Temp, dtLabelList_Temp, dtInv_Temp, dtOrder_Temp, opearteId);
+        bool bResult = P00001_Logic.setInputInfo(iP, pointType, strPrinterName, dtPackList_Temp, dtLabelList_Temp, dtInv_Temp, dtOrder_Temp, opearteId,strPackPrinterName);
         if (!bResult)
         {
           apiResult.code = ComConstant.ERROR_CODE;

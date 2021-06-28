@@ -7,19 +7,10 @@ using System.Threading;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.HttpOverrides;
-using System.Net;
 using DataEntity;
-using QRCoder;
-using System.Drawing;
-using System.IO;
-using System.Drawing.Imaging;
+
 
 namespace SPPSApi.Controllers.P01
 {
@@ -33,6 +24,51 @@ namespace SPPSApi.Controllers.P01
     P00003_DataEntity P00003_DataEntity = new P00003_DataEntity();
     P00003_Logic P00003_Logic = new P00003_Logic();
     ComFunction comFunction = new ComFunction();
+
+    #region 获取包装打印机
+    [HttpPost]
+    [EnableCors("any")]
+    public string GetPackPrinter([FromBody] dynamic data)
+    {
+      string strToken = Request.Headers["X-Token"];
+      if (!isLogin(strToken))
+      {
+        return error_login();
+      }
+      LoginInfo loginInfo = getLoginByToken(strToken);
+      string opearteId = loginInfo.UserId;
+      ApiResult apiResult = new ApiResult();
+      try
+      {
+        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        string pointtype = dataForm.pointtype == null ? "" : dataForm.pointtype;//设备类型
+        string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
+        DataTable dtPrintName = P00003_Logic.checkPrintName(iP, pointtype);
+        bool bCheckPrint = false;
+        if (pointtype == "COM" || pointtype == "PAD")//平板,一体机
+        {
+          if (dtPrintName.Rows.Count != 2)
+            bCheckPrint = true;
+        }
+        if (bCheckPrint)
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "该设备绑定打印机有误，请联系管理员设置。";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+      }
+      catch (Exception ex)
+      {
+        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+        apiResult.code = ComConstant.ERROR_CODE;
+        apiResult.data = "验证包装打印机失败!";
+        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+      }
+
+      return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+    }
+    #endregion
+
     #region 激活验证解锁权限
     [HttpPost]
     [EnableCors("any")]
@@ -850,15 +886,20 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
-        DataTable dtPrintName = P00001_Logic.GetPrintName(iP);
+        string strKind = "LABEL PRINTER";
+        string strKindCase = "CASE PRINTER";
+        DataTable dtPrintName = P00003_Logic.GetPrintName(iP,strKind);
+        DataTable dtCasePrintName = P00003_Logic.GetPrintName(iP, strKindCase);
         string strPrinterName = "";
-        if (dtPrintName.Rows.Count == 0)
+        string strCasePrinterName = "";
+        if (dtPrintName.Rows.Count == 0|| dtCasePrintName.Rows.Count==0)
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "该点位标签打印机未进行设置，请设置后重试。";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         strPrinterName = dtPrintName.Rows[0]["vcPrinterName"].ToString();
+        strCasePrinterName = dtCasePrintName.Rows[0]["vcPrinterName"].ToString();
         //1.获取看板信息
         DataTable dtKanBanInfo = P00003_Logic.GetKanBanInfo(partId, kanbanOrderNo, kanbanSerial, dock, scanTime);
         //2.检验看板信息
@@ -1259,6 +1300,21 @@ namespace SPPSApi.Controllers.P01
         }
         string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
 
+        string strKind = "LABEL PRINTER";
+        string strKindCase = "CASE PRINTER";
+        DataTable dtPrintName = P00003_Logic.GetPrintName(iP, strKind);
+        DataTable dtCasePrintName = P00003_Logic.GetPrintName(iP, strKindCase);
+        string strPrinterName = "";
+        string strCasePrinterName = "";
+        if (dtPrintName.Rows.Count == 0 || dtCasePrintName.Rows.Count == 0)
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "该点位标签打印机未进行设置，请设置后重试。";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+        strPrinterName = dtPrintName.Rows[0]["vcPrinterName"].ToString();
+        strCasePrinterName = dtCasePrintName.Rows[0]["vcPrinterName"].ToString();
+
         //获取箱号相关信息
         DataTable dtBoxMasterInfo = P00003_Logic.getBoxMasterInfo(caseNo, serverTime);
         if (dtBoxMasterInfo.Rows.Count == 0)
@@ -1377,7 +1433,7 @@ namespace SPPSApi.Controllers.P01
         //插入装箱单打印表
         string strBoxNo = caseNo.Split('*')[1];
         string strCaseNo = caseNo;
-        P00003_Logic.setCastListInfo(dtOperateSJ_Temp, dtCaseList_Temp, iP, caseNo, strBoxNo, scanTime, opearteId);
+        P00003_Logic.setCastListInfo(dtOperateSJ_Temp, dtCaseList_Temp, iP, caseNo, strBoxNo, scanTime, opearteId,strCasePrinterName);
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
       catch (Exception ex)

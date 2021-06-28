@@ -106,8 +106,38 @@ namespace DataAccess
             return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
         }
 
+    public DataTable checkPrintName(string iP, string strPointType)
+    {
+      StringBuilder GetPrintSql = new StringBuilder();
+      if (strPointType == "COM" || strPointType == "PAD")
+      {
+        GetPrintSql.Append("select vcUserFlag from TPrint where vcKind in ('CASE PRINTER','LABEL PRINTER') and vcPrinterIp='" + iP + "'");
+      }
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
-        public int UpdateStatus4(string pointNo, string opearteId)
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = GetPrintSql.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+        return ds.Tables[0];
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+    }
+
+    public int UpdateStatus4(string pointNo, string opearteId)
         {
             StringBuilder UpdateStatusSql = new StringBuilder();
             UpdateStatusSql.Append("update TPointState set vcState='暂停' where vcPointNo='" + pointNo + "' and vcOperater='" + opearteId + "'");
@@ -386,7 +416,44 @@ namespace DataAccess
                 }
             }
         }
-        public DataTable GetPackList(string strInno)
+
+    public DataTable GetPrintName(string iP, string strKind)
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      if (strKind == "LABEL PRINTER")
+      {
+        stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='LABEL PRINTER'");
+      }
+      if (strKind == "CASE PRINTER")
+      {
+        stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='CASE PRINTER'");
+
+      }
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = stringBuilder.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+        return ds.Tables[0];
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+    }
+
+    public DataTable GetPackList(string strInno)
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
@@ -927,7 +994,7 @@ namespace DataAccess
                 }
             }
         }
-        public bool setCastListInfo(DataTable dtOperateSJ_Temp, DataTable dtCaseList_Temp, string strIP, string caseno, string boxno, string scanTime, string strOperId)
+        public bool setCastListInfo(DataTable dtOperateSJ_Temp, DataTable dtCaseList_Temp, string strIP, string caseno, string boxno, string scanTime, string strOperId, string strCasePrinterName)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
             sqlConnection.Open();
@@ -1195,7 +1262,7 @@ namespace DataAccess
                 strSql_mod_pt.AppendLine("           ('TCaseList'");
                 strSql_mod_pt.AppendLine("           ,'SPR09PACP'");
                 strSql_mod_pt.AppendLine("           ,@IP");
-                strSql_mod_pt.AppendLine("           ,'LASEL PRINTER'");
+                strSql_mod_pt.AppendLine("           ,'"+strCasePrinterName+"'");
                 strSql_mod_pt.AppendLine("           ,'3'");
                 strSql_mod_pt.AppendLine("           ,@vcOperatorID");
                 strSql_mod_pt.AppendLine("           ,GETDATE()");

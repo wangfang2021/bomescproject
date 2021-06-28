@@ -1450,7 +1450,7 @@ namespace DataAccess
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("select * from TSell_Sum where vcYinQuType='" + type + "' and vcBanZhi='" + banZhi + "' and vcDate='" + date + "'");
+            stringBuilder.AppendLine("select vcBanZhi,FORMAT(vcDate,'yyyy-MM-dd') as vcDate,vcBianCi,vcSellNo,iToolQuantity,vcTruckNo,vcQianFen,vcOperatorID,FORMAT(dOperatorTime,'yyyy-MM-dd hh:mm:ss') as dOperatorTime from TSell_Sum where vcYinQuType='" + type + "' and vcBanZhi='" + banZhi + "' and vcDate='" + date + "'");
             DataSet ds = new DataSet();
             try
             {

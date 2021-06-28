@@ -1254,6 +1254,7 @@ namespace SPPSApi.Controllers.P01
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "当前点位信息异常，请检查！";
+          apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
@@ -1264,6 +1265,7 @@ namespace SPPSApi.Controllers.P01
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "该箱号装箱数据为空，请确认后再试。";
+          apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         //计算两个数量iTotalcnt看板数+iTotalpiece求和数
@@ -1291,6 +1293,7 @@ namespace SPPSApi.Controllers.P01
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "装箱数据异常，请联系管理员处理。";
+          apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         //获取表结构
@@ -1382,6 +1385,7 @@ namespace SPPSApi.Controllers.P01
         ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
         apiResult.code = ComConstant.ERROR_CODE;
         apiResult.data = "打印装箱单失败";
+        apiResult.type = "LS";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
     }

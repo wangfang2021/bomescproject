@@ -167,6 +167,14 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
+                DateTime dtB = Convert.ToDateTime(strBegin);
+                DateTime dtE = Convert.ToDateTime(strEnd);
+                if (dtE< dtB) {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "结束时间不能小于开始时间！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 if (strKind == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

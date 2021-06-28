@@ -91,6 +91,12 @@ namespace Logic
                     {
                         string strBanZhi = getPackBanZhi(dEnd_Index.ToString("yyyy-MM"), dEnd_Index.Day);
 
+                        if (dEnd_Index.ToString("yyyy-MM-dd") == "2021-06-04")
+                        {
+                            int temp = 1;
+                        }
+
+
                         for (int j = 0; j < dtStandard.Rows.Count; j++)
                         {
                             string strX_WorkType = "";//发注时间白or夜
@@ -232,7 +238,8 @@ namespace Logic
                                         //dTimeTemp_NaQi = dEnd_Index.AddDays(iNaQiFromDay + iAddDay);
 
                                         dTimeTemp_NaQi = addSubDay(dEnd_Index, iNaQiFromDay);
-                                        //dTimeTemp_NaQi = dEnd_Index.AddDays(iAddDay);
+                                        if(iAddDay==1)
+                                            dTimeTemp_NaQi = dTimeTemp_NaQi.AddDays(iAddDay);
                                         dTimeTemp_NaQi = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd") + " " + strNaQiFromTime);
                                     }
                                     else //昨天的夜班(即凌晨)
@@ -240,21 +247,32 @@ namespace Logic
 
                                         //dTimeTemp_NaQi = dEnd_Index.AddDays(iNaQiFromDay + iAddDay);
 
-                                        dTimeTemp_NaQi = addSubDay(dEnd_Index, iNaQiFromDay);
-                                        //dTimeTemp_NaQi = dEnd_Index.AddDays(iAddDay);
-                                        dTimeTemp_NaQi = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd") + " " + strNaQiFromTime);
-
                                         ///begin 这块之所以取白班区间，是因为不能判断哪天是否是白班，因为这时候纳期是哪天还不确定///
                                         DataTable dt = fs0705_DataAccess.getBanZhi(strPackSpot, "白");
                                         DateTime dBaiStart = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd") + " " + dt.Rows[0]["tFromTime"].ToString());
                                         DateTime dBaiEnd = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd") + " " + dt.Rows[0]["tToTime"].ToString());
                                         DateTime temp= Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd") + " " + strNaQiFromTime);
                                         ///end///
-                                        if (temp >= dBaiStart && temp <= dBaiEnd)//如果纳期起是白班，这种用户会在纳期维护+1，实际上还是当天，则需要减去-1
+                                        //if (temp >= dBaiStart && temp <= dBaiEnd)//如果纳期起是白班，这种用户会在纳期维护+1，实际上还是当天，则需要减去-1
+                                        //{
+                                        //    //dTimeTemp_NaQi = dTimeTemp_NaQi.AddDays(-1);
+                                        //    dTimeTemp_NaQi = addSubDay(dTimeTemp_NaQi, -1);
+                                        //}
+
+
+                                        dTimeTemp_NaQi = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd") + " " + strNaQiFromTime);
+                                        //dTimeTemp_NaQi = dEnd_Index.AddDays(iAddDay);
+
+                                        if (temp < dBaiStart)//纳期小于白班起，需要-1
                                         {
                                             //dTimeTemp_NaQi = dTimeTemp_NaQi.AddDays(-1);
-                                            dTimeTemp_NaQi = addSubDay(dTimeTemp_NaQi, -1);
+                                            dTimeTemp_NaQi = addSubDay(dTimeTemp_NaQi, iNaQiFromDay  );
                                         }
+                                        else
+                                        {//大于等于白班，证明当前天就是当前工作日，这种时候用户会维护纳期是1，但实际上不加也不减，所以应该-1
+                                            dTimeTemp_NaQi = addSubDay(dTimeTemp_NaQi, iNaQiFromDay -1  );
+                                        }
+                                        
                                     }
                                 }
 
@@ -264,8 +282,12 @@ namespace Logic
                                 {
                                     hasFind = true;
                                     task.dRuheToDate = dY_To;
-                                    if (strWorkType == "夜" && dTimeTemp_NaQi.Hour >= 0 && dTimeTemp_NaQi.Hour < 12)
+                                    if (iAddDay == 1 && strWorkType == "夜" && dTimeTemp_NaQi.Hour >= 0 && dTimeTemp_NaQi.Hour < 12)
                                         dTimeTemp_NaQi = dTimeTemp_NaQi.AddDays(-1);//如果是稼动日，且是夜班，纳入时间在早上，那么工作日=纳期-1
+                                    else if (strWorkType == "夜" && dX.Hour <= 12)
+                                    {
+                                        dTimeTemp_NaQi = dTimeTemp_NaQi.AddDays(-1);
+                                    }
                                 }
                                 else
                                 { //如果不是稼动日，则往后找一天最早班值的第一便次(距离白or夜起始时间最近的便次，即第一便次)
@@ -280,7 +302,7 @@ namespace Logic
                                         if (findIndex > MAX_FIND)//向后找，也没找到维护的稼动日，则报错
                                             throw new Exception("包材纳期在向后找稼动日时，向后找超过" + MAX_FIND + "天都没找到稼动日，最后查找日期" + dTimeTemp_NaQi.ToString("yyyy-MM-dd"));
                                         string strBanZhiLast = getPackBanZhi(dTimeTemp_NaQi.ToString("yyyy-MM"), dTimeTemp_NaQi.Day);
-                                        if (strBanZhiLast == "双值" || strBanZhiLast == "白")
+                                        if (strBanZhiLast == "双值" || strBanZhiLast == "白值")
                                         {
                                             DataRow dRow = getFirstBianCi(strPackSpot, dtStandard, "白", dTimeTemp_NaQi);
                                             strBianCi = dRow["vcBianCi"].ToString();//便次名后缀
@@ -292,7 +314,7 @@ namespace Logic
                                                 hasFind = true;
                                             break;
                                         }
-                                        else if (strBanZhiLast == "夜")
+                                        else if (strBanZhiLast == "夜值")
                                         {
                                             DataRow dRow = getFirstBianCi(strPackSpot, dtStandard, "夜", dTimeTemp_NaQi);
                                             strBianCi = dRow["vcBianCi"].ToString();//便次名后缀
@@ -318,11 +340,11 @@ namespace Logic
                                 dTimeTemp_NaQi_To = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd") + " " + strNaQiToTime);
 
                                 task.strBCName = dTimeTemp_NaQi.ToString("yyyy-MM-dd") + " " + strBianCi;
-                                //if (task.strBCName == "2021-06-07 外注纸箱 白值1便")
-                                //{
-                                //    int a = 0;
-                                //    a = 1;
-                                //}
+                                if (task.strBCName == "2021-06-08 外注纸箱 白值1便")
+                                {
+                                    int a = 0;
+                                    a = 1;
+                                }
                                 task.dNaqiToDate = dTimeTemp_NaQi_To;
                                 task.strFaZhuID = strFaZhuID;
                                 result.Add(task);
@@ -363,11 +385,11 @@ namespace Logic
                 if (findIndex > MAX_FIND)//向后找，也没找到维护的稼动日，则报错
                     throw new Exception("包材纳期在向后找稼动日时，向后找超过" + MAX_FIND + "天都没找到稼动日，最后查找日期"+ dIndexDay.ToString("yyyy-MM-dd"));
                 string strBanZhiLast = getPackBanZhi(dIndexDay.ToString("yyyy-MM"), dIndexDay.Day);
-                if (strBanZhiLast == "双值" || strBanZhiLast == "白")
+                if (strBanZhiLast == "双值" || strBanZhiLast == "白值")
                 {
                     iAddDays = iAddDays - iTurn;
                 }
-                else if (strBanZhiLast == "夜")
+                else if (strBanZhiLast == "夜值")
                 {
                     iAddDays = iAddDays - iTurn;
                 }
@@ -584,18 +606,18 @@ namespace Logic
             string strBanZhi = getPackBanZhi(dT.ToString("yyyy-MM"), dT.Day);
             DateTime dtLast = dT.AddDays(-1);
             string strBanZhiLast = getPackBanZhi(dtLast.ToString("yyyy-MM"), dtLast.Day);
-            if (strBanZhiLast == "双值" || strBanZhiLast == "夜")
+            if (strBanZhiLast == "双值" || strBanZhiLast == "夜值")
             {
                 switch (strBanZhi)
                 {
                     case "非稼动":
                         checkList.Add(getBZTime(strPackPlant, "夜", dtLast.ToString("yyyy-MM-dd")));
                         ; break;
-                    case "白":
+                    case "白值":
                         checkList.Add(getBZTime(strPackPlant, "夜", dtLast.ToString("yyyy-MM-dd")));
                         checkList.Add(getBZTime(strPackPlant, "白", dT.ToString("yyyy-MM-dd")));
                         ; break;
-                    case "夜":
+                    case "夜值":
                         checkList.Add(getBZTime(strPackPlant, "夜", dtLast.ToString("yyyy-MM-dd")));
                         checkList.Add(getBZTime(strPackPlant, "夜", dT.ToString("yyyy-MM-dd")));
                         ; break;
@@ -606,16 +628,16 @@ namespace Logic
                         ; break;
                 }
             }
-            else if (strBanZhiLast == "白" || strBanZhiLast == "非稼动")
+            else if (strBanZhiLast == "白值" || strBanZhiLast == "非稼动")
             {
                 switch (strBanZhi)
                 {
                     case "非稼动":
                         ; break;
-                    case "白":
+                    case "白值":
                         checkList.Add(getBZTime(strPackPlant, "白", dT.ToString("yyyy-MM-dd")));
                         ; break;
-                    case "夜":
+                    case "夜值":
                         checkList.Add(getBZTime(strPackPlant, "夜", dT.ToString("yyyy-MM-dd")));
                         ; break;
                     case "双值":

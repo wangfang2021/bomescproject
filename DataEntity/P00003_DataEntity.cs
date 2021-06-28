@@ -10,9 +10,13 @@ namespace DataEntity
     public string GZ { get; set; }
 
     public string caseNo { get; set; }
-    public string caseNo1 { get; set; }
+    public string boxNo { get; set; }
+        public string caseNo1 { get; set; }
+    public string boxNo1 { get; set; }
     public string caseNo2 { get; set; }
+    public string boxNo2 { get; set; }
     public string caseNo3 { get; set; }
+    public string boxNo3 { get; set; }
 
     public string packTotalTime { get; set; }
 

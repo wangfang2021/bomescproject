@@ -5,6 +5,9 @@ using System.Drawing;
 using System.IO;
 using QRCoder;
 using System.Drawing.Imaging;
+using DataEntity;
+using System.Xml;
+using System.Text;
 
 namespace Logic
 {
@@ -14,7 +17,7 @@ namespace Logic
 
         public static DataTable GetSum(string iP)
         {
-            // return P00001_DataAccess.GetSum(iP);
+            
             return P00001_DataAccess.GetSum(iP);
         }
 
@@ -23,15 +26,6 @@ namespace Logic
             return P00001_DataAccess.GetUserRole(opearteId);
         }
 
-        public static DataTable GetPrint1(string iP)
-        {
-            return P00001_DataAccess.GetPrint1(iP);
-        }
-
-        public static DataTable GetPrint(string iP)
-        {
-            return P00001_DataAccess.GetPrint(iP);
-        }
 
         public static DataTable ValidateOpr2(string inno)
         {
@@ -43,10 +37,6 @@ namespace Logic
             return P00001_DataAccess.ValidateOpr1(inno);
         }
 
-        public static DataTable ValidateUser(string opearteId)
-        {
-            return P00001_DataAccess.ValidateUser(opearteId);
-        }
 
         public static DataTable GetPackQuantity(string inno)
         {
@@ -71,7 +61,7 @@ namespace Logic
 
         public static void DeleteTrolley(string trolley, string iP, string lotId)
         {
-             P00001_DataAccess.DeleteTrolley(trolley, iP, lotId);
+            P00001_DataAccess.DeleteTrolley(trolley, iP, lotId);
         }
 
         public static DataTable GetQuantity(string partId, string scanTime, string dock)
@@ -79,51 +69,28 @@ namespace Logic
             return P00001_DataAccess.GetQuantity(partId, scanTime, dock);
         }
 
-        public static DataTable GetSeqNo(string tmpString, string formatServerTime)
-        {
-            return P00001_DataAccess.GetSeqNo(tmpString, formatServerTime);
-        }
 
-        public static void InsertSeqNo(string tmpString, string formatServerTime)
-        {
-             P00001_DataAccess.InsertSeqNo(tmpString, formatServerTime);
-        }
 
         public static void InsertTrolley1(string seqNo, string trolley, string iP, string opearteId, string serverTime)
         {
-             P00001_DataAccess.InsertTrolley1(seqNo, trolley, iP, opearteId, serverTime);
+            P00001_DataAccess.InsertTrolley1(seqNo, trolley, iP, opearteId, serverTime);
         }
 
-        public static void UpdateSeqNo(string tmpString, string formatServerTime, int seqNoNew)
-        {
-             P00001_DataAccess.UpdateSeqNo(tmpString, formatServerTime, seqNoNew);
 
-        }
 
         public static DataTable GetTrolley(string opearteId, string iP)
         {
             return P00001_DataAccess.GetTrolley(opearteId, iP);
         }
 
-        public static DataTable GetDetail(string pointNo)
-        {
-            return P00001_DataAccess.GetDetail(pointNo);
-        }
+
 
         public static DataTable GetTrolleyInfo(string trolley, string iP, string lotId)
         {
             return P00001_DataAccess.GetTrolleyInfo(trolley, iP, lotId);
         }
 
-        public static void UpdateDetail(string uuid, string serverTime)
-        {
-            P00001_DataAccess.UpdateDetail(uuid, serverTime);
-        }
 
-        public static void UpdateStatus5(string pointNo)
-        {
-            P00001_DataAccess.UpdateStatus5(pointNo);
-        }
 
         public static DataTable GetBanZhi(string serverTime)
         {
@@ -138,12 +105,12 @@ namespace Logic
 
         public static void InsertDetail(string date, string banZhi, string pointNo, string uuid, string serverTime, string opearteId)
         {
-           P00001_DataAccess.InsertDetail(date, banZhi, pointNo, uuid, serverTime, opearteId);
+            P00001_DataAccess.InsertDetail(date, banZhi, pointNo, uuid, serverTime, opearteId);
         }
 
         public static void UpdateStatus3(string pointNo)
         {
-             P00001_DataAccess.UpdateStatus3(pointNo);
+            P00001_DataAccess.UpdateStatus3(pointNo);
         }
 
 
@@ -159,7 +126,7 @@ namespace Logic
 
         public static void UpdateStatus(string opearteId, string iP, string pointNo)
         {
-             P00001_DataAccess.UpdateStatus(opearteId, iP, pointNo);
+            P00001_DataAccess.UpdateStatus(opearteId, iP, pointNo);
         }
 
         public static DataTable GetKanBan(string iP, string trolley, string trolleySeqNo)
@@ -191,7 +158,7 @@ namespace Logic
 
         public static void InsertSeqNo(string packingSpot, string serverTime, string tmpString)
         {
-             P00001_DataAccess.InsertSeqNo(packingSpot, serverTime, tmpString);
+            P00001_DataAccess.InsertSeqNo(packingSpot, serverTime, tmpString);
         }
 
         public static int UpdateSeqNo(string packingSpot, string serverTime, int seqNoNew, string tmpString)
@@ -199,10 +166,7 @@ namespace Logic
             return P00001_DataAccess.UpdateSeqNo(packingSpot, serverTime, seqNoNew, tmpString);
         }
 
-        public static void UpdateCase(string iP)
-        {
-             P00001_DataAccess.UpdateCase(iP);
-        }
+
 
 
         public static void UpdateQB(string lotId, string iP, string trolley)
@@ -230,14 +194,11 @@ namespace Logic
 
         public static void UpdatePoint1(string pointNo)
         {
-             P00001_DataAccess.UpdatePoint1(pointNo);
+            P00001_DataAccess.UpdatePoint1(pointNo);
         }
 
 
-        public static DataTable GetPointType(string pointNo)
-        {
-            return P00001_DataAccess.GetPointType(pointNo);
-        }
+
 
         public static DataTable ValidateQB(string trolley)
         {
@@ -280,7 +241,7 @@ namespace Logic
 
         public static void UpdateTrolley1(string iP, string opearteId, string trolley, string lotId)
         {
-             P00001_DataAccess.UpdateTrolley1(iP, opearteId, trolley, lotId);
+            P00001_DataAccess.UpdateTrolley1(iP, opearteId, trolley, lotId);
         }
 
 
@@ -306,20 +267,17 @@ namespace Logic
 
 
 
-        public static DataTable GetPointNo(string iP)
-        {
-            return P00001_DataAccess.GetPointNo(iP);
-        }
 
 
-       
+
+
         public static DataTable GetSeqNo1(string iP, string kanbanOrderNo, string kanbanSerial, string dock, string partId)
         {
             return P00001_DataAccess.GetSeqNoSql(iP, kanbanOrderNo, kanbanSerial, dock, partId);
 
         }
 
-      
+
         public static DataTable GetSeqNo2(string iP, string kanbanOrderNo, string kanbanSerial, string dock, string partId)
         {
             return P00001_DataAccess.GetSeqNo2(iP, kanbanOrderNo, kanbanSerial, dock, partId);
@@ -337,17 +295,55 @@ namespace Logic
 
         public static void UpdateTrolley3(string trolley, string trolleySeqNo, string iP)
         {
-           P00001_DataAccess.UpdateTrolley3(trolley, trolleySeqNo, iP);
+            P00001_DataAccess.UpdateTrolley3(trolley, trolleySeqNo, iP);
         }
 
         //========================================================================重写========================================================================
+        public static DataTable GetPointNo(string iP)
+        {
+            return P00001_DataAccess.GetPointNo(iP);
+        }
+        public static DataTable checkPrintName(string iP, string strPointType)
+        {
+            return P00001_DataAccess.checkPrintName(iP, strPointType);
+        }
+        public static void setCaseState(string strIP)
+        {
+            P00001_DataAccess.setCaseState(strIP);
+        }
+        public static DataTable GetPointState(string strOperater)
+        {
+            return P00001_DataAccess.GetPointState(strOperater);
+        }
+        public static void setSysExit(string strIP, string strType)
+        {
+            try
+            {
+                P00001_DataAccess.setSysExit(strIP, strType);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setAppHide(string strIP, string strPage)
+        {
+            try
+            {
+                P00001_DataAccess.setAppHide(strIP, strPage);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public static DataSet getCheckQBandSJInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packingSpot, string scanTime, string strType)
         {
             return P00001_DataAccess.getCheckQBandSJInfo(partId, kanbanOrderNo, kanbanSerial, dock, packingSpot, scanTime, strType);
         }
-        public static void Insert(string trolley, string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial, string scanTime, String iP, string serverTime, string cpdCompany, string inno, string opearteId, string packingSpot, string packQuantity, string lblSart, string lblEnd, string supplierId, string supplierPlant, string trolleySeqNo, string inoutFlag, string kanBan)
+        public static void Insert(string trolley, string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial, string scanTime, String iP, string serverTime, string cpdCompany, string inno, string opearteId, string packingSpot, string packQuantity, string lblSart, string lblEnd, string supplierId, string supplierPlant, string trolleySeqNo, string inoutFlag, string kanBan,string orderplant)
         {
-             P00001_DataAccess.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packQuantity, lblSart, lblEnd, supplierId, supplierPlant, trolleySeqNo, inoutFlag, kanBan);
+            P00001_DataAccess.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packQuantity, lblSart, lblEnd, supplierId, supplierPlant, trolleySeqNo, inoutFlag, kanBan, orderplant);
         }
         public static DataSet getInputInfoFromDB(string strIP, string serverTime)
         {
@@ -393,6 +389,266 @@ namespace Logic
         public static DataTable GetPrintName(string iP)
         {
             return P00001_DataAccess.GetPrintName(iP);
+        }
+        public bool checkPointState(string strOperater, string strPlant, string strIP)
+        {
+            try
+            {
+                DataTable dataTable = P00001_DataAccess.checkPointState(strOperater, strPlant, strIP);
+                if (dataTable.Rows.Count == 0)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getPointState_Site(string strOperater, string strPlant, string strIP)
+        {
+            try
+            {
+                return P00001_DataAccess.getPointState_Site(strOperater, strPlant, strIP);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setPointState_Site(string strOperater, string strPlant, string strIP, string strSiteType, string strOperType)
+        {
+            try
+            {
+                P00001_DataAccess.setPointState_Site(strOperater, strPlant, strIP, strSiteType, strOperType);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    public static P00001_DataEntity.ScanData CutScanData(string kanBan)
+    {
+
+      DataEntity.P00001_DataEntity.ScanData scanData = new P00001_DataEntity.ScanData();
+      scanData.SUPPLIER_CODE = kanBan.Substring(1, 4);       //厂家
+      scanData.SUPPLIER_PLANT = kanBan.Substring(5, 1);      //工区
+      scanData.SHIPPING_DOCK = kanBan.Substring(6, 3);       //出荷厂
+      scanData.INVOICE_NO = kanBan.Substring(61, 20).Trim(); //纳受领书号
+      scanData.ORDER_NO = kanBan.Substring(219, 12);         //订单号
+      scanData.KNBN_PRN_ADDRESS = kanBan.Substring(100, 10);  //所番地
+      scanData.PART_NO = kanBan.Substring(16, 12);           //品番
+      scanData.DOCK_CODE = kanBan.Substring(14, 2);          //受入
+      scanData.SERIAL_NO = Convert.ToInt32(kanBan.Substring(57, 4)).ToString();          //顺番号
+      scanData.KNBN_NO = kanBan.Substring(53, 4).Trim();     //背番
+      scanData.PLANE_NO = kanBan.Substring(kanBan.Length - 2, 2).Trim();    //链号
+      return scanData;
+
+    }
+    public static void SaveXml(P00001_DataEntity.ScanData sData, string serverTime, string name, string formatTime, string strPlant)
+    {
+      #region 写入Y
+      string sFilePathY = "";
+      if (strPlant=="1") {
+        sFilePathY = @"X:\" + name + "_Y_" + formatTime + ".xml";
+
+      }
+      if (strPlant == "2")
+      {
+        sFilePathY = @"Y:\" + name + "_Y_" + formatTime + ".xml";
+
+      }
+      if (strPlant == "3")
+      {
+        sFilePathY = @"Z:\" + name + "_Y_" + formatTime + ".xml";
+
+      }
+      string s = "";
+      if (File.Exists(sFilePathY))
+      {
+        StreamReader sr = File.OpenText(sFilePathY);
+        s = sr.ReadToEnd();
+        s = s.Replace("</Detils>", "");
+        s = s.Replace("<?xml version=\"1.0\"?>\r\n<Detils>\r\n", "");
+        sr.Close();
+      }
+
+      System.Xml.XmlDocument doc = new XmlDocument();
+      XmlElement root = doc.CreateElement("Books");
+      doc.AppendChild(root);
+      XmlElement nodes = doc.CreateElement("Infor");
+
+
+      XmlElement x1 = doc.CreateElement("SUPPLIER_CODE");
+      x1.InnerText = sData.SUPPLIER_CODE.Trim();
+      nodes.AppendChild(x1);
+
+      XmlElement x2 = doc.CreateElement("SUPPLIER_PLANT");
+      x2.InnerText = sData.SUPPLIER_PLANT.Trim();
+      nodes.AppendChild(x2);
+
+      XmlElement x3 = doc.CreateElement("SHIPPING_DOCK");
+      x3.InnerText = sData.SHIPPING_DOCK.Trim();
+      nodes.AppendChild(x3);
+
+      XmlElement x4 = doc.CreateElement("SR_GRP_CODE");
+      x4.InnerText = "";
+      nodes.AppendChild(x4);
+
+      XmlElement x5 = doc.CreateElement("INVOICE_NO");
+      x5.InnerText = sData.INVOICE_NO.Trim();
+      nodes.AppendChild(x5);
+
+      XmlElement x6 = doc.CreateElement("ORDER_NO");
+      x6.InnerText = sData.ORDER_NO.Trim();
+      nodes.AppendChild(x6);
+
+      XmlElement x7 = doc.CreateElement("KNBN_PRN_ADDRESS");
+      x7.InnerText = sData.KNBN_PRN_ADDRESS.Trim();
+      nodes.AppendChild(x7);
+
+      XmlElement x8 = doc.CreateElement("KNBN_NO");
+      x8.InnerText = sData.KNBN_NO.Trim();
+      nodes.AppendChild(x8);
+
+      XmlElement x9 = doc.CreateElement("PART_NO");
+      x9.InnerText = sData.PART_NO.Trim();
+      nodes.AppendChild(x9);
+
+      XmlElement x10 = doc.CreateElement("DOCK_CODE");
+      x10.InnerText = sData.DOCK_CODE.Trim();
+      nodes.AppendChild(x10);
+
+      XmlElement x11 = doc.CreateElement("SERIAL_NO");
+      x11.InnerText = sData.SERIAL_NO.Trim();
+      nodes.AppendChild(x11);
+
+      XmlElement x12 = doc.CreateElement("DOCK_ARRIALTIME");
+      x12.InnerText = "";
+      nodes.AppendChild(x12);
+
+      XmlElement x13 = doc.CreateElement("P_TIME");
+      x13.InnerText = "";
+      nodes.AppendChild(x13);
+
+      XmlElement x14 = doc.CreateElement("SCAN_TIME");
+      x14.InnerText = serverTime;
+      nodes.AppendChild(x14);
+
+      XmlElement x15 = doc.CreateElement("SCAN_FLG");
+      x15.InnerText = "1";
+      nodes.AppendChild(x15);
+
+      XmlElement x16 = doc.CreateElement("SCAN_USER");
+      x16.InnerText = "buji";
+      nodes.AppendChild(x16);
+
+      //2017-04-20 增加扫描点位 李志远 start
+      XmlElement x17 = doc.CreateElement("SCAN_AREA");
+      x17.InnerText = "buji";
+      nodes.AppendChild(x17);
+
+      //end
+
+      root.AppendChild(nodes);
+      s += doc.ChildNodes[0].InnerXml;
+
+      s = "<?xml version=\"1.0\"?>\r\n<Detils>\r\n" + s + "</Detils>";
+
+      byte[] b = UTF8Encoding.UTF8.GetBytes(s);
+      FileStream fs = new FileStream(sFilePathY, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+      try
+      {
+        fs.Write(b, 0, b.Length);
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        fs.Close();
+      }
+      #endregion
+    }
+
+
+    public string ChangeBarCode(string strPartsNo)
+        {
+            string strBarCode = "";
+            try
+            {
+                int lngBarCodeCount = 0;
+                int lngAscCode = 0;
+                if (strPartsNo.Substring(10, 2) == "00")
+                    strPartsNo = strPartsNo.Substring(0, 10) + "  ";
+                int PLen = strPartsNo.Length;
+                for (int i = 0; i < PLen; i++)
+                {
+                    char asc = char.Parse(strPartsNo.Substring(i, 1));
+                    lngAscCode = (int)asc;
+                    if (lngAscCode != 32)
+                    {
+                        if (lngAscCode < 65)
+                        {
+                            lngBarCodeCount = lngBarCodeCount + (lngAscCode - 48);
+                        }
+                        else
+                        {
+                            lngBarCodeCount = lngBarCodeCount + (lngAscCode - 55);
+                        }
+                    }
+                    else
+                    {
+                        lngBarCodeCount = lngBarCodeCount + 38;
+                    }
+                }
+                lngAscCode = lngBarCodeCount % 43;
+                if (lngAscCode < 10)
+                {
+                    strBarCode = Convert.ToChar(lngAscCode + 48).ToString();
+                }
+                else if (lngAscCode > 9 && lngAscCode < 36)
+                {
+                    strBarCode = Convert.ToChar(lngAscCode + 55).ToString();
+                }
+                else
+                {
+                    switch (lngAscCode)
+                    {
+                        case 36:
+                            strBarCode = "-";
+                            break;
+                        case 37:
+                            strBarCode = ".";
+                            break;
+                        case 38:
+                            strBarCode = " ";
+                            break;
+                        case 39:
+                            strBarCode = "$";
+                            break;
+                        case 40:
+                            strBarCode = "/";
+                            break;
+                        case 41:
+                            strBarCode = "+";
+                            break;
+                        case 42:
+                            strBarCode = "%";
+                            break;
+                        default:
+                            break;
+
+                    }
+                }
+                strBarCode = strPartsNo + strBarCode;
+                return "*" + strBarCode + "*";
+            }
+            catch (Exception ex)
+            {
+                strBarCode = strPartsNo + strBarCode;
+                return "*" + strBarCode + "*";
+            }
         }
     }
 }

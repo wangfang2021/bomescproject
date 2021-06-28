@@ -21,19 +21,6 @@ namespace BatchProcess
                 //批处理开始
                 ComMessage.GetInstance().ProcessMessage(PageId, "批处理开始", null, strUserId);
                 updateParts(strUserId);
-
-                //bool b1 = addPartInfo(strUserId, getNewData());
-                //bool b2 = updatePartInfo(strUserId);
-                //if (b1 && b2)
-                //{
-                //    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行成功", null, strUserId);
-                //    return true;
-                //}
-                //else
-                //{
-                //    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行失败", null, strUserId);
-                //    return false;
-                //}
                 return true;
             }
             catch (Exception ex)
@@ -284,7 +271,7 @@ namespace BatchProcess
             StringBuilder sb1 = new StringBuilder();
             sb1.Append(" select * from (   \n");
             sb1.Append("    select a.vcPartId, convert(char(10),a.dFromTime,120) as dFromTime,convert(char(10),a.dToTime,120) as dToTime,'' as vcDock,a.vcCarFamilyCode,a.vcPartENName,  \n");
-            sb1.Append("	 '' as iQuantityPerContainer,a.vcValue as vcOrderingMethod,a.vcReceiver,a.vcSupplierId,d.vcSupplierPlant,a.vcPartImage,a.vcPassProject,a.vcHaoJiu,'0' as vcInOutFlag,a.dOperatorTime  \n");
+            sb1.Append(@"	 '' as iQuantityPerContainer,a.vcValue as vcOrderingMethod,a.vcReceiver,a.vcSupplierId,d.vcSupplierPlant,replace(a.vcPartImage,'\pic\','') as vcPartImage,a.vcPassProject,a.vcHaoJiu,'0' as vcInOutFlag,a.dOperatorTime ");
             sb1.Append("     from (select TSPMaster.*, TCode.vcValue from TSPMaster left join TCode   \n");
             sb1.Append("     on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and TSPMaster.vcInOut='0') a \n");
             sb1.Append(" left join (select * from TSPMaster_SupplierPlant where vcOperatorType='1' and dToTime>=getdate()) d   \n");
@@ -480,15 +467,6 @@ namespace BatchProcess
                 }
             }
             excute.ExecuteSQLNoQuery(strSQL.ToString());
-        }
-        #endregion
-
-        #region 追加新品番
-        public void AddParts()
-        {
-            //获取所有采购品番履历
-            DataTable dt = getMasterParts();
-
         }
         #endregion
     }

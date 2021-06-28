@@ -28,80 +28,6 @@ namespace SPPSApi.Controllers.P01
       _webHostEnvironment = webHostEnvironment;
 
     }
-    #region 登录前验证打印机(PAD,扫描枪)
-    //ValidatePrint1Api
-    [HttpPost]
-    [EnableCors("any")]
-    public string ValidatePrint1Api([FromBody] dynamic data)
-    {
-      string strToken = Request.Headers["X-Token"];
-      if (!isLogin(strToken))
-      {
-        return error_login();
-      }
-      LoginInfo loginInfo = getLoginByToken(strToken);
-      string opearteId = loginInfo.UserId;
-      ApiResult apiResult = new ApiResult();
-      try
-      {
-        string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
-        DataTable getPrint = P00001_Logic.GetPrint1(iP);
-        if (getPrint.Rows.Count != 2)
-        {
-          apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "当前机器没有正确绑定打印机,请联系管理员!";
-          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-        }
-      }
-      catch (Exception ex)
-      {
-        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
-        apiResult.code = ComConstant.ERROR_CODE;
-        apiResult.data = "验证打印机失败!";
-        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-      }
-      return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-    }
-    #endregion
-
-    #region 登录前验证打印机(PAD)
-    //ValidatePrintApi
-    [HttpPost]
-    [EnableCors("any")]
-    public string ValidatePrintApi([FromBody] dynamic data)
-    {
-      string strToken = Request.Headers["X-Token"];
-      if (!isLogin(strToken))
-      {
-        return error_login();
-      }
-      LoginInfo loginInfo = getLoginByToken(strToken);
-      string opearteId = loginInfo.UserId;
-      ApiResult apiResult = new ApiResult();
-      try
-      {
-        string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
-        DataTable getPrint = P00001_Logic.GetPrint(iP);
-        if (getPrint.Rows.Count != 3)
-        {
-          apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "当前机器没有正确绑定打印机,请联系管理员!";
-          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-        }
-      }
-      catch (Exception ex)
-      {
-        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
-        apiResult.code = ComConstant.ERROR_CODE;
-        apiResult.data = "验证打印机失败!";
-        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-      }
-
-      return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-    }
-    #endregion
 
     #region 获取权限
     [HttpPost]
@@ -287,7 +213,7 @@ namespace SPPSApi.Controllers.P01
     }
     #endregion
 
-    #region 验证账号是否已经登录
+    #region 系统登录（主页面）
     [HttpPost]
     [EnableCors("any")]
     public string ValidateLoginApi([FromBody] dynamic data)
@@ -302,31 +228,74 @@ namespace SPPSApi.Controllers.P01
       ApiResult apiResult = new ApiResult();
       try
       {
-        DataTable validateUser = P00001_Logic.ValidateUser(opearteId);
-        //ip插入位置
+        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        string pointtype = dataForm.pointtype == null ? "" : dataForm.pointtype;//设备类型
+                                                                                //ip插入位置
         string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
-        //DataTable getPointDetails = P00001_Logic.GetPointDetails(iP);
-        if (validateUser.Rows.Count == 1)
+        //验证独占登录
+        //如果PDA登录校验PDA下是否同时登录
+        //如果非PDA登录校验非PDA下是否同时登录
+        //记录数据库数据
+        DataTable dtSite = new P00001_Logic().getPointState_Site(opearteId, loginInfo.BaoZhuangPlace, iP);
+        if (dtSite.Rows.Count != 0)
         {
-          string pointNo = validateUser.Rows[0]["vcPointNo"].ToString();
-          //string pointName = getPointDetails.Rows[0][0].ToString();
-          DataTable getPointType = P00001_Logic.GetPointType(pointNo);
-          if (getPointType.Rows.Count == 1)
+          DataRow[] drSite = null;
+          if (pointtype == "PDA")
+            drSite = dtSite.Select("vcSiteType='PDA'");
+          else
+            drSite = dtSite.Select("vcSiteType<>'PDA'");
+          if (drSite != null && drSite.Length != 0)
           {
-            string pointType = getPointType.Rows[0]["vcPointType"].ToString();
-            apiResult.code = ComConstant.ERROR_CODE;
-            apiResult.data = "账号已经在" + pointType + pointNo + "登录";
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
+            if (drSite[0]["vcIP"].ToString() != iP)
+            {
+              apiResult.code = ComConstant.ERROR_CODE;
+              apiResult.data = "账号已经在" + drSite[0]["vcPointType"].ToString() + "-" + drSite[0]["vcPointNo"].ToString() + "登录";
+              return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
           }
         }
-        else if (validateUser.Rows.Count > 0)
+        //if (pointtype != "PDA")
+        //{
+        //    DataTable dtPointState = P00001_Logic.GetPointState(opearteId);
+        //    if (dtPointState.Rows.Count > 0)
+        //    {
+        //        if (dtPointState.Rows[0]["vcPointIp"].ToString() != iP)
+        //        {
+        //            apiResult.code = ComConstant.ERROR_CODE;
+        //            apiResult.data = "账号已经在" + dtPointState.Rows[0]["vcPointType"].ToString() + dtPointState.Rows[0]["vcPointNo"].ToString() + "登录";
+        //            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //        }
+        //    }
+        //}
+        //验证打印机
+        DataTable dtPrintName = P00001_Logic.checkPrintName(iP, pointtype);
+        bool bCheckPrint = false;
+        if (pointtype == "PDA")//扫描枪
         {
-
+          if (dtPrintName.Rows.Count != 2)
+            bCheckPrint = true;
+        }
+        if (pointtype == "COM")//一体机
+        {
+          if (dtPrintName.Rows.Count != 2)
+            bCheckPrint = true;
+        }
+        if (pointtype == "PAD")//PAD
+        {
+          if (dtPrintName.Rows.Count != 3)
+            bCheckPrint = true;
+        }
+        if (bCheckPrint)
+        {
           apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "账号信息异常,请联系管理员";
+          apiResult.data = "该设备绑定打印机有误，请联系管理员设置。";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
+        //更新或者插入状态
+        new P00001_Logic().setPointState_Site(opearteId, loginInfo.BaoZhuangPlace, iP, pointtype, "登录");
+
+        P00001_Logic.setCaseState(iP);
+        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
       catch (Exception ex)
       {
@@ -335,12 +304,157 @@ namespace SPPSApi.Controllers.P01
         apiResult.data = "验证账号失败!";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
+    }
+    #endregion
+
+    #region hide页面操作
+    [HttpPost]
+    [EnableCors("any")]
+    public string HideAppApi([FromBody] dynamic data)
+    {
+      string strToken = Request.Headers["X-Token"];
+      if (!isLogin(strToken))
+      {
+        return error_login();
+      }
+      LoginInfo loginInfo = getLoginByToken(strToken);
+      string opearteId = loginInfo.UserId;
+      ApiResult apiResult = new ApiResult();
+      try
+      {
+        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        string pagetype = dataForm.pagetype == null ? "" : dataForm.pagetype;//页面（登录、主页、入荷、检查、包装、出荷）
+        string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
+        //凡是对于页面进行隐藏操作均视为完全退出
+        //所有功能需要添加
+        //new P00001_Logic().checkPointState(opearteId, loginInfo.BaoZhuangPlace, iP);
+        //返回值fasle继续，true需要提示并重新登录
+        //检验IP所属点位信息
+        DataTable getPoint = P00001_Logic.GetPointNo(iP);
+        if (getPoint.Rows.Count != 1)
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "当前点位信息异常，请检查！";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+        string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+        //更新点位在线履历
+        new P00001_Logic().setAppHide(iP, pagetype);
+
+        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+      }
+      catch (Exception ex)
+      {
+        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+        apiResult.code = ComConstant.ERROR_CODE;
+        apiResult.data = "验证账号失败!";
+        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+      }
+    }
+    #endregion
+
+    #region 系统重新登录（所页面）
+    [HttpPost]
+    [EnableCors("any")]
+    public string UpdateStatus3Api([FromBody] dynamic data)
+    {
+      string strToken = Request.Headers["X-Token"];
+      if (!isLogin(strToken))
+      {
+        return error_login();
+      }
+      LoginInfo loginInfo = getLoginByToken(strToken);
+      string opearteId = loginInfo.UserId;
+      ApiResult apiResult = new ApiResult();
+      try
+      {
+        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
+
+        //检验IP所属点位信息
+        DataTable getPoint = P00001_Logic.GetPointNo(iP);
+        if (getPoint.Rows.Count != 1)
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "当前点位信息异常，请检查！";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+        string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+        //更新登录状态
+        //更新点位在线履历
+        //更新箱号占用信息
+        P00001_Logic.setSysExit(iP, "主页面、检查、出荷-重新登录");
+      }
+      catch (Exception ex)
+      {
+        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+        apiResult.code = ComConstant.ERROR_CODE;
+        apiResult.data = "更改状态失败";
+        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+      }
+      return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+    }
+    #endregion
+
+    #region 登录到包装页面第一步-插入操作时间履历
+    [HttpPost]
+    [EnableCors("any")]
+    public string UpdateStatus2Api([FromBody] dynamic data)
+    {
+      string strToken = Request.Headers["X-Token"];
+      if (!isLogin(strToken))
+      {
+        return error_login();
+      }
+      LoginInfo loginInfo = getLoginByToken(strToken);
+      string opearteId = loginInfo.UserId;
+      ApiResult apiResult = new ApiResult();
+
+      try
+      {
+        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
+        string uuid = System.Guid.NewGuid().ToString("N");//生成UUID
+        string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
+        DataTable getBanZhi = P00001_Logic.GetBanZhi(serverTime);
+        DataTable getPoint = P00001_Logic.GetPoint2(iP);
+        if (getPoint.Rows.Count == 1 && getBanZhi.Rows.Count == 1)
+        {
+          string pointNo = getPoint.Rows[0]["vcPointNo"].ToString();
+          string date = getBanZhi.Rows[0]["dHosDate"].ToString();
+          string banZhi = getBanZhi.Rows[0]["vcBanZhi"].ToString();
+          P00001_Logic.InsertDetail(date, banZhi, pointNo, uuid, serverTime, opearteId);
+          DataTable getStatus = P00001_Logic.GetPointStatus4(pointNo);
+          if (getStatus.Rows.Count == 1)
+          {
+            P00001_Logic.UpdateStatus4(pointNo, opearteId);
+          }
+          else
+          {
+            apiResult.code = ComConstant.ERROR_CODE;
+            apiResult.data = "点位信息异常,请检查!";
+            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+          }
+        }
+        else
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "当前点位表中不存在有效信息,请检查!";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+      }
+      catch (Exception ex)
+      {
+        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+        apiResult.code = ComConstant.ERROR_CODE;
+        apiResult.data = "更改状态失败";
+        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+      }
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
 
     #region 获取包装单位
-    //ValidateQuantity1Api
     [HttpPost]
     [EnableCors("any")]
     public string ValidateQuantity1Api([FromBody] dynamic data)
@@ -384,140 +498,6 @@ namespace SPPSApi.Controllers.P01
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
 
-      return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-    }
-    #endregion
-
-    #region 退出登录,将状态设置为未登录,更新履历表中的退出时间,更新用户箱号状态
-    //UpdateStatus3Api
-    [HttpPost]
-    [EnableCors("any")]
-    public string UpdateStatus3Api([FromBody] dynamic data)
-    {
-      string strToken = Request.Headers["X-Token"];
-      if (!isLogin(strToken))
-      {
-        return error_login();
-      }
-      LoginInfo loginInfo = getLoginByToken(strToken);
-      string opearteId = loginInfo.UserId;
-      ApiResult apiResult = new ApiResult();
-      try
-      {
-        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-        string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
-        DataTable getPoint = P00001_Logic.GetPoint2(iP);
-        if (getPoint.Rows.Count == 1)
-        {
-          string pointNo = getPoint.Rows[0]["vcPointNo"].ToString();
-          DataTable getDetail = P00001_Logic.GetDetail(pointNo);
-          DataTable getStatus = P00001_Logic.GetPointStatus4(pointNo);
-          if (getDetail.Rows.Count > 0)
-          {
-            string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
-            string uuid = getDetail.Rows[0]["UUID"].ToString();
-            P00001_Logic.UpdateDetail(uuid, serverTime);
-          }
-          if (getStatus.Rows.Count == 1)
-          {
-            P00001_Logic.UpdateStatus5(pointNo);
-            //P00001_Logic.UpdateCase(iP);
-          }
-          else
-          {
-            apiResult.code = ComConstant.ERROR_CODE;
-            apiResult.data = "点位信息异常,请检查!";
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-          }
-        }
-        else
-        {
-
-          apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "当前点位表中不存在有效信息,请检查!";
-          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        }
-      }
-      catch (Exception ex)
-      {
-        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
-        apiResult.code = ComConstant.ERROR_CODE;
-        apiResult.data = "更改状态失败";
-        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-      }
-      return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-    }
-    #endregion
-
-    #region 登录到主页,将状态设置为已登录,插入状态到履历表中,将之前未做出货的箱号重新绑定，并显示最新的箱号
-    [HttpPost]
-    [EnableCors("any")]
-    public string UpdateStatus2Api([FromBody] dynamic data)
-    {
-      string strToken = Request.Headers["X-Token"];
-      if (!isLogin(strToken))
-      {
-        return error_login();
-      }
-      LoginInfo loginInfo = getLoginByToken(strToken);
-      string opearteId = loginInfo.UserId;
-      ApiResult apiResult = new ApiResult();
-
-      try
-      {
-        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-        string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
-        string uuid = System.Guid.NewGuid().ToString("N");//生成UUID
-        string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
-        DataTable getBanZhi = P00001_Logic.GetBanZhi(serverTime);
-        DataTable getPoint = P00001_Logic.GetPoint2(iP);
-        if (getPoint.Rows.Count == 1 && getBanZhi.Rows.Count == 1)
-        {
-          string pointNo = getPoint.Rows[0]["vcPointNo"].ToString();
-          string date = getBanZhi.Rows[0]["dHosDate"].ToString();
-          string banZhi = getBanZhi.Rows[0]["vcBanZhi"].ToString();
-          P00001_Logic.InsertDetail(date, banZhi, pointNo, uuid, serverTime, opearteId);
-          DataTable getStatus = P00001_Logic.GetPointStatus4(pointNo);
-          if (getStatus.Rows.Count == 1)
-          {
-            P00001_Logic.UpdateStatus4(pointNo, opearteId);
-            #region 将当前绑定，未打印装箱单的箱号重新绑定
-            DataTable getCase = P00001_Logic.GetCase(opearteId, iP);
-            if (getCase.Rows.Count > 0)
-            {
-              for (int i = 0; i < getCase.Rows.Count; i++)
-              {
-                string caseNo = getCase.Rows[i]["vcBoxNo"].ToString();
-                DataTable getCase1 = P00001_Logic.GetCase1(caseNo);
-                if (getCase1.Rows.Count == 0)//未打印装箱单
-                {
-                  P00001_Logic.UpdateCase(iP, serverTime, opearteId, caseNo);
-                }
-              }
-            }
-            #endregion
-          }
-          else
-          {
-            apiResult.code = ComConstant.ERROR_CODE;
-            apiResult.data = "点位信息异常,请检查!";
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-          }
-        }
-        else
-        {
-          apiResult.code = ComConstant.ERROR_CODE;
-          apiResult.data = "当前点位表中不存在有效信息,请检查!";
-          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        }
-      }
-      catch (Exception ex)
-      {
-        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
-        apiResult.code = ComConstant.ERROR_CODE;
-        apiResult.data = "更改状态失败";
-        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-      }
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
     #endregion
@@ -772,13 +752,6 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
-
-
-
-
-
     #endregion
 
     #region 获得看板明细
@@ -975,8 +948,6 @@ namespace SPPSApi.Controllers.P01
 
       return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
     }
-
-
     #endregion
 
     #region  删除台车
@@ -1092,6 +1063,7 @@ namespace SPPSApi.Controllers.P01
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "系统异常请联系管理员或退出后重新登录再试。";
+          apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         //2.2 检验IP所属点位信息
@@ -1102,6 +1074,7 @@ namespace SPPSApi.Controllers.P01
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "当前点位信息异常，请检查！";
+          apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
@@ -1123,13 +1096,14 @@ namespace SPPSApi.Controllers.P01
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "没有可上传的数据请确认";
-          apiResult.type = "empty";
+          apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         if (dsInPutQBInfo.Tables[0].Rows.Count == 0)
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "没有可上传的数据请确认";
+          apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         DataTable dtPrintName = P00001_Logic.GetPrintName(iP);
@@ -1138,6 +1112,7 @@ namespace SPPSApi.Controllers.P01
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "该点位标签打印机未进行设置，请设置后重试。";
+          apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         strPrinterName = dtPrintName.Rows[0]["vcPrinterName"].ToString();
@@ -1155,12 +1130,14 @@ namespace SPPSApi.Controllers.P01
           {
             apiResult.code = ComConstant.ERROR_CODE;
             apiResult.data = "看板订单号" + kanbanOrderNo + "看板连番" + kanbanSerial + "品番" + partId + "已经入库";
+            apiResult.type = "LS";
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
           }
           if (dsCheckDb.Tables[1].Rows.Count != 1)
           {
             apiResult.code = ComConstant.ERROR_CODE;
             apiResult.data = "品番" + partId + "在包装基础数据表中没有有效数据";
+            apiResult.type = "LS";
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
           }
@@ -1169,24 +1146,36 @@ namespace SPPSApi.Controllers.P01
 
             apiResult.code = ComConstant.ERROR_CODE;
             apiResult.data = "品番" + partId + "在品番基础数据表中没有有效数据";
+            apiResult.type = "LS";
+            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+          }
+          if (dsCheckDb.Tables[10].Rows.Count == 0)
+          {
+
+            apiResult.code = ComConstant.ERROR_CODE;
+            apiResult.data = "品番" + partId + "在品番发注工厂基础数据为空";
+            apiResult.type = "LS";
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
           }
           if (dsCheckDb.Tables[5].Rows.Count == 0)
           {
             apiResult.code = ComConstant.ERROR_CODE;
             apiResult.data = "品番" + partId + "在包材构成数据表中没有有效数据";
+            apiResult.type = "LS";
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
           }
           if (dsCheckDb.Tables[6].Rows.Count == 0)
           {
             apiResult.code = ComConstant.ERROR_CODE;
             apiResult.data = "品番" + partId + "在标签信息表中没有有效数据";
+            apiResult.type = "LS";
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
           }
-          if (dsCheckDb.Tables[7].Rows.Count != 1)
+          if (dsCheckDb.Tables[9].Rows.Count != 1)
           {
             apiResult.code = ComConstant.ERROR_CODE;
             apiResult.data = "品番" + partId + "在价格中没有有效数据";
+            apiResult.type = "LS";
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
           }
         }
@@ -1271,12 +1260,17 @@ namespace SPPSApi.Controllers.P01
             int back = int.Parse(lblEnd.Substring(6, 5));//结束
             for (int a = front; a <= back; a++)
             {
-              string strPrintcount =partId+date + a.ToString().PadLeft(5, '0');
-              string strLabel = "*" + strPrintcount + "*";
+              string strBarCode = new P00001_Logic().ChangeBarCode(partId);//一维码生成字符
+
+              string strPrintcount = partId + date + a.ToString().PadLeft(5, '0');
+              //string strLabel = "*" + strPrintcount + "*";
+              string strLabel = strBarCode;
               string strContent = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=" + strPrintcount;
-              string strPrintcount1 =partId+date + a.ToString().PadLeft(5, '0') + "B";
-              string strLabel1 = "*" + strPrintcount1 + "*";
-              string strContent1 = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=" + strPrintcount1 + "B";
+              string strPrintcount1 = partId + date + a.ToString().PadLeft(5, '0') + "B";
+              //string strLabel1 = "*" + strPrintcount1 + "*";
+              string strLabel1 = strBarCode;
+              //string strContent1 = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=" + strPrintcount1 + "B";
+              string strContent1 = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=" + strPrintcount1;
               byte[] Qrcode = P00001_Logic.GenerateQRCode(strContent);
               byte[] Qrcode1 = P00001_Logic.GenerateQRCode(strContent1);
               #region addrows
@@ -1515,11 +1509,50 @@ namespace SPPSApi.Controllers.P01
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "数据上传失败，请联系管理员或者重新登录再试。";
+          apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         //13.以上12全部OK 构内XML发送
 
         #region 生成构内XML文件
+        if (dsInPutQBInfo.Tables[8].Rows.Count > 0) {
+          for (int i=0;i< dsInPutQBInfo.Tables[8].Rows.Count;i++) {
+            string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
+            string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
+            string kanBan = dsInPutQBInfo.Tables[8].Rows[i]["vcKanBan"].ToString();
+            DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
+            string strPlant = "1";
+            P00001_Logic.SaveXml(data2, serverTime, name, formatTime,strPlant);
+          }
+
+
+        }
+        if (dsInPutQBInfo.Tables[9].Rows.Count > 0) {
+          for (int i = 0; i < dsInPutQBInfo.Tables[9].Rows.Count; i++)
+          {
+            string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
+            string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
+            string kanBan = dsInPutQBInfo.Tables[9].Rows[i]["vcKanBan"].ToString();
+            DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
+            string strPlant = "2";
+            P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
+          }
+        }
+        if (dsInPutQBInfo.Tables[10].Rows.Count > 0) {
+          for (int i = 0; i < dsInPutQBInfo.Tables[10].Rows.Count; i++)
+          {
+            string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
+            string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
+            string kanBan = dsInPutQBInfo.Tables[10].Rows[i]["vcKanBan"].ToString();
+            DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
+            string strPlant = "3";
+            P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
+          }
+        }
+
+
+
+
         //if (inoutFlag == "1" && kanBan != "")
         //{
         //    DataTable getPointNo = P00001_Logic.GetPointNo(iP);
@@ -1542,6 +1575,7 @@ namespace SPPSApi.Controllers.P01
         ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
         apiResult.code = ComConstant.ERROR_CODE;
         apiResult.data = "更新入库数据失败";
+        apiResult.type = "LS";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
     }
@@ -1628,7 +1662,8 @@ namespace SPPSApi.Controllers.P01
         //dsCheckDb.Tables[6]  标签信息表，需要唯一  getTagInfo
         //dsCheckDb.Tables[7]  订单表中的当前余量  validateOrd
         //dsCheckDb.Tables[8]  实绩情报表中的当前品番已经入库数量 getCount
-        //0611
+        //dsCheckDb.Tables[9]  价格
+        //dsCheckDb.Tables[10] 发注工厂
         if (dsCheckDb.Tables[0].Rows.Count > 0)
         {
           apiResult.code = ComConstant.ERROR_CODE;
@@ -1649,6 +1684,13 @@ namespace SPPSApi.Controllers.P01
           apiResult.data = "品番" + partId + "在品番基础数据表中没有有效数据";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
+        if (dsCheckDb.Tables[10].Rows.Count == 0)
+        {
+
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "品番" + partId + "在品番发注工厂基础数据为空";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
         if (dsCheckDb.Tables[5].Rows.Count == 0)
         {
           apiResult.code = ComConstant.ERROR_CODE;
@@ -1661,7 +1703,7 @@ namespace SPPSApi.Controllers.P01
           apiResult.data = "品番" + partId + "在标签信息表中没有有效数据";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
-        if (dsCheckDb.Tables[7].Rows.Count != 1)
+        if (dsCheckDb.Tables[9].Rows.Count != 1)
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "品番" + partId + "在价格中没有有效数据";
@@ -1678,6 +1720,7 @@ namespace SPPSApi.Controllers.P01
         string packQuantity = dsCheckDb.Tables[3].Rows[0]["iPackingQty"].ToString();//收容数
         string supplierId = dsCheckDb.Tables[3].Rows[0]["vcSupplierId"].ToString();
         string supplierPlant = dsCheckDb.Tables[3].Rows[0]["vcSupplierPlant"].ToString();
+        string orderplant = dsCheckDb.Tables[10].Rows[0]["vcOrderPlant"].ToString();
         string cpdCompany = dsCheckDb.Tables[2].Rows[0]["vcReceiver"].ToString();//收货方
         string lblSart = "";
         string lblEnd = "";
@@ -1705,7 +1748,6 @@ namespace SPPSApi.Controllers.P01
           apiResult.data = "品番" + partId + "在订单基础数据中待入库数小于当前数量,请检查!";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
-
         if (int.Parse(packingQuatity) == 0)
         {
           apiResult.code = ComConstant.ERROR_CODE;
@@ -1727,7 +1769,7 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
-        P00001_Logic.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packingQuatity, lblSart, lblEnd, supplierId, supplierPlant, trolleySeqNo, inoutFlag, kanBan);//插入实绩情报表
+        P00001_Logic.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packingQuatity, lblSart, lblEnd, supplierId, supplierPlant, trolleySeqNo, inoutFlag, kanBan, orderplant);//插入实绩情报表
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
 
@@ -1739,6 +1781,6 @@ namespace SPPSApi.Controllers.P01
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
     }
+    #endregion
   }
 }
-#endregion

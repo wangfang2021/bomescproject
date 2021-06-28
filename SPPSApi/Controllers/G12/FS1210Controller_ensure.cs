@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -217,7 +218,8 @@ namespace SPPSApi.Controllers.G12
                                         binding.OpenTimeout = TimeSpan.MaxValue;
                                         binding.ReceiveTimeout = TimeSpan.MaxValue;
                                         binding.SendTimeout = TimeSpan.MaxValue;
-                                        EndpointAddress address = new EndpointAddress("http://localhost:25011/PrintTable.asmx");
+                                        SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
+                                        EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
                                         PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                         msg = client.PrintExcel_Confirmation_PrintDate(inTable_tmp, exdthj_tmp, tmplatePath, vcKbOrderId, vcGC, strLoginId, vcPlanPrintDate, vcPlanPrintBZ == "0" ? "白值" : "夜值", vcPlanProcDate, vcPlanProcBZ == "0" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB, vcPrintDate);
 
@@ -263,7 +265,8 @@ namespace SPPSApi.Controllers.G12
                                 binding.OpenTimeout = TimeSpan.MaxValue;
                                 binding.ReceiveTimeout = TimeSpan.MaxValue;
                                 binding.SendTimeout = TimeSpan.MaxValue;
-                                EndpointAddress address = new EndpointAddress("http://localhost:25011/PrintTable.asmx");
+                                SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
+                                EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
                                 PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                 exdthj_msg = client.PrintExcel_Confirmation_PrintDate(exdttt_tmp, exdthj_tmp, tmplatePath, vcKbOrderId, vcGC, strLoginId, vcPlanPrintDate, vcPlanPrintBZ == "0" ? "白值" : "夜值", vcPlanProcDate, vcPlanProcBZ == "0" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB, vcPrintDate);
                             }

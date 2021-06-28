@@ -9,33 +9,7 @@ namespace DataAccess
   public class P00001_DataAccess
   {
     private MultiExcute excute = new MultiExcute();
-    public DataTable GetPrint1(string iP)
-    {
-      StringBuilder GetPrintSql = new StringBuilder();
-      GetPrintSql.Append("select vcUserFlag from TPrint where vcKind in ('LABEL PRINTER','LASEL PRINTER') and vcPrinterIp='" + iP + "'");
-      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
-      DataSet ds = new DataSet();
-      try
-      {
-        ConnSql.Open();
-        string strSQL = GetPrintSql.ToString();
-        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-        da.Fill(ds);
-        return ds.Tables[0];
-      }
-      catch (Exception ex)
-      {
-        throw ex;
-      }
-      finally
-      {
-        if (ConnectionState.Open == ConnSql.State)
-        {
-          ConnSql.Close();
-        }
-      }
-    }
 
     public DataTable GetPrint(string iP)
     {
@@ -362,32 +336,7 @@ namespace DataAccess
       }
     }
 
-    public DataTable ValidateUser(string opearteId)
-    {
-      StringBuilder ValidateUserSql = new StringBuilder();
-      ValidateUserSql.Append("select vcPointNo from TPointState where vcState='正常' and vcOperater='" + opearteId + "'");
-      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-      DataSet ds = new DataSet();
-      try
-      {
-        ConnSql.Open();
-        string strSQL = ValidateUserSql.ToString();
-        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-        da.Fill(ds);
-        return ds.Tables[0];
-      }
-      catch (Exception ex)
-      {
-        throw ex;
-      }
-      finally
-      {
-        if (ConnectionState.Open == ConnSql.State)
-        {
-          ConnSql.Close();
-        }
-      }
-    }
+
 
 
 
@@ -531,31 +480,6 @@ namespace DataAccess
       }
     }
 
-    public void UpdateStatus5(string pointNo)
-    {
-      StringBuilder UpdateStatusSql = new StringBuilder();
-      UpdateStatusSql.Append("update TPointState set vcState='未登录',vcOperater='' where vcPointNo='" + pointNo + "' and vcPlant='H2'");
-      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-      DataSet ds = new DataSet();
-      try
-      {
-        ConnSql.Open();
-        string strSQL = UpdateStatusSql.ToString();
-        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-        da.Fill(ds);
-      }
-      catch (Exception ex)
-      {
-        throw ex;
-      }
-      finally
-      {
-        if (ConnectionState.Open == ConnSql.State)
-        {
-          ConnSql.Close();
-        }
-      }
-    }
 
     public DataTable GetBanZhi(string serverTime)
     {
@@ -819,7 +743,7 @@ namespace DataAccess
     public DataTable GetCase(string opearteId, string iP)
     {
       StringBuilder GetCaseSql = new StringBuilder();
-      GetCaseSql.Append("select vcBoxNo from TCaseInfo where vcHostIp='" + iP + "' and vcOperatorID='" + opearteId + "' order by dOperatorTime desc");
+      GetCaseSql.Append("select vcCaseNo from TCaseInfo where vcHostIp='" + iP + "' and vcOperatorID='" + opearteId + "' order by dOperatorTime desc");
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
       DataSet ds = new DataSet();
       try
@@ -873,7 +797,7 @@ namespace DataAccess
     public void UpdateCase(string iP, string serverTime, string opearteId, string caseNo)
     {
       StringBuilder UpdateCaseSql = new StringBuilder();
-      UpdateCaseSql.Append("update TCaseInfo set vcHostIp='" + iP + "',vcStatus='0',dOperatorTime='" + serverTime + "' where vcBoxNo='" + caseNo + "' and vcOperatorID='" + opearteId + "'");
+      UpdateCaseSql.Append("update TCaseInfo set vcHostIp='" + iP + "',vcPointState='1',dOperatorTime='" + serverTime + "' where vcCaseNo='" + caseNo + "' and vcOperatorID='" + opearteId + "'");
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
       DataSet ds = new DataSet();
       try
@@ -1505,44 +1429,186 @@ namespace DataAccess
 
 
     //========================================================================重写========================================================================
+    public DataTable checkPrintName(string iP, string strPointType)
+    {
+      StringBuilder GetPrintSql = new StringBuilder();
+      if (strPointType == "COM" || strPointType == "PDA")
+      {
+        GetPrintSql.Append("select vcUserFlag from TPrint where vcKind in ('LABEL PRINTER','LASEL PRINTER') and vcPrinterIp='" + iP + "'");
+      }
+      if (strPointType == "PAD")//PAD
+      {
+        GetPrintSql.Append("select vcUserFlag from TPrint where vcKind in ('LABEL PRINTER','LASEL PRINTER','DOT PRINTER') and vcPrinterIp='" + iP + "'");
+      }
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = GetPrintSql.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+        return ds.Tables[0];
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+    }
+    public void setCaseState(string strIP)
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.AppendLine("update TCaseInfo set vcPointState='1' where vcHostIp='" + strIP + "' and dBoxPrintTime is null");
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = stringBuilder.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+    }
+    public DataTable ValidateUser(string opearteId)
+    {
+      StringBuilder ValidateUserSql = new StringBuilder();
+      ValidateUserSql.Append("select vcPointNo from TPointState where vcState='正常' and vcOperater='" + opearteId + "'");
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = ValidateUserSql.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+        return ds.Tables[0];
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+    }
+
     public DataSet getCheckQBandSJInfo(string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packingSpot, string scanTime, string strType)
     {
       StringBuilder stringBuilder = new StringBuilder();
       if (strType == "QB")
       {
+        stringBuilder.AppendLine("--0.扫描重复");
         stringBuilder.AppendLine("select vcPart_id from TOperatorQB where vcReflectFlag in ('0','1') and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcPart_id='" + partId + "' and vcSR='" + dock + "' and vcZYType='S0'");
+        stringBuilder.AppendLine("--1.检验包装区分");
         stringBuilder.AppendLine("select  vcBZQF, vcRHQF, vcBZUnit from TPackageMaster where vcPart_id = '" + partId + "' and dTimeFrom <= '" + scanTime + "' and dTimeTo >= '" + scanTime + "' and vcBZQF is not null and vcRHQF is not null and vcBZUnit is not null");
+        stringBuilder.AppendLine("--2.检验受入");
         stringBuilder.AppendLine("select vcReceiver, vcPackingPlant from TSPMaster_SufferIn where vcPackingPlant = 'TFTM' and vcPartId = '" + partId + "' and  dFromTime <= '" + scanTime + "' and dToTime >= '" + scanTime + "' and vcSufferIn = '" + dock + "'");
+        stringBuilder.AppendLine("--3.检验收容数");
         stringBuilder.AppendLine("select iPackingQty,vcSupplierId,vcSupplierPlant from TSPMaster_Box where vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "'");
-        stringBuilder.AppendLine("select vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace	 from TSPMaster WHERE vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "'");
+        stringBuilder.AppendLine("--4.检验内外");
+        stringBuilder.AppendLine("select vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace from TSPMaster WHERE vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "'");
+        stringBuilder.AppendLine("--5.包材");
         stringBuilder.AppendLine("select a.vcPackNo,a.iBiYao,b.vcPackLocation,b.vcDistinguish from ");
         stringBuilder.AppendLine("(select vcPackNo,iBiYao from TPackItem where vcPartsNo='" + partId + "' and dUsedFrom<='" + scanTime + "' and dUsedTo>='" + scanTime + "')a");
         stringBuilder.AppendLine("left join");
         stringBuilder.AppendLine("(select vcPackLocation,vcDistinguish,vcPackNo from TPackBase where vcPackSpot='" + packingSpot + "' and dPackFrom<='" + scanTime + "' and dPackTo>='" + scanTime + "')b");
         stringBuilder.AppendLine("on a.vcPackNo=b.vcPackNo");
+        stringBuilder.AppendLine("--6.标签");
         stringBuilder.AppendLine("select vcPartNameCN, vcSCSName, vcSCSAdress, vcZXBZNo from TtagMaster where vcPart_Id = '" + partId + "' and dTimeFrom <= '" + scanTime + "' and dTimeTo >= '" + scanTime + "'");
+        stringBuilder.AppendLine("--7.订单量");
         stringBuilder.AppendLine("select (ISNULL(SUM(CAST(vcPlantQtyDailySum as int)),0)-ISNULL(SUM(CAST(vcInputQtyDailySum as int)),0)) as sum from SP_M_ORD where ISNULL(vcPlantQtyDailySum,0)!=ISNULL(vcInputQtyDailySum,0) and vcPartNo='" + partId + "' and vcOrderNo!=''");
+        stringBuilder.AppendLine("--8.扫描总数");
         stringBuilder.AppendLine("select ISNULL(sum(iQuantity), 0) as sum from TOperatorQB where vcZYType = 'S0' and vcPart_id = '" + partId + "' and vcReflectFlag = '0'");
+        stringBuilder.AppendLine("--9.价格");
         stringBuilder.AppendLine("select b.decPriceOrigin_CW from");
         stringBuilder.AppendLine("(select vcPartId,vcSupplierId,vcReceiver from TSPMaster where vcPartId='" + partId + "' )a left join");
         stringBuilder.AppendLine("(select vcPart_id,vcSupplier_id,vcReceiver,decPriceOrigin_CW from TPrice where dPricebegin<='" + scanTime + "' and dPriceEnd>='" + scanTime + "') b");
         stringBuilder.AppendLine("on a.vcPartId=b.vcPart_id and a.vcSupplierId=b.vcSupplier_id and a.vcReceiver=b.vcReceiver");
+        stringBuilder.AppendLine("where isnull(b.decPriceOrigin_CW,0) <>0");
+        stringBuilder.AppendLine("--10.发注工厂");
+        stringBuilder.AppendLine("select a.vcPackingPlant,a.vcPartId,a.vcReceiver,a.vcSupplierId,b.vcSupplierPlant,c.vcOrderPlant from ");
+        stringBuilder.AppendLine("(select * from TSPMaster where vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "')a");
+        stringBuilder.AppendLine("left join");
+        stringBuilder.AppendLine("(SELECT vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+        stringBuilder.AppendLine("FROM [TSPMaster_SupplierPlant] ");
+        stringBuilder.AppendLine("WHERE cast(dFromTime as datetime)<='" + scanTime + "' AND cast(dToTime as datetime)>='" + scanTime + "')b");
+        stringBuilder.AppendLine("ON A.vcPackingPlant=B.vcPackingPlant AND A.vcPartId=B.vcPartId AND A.vcSupplierId=B.vcSupplierId AND A.vcReceiver=B.vcReceiver");
+        stringBuilder.AppendLine("left join");
+        stringBuilder.AppendLine("(select vcValue1 as [vcSupplierId]");
+        stringBuilder.AppendLine("		,vcValue2 as vcSupplierPlant");
+        stringBuilder.AppendLine("		,convert(varchar(10),cast(vcValue3 as datetime),23) as [dFromTime]");
+        stringBuilder.AppendLine("		,convert(varchar(10),cast(vcValue4 as datetime),23) as [dToTime]");
+        stringBuilder.AppendLine("		,vcValue5 as vcOrderPlant ");
+        stringBuilder.AppendLine("from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+        stringBuilder.AppendLine("and cast(vcValue3 as datetime)<='" + scanTime + "' AND cast(vcValue4 as datetime)>='" + scanTime + "')c");
+        stringBuilder.AppendLine("on a.vcSupplierId=c.vcSupplierId and b.vcSupplierPlant=c.vcSupplierPlant");
       }
       if (strType == "SJ")
       {
+        stringBuilder.AppendLine("--0.上传重复");
         stringBuilder.AppendLine("select * from TOperateSJ where vcSR='" + dock + "' and vcPart_id = '" + partId + "' and vcKBOrderNo = '" + kanbanOrderNo + "' and vcKBLFNo = '" + kanbanSerial + "'");
+        stringBuilder.AppendLine("--1.检验包装区分");
         stringBuilder.AppendLine("select  vcBZQF, vcRHQF, vcBZUnit from TPackageMaster where vcPart_id = '" + partId + "' and dTimeFrom <= '" + scanTime + "' and dTimeTo >= '" + scanTime + "' and vcBZQF is not null and vcRHQF is not null and vcBZUnit is not null");
+        stringBuilder.AppendLine("--2.检验受入");
         stringBuilder.AppendLine("select vcReceiver, vcPackingPlant from TSPMaster_SufferIn where vcPackingPlant = 'TFTM' and vcPartId = '" + partId + "' and  dFromTime <= '" + scanTime + "' and dToTime >= '" + scanTime + "' and vcSufferIn = '" + dock + "'");
+        stringBuilder.AppendLine("--3.检验收容数");
         stringBuilder.AppendLine("select iPackingQty,vcSupplierId,vcSupplierPlant from TSPMaster_Box where vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "'");
+        stringBuilder.AppendLine("--4.检验内外");
         stringBuilder.AppendLine("select vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace	 from TSPMaster WHERE vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "'");
+        stringBuilder.AppendLine("--5.包材");
         stringBuilder.AppendLine("select vcPackNo,iBiYao from TPackItem where vcPartsNo='" + partId + "' and dUsedFrom<='" + scanTime + "' and dUsedTo>='" + scanTime + "'");
+        stringBuilder.AppendLine("--6.标签");
         stringBuilder.AppendLine("select vcPartNameCN, vcSCSName, vcSCSAdress, vcZXBZNo from TtagMaster where vcPart_Id = '" + partId + "' and dTimeFrom <= '" + scanTime + "' and dTimeTo >= '" + scanTime + "'");
+        stringBuilder.AppendLine("--7.订单量");
         stringBuilder.AppendLine("select (ISNULL(SUM(CAST(vcPlantQtyDailySum as int)),0)-ISNULL(SUM(CAST(vcInputQtyDailySum as int)),0)) as sum from SP_M_ORD where ISNULL(vcPlantQtyDailySum,0)!=ISNULL(vcInputQtyDailySum,0) and vcPartNo='" + partId + "' and vcOrderNo!=''");
+        stringBuilder.AppendLine("--8.扫描总数");
         stringBuilder.AppendLine("select ISNULL(sum(iQuantity), 0) as sum from TOperatorQB where vcZYType = 'S0' and vcPart_id = '" + partId + "' and vcReflectFlag = '0'");
+        stringBuilder.AppendLine("--9.价格");
         stringBuilder.AppendLine("select b.decPriceOrigin_CW from");
         stringBuilder.AppendLine("(select vcPartId,vcSupplierId,vcReceiver from TSPMaster where vcPartId='" + partId + "' )a left join");
         stringBuilder.AppendLine("(select vcPart_id,vcSupplier_id,vcReceiver,decPriceOrigin_CW from TPrice where dPricebegin<='" + scanTime + "' and dPriceEnd>='" + scanTime + "') b");
         stringBuilder.AppendLine("on a.vcPartId=b.vcPart_id and a.vcSupplierId=b.vcSupplier_id and a.vcReceiver=b.vcReceiver");
+        stringBuilder.AppendLine("where isnull(b.decPriceOrigin_CW,0) <>0");
+        stringBuilder.AppendLine("--10.发注工厂");
+        stringBuilder.AppendLine("select a.vcPackingPlant,a.vcPartId,a.vcReceiver,a.vcSupplierId,b.vcSupplierPlant,c.vcOrderPlant from ");
+        stringBuilder.AppendLine("(select * from TSPMaster where vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "')a");
+        stringBuilder.AppendLine("left join");
+        stringBuilder.AppendLine("(SELECT vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+        stringBuilder.AppendLine("FROM [TSPMaster_SupplierPlant] ");
+        stringBuilder.AppendLine("WHERE cast(dFromTime as datetime)<='" + scanTime + "' AND cast(dToTime as datetime)>='" + scanTime + "')b");
+        stringBuilder.AppendLine("ON A.vcPackingPlant=B.vcPackingPlant AND A.vcPartId=B.vcPartId AND A.vcSupplierId=B.vcSupplierId AND A.vcReceiver=B.vcReceiver");
+        stringBuilder.AppendLine("left join");
+        stringBuilder.AppendLine("(select vcValue1 as [vcSupplierId]");
+        stringBuilder.AppendLine("		,vcValue2 as vcSupplierPlant");
+        stringBuilder.AppendLine("		,convert(varchar(10),cast(vcValue3 as datetime),23) as [dFromTime]");
+        stringBuilder.AppendLine("		,convert(varchar(10),cast(vcValue4 as datetime),23) as [dToTime]");
+        stringBuilder.AppendLine("		,vcValue5 as vcOrderPlant ");
+        stringBuilder.AppendLine("from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+        stringBuilder.AppendLine("and cast(vcValue3 as datetime)<='" + scanTime + "' AND cast(vcValue4 as datetime)>='" + scanTime + "')c");
+        stringBuilder.AppendLine("on a.vcSupplierId=c.vcSupplierId and b.vcSupplierPlant=c.vcSupplierPlant");
       }
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
@@ -1567,12 +1633,12 @@ namespace DataAccess
         }
       }
     }
-    public void Insert(string trolley, string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial, string scanTime, String iP, string serverTime, string cpdCompany, string inno, string opearteId, string packingSpot, string packQuantity, string lblSart, string lblEnd, string supplierId, string supplierPlant, string trolleySeqNo, string inoutFlag, string kanBan)
+    public void Insert(string trolley, string partId, string quantity, string dock, string kanbanOrderNo, string kanbanSerial, string scanTime, String iP, string serverTime, string cpdCompany, string inno, string opearteId, string packingSpot, string packQuantity, string lblSart, string lblEnd, string supplierId, string supplierPlant, string trolleySeqNo, string inoutFlag, string kanBan, string orderplant)
     {
       StringBuilder stringBuilder = new StringBuilder();
       stringBuilder.Append("INSERT INTO TOperatorQB(vcZYType,dScanTime,vcHtNo,vcTrolleyNo ,vcInputNo,vcPart_id,vcCpdCompany,vcSR ,vcBoxNo,iQuantity  \n");
-      stringBuilder.Append(" ,vcSeqNo,vcReflectFlag,dStart,dEnd,vcHostIp,vcKBOrderNo,vcKBLFNo,vcOperatorID ,dOperatorTime,vcBZPlant,iPackingQty,vcLabelStart,vcLabelEnd,vcSupplierId,vcSupplierPlant,vcLotid,vcIOType,vcCheckType,vcKanBan,vcTrolleySeqNo)  \n");
-      stringBuilder.Append("    VALUES('S0', '" + scanTime + "', '', '" + trolley + "', '" + inno + "', '" + partId + "', '" + cpdCompany + "', '" + dock + "', '', " + int.Parse(quantity) + ", '', '0', null, null, '" + iP + "', '" + kanbanOrderNo + "', '" + kanbanSerial + "', '" + opearteId + "', '" + serverTime + "','" + packingSpot + "'," + packQuantity + ",'" + lblSart + "','" + lblEnd + "','" + supplierId + "','" + supplierPlant + "','','" + inoutFlag + "','','" + kanBan + "','" + trolleySeqNo + "')");
+      stringBuilder.Append(" ,vcSeqNo,vcReflectFlag,dStart,dEnd,vcHostIp,vcKBOrderNo,vcKBLFNo,vcOperatorID ,dOperatorTime,vcBZPlant,iPackingQty,vcLabelStart,vcLabelEnd,vcSupplierId,vcSupplierPlant,vcLotid,vcIOType,vcCheckType,vcKanBan,vcTrolleySeqNo,vcPackingPlant)  \n");
+      stringBuilder.Append("    VALUES('S0', '" + scanTime + "', '', '" + trolley + "', '" + inno + "', '" + partId + "', '" + cpdCompany + "', '" + dock + "', '', " + int.Parse(quantity) + ", '', '0', null, null, '" + iP + "', '" + kanbanOrderNo + "', '" + kanbanSerial + "', '" + opearteId + "', '" + serverTime + "','" + packingSpot + "'," + packQuantity + ",'" + lblSart + "','" + lblEnd + "','" + supplierId + "','" + supplierPlant + "','','" + inoutFlag + "','','" + kanBan + "','" + trolleySeqNo + "','" + orderplant + "')");
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
       DataSet ds = new DataSet();
       try
@@ -1619,14 +1685,42 @@ namespace DataAccess
           ConnSql.Close();
         }
       }
-
-      //return excute.ExcuteSqlWithSelectToDT(stringBuilder.ToString());
+    }
+    public DataTable GetPointState(string strOperater)
+    {
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.AppendLine("select b.vcPointType,b.vcPointNo,b.vcPointIp from ");
+      stringBuilder.AppendLine("(select * from TPointState where vcOperater='" + strOperater + "' and vcState='正常')a");
+      stringBuilder.AppendLine("left join");
+      stringBuilder.AppendLine("(select * from TPointInfo)b");
+      stringBuilder.AppendLine("on a.vcPlant=b.vcPlant and a.vcPointNo=b.vcPointNo");
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = stringBuilder.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+        return ds.Tables[0];
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
     }
     public DataSet getInputInfoFromDB(string strIP, string serverTime)
     {
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
       StringBuilder stringBuilder = new StringBuilder();
-      stringBuilder.AppendLine("--本次全部需要上传的数据");
+      stringBuilder.AppendLine("--0本次全部需要上传的数据");
       stringBuilder.AppendLine("select t1.*,isnull(t2.vcBZUnit,0) as vcBZUnit,vcPartENName,t2.vcBZQF from ");
       stringBuilder.AppendLine("(select * from TOperatorQB where vcReflectFlag='0' and vcZYType='S0' and vcHostIp='" + strIP + "')t1");
       stringBuilder.AppendLine("left join");
@@ -1636,28 +1730,38 @@ namespace DataAccess
       stringBuilder.AppendLine("(select vcPackingPlant,vcPartId,vcSupplierId,vcReceiver,vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace from TSPMaster WHERE dFromTime<='" + serverTime + "' and dToTime>='" + serverTime + "')b ");
       stringBuilder.AppendLine("on t1.vcPart_id = b.vcPartId and t1.vcCpdCompany=b.vcReceiver and t1.vcSupplierId=b.vcSupplierId  ");
       stringBuilder.AppendLine("order by t1.dScanTime ");
-      stringBuilder.AppendLine("--查询台车连番");
+      stringBuilder.AppendLine("--1查询台车连番");
       stringBuilder.AppendLine("select distinct vcTrolleySeqNo from TOperatorQB ");
       stringBuilder.AppendLine("where vcHostIp='" + strIP + "' and vcZYType='S0' and vcReflectFlag='0' order by vcTrolleySeqNo");
-      stringBuilder.AppendLine("--查询标签总个数");
+      stringBuilder.AppendLine("--2查询标签总个数");
       stringBuilder.AppendLine("select isnull(sum(cast(t1.iQuantity as int)/cast(isnull(t2.vcBZUnit,0 )as int)),0) as iTagNum from ");
       stringBuilder.AppendLine("(select * from TOperatorQB where vcReflectFlag='0' and vcZYType='S0' and vcHostIp='" + strIP + "')t1");
       stringBuilder.AppendLine("left join");
       stringBuilder.AppendLine("(select * from TPackageMaster where dTimeFrom<='" + serverTime + "' and dTimeTo>='" + serverTime + "' )t2");
       stringBuilder.AppendLine("on t1.vcPart_id=t2.vcPart_id ");
       stringBuilder.AppendLine("where t2.vcBZQF<>'1'");
-      stringBuilder.AppendLine("--查询断取指示书表结构");
+      stringBuilder.AppendLine("--3查询断取指示书表结构");
       stringBuilder.AppendLine("SELECT TOP (1)*  FROM [TPackList]");
-      stringBuilder.AppendLine("--查询标签表结构");
+      stringBuilder.AppendLine("--4查询标签表结构");
       stringBuilder.AppendLine("SELECT TOP (1)*  FROM [TLabelList]");
-      stringBuilder.AppendLine("--查询订单表结构");
+      stringBuilder.AppendLine("--5查询订单表结构");
       stringBuilder.AppendLine("SELECT top(1)* FROM [dbo].[SP_M_ORD]");
-      stringBuilder.AppendLine("--查询档次入库品番合计数量");
+      stringBuilder.AppendLine("--6查询档次入库品番合计数量");
       stringBuilder.AppendLine("select vcPart_id,vcCpdCompany,vcSR,sum(iQuantity) as iSumQuantity from TOperatorQB");
       stringBuilder.AppendLine("where vcHostIp='" + strIP + "' and vcZYType='S0' and vcReflectFlag='0'");
       stringBuilder.AppendLine("group by vcPart_id,vcCpdCompany,vcSR");
-      stringBuilder.AppendLine("--查询入库指令书结构");
+      stringBuilder.AppendLine("--7查询入库指令书结构");
       stringBuilder.AppendLine("SELECT top(1)* FROM [dbo].[TInvList]");
+      stringBuilder.AppendLine("--8查询本次上传一场构内数据");
+      stringBuilder.AppendLine("select vcKanBan from TOperatorQB where vcReflectFlag='0' and  vcHostIp='"+strIP+"' and vcPackingPlant='1' and vcIOType='1'");
+      stringBuilder.AppendLine("--9查询本次上传二场构内数据");
+      stringBuilder.AppendLine("select vcKanBan from TOperatorQB where vcReflectFlag='0' and  vcHostIp='"+strIP+"' and vcPackingPlant='2' and vcIOType='1'");
+      stringBuilder.AppendLine("--10查询本次上传三场构内数据");
+      stringBuilder.AppendLine("select vcKanBan from TOperatorQB where vcReflectFlag='0' and  vcHostIp='"+strIP+"' and vcPackingPlant='3' and vcIOType='1'");
+
+
+
+
       DataSet ds = new DataSet();
       try
       {
@@ -2135,7 +2239,7 @@ namespace DataAccess
         strSql_addinfo.AppendLine("           ([vcBZPlant]");
         strSql_addinfo.AppendLine("           ,[vcSHF]");
         strSql_addinfo.AppendLine("           ,[vcSR]");
-                strSql_addinfo.AppendLine("           ,[vcInputNo]");
+        strSql_addinfo.AppendLine("           ,[vcInputNo]");
         strSql_addinfo.AppendLine("           ,[vcKBOrderNo]");
         strSql_addinfo.AppendLine("           ,[vcKBLFNo]");
         strSql_addinfo.AppendLine("           ,[vcPart_id]");
@@ -2150,7 +2254,7 @@ namespace DataAccess
         strSql_addinfo.AppendLine("vcCpdCompany,");
         strSql_addinfo.AppendLine("vcSR,");
         strSql_addinfo.AppendLine("vcInputNo,");
-                strSql_addinfo.AppendLine("vcKBOrderNo,");
+        strSql_addinfo.AppendLine("vcKBOrderNo,");
         strSql_addinfo.AppendLine("vcKBLFNo,");
         strSql_addinfo.AppendLine("vcPart_id,");
         strSql_addinfo.AppendLine("iQuantity,");
@@ -2183,7 +2287,7 @@ namespace DataAccess
         strSql_modinfo.AppendLine("           ,[vcPackingpartsno]");
         strSql_modinfo.AppendLine("           ,[vcPackinggroup]");
         strSql_modinfo.AppendLine("           ,[vcDistinguish]");
-                strSql_modinfo.AppendLine("           ,[vcInno]");
+        strSql_modinfo.AppendLine("           ,[vcInno]");
         strSql_modinfo.AppendLine("           ,[dQty]");
         strSql_modinfo.AppendLine("           ,[vcPackingpartslocation]");
         strSql_modinfo.AppendLine("           ,[dDaddtime]");
@@ -2203,7 +2307,7 @@ namespace DataAccess
         strSql_modinfo.AppendLine("           ,@vcPackinggroup");
         strSql_modinfo.AppendLine("           ,@vcDistinguish");
         strSql_modinfo.AppendLine("           ,@vcInno");
-                strSql_modinfo.AppendLine("           ,@dQty");
+        strSql_modinfo.AppendLine("           ,@dQty");
         strSql_modinfo.AppendLine("           ,@vcPackingpartslocation");
         strSql_modinfo.AppendLine("           ,@dDaddtime");
         strSql_modinfo.AppendLine("           ,@vcPcname");
@@ -2220,7 +2324,7 @@ namespace DataAccess
         sqlCommand_modinfo.Parameters.AddWithValue("@vcPackingpartsno", "");
         sqlCommand_modinfo.Parameters.AddWithValue("@vcPackinggroup", "");
         sqlCommand_modinfo.Parameters.AddWithValue("@vcDistinguish", "");
-                sqlCommand_modinfo.Parameters.AddWithValue("@vcInno", "");
+        sqlCommand_modinfo.Parameters.AddWithValue("@vcInno", "");
         sqlCommand_modinfo.Parameters.AddWithValue("@dQty", "");
         sqlCommand_modinfo.Parameters.AddWithValue("@vcPackingpartslocation", "");
         sqlCommand_modinfo.Parameters.AddWithValue("@dDaddtime", "");
@@ -2907,7 +3011,203 @@ namespace DataAccess
         }
       }
     }
+    public DataTable checkPointState(string strOperater, string strPlant, string strIP)
+    {
 
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.AppendLine("SELECT *");
+      stringBuilder.AppendLine("FROM [TPointState_Site]");
+      stringBuilder.AppendLine("WHERE [vcOperater]='" + strOperater + "' AND [vcState]='登录中' and vcIP='" + strIP + "'");
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = stringBuilder.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+        return ds.Tables[0];
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+
+    }
+    public DataTable getPointState_Site(string strOperater, string strPlant, string strIP)
+    {
+
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.AppendLine("SELECT *");
+      stringBuilder.AppendLine("FROM [TPointState_Site]");
+      stringBuilder.AppendLine("WHERE [vcOperater]='" + strOperater + "' AND [vcState]='登录中'");
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = stringBuilder.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+        return ds.Tables[0];
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+
+    }
+
+    public void setPointState_Site(string strOperater, string strPlant, string strIP, string strSiteType, string strOperType)
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.AppendLine("delete from [TPointState_Site] where [vcIP]='" + strIP + "'");
+      if (strOperType == "登录")
+      {
+        stringBuilder.AppendLine("INSERT INTO [dbo].[TPointState_Site]");
+        stringBuilder.AppendLine("         ([vcPlant],[vcIP],[vcPointNo],[vcPointType],[vcSiteType],[vcState],[vcOperater],[dOperateTime])");
+        stringBuilder.AppendLine("select  vcPlant,vcPointIp,vcPointNo,vcPointType,'" + strSiteType + "' as vcSiteType,'登录中' as vcState,'" + strOperater + "' as vcOperater,GETDATE() as dOperateTime");
+        stringBuilder.AppendLine("from TPointInfo");
+        stringBuilder.AppendLine("where vcPointIp='" + strIP + "'");
+      }
+      if (strOperType == "销毁")
+      {
+      }
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = stringBuilder.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+    }
+    public void setSysExit(string strIP, string strType)
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.AppendLine("declare @uuid varchar(100)");
+      stringBuilder.AppendLine("select top(1)@uuid=b.UUID from ");
+      stringBuilder.AppendLine("(select * from TPointInfo where vcPointIp='" + strIP + "')a");
+      stringBuilder.AppendLine("left join");
+      stringBuilder.AppendLine("(select * from TPointDetails where dDestroyTime is null)b");
+      stringBuilder.AppendLine("on a.vcPlant=b.vcPlant and a.vcPointNo=b.vcPointNo");
+      stringBuilder.AppendLine("order by b.dOperateDate desc");
+      if (strType == "包装-返回导航")
+      {
+        stringBuilder.AppendLine("update TPointDetails set dDestroyTime=GETDATE() where UUID=@uuid");
+      }
+      else if (strType == "包装-重新登录")
+      {
+        stringBuilder.AppendLine("update b set b.vcState='未登录',decEfficacy='0.00',vcOperater=null from ");
+        stringBuilder.AppendLine("(select * from TPointInfo where vcPointIp='" + strIP + "')a");
+        stringBuilder.AppendLine("left join");
+        stringBuilder.AppendLine("(select * from TPointState)b");
+        stringBuilder.AppendLine("on a.vcPointNo=b.vcPointNo and a.vcPlant=b.vcPlant");
+        stringBuilder.AppendLine("update TPointDetails set dDestroyTime=GETDATE() where UUID=@uuid");
+        stringBuilder.AppendLine("update TCaseInfo set vcPointState='0',dOperatorTime=GETDATE() where vcHostIp='" + strIP + "' and vcPointState='1' and dBoxPrintTime is null");
+        stringBuilder.AppendLine("delete from [TPointState_Site] where [vcIP]='" + strIP + "' ");
+      }
+      else
+      {
+        stringBuilder.AppendLine("update b set b.vcState='未登录',decEfficacy='0.00',vcOperater=null from ");
+        stringBuilder.AppendLine("(select * from TPointInfo where vcPointIp='" + strIP + "')a");
+        stringBuilder.AppendLine("left join");
+        stringBuilder.AppendLine("(select * from TPointState)b");
+        stringBuilder.AppendLine("on a.vcPointNo=b.vcPointNo and a.vcPlant=b.vcPlant");
+        stringBuilder.AppendLine("update TCaseInfo set vcPointState='0',dOperatorTime=GETDATE() where vcHostIp='" + strIP + "' and vcPointState='1' and dBoxPrintTime is null");
+        stringBuilder.AppendLine("delete from [TPointState_Site] where [vcIP]='" + strIP + "' ");
+      }
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = stringBuilder.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+    }
+    public void setAppHide(string strIP, string strPage)
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.AppendLine("declare @uuid varchar(100)");
+      stringBuilder.AppendLine("select top(1)@uuid=b.UUID from ");
+      stringBuilder.AppendLine("(select * from TPointInfo where vcPointIp='" + strIP + "')a");
+      stringBuilder.AppendLine("left join");
+      stringBuilder.AppendLine("(select * from TPointDetails where dDestroyTime is null)b");
+      stringBuilder.AppendLine("on a.vcPlant=b.vcPlant and a.vcPointNo=b.vcPointNo");
+      stringBuilder.AppendLine("order by b.dOperateDate desc");
+      stringBuilder.AppendLine("update b set b.vcState='未登录',decEfficacy='0.00',vcOperater=null from ");
+      stringBuilder.AppendLine("(select * from TPointInfo where vcPointIp='" + strIP + "')a");
+      stringBuilder.AppendLine("left join");
+      stringBuilder.AppendLine("(select * from TPointState)b");
+      stringBuilder.AppendLine("on a.vcPointNo=b.vcPointNo and a.vcPlant=b.vcPlant");
+      stringBuilder.AppendLine("update TCaseInfo set vcPointState='0',dOperatorTime=GETDATE() where vcHostIp='" + strIP + "' and vcPointState='1' and dBoxPrintTime is null");
+      stringBuilder.AppendLine("delete from [TPointState_Site] where [vcIP]='" + strIP + "' ");
+      if (strPage == "包装")
+      {
+        stringBuilder.AppendLine("update TPointDetails set dDestroyTime=GETDATE() where UUID=@uuid");
+      }
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = stringBuilder.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+    }
   }
 }

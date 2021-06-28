@@ -15,7 +15,7 @@ namespace FP0033_EXE
             try
             {
                 FP0033 pb = new FP0033();
-                if (!pb.main("000000"))
+                if (!pb.main("000000","TFTM"))
                     iRet = Common.ComConstant.NG_CODE;
                 return;
             }

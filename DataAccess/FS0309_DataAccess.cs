@@ -177,8 +177,8 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcOriginCompany"], false) + ",  \r\n");
                         sql.Append("'"+ strUserId + "',  \r\n");
                         sql.Append("getdate(),  \r\n");
-                        sql.Append("'" + strLastTimeFlag + "'");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcNote"], false) + ",  \r\n");
+                        sql.Append("'" + strLastTimeFlag + "',");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcNote"], false) + "  \r\n");
                         sql.Append(" );  \r\n");
                         sql.Append("  update TPrice set vcPriceState='0',dPriceStateDate=GETDATE() where  vcLastTimeFlag='" + strLastTimeFlag + "' ; \r\n");
                         sql.Append("  update TPrice set vcChange="+ ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) 

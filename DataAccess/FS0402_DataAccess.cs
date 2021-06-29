@@ -289,7 +289,7 @@ namespace DataAccess
                 sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
                 sql.AppendLine("left join     ");
                 sql.AppendLine("(--价格     ");
-                sql.AppendLine("   select vcPart_id,dPricebegin,dPriceEnd from TPrice     ");
+                sql.AppendLine("   select vcPart_id,dPricebegin,dPriceEnd from TPrice where dPricebegin<>dPriceEnd   ");
                 sql.AppendLine(")t3 on t1.vcPart_id=t3.vcPart_id and t1.vcYM between convert(varchar(6),t3.dPricebegin,112) and convert(varchar(6),t3.dPriceEnd,112)   ");
                 sql.AppendLine("where item=1 and cast(t1.iCbSOQN as int) <>0 and t3.vcPart_id is null and isnull(t2.vcMandOrder,'')<>'1' --vcMandOrder='1' 是强制订货");
                 sql.AppendLine("order by t1.vcPart_id,t1.vcYM");

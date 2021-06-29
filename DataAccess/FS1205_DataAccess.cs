@@ -18,7 +18,7 @@ namespace DataAccess
             {
                 //2013-6-8 改造 start
                 //string ssql = " select * from dbo.MonthPackPlanTbl t where (montouch = '" + mon + "' or vcMonth = '" + mon + "') and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = t.vcPartsno) ";
-                string ssql = " select * from WeekPackPlanTbl where (montouch = '" + mon + "' or (vcMonth = '" + mon + "' and  montouch is null)) and exists ( select distinct vcPartsNo,vcDock ,vcCarType from tPlanPartInfo where tPlanPartInfo.vcMonth = '" + mon + "' and tPlanPartInfo.vcPlant ='" + plant + "' and tPlanPartInfo.vcPartsNo = MonthPackPlanTbl.vcPartsno and tPlanPartInfo.vcDock = MonthPackPlanTbl.vcDock and tPlanPartInfo.vcCarType = MonthPackPlanTbl.vcCarType  ) ;";
+                string ssql = " select * from WeekPackPlanTbl where (montouch = '" + mon + "' or (vcMonth = '" + mon + "' and  montouch is null)) and exists ( select distinct vcPartsNo,vcDock ,vcCarType from tPlanPartInfo where tPlanPartInfo.vcPartNameCN='w' and tPlanPartInfo.vcMonth = '" + mon + "' and tPlanPartInfo.vcPlant ='" + plant + "' and tPlanPartInfo.vcPartsNo = MonthPackPlanTbl.vcPartsno and tPlanPartInfo.vcDock = MonthPackPlanTbl.vcDock and tPlanPartInfo.vcCarType = MonthPackPlanTbl.vcCarType  ) ;";
                 //2013-6-8 改造 end
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(ssql);
                 if (dt.Rows.Count > 0)
@@ -59,30 +59,30 @@ namespace DataAccess
             for (int i = 1; i < 31 + 1; i++)
             {
                 if (i == 31)
-                    tmpE += "t2.vcD" + i + "b   as  ED" + i + "b,	t2.	vcD" + i + "y 	as	ED" + i + "y";
-                else tmpE += "t2.vcD" + i + "b 	as 	ED" + i + "b,	t2.vcD" + i + "y 	as	ED" + i + "y,";
+                    tmpE += "t2.vcD" + i + "b as ED" + i + "b,t2.vcD" + i + "y as ED" + i + "y";
+                else tmpE += "t2.vcD" + i + "b as ED" + i + "b,	t2.vcD" + i + "y as	ED" + i + "y,";
             }
             double daynum2 = (tim - tim.AddMonths(-1)).TotalDays;
             for (int i = 1; i < 31 + 1; i++)
             {
                 if (i == 31)
-                    tmpT += "t1.vcD" + i + "b as	TD" + i + "b,	t1.vcD" + i + "y 	as	TD" + i + "y";
-                else tmpT += "t1.vcD" + i + "b 	as	TD" + i + "b,	t1.vcD" + i + "y 	as	TD" + i + "y,";
+                    tmpT += "t1.vcD" + i + "b as TD" + i + "b, t1.vcD" + i + "y as TD" + i + "y";
+                else tmpT += "t1.vcD" + i + "b as TD" + i + "b,t1.vcD" + i + "y as TD" + i + "y,";
             }
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("    select t2.vcMonth ,t5.vcData2 as vcPlant, SUBSTRING(t2.vcPartsno,0,6)+'-'+SUBSTRING(t2.vcPartsno,6,5)+'-'+SUBSTRING(t2.vcPartsno,11,2) as vcPartsno ,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
+            sb.AppendLine("    select t2.vcMonth,t5.vcData2 as vcPlant, SUBSTRING(t2.vcPartsno,0,6)+'-'+SUBSTRING(t2.vcPartsno,6,5)+'-'+SUBSTRING(t2.vcPartsno,11,2) as vcPartsno ,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
             sb.AppendLine("   t3.vcPartNameCN as vcPartsNameCHN, t4.vcProName1 as vcProject1,t3.vcProType+'-'+t3.vcZB as vcProjectName, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal as vcMonTotal ,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("  from ( select  * from {0} where montouch is not null) t1 ", tablename);
+            sb.AppendFormat("  from ( select * from {0} where montouch is not null) t1 ", tablename);
             sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
             sb.AppendLine("  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
             sb.AppendLine("  left join (");
             sb.AppendLine("             select distinct vcMonth,vcPartNameCN,vcZB,s2.vcName as vcHJ,vcDock,vcCarType,vcPartsNo,vcProType,vcPlant,vcEDFlag from tPlanPartInfo s1 ");
             sb.AppendLine("             left join (select vcName, vcValue from tcode where vcCodeId='C004') s2 ");
-            sb.AppendLine("             on s1.vcHJ=s2.vcValue ");
+            sb.AppendLine("             on s1.vcHJ=s2.vcValue where s1.vcPartNameCN='w' ");
             sb.AppendLine("             ) t3 ");
-            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarType = t2.vcCarType and  t3.vcMonth = '" + mon + "' ");
+            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarType=t2.vcCarType and t3.vcMonth='" + mon + "' ");
             sb.AppendLine("  left join ProRuleMst t4");
             sb.AppendLine("  on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
             sb.AppendLine(" left join (select vcData1 ,vcData2 from ConstMst where vcDataId ='kbplant') t5");
@@ -228,7 +228,7 @@ namespace DataAccess
             StringBuilder sb = new StringBuilder();
             sb.Append("select vcMonth, vcPartsno, vcDock, vcCarType, vcProject1, vcProjectName, vcMonTotal, \r\n");
             sb.Append("isnull(vcD1b,0)+isnull(vcD1y,0) as vcD1,isnull(vcD2b,0)+isnull(vcD2y,0) as vcD2,isnull(vcD3b,0)+isnull(vcD3y,0) as vcD3, \r\n");
-            sb.Append("isnull(vcD4b,0)+isnull(vcD4y,0) as vcD4,isnull(vcD5b,0)+isnull(vcD5y,0) as vcD5,isnull(vcD3b,0)+isnull(vcD6y,0) as vcD6, \r\n");
+            sb.Append("isnull(vcD4b,0)+isnull(vcD4y,0) as vcD4,isnull(vcD5b,0)+isnull(vcD5y,0) as vcD5,isnull(vcD6b,0)+isnull(vcD6y,0) as vcD6, \r\n");
             sb.Append("isnull(vcD7b,0)+isnull(vcD7y,0) as vcD7,isnull(vcD8b,0)+isnull(vcD8y,0) as vcD8,isnull(vcD9b,0)+isnull(vcD9y,0) as vcD9, \r\n");
             sb.Append("isnull(vcD10b,0)+isnull(vcD10y,0) as vcD10,isnull(vcD11b,0)+isnull(vcD11y,0) as vcD11,isnull(vcD12b,0)+isnull(vcD12y,0) as vcD12, \r\n");
             sb.Append("isnull(vcD13b,0)+isnull(vcD13y,0) as vcD13,isnull(vcD14b,0)+isnull(vcD14y,0) as vcD14,isnull(vcD15b,0)+isnull(vcD15y,0) as vcD15, \r\n");
@@ -243,7 +243,7 @@ namespace DataAccess
             sb.Append("union all  \r\n");
             sb.Append("select vcMonth, vcPartsno, vcDock, vcCarType, vcProject1, vcProjectName, vcMonTotal, \r\n");
             sb.Append("isnull(vcD1b,0)+isnull(vcD1y,0) as vcD1,isnull(vcD2b,0)+isnull(vcD2y,0) as vcD2,isnull(vcD3b,0)+isnull(vcD3y,0) as vcD3, \r\n");
-            sb.Append("isnull(vcD4b,0)+isnull(vcD4y,0) as vcD4,isnull(vcD5b,0)+isnull(vcD5y,0) as vcD5,isnull(vcD3b,0)+isnull(vcD6y,0) as vcD6, \r\n");
+            sb.Append("isnull(vcD4b,0)+isnull(vcD4y,0) as vcD4,isnull(vcD5b,0)+isnull(vcD5y,0) as vcD5,isnull(vcD6b,0)+isnull(vcD6y,0) as vcD6, \r\n");
             sb.Append("isnull(vcD7b,0)+isnull(vcD7y,0) as vcD7,isnull(vcD8b,0)+isnull(vcD8y,0) as vcD8,isnull(vcD9b,0)+isnull(vcD9y,0) as vcD9, \r\n");
             sb.Append("isnull(vcD10b,0)+isnull(vcD10y,0) as vcD10,isnull(vcD11b,0)+isnull(vcD11y,0) as vcD11,isnull(vcD12b,0)+isnull(vcD12y,0) as vcD12, \r\n");
             sb.Append("isnull(vcD13b,0)+isnull(vcD13y,0) as vcD13,isnull(vcD14b,0)+isnull(vcD14y,0) as vcD14,isnull(vcD15b,0)+isnull(vcD15y,0) as vcD15, \r\n");

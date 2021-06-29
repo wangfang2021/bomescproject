@@ -223,11 +223,21 @@
     </Content>
     <Content Include="Doc\Template\FS0711_Export.xlsx" />
     <Content Include="Doc\Template\FS0712_Export.xlsx" />
-    <Content Include="Doc\Template\FS0713.xlsx" />
-    <Content Include="Doc\Template\FS0713_Export.xlsx" />
-    <Content Include="Doc\Template\FS0715.xlsx" />
-    <Content Include="Doc\Template\FS0714.xlsx" />
-    <Content Include="Doc\Template\FS0714_Export.xlsx" />
+    <Content Include="Doc\Template\FS0713.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0713_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0715.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0714.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0714_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Doc\Template\FS0716.xlsx" />
     <Content Include="Doc\Template\FS0716_Export.xlsx" />
     <Content Include="Doc\Template\FS0719.xlsx" />

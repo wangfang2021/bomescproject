@@ -28,7 +28,7 @@ namespace SPPSApi.Controllers.G12
     public class FS1210Controller_Sub_Import : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        FS1210_Logic fs1210_Logic = new FS1210_Logic();
+        FS1210_Logic fs1210_Logic = new FS1210_Logic(); 
         private readonly string FunctionID = "FS1210";
 
         public FS1210Controller_Sub_Import(IWebHostEnvironment webHostEnvironment)

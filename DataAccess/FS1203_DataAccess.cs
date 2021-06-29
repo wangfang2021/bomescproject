@@ -47,7 +47,7 @@ namespace DataAccess
             sb.AppendFormat(" from ( select * from {0} where montouch is not null) t1 ", tablename);
             sb.AppendFormat(" full join (select * from {0} where montouch is null) t2", tablename);
             sb.AppendLine(" on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendLine(" left join (select distinct vcMonth,vcPartNameCN,vcZB,vcHJ,vcDock,vcCarType,vcPartsNo,vcProType,vcPlant,vcEDFlag from tPlanPartInfo) t3");
+            sb.AppendLine(" left join (select distinct vcMonth,vcPartNameCN,vcZB,vcHJ,vcDock,vcCarType,vcPartsNo,vcProType,vcPlant,vcEDFlag from tPlanPartInfo where vcPartNameCN='m') t3");
             sb.AppendLine(" on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock=t2.vcDock and t3.vcCarType=t2.vcCarType and t3.vcMonth='" + mon + "' ");
             sb.AppendLine(" left join ProRuleMst t4");
             sb.AppendLine(" on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
@@ -246,7 +246,7 @@ namespace DataAccess
             sb.AppendLine("    on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
             sb.AppendFormat("     where (t1.montouch = '{0}' or t2.vcMonth ='{1}')", mon, mon);
             sb.AppendLine("    ) tt1");
-            sb.AppendLine("   left join (select distinct vcMonth,vcPartsNo,vcDock,vcCarType,vcZB,vcProType,vcEDFlag,vcPlant,vcHJ,vcPartNameCN from tPlanPartInfo) t3");
+            sb.AppendLine("   left join (select distinct vcMonth,vcPartsNo,vcDock,vcCarType,vcZB,vcProType,vcEDFlag,vcPlant,vcHJ,vcPartNameCN from tPlanPartInfo where vcPartNameCN='m') t3");
             sb.AppendLine("     on t3.vcPartsNo=tt1.vcPartsNo and t3.vcDock = tt1.vcDock and t3.vcCarType = tt1.vcCarType and  t3.vcMonth = '" + mon + "' ");
             sb.AppendLine("     left join ProRuleMst t4");
             sb.AppendLine("   on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");

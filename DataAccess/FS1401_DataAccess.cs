@@ -32,6 +32,9 @@ namespace DataAccess
                 strSql.AppendLine("		,T5.vcName AS vcPackType");
                 strSql.AppendLine("		,T6.vcCheckP AS vcCheckType");
                 strSql.AppendLine("		,T7.vcName AS vcSPISStatus");
+                strSql.AppendLine("		,T1.vcOESP AS vcOESP");
+                strSql.AppendLine("		,T1.vcStateFX AS vcStateFX");
+                strSql.AppendLine("		,T1.vcFXNO AS vcFXNO");
                 strSql.AppendLine("		,'0' as bModFlag,'0' as bAddFlag,'1' as bSelectFlag");
                 strSql.AppendLine("		from ");
                 strSql.AppendLine("(select * from tCheckMethod_Master");

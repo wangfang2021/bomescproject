@@ -393,22 +393,16 @@ namespace DataAccess
                 switch (Kind)
                 {
                     case "0":
-                        strSql.AppendLine("    select * from WeekProdPlanTbl where vcMonth='" + dFtime + "'  and isnull(montouch,'')=''      ");
-                        strSql.AppendLine("    union all                                                    ");
-                        strSql.AppendLine("    select * from WeekProdPlanTbl	where montouch='" + dFtime + "'      ");
-                        strSql.AppendLine("    )a                                                           ");
-                        if (dFtime.Split("-")[1] != dTtime.Split("-")[1])
-                        {
-                            strSql.AppendLine("    left join                                                   ");
-                            strSql.AppendLine("    (                                                            ");
-                            strSql.AppendLine("    select * from WeekProdPlanTbl where vcMonth='" + dTtime + "'   and isnull(montouch,'')=''       ");
-                            strSql.AppendLine("    union all                                                    ");
-                            strSql.AppendLine("    select * from WeekProdPlanTbl	where montouch='" + dTtime + "'     ");
-                            strSql.AppendLine("    )c on a.vcPartsno=c.vcPartsno                                ");
-                        }
-                        break;
-                    case "1":
-                        strSql.AppendLine("  select s.vcMonth,s.vcPartsno,s.vcDock,s.vcCarType,s.vcProject1,s.vcProjectName,s.vcMonTotal,     ");
+
+                        strSql.AppendLine("  select      ");
+                        strSql.AppendLine("    case when isnull(s.vcMonth,'')<>'' then s.vcMonth else ss.vcMonth end as vcMonth,     ");
+                        strSql.AppendLine("    case when isnull(s.vcPartsno,'')<>'' then s.vcPartsno else ss.vcPartsno end as vcPartsno,     ");
+                        strSql.AppendLine("    case when isnull(s.vcDock,'')<>'' then s.vcDock else ss.vcDock end as vcDock,     ");
+                        strSql.AppendLine("    case when isnull(s.vcCarType,'')<>'' then s.vcCarType else ss.vcCarType end as vcCarType,     ");
+                        strSql.AppendLine("    case when isnull(s.vcProject1,'')<>'' then s.vcProject1 else ss.vcProject1 end as vcProject1,     ");
+                        strSql.AppendLine("    case when isnull(s.vcProjectName,'')<>'' then s.vcProjectName else ss.vcProjectName end as vcProjectName,     ");
+                        strSql.AppendLine("    case when isnull(s.vcMonTotal,'')<>'' then s.vcMonTotal else ss.vcMonTotal end as vcMonTotal,       ");
+
                         strSql.AppendLine("  case when isnull(ss.vcD1b,'')<>''then ss.vcD1b else s.vcD1b end as vcD1b,     ");
                         strSql.AppendLine("  case when isnull(ss.vcD2b,'')<>''then ss.vcD2b else s.vcD2b end as vcD2b,     ");
                         strSql.AppendLine("  case when isnull(ss.vcD3b,'')<>''then ss.vcD3b else s.vcD3b end as vcD3b,     ");
@@ -429,7 +423,7 @@ namespace DataAccess
                         strSql.AppendLine("  case when isnull(ss.vcD8y,'')<>''then ss.vcD8y else s.vcD8y end as vcD8y,     ");
                         strSql.AppendLine("  case when isnull(ss.vcD9y,'')<>''then ss.vcD9y else s.vcD9y end as vcD9y,     ");
                         strSql.AppendLine("  case when isnull(ss.vcD10y,'')<>''then ss.vcD10y else s.vcD10y end as vcD10y,     ");
-                       
+
                         strSql.AppendLine("  case when isnull(ss.vcD11b,'')<>''then ss.vcD11b else s.vcD11b end as vcD11b,     ");
                         strSql.AppendLine("  case when isnull(ss.vcD12b,'')<>''then ss.vcD12b else s.vcD12b end as vcD12b,     ");
                         strSql.AppendLine("  case when isnull(ss.vcD13b,'')<>''then ss.vcD13b else s.vcD13b end as vcD13b,     ");
@@ -474,14 +468,404 @@ namespace DataAccess
                         strSql.AppendLine("  case when isnull(ss.vcD31y,'')<>''then ss.vcD31y else s.vcD31y end as vcD31y,     ");
                         strSql.AppendLine("  s.montouch,s.DADDTIME,s.DUPDTIME,s.CUPDUSER,s.vcSupplier_id     ");
                         strSql.AppendLine("  from(     ");
-                        strSql.AppendLine("    select * from MonthPackPlanTbl where vcMonth='"+ dFtime + "'     ");
-                        strSql.AppendLine("  )s left join     ");
+                        strSql.AppendLine("    select * from MonthProdPlanTbl where vcMonth='" + dFtime + "'     ");
+                        strSql.AppendLine("  )s full join     ");
                         strSql.AppendLine("  (     ");
-                        strSql.AppendLine("    select * from WeekPackPlanTbl where vcMonth='" + dFtime + "'  and isnull(montouch,'')=''      ");
-                        strSql.AppendLine("    union all                                                    ");
-                        strSql.AppendLine("    select * from WeekPackPlanTbl	where montouch='" + dFtime + "'      ");
+
+                        strSql.AppendLine("  select t1.vcMonth,t1.vcPartsno,t1.vcDock,t1.vcCarType,t1.vcProject1,t1.vcProjectName,t1.vcMonTotal,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD1b,'')<>'' then t2.vcD1b else t1.vcD1b end as vcD1b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD1y,'')<>'' then t2.vcD1y else t1.vcD1y end as vcD1y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD2b,'')<>'' then t2.vcD2b else t1.vcD2b end as vcD2b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD2y,'')<>'' then t2.vcD2y else t1.vcD2y end as vcD2y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD3b,'')<>'' then t2.vcD3b else t1.vcD3b end as vcD3b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD3y,'')<>'' then t2.vcD3y else t1.vcD3y end as vcD3y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD4b,'')<>'' then t2.vcD4b else t1.vcD4b end as vcD4b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD4y,'')<>'' then t2.vcD4y else t1.vcD4y end as vcD4y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD5b,'')<>'' then t2.vcD5b else t1.vcD5b end as vcD5b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD5y,'')<>'' then t2.vcD5y else t1.vcD5y end as vcD5y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD6b,'')<>'' then t2.vcD6b else t1.vcD6b end as vcD6b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD6y,'')<>'' then t2.vcD6y else t1.vcD6y end as vcD6y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD7b,'')<>'' then t2.vcD7b else t1.vcD7b end as vcD7b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD7y,'')<>'' then t2.vcD7y else t1.vcD7y end as vcD7y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD8b,'')<>'' then t2.vcD8b else t1.vcD8b end as vcD8b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD8y,'')<>'' then t2.vcD8y else t1.vcD8y end as vcD8y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD9b,'')<>'' then t2.vcD9b else t1.vcD9b end as vcD9b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD9y,'')<>'' then t2.vcD9y else t1.vcD9y end as vcD9y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD10b,'')<>'' then t2.vcD10b else t1.vcD10b end as vcD10b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD10y,'')<>'' then t2.vcD10y else t1.vcD10y end as vcD10y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD11b,'')<>'' then t2.vcD11b else t1.vcD11b end as vcD11b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD11y,'')<>'' then t2.vcD11y else t1.vcD11y end as vcD11y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD12b,'')<>'' then t2.vcD12b else t1.vcD12b end as vcD12b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD12y,'')<>'' then t2.vcD12y else t1.vcD12y end as vcD12y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD13b,'')<>'' then t2.vcD13b else t1.vcD13b end as vcD13b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD13y,'')<>'' then t2.vcD13y else t1.vcD13y end as vcD13y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD14b,'')<>'' then t2.vcD14b else t1.vcD14b end as vcD14b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD14y,'')<>'' then t2.vcD14y else t1.vcD14y end as vcD14y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD15b,'')<>'' then t2.vcD15b else t1.vcD15b end as vcD15b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD15y,'')<>'' then t2.vcD15y else t1.vcD15y end as vcD15y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD16b,'')<>'' then t2.vcD16b else t1.vcD16b end as vcD16b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD16y,'')<>'' then t2.vcD16y else t1.vcD16y end as vcD16y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD17b,'')<>'' then t2.vcD17b else t1.vcD17b end as vcD17b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD17y,'')<>'' then t2.vcD17y else t1.vcD17y end as vcD17y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD18b,'')<>'' then t2.vcD18b else t1.vcD18b end as vcD18b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD18y,'')<>'' then t2.vcD18y else t1.vcD18y end as vcD18y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD19b,'')<>'' then t2.vcD19b else t1.vcD19b end as vcD19b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD19y,'')<>'' then t2.vcD19y else t1.vcD19y end as vcD19y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD20b,'')<>'' then t2.vcD20b else t1.vcD20b end as vcD20b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD20y,'')<>'' then t2.vcD20y else t1.vcD20y end as vcD20y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD21b,'')<>'' then t2.vcD21b else t1.vcD21b end as vcD21b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD21y,'')<>'' then t2.vcD21y else t1.vcD21y end as vcD21y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD22b,'')<>'' then t2.vcD22b else t1.vcD22b end as vcD22b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD22y,'')<>'' then t2.vcD22y else t1.vcD22y end as vcD22y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD23b,'')<>'' then t2.vcD23b else t1.vcD23b end as vcD23b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD23y,'')<>'' then t2.vcD23y else t1.vcD23y end as vcD23y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD24b,'')<>'' then t2.vcD24b else t1.vcD24b end as vcD24b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD24y,'')<>'' then t2.vcD24y else t1.vcD24y end as vcD24y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD25b,'')<>'' then t2.vcD25b else t1.vcD25b end as vcD25b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD25y,'')<>'' then t2.vcD25y else t1.vcD25y end as vcD25y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD26b,'')<>'' then t2.vcD26b else t1.vcD26b end as vcD26b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD26y,'')<>'' then t2.vcD26y else t1.vcD26y end as vcD26y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD27b,'')<>'' then t2.vcD27b else t1.vcD27b end as vcD27b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD27y,'')<>'' then t2.vcD27y else t1.vcD27y end as vcD27y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD28b,'')<>'' then t2.vcD28b else t1.vcD28b end as vcD28b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD28y,'')<>'' then t2.vcD28y else t1.vcD28y end as vcD28y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD29b,'')<>'' then t2.vcD29b else t1.vcD29b end as vcD29b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD29y,'')<>'' then t2.vcD29y else t1.vcD29y end as vcD29y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD30b,'')<>'' then t2.vcD30b else t1.vcD30b end as vcD30b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD30y,'')<>'' then t2.vcD30y else t1.vcD30y end as vcD30y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD31b,'')<>'' then t2.vcD31b else t1.vcD31b end as vcD31b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD31y,'')<>'' then t2.vcD31y else t1.vcD31y end as vcD31y,     ");
+                        strSql.AppendLine("  t1.montouch,t1.DADDTIME,t1.DUPDTIME,t1.CUPDUSER,t1.vcSupplier_id     ");
+                        strSql.AppendLine("  from      ");
+                        strSql.AppendLine("  (     ");
+                        strSql.AppendLine("  select * from WeekProdPlanTbl where vcMonth='" + dFtime + "' and isnull(montouch,'')='' and (isnull(vcMonTotal,'')<>'')     ");
+                        strSql.AppendLine("  )t1     ");
+                        strSql.AppendLine("  left join     ");
+                        strSql.AppendLine("  (     ");
+                        strSql.AppendLine("  select * from WeekProdPlanTbl	where montouch='" + dFtime + "'     ");
+                        strSql.AppendLine("  )t2 on t1.vcPartsno=t2.vcPartsno     ");
+
+
                         strSql.AppendLine("    )ss on s.vcPartsno=ss.vcPartsno   ");
-                     
+
+                        strSql.AppendLine("    )a                                                           ");
+                        if (dFtime.Split("-")[1] != dTtime.Split("-")[1])
+                        {
+                            strSql.AppendLine("    left join                                                   ");
+                            strSql.AppendLine("    (                                                            ");
+
+                            strSql.AppendLine("  select      ");
+                            strSql.AppendLine("    case when isnull(cc.vcMonth,'')<>'' then cc.vcMonth else cc1.vcMonth end as vcMonth,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcPartsno,'')<>'' then cc.vcPartsno else cc1.vcPartsno end as vcPartsno,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcDock,'')<>'' then cc.vcDock else cc1.vcDock end as vcDock,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcCarType,'')<>'' then cc.vcCarType else cc1.vcCarType end as vcCarType,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcProject1,'')<>'' then cc.vcProject1 else cc1.vcProject1 end as vcProject1,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcProjectName,'')<>'' then cc.vcProjectName else cc1.vcProjectName end as vcProjectName,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcMonTotal,'')<>'' then cc.vcMonTotal else cc1.vcMonTotal end as vcMonTotal,       ");
+
+                            strSql.AppendLine("  case when isnull(cc1.vcD1b,'')<>''then cc1.vcD1b else cc.vcD1b end as vcD1b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD2b,'')<>''then cc1.vcD2b else cc.vcD2b end as vcD2b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD3b,'')<>''then cc1.vcD3b else cc.vcD3b end as vcD3b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD4b,'')<>''then cc1.vcD4b else cc.vcD4b end as vcD4b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD5b,'')<>''then cc1.vcD5b else cc.vcD5b end as vcD5b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD6b,'')<>''then cc1.vcD6b else cc.vcD6b end as vcD6b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD7b,'')<>''then cc1.vcD7b else cc.vcD7b end as vcD7b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD8b,'')<>''then cc1.vcD8b else cc.vcD8b end as vcD8b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD9b,'')<>''then cc1.vcD9b else cc.vcD9b end as vcD9b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD10b,'')<>''then cc1.vcD10b else cc.vcD10b end as vcD10b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD1y,'')<>''then cc1.vcD1y else cc.vcD1y end as vcD1y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD2y,'')<>''then cc1.vcD2y else cc.vcD2y end as vcD2y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD3y,'')<>''then cc1.vcD3y else cc.vcD3y end as vcD3y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD4y,'')<>''then cc1.vcD4y else cc.vcD4y end as vcD4y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD5y,'')<>''then cc1.vcD5y else cc.vcD5y end as vcD5y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD6y,'')<>''then cc1.vcD6y else cc.vcD6y end as vcD6y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD7y,'')<>''then cc1.vcD7y else cc.vcD7y end as vcD7y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD8y,'')<>''then cc1.vcD8y else cc.vcD8y end as vcD8y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD9y,'')<>''then cc1.vcD9y else cc.vcD9y end as vcD9y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD10y,'')<>''then cc1.vcD10y else cc.vcD10y end as vcD10y,     ");
+
+                            strSql.AppendLine("  case when isnull(cc1.vcD11b,'')<>''then cc1.vcD11b else cc.vcD11b end as vcD11b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD12b,'')<>''then cc1.vcD12b else cc.vcD12b end as vcD12b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD13b,'')<>''then cc1.vcD13b else cc.vcD13b end as vcD13b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD14b,'')<>''then cc1.vcD14b else cc.vcD14b end as vcD14b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD15b,'')<>''then cc1.vcD15b else cc.vcD15b end as vcD15b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD16b,'')<>''then cc1.vcD16b else cc.vcD16b end as vcD16b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD17b,'')<>''then cc1.vcD17b else cc.vcD17b end as vcD17b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD18b,'')<>''then cc1.vcD18b else cc.vcD18b end as vcD18b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD19b,'')<>''then cc1.vcD19b else cc.vcD19b end as vcD19b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD20b,'')<>''then cc1.vcD20b else cc.vcD20b end as vcD20b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD11y,'')<>''then cc1.vcD11y else cc.vcD11y end as vcD11y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD12y,'')<>''then cc1.vcD12y else cc.vcD12y end as vcD12y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD13y,'')<>''then cc1.vcD13y else cc.vcD13y end as vcD13y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD14y,'')<>''then cc1.vcD14y else cc.vcD14y end as vcD14y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD15y,'')<>''then cc1.vcD15y else cc.vcD15y end as vcD15y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD16y,'')<>''then cc1.vcD16y else cc.vcD16y end as vcD16y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD17y,'')<>''then cc1.vcD17y else cc.vcD17y end as vcD17y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD18y,'')<>''then cc1.vcD18y else cc.vcD18y end as vcD18y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD19y,'')<>''then cc1.vcD19y else cc.vcD19y end as vcD19y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD20y,'')<>''then cc1.vcD20y else cc.vcD20y end as vcD20y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD21b,'')<>''then cc1.vcD21b else cc.vcD21b end as vcD21b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD22b,'')<>''then cc1.vcD22b else cc.vcD22b end as vcD22b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD23b,'')<>''then cc1.vcD23b else cc.vcD23b end as vcD23b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD24b,'')<>''then cc1.vcD24b else cc.vcD24b end as vcD24b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD25b,'')<>''then cc1.vcD25b else cc.vcD25b end as vcD25b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD26b,'')<>''then cc1.vcD26b else cc.vcD26b end as vcD26b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD27b,'')<>''then cc1.vcD27b else cc.vcD27b end as vcD27b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD28b,'')<>''then cc1.vcD28b else cc.vcD28b end as vcD28b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD29b,'')<>''then cc1.vcD29b else cc.vcD29b end as vcD29b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD30b,'')<>''then cc1.vcD30b else cc.vcD30b end as vcD30b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD31b,'')<>''then cc1.vcD31b else cc.vcD31b end as vcD31b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD21y,'')<>''then cc1.vcD21y else cc.vcD21y end as vcD21y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD22y,'')<>''then cc1.vcD22y else cc.vcD22y end as vcD22y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD23y,'')<>''then cc1.vcD23y else cc.vcD23y end as vcD23y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD24y,'')<>''then cc1.vcD24y else cc.vcD24y end as vcD24y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD25y,'')<>''then cc1.vcD25y else cc.vcD25y end as vcD25y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD26y,'')<>''then cc1.vcD26y else cc.vcD26y end as vcD26y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD27y,'')<>''then cc1.vcD27y else cc.vcD27y end as vcD27y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD28y,'')<>''then cc1.vcD28y else cc.vcD28y end as vcD28y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD29y,'')<>''then cc1.vcD29y else cc.vcD29y end as vcD29y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD30y,'')<>''then cc1.vcD30y else cc.vcD30y end as vcD30y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD31y,'')<>''then cc1.vcD31y else cc.vcD31y end as vcD31y,     ");
+                            strSql.AppendLine("  cc1.montouch,cc1.DADDTIME,cc1.DUPDTIME,cc1.CUPDUSER,cc1.vcSupplier_id     ");
+                            strSql.AppendLine("  from(     ");
+                            strSql.AppendLine("    select * from MonthProdPlanTbl where vcMonth='" + dTtime + "'     ");
+                            strSql.AppendLine("  )cc full join     ");
+                            strSql.AppendLine("  (     ");
+
+                            strSql.AppendLine("  select t3.vcMonth,t3.vcPartsno,t3.vcDock,t3.vcCarType,t3.vcProject1,t3.vcProjectName,t3.vcMonTotal,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD1b,'')<>'' then t4.vcD1b else t3.vcD1b end as vcD1b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD1y,'')<>'' then t4.vcD1y else t3.vcD1y end as vcD1y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD2b,'')<>'' then t4.vcD2b else t3.vcD2b end as vcD2b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD2y,'')<>'' then t4.vcD2y else t3.vcD2y end as vcD2y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD3b,'')<>'' then t4.vcD3b else t3.vcD3b end as vcD3b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD3y,'')<>'' then t4.vcD3y else t3.vcD3y end as vcD3y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD4b,'')<>'' then t4.vcD4b else t3.vcD4b end as vcD4b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD4y,'')<>'' then t4.vcD4y else t3.vcD4y end as vcD4y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD5b,'')<>'' then t4.vcD5b else t3.vcD5b end as vcD5b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD5y,'')<>'' then t4.vcD5y else t3.vcD5y end as vcD5y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD6b,'')<>'' then t4.vcD6b else t3.vcD6b end as vcD6b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD6y,'')<>'' then t4.vcD6y else t3.vcD6y end as vcD6y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD7b,'')<>'' then t4.vcD7b else t3.vcD7b end as vcD7b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD7y,'')<>'' then t4.vcD7y else t3.vcD7y end as vcD7y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD8b,'')<>'' then t4.vcD8b else t3.vcD8b end as vcD8b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD8y,'')<>'' then t4.vcD8y else t3.vcD8y end as vcD8y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD9b,'')<>'' then t4.vcD9b else t3.vcD9b end as vcD9b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD9y,'')<>'' then t4.vcD9y else t3.vcD9y end as vcD9y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD10b,'')<>'' then t4.vcD10b else t3.vcD10b end as vcD10b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD10y,'')<>'' then t4.vcD10y else t3.vcD10y end as vcD10y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD11b,'')<>'' then t4.vcD11b else t3.vcD11b end as vcD11b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD11y,'')<>'' then t4.vcD11y else t3.vcD11y end as vcD11y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD12b,'')<>'' then t4.vcD12b else t3.vcD12b end as vcD12b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD12y,'')<>'' then t4.vcD12y else t3.vcD12y end as vcD12y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD13b,'')<>'' then t4.vcD13b else t3.vcD13b end as vcD13b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD13y,'')<>'' then t4.vcD13y else t3.vcD13y end as vcD13y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD14b,'')<>'' then t4.vcD14b else t3.vcD14b end as vcD14b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD14y,'')<>'' then t4.vcD14y else t3.vcD14y end as vcD14y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD15b,'')<>'' then t4.vcD15b else t3.vcD15b end as vcD15b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD15y,'')<>'' then t4.vcD15y else t3.vcD15y end as vcD15y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD16b,'')<>'' then t4.vcD16b else t3.vcD16b end as vcD16b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD16y,'')<>'' then t4.vcD16y else t3.vcD16y end as vcD16y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD17b,'')<>'' then t4.vcD17b else t3.vcD17b end as vcD17b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD17y,'')<>'' then t4.vcD17y else t3.vcD17y end as vcD17y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD18b,'')<>'' then t4.vcD18b else t3.vcD18b end as vcD18b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD18y,'')<>'' then t4.vcD18y else t3.vcD18y end as vcD18y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD19b,'')<>'' then t4.vcD19b else t3.vcD19b end as vcD19b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD19y,'')<>'' then t4.vcD19y else t3.vcD19y end as vcD19y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD20b,'')<>'' then t4.vcD20b else t3.vcD20b end as vcD20b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD20y,'')<>'' then t4.vcD20y else t3.vcD20y end as vcD20y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD21b,'')<>'' then t4.vcD21b else t3.vcD21b end as vcD21b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD21y,'')<>'' then t4.vcD21y else t3.vcD21y end as vcD21y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD22b,'')<>'' then t4.vcD22b else t3.vcD22b end as vcD22b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD22y,'')<>'' then t4.vcD22y else t3.vcD22y end as vcD22y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD23b,'')<>'' then t4.vcD23b else t3.vcD23b end as vcD23b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD23y,'')<>'' then t4.vcD23y else t3.vcD23y end as vcD23y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD24b,'')<>'' then t4.vcD24b else t3.vcD24b end as vcD24b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD24y,'')<>'' then t4.vcD24y else t3.vcD24y end as vcD24y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD25b,'')<>'' then t4.vcD25b else t3.vcD25b end as vcD25b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD25y,'')<>'' then t4.vcD25y else t3.vcD25y end as vcD25y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD26b,'')<>'' then t4.vcD26b else t3.vcD26b end as vcD26b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD26y,'')<>'' then t4.vcD26y else t3.vcD26y end as vcD26y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD27b,'')<>'' then t4.vcD27b else t3.vcD27b end as vcD27b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD27y,'')<>'' then t4.vcD27y else t3.vcD27y end as vcD27y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD28b,'')<>'' then t4.vcD28b else t3.vcD28b end as vcD28b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD28y,'')<>'' then t4.vcD28y else t3.vcD28y end as vcD28y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD29b,'')<>'' then t4.vcD29b else t3.vcD29b end as vcD29b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD29y,'')<>'' then t4.vcD29y else t3.vcD29y end as vcD29y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD30b,'')<>'' then t4.vcD30b else t3.vcD30b end as vcD30b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD30y,'')<>'' then t4.vcD30y else t3.vcD30y end as vcD30y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD31b,'')<>'' then t4.vcD31b else t3.vcD31b end as vcD31b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD31y,'')<>'' then t4.vcD31y else t3.vcD31y end as vcD31y,     ");
+                            strSql.AppendLine("  t3.montouch,t3.DADDTIME,t3.DUPDTIME,t3.CUPDUSER,t3.vcSupplier_id     ");
+                            strSql.AppendLine("  from      ");
+                            strSql.AppendLine("  (     ");
+                            strSql.AppendLine("  select * from WeekProdPlanTbl where vcMonth='" + dTtime + "' and isnull(montouch,'')='' and (isnull(vcMonTotal,'')<>'')     ");
+                            strSql.AppendLine("  )t3     ");
+                            strSql.AppendLine("  left join     ");
+                            strSql.AppendLine("  (     ");
+                            strSql.AppendLine("  select * from WeekProdPlanTbl	where montouch='" + dTtime + "'     ");
+                            strSql.AppendLine("  )t4 on t3.vcPartsno=t4.vcPartsno     ");
+
+
+
+                            strSql.AppendLine("    )cc1 on cc.vcPartsno=cc1.vcPartsno   ");
+                            strSql.AppendLine("    )c on a.vcPartsno=c.vcPartsno                                ");
+                        }
+                        break;
+                    case "1":
+                        strSql.AppendLine("  select      ");
+                        strSql.AppendLine("    case when isnull(s.vcMonth,'')<>'' then s.vcMonth else ss.vcMonth end as vcMonth,     ");
+                        strSql.AppendLine("    case when isnull(s.vcPartsno,'')<>'' then s.vcPartsno else ss.vcPartsno end as vcPartsno,     ");
+                        strSql.AppendLine("    case when isnull(s.vcDock,'')<>'' then s.vcDock else ss.vcDock end as vcDock,     ");
+                        strSql.AppendLine("    case when isnull(s.vcCarType,'')<>'' then s.vcCarType else ss.vcCarType end as vcCarType,     ");
+                        strSql.AppendLine("    case when isnull(s.vcProject1,'')<>'' then s.vcProject1 else ss.vcProject1 end as vcProject1,     ");
+                        strSql.AppendLine("    case when isnull(s.vcProjectName,'')<>'' then s.vcProjectName else ss.vcProjectName end as vcProjectName,     ");
+                        strSql.AppendLine("    case when isnull(s.vcMonTotal,'')<>'' then s.vcMonTotal else ss.vcMonTotal end as vcMonTotal,       ");
+
+                        strSql.AppendLine("  case when isnull(ss.vcD1b,'')<>''then ss.vcD1b else s.vcD1b end as vcD1b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD2b,'')<>''then ss.vcD2b else s.vcD2b end as vcD2b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD3b,'')<>''then ss.vcD3b else s.vcD3b end as vcD3b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD4b,'')<>''then ss.vcD4b else s.vcD4b end as vcD4b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD5b,'')<>''then ss.vcD5b else s.vcD5b end as vcD5b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD6b,'')<>''then ss.vcD6b else s.vcD6b end as vcD6b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD7b,'')<>''then ss.vcD7b else s.vcD7b end as vcD7b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD8b,'')<>''then ss.vcD8b else s.vcD8b end as vcD8b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD9b,'')<>''then ss.vcD9b else s.vcD9b end as vcD9b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD10b,'')<>''then ss.vcD10b else s.vcD10b end as vcD10b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD1y,'')<>''then ss.vcD1y else s.vcD1y end as vcD1y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD2y,'')<>''then ss.vcD2y else s.vcD2y end as vcD2y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD3y,'')<>''then ss.vcD3y else s.vcD3y end as vcD3y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD4y,'')<>''then ss.vcD4y else s.vcD4y end as vcD4y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD5y,'')<>''then ss.vcD5y else s.vcD5y end as vcD5y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD6y,'')<>''then ss.vcD6y else s.vcD6y end as vcD6y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD7y,'')<>''then ss.vcD7y else s.vcD7y end as vcD7y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD8y,'')<>''then ss.vcD8y else s.vcD8y end as vcD8y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD9y,'')<>''then ss.vcD9y else s.vcD9y end as vcD9y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD10y,'')<>''then ss.vcD10y else s.vcD10y end as vcD10y,     ");
+
+                        strSql.AppendLine("  case when isnull(ss.vcD11b,'')<>''then ss.vcD11b else s.vcD11b end as vcD11b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD12b,'')<>''then ss.vcD12b else s.vcD12b end as vcD12b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD13b,'')<>''then ss.vcD13b else s.vcD13b end as vcD13b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD14b,'')<>''then ss.vcD14b else s.vcD14b end as vcD14b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD15b,'')<>''then ss.vcD15b else s.vcD15b end as vcD15b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD16b,'')<>''then ss.vcD16b else s.vcD16b end as vcD16b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD17b,'')<>''then ss.vcD17b else s.vcD17b end as vcD17b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD18b,'')<>''then ss.vcD18b else s.vcD18b end as vcD18b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD19b,'')<>''then ss.vcD19b else s.vcD19b end as vcD19b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD20b,'')<>''then ss.vcD20b else s.vcD20b end as vcD20b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD11y,'')<>''then ss.vcD11y else s.vcD11y end as vcD11y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD12y,'')<>''then ss.vcD12y else s.vcD12y end as vcD12y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD13y,'')<>''then ss.vcD13y else s.vcD13y end as vcD13y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD14y,'')<>''then ss.vcD14y else s.vcD14y end as vcD14y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD15y,'')<>''then ss.vcD15y else s.vcD15y end as vcD15y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD16y,'')<>''then ss.vcD16y else s.vcD16y end as vcD16y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD17y,'')<>''then ss.vcD17y else s.vcD17y end as vcD17y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD18y,'')<>''then ss.vcD18y else s.vcD18y end as vcD18y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD19y,'')<>''then ss.vcD19y else s.vcD19y end as vcD19y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD20y,'')<>''then ss.vcD20y else s.vcD20y end as vcD20y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD21b,'')<>''then ss.vcD21b else s.vcD21b end as vcD21b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD22b,'')<>''then ss.vcD22b else s.vcD22b end as vcD22b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD23b,'')<>''then ss.vcD23b else s.vcD23b end as vcD23b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD24b,'')<>''then ss.vcD24b else s.vcD24b end as vcD24b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD25b,'')<>''then ss.vcD25b else s.vcD25b end as vcD25b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD26b,'')<>''then ss.vcD26b else s.vcD26b end as vcD26b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD27b,'')<>''then ss.vcD27b else s.vcD27b end as vcD27b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD28b,'')<>''then ss.vcD28b else s.vcD28b end as vcD28b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD29b,'')<>''then ss.vcD29b else s.vcD29b end as vcD29b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD30b,'')<>''then ss.vcD30b else s.vcD30b end as vcD30b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD31b,'')<>''then ss.vcD31b else s.vcD31b end as vcD31b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD21y,'')<>''then ss.vcD21y else s.vcD21y end as vcD21y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD22y,'')<>''then ss.vcD22y else s.vcD22y end as vcD22y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD23y,'')<>''then ss.vcD23y else s.vcD23y end as vcD23y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD24y,'')<>''then ss.vcD24y else s.vcD24y end as vcD24y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD25y,'')<>''then ss.vcD25y else s.vcD25y end as vcD25y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD26y,'')<>''then ss.vcD26y else s.vcD26y end as vcD26y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD27y,'')<>''then ss.vcD27y else s.vcD27y end as vcD27y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD28y,'')<>''then ss.vcD28y else s.vcD28y end as vcD28y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD29y,'')<>''then ss.vcD29y else s.vcD29y end as vcD29y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD30y,'')<>''then ss.vcD30y else s.vcD30y end as vcD30y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD31y,'')<>''then ss.vcD31y else s.vcD31y end as vcD31y,     ");
+                        strSql.AppendLine("  s.montouch,s.DADDTIME,s.DUPDTIME,s.CUPDUSER,s.vcSupplier_id     ");
+                        strSql.AppendLine("  from(     ");
+                        strSql.AppendLine("    select * from MonthPackPlanTbl where vcMonth='" + dFtime + "'     ");
+                        strSql.AppendLine("  )s full join     ");
+                        strSql.AppendLine("  (     ");
+
+                        strSql.AppendLine("  select t1.vcMonth,t1.vcPartsno,t1.vcDock,t1.vcCarType,t1.vcProject1,t1.vcProjectName,t1.vcMonTotal,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD1b,'')<>'' then t2.vcD1b else t1.vcD1b end as vcD1b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD1y,'')<>'' then t2.vcD1y else t1.vcD1y end as vcD1y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD2b,'')<>'' then t2.vcD2b else t1.vcD2b end as vcD2b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD2y,'')<>'' then t2.vcD2y else t1.vcD2y end as vcD2y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD3b,'')<>'' then t2.vcD3b else t1.vcD3b end as vcD3b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD3y,'')<>'' then t2.vcD3y else t1.vcD3y end as vcD3y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD4b,'')<>'' then t2.vcD4b else t1.vcD4b end as vcD4b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD4y,'')<>'' then t2.vcD4y else t1.vcD4y end as vcD4y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD5b,'')<>'' then t2.vcD5b else t1.vcD5b end as vcD5b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD5y,'')<>'' then t2.vcD5y else t1.vcD5y end as vcD5y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD6b,'')<>'' then t2.vcD6b else t1.vcD6b end as vcD6b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD6y,'')<>'' then t2.vcD6y else t1.vcD6y end as vcD6y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD7b,'')<>'' then t2.vcD7b else t1.vcD7b end as vcD7b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD7y,'')<>'' then t2.vcD7y else t1.vcD7y end as vcD7y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD8b,'')<>'' then t2.vcD8b else t1.vcD8b end as vcD8b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD8y,'')<>'' then t2.vcD8y else t1.vcD8y end as vcD8y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD9b,'')<>'' then t2.vcD9b else t1.vcD9b end as vcD9b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD9y,'')<>'' then t2.vcD9y else t1.vcD9y end as vcD9y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD10b,'')<>'' then t2.vcD10b else t1.vcD10b end as vcD10b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD10y,'')<>'' then t2.vcD10y else t1.vcD10y end as vcD10y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD11b,'')<>'' then t2.vcD11b else t1.vcD11b end as vcD11b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD11y,'')<>'' then t2.vcD11y else t1.vcD11y end as vcD11y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD12b,'')<>'' then t2.vcD12b else t1.vcD12b end as vcD12b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD12y,'')<>'' then t2.vcD12y else t1.vcD12y end as vcD12y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD13b,'')<>'' then t2.vcD13b else t1.vcD13b end as vcD13b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD13y,'')<>'' then t2.vcD13y else t1.vcD13y end as vcD13y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD14b,'')<>'' then t2.vcD14b else t1.vcD14b end as vcD14b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD14y,'')<>'' then t2.vcD14y else t1.vcD14y end as vcD14y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD15b,'')<>'' then t2.vcD15b else t1.vcD15b end as vcD15b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD15y,'')<>'' then t2.vcD15y else t1.vcD15y end as vcD15y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD16b,'')<>'' then t2.vcD16b else t1.vcD16b end as vcD16b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD16y,'')<>'' then t2.vcD16y else t1.vcD16y end as vcD16y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD17b,'')<>'' then t2.vcD17b else t1.vcD17b end as vcD17b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD17y,'')<>'' then t2.vcD17y else t1.vcD17y end as vcD17y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD18b,'')<>'' then t2.vcD18b else t1.vcD18b end as vcD18b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD18y,'')<>'' then t2.vcD18y else t1.vcD18y end as vcD18y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD19b,'')<>'' then t2.vcD19b else t1.vcD19b end as vcD19b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD19y,'')<>'' then t2.vcD19y else t1.vcD19y end as vcD19y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD20b,'')<>'' then t2.vcD20b else t1.vcD20b end as vcD20b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD20y,'')<>'' then t2.vcD20y else t1.vcD20y end as vcD20y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD21b,'')<>'' then t2.vcD21b else t1.vcD21b end as vcD21b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD21y,'')<>'' then t2.vcD21y else t1.vcD21y end as vcD21y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD22b,'')<>'' then t2.vcD22b else t1.vcD22b end as vcD22b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD22y,'')<>'' then t2.vcD22y else t1.vcD22y end as vcD22y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD23b,'')<>'' then t2.vcD23b else t1.vcD23b end as vcD23b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD23y,'')<>'' then t2.vcD23y else t1.vcD23y end as vcD23y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD24b,'')<>'' then t2.vcD24b else t1.vcD24b end as vcD24b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD24y,'')<>'' then t2.vcD24y else t1.vcD24y end as vcD24y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD25b,'')<>'' then t2.vcD25b else t1.vcD25b end as vcD25b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD25y,'')<>'' then t2.vcD25y else t1.vcD25y end as vcD25y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD26b,'')<>'' then t2.vcD26b else t1.vcD26b end as vcD26b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD26y,'')<>'' then t2.vcD26y else t1.vcD26y end as vcD26y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD27b,'')<>'' then t2.vcD27b else t1.vcD27b end as vcD27b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD27y,'')<>'' then t2.vcD27y else t1.vcD27y end as vcD27y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD28b,'')<>'' then t2.vcD28b else t1.vcD28b end as vcD28b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD28y,'')<>'' then t2.vcD28y else t1.vcD28y end as vcD28y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD29b,'')<>'' then t2.vcD29b else t1.vcD29b end as vcD29b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD29y,'')<>'' then t2.vcD29y else t1.vcD29y end as vcD29y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD30b,'')<>'' then t2.vcD30b else t1.vcD30b end as vcD30b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD30y,'')<>'' then t2.vcD30y else t1.vcD30y end as vcD30y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD31b,'')<>'' then t2.vcD31b else t1.vcD31b end as vcD31b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD31y,'')<>'' then t2.vcD31y else t1.vcD31y end as vcD31y,     ");
+                        strSql.AppendLine("  t1.montouch,t1.DADDTIME,t1.DUPDTIME,t1.CUPDUSER,t1.vcSupplier_id     ");
+                        strSql.AppendLine("  from      ");
+                        strSql.AppendLine("  (     ");
+                        strSql.AppendLine("  select * from WeekPackPlanTbl where vcMonth='" + dFtime + "' and isnull(montouch,'')='' and (isnull(vcMonTotal,'')<>'')     ");
+                        strSql.AppendLine("  )t1     ");
+                        strSql.AppendLine("  left join     ");
+                        strSql.AppendLine("  (     ");
+                        strSql.AppendLine("  select * from WeekPackPlanTbl	where montouch='" + dFtime + "'     ");
+                        strSql.AppendLine("  )t2 on t1.vcPartsno=t2.vcPartsno     ");
+
+
+                        strSql.AppendLine("    )ss on s.vcPartsno=ss.vcPartsno   ");
+
 
 
                         strSql.AppendLine("    )a                                                           ");
@@ -489,7 +873,16 @@ namespace DataAccess
                         {
                             strSql.AppendLine("    left join                                                   ");
                             strSql.AppendLine("    (                                                            ");
-                            strSql.AppendLine("  select cc1.vcMonth,cc1.vcPartsno,cc1.vcDock,cc1.vcCarType,cc1.vcProject1,cc1.vcProjectName,cc1.vcMonTotal,     ");
+
+                            strSql.AppendLine("  select      ");
+                            strSql.AppendLine("    case when isnull(cc.vcMonth,'')<>'' then cc.vcMonth else cc1.vcMonth end as vcMonth,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcPartsno,'')<>'' then cc.vcPartsno else cc1.vcPartsno end as vcPartsno,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcDock,'')<>'' then cc.vcDock else cc1.vcDock end as vcDock,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcCarType,'')<>'' then cc.vcCarType else cc1.vcCarType end as vcCarType,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcProject1,'')<>'' then cc.vcProject1 else cc1.vcProject1 end as vcProject1,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcProjectName,'')<>'' then cc.vcProjectName else cc1.vcProjectName end as vcProjectName,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcMonTotal,'')<>'' then cc.vcMonTotal else cc1.vcMonTotal end as vcMonTotal,       ");
+
                             strSql.AppendLine("  case when isnull(cc1.vcD1b,'')<>''then cc1.vcD1b else cc.vcD1b end as vcD1b,     ");
                             strSql.AppendLine("  case when isnull(cc1.vcD2b,'')<>''then cc1.vcD2b else cc.vcD2b end as vcD2b,     ");
                             strSql.AppendLine("  case when isnull(cc1.vcD3b,'')<>''then cc1.vcD3b else cc.vcD3b end as vcD3b,     ");
@@ -556,33 +949,409 @@ namespace DataAccess
                             strSql.AppendLine("  cc1.montouch,cc1.DADDTIME,cc1.DUPDTIME,cc1.CUPDUSER,cc1.vcSupplier_id     ");
                             strSql.AppendLine("  from(     ");
                             strSql.AppendLine("    select * from MonthPackPlanTbl where vcMonth='" + dTtime + "'     ");
-                            strSql.AppendLine("  )cc left join     ");
+                            strSql.AppendLine("  )cc full join     ");
                             strSql.AppendLine("  (     ");
-                            strSql.AppendLine("    select * from WeekPackPlanTbl where vcMonth='" + dTtime + "'  and isnull(montouch,'')=''     ");
-                            strSql.AppendLine("    union all                                                    ");
-                            strSql.AppendLine("    select * from WeekPackPlanTbl	where montouch='" + dTtime + "'     ");
-                            strSql.AppendLine("    )cc1 on s.vcPartsno=ss.vcPartsno   ");
+
+                            strSql.AppendLine("  select t3.vcMonth,t3.vcPartsno,t3.vcDock,t3.vcCarType,t3.vcProject1,t3.vcProjectName,t3.vcMonTotal,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD1b,'')<>'' then t4.vcD1b else t3.vcD1b end as vcD1b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD1y,'')<>'' then t4.vcD1y else t3.vcD1y end as vcD1y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD2b,'')<>'' then t4.vcD2b else t3.vcD2b end as vcD2b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD2y,'')<>'' then t4.vcD2y else t3.vcD2y end as vcD2y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD3b,'')<>'' then t4.vcD3b else t3.vcD3b end as vcD3b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD3y,'')<>'' then t4.vcD3y else t3.vcD3y end as vcD3y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD4b,'')<>'' then t4.vcD4b else t3.vcD4b end as vcD4b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD4y,'')<>'' then t4.vcD4y else t3.vcD4y end as vcD4y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD5b,'')<>'' then t4.vcD5b else t3.vcD5b end as vcD5b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD5y,'')<>'' then t4.vcD5y else t3.vcD5y end as vcD5y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD6b,'')<>'' then t4.vcD6b else t3.vcD6b end as vcD6b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD6y,'')<>'' then t4.vcD6y else t3.vcD6y end as vcD6y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD7b,'')<>'' then t4.vcD7b else t3.vcD7b end as vcD7b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD7y,'')<>'' then t4.vcD7y else t3.vcD7y end as vcD7y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD8b,'')<>'' then t4.vcD8b else t3.vcD8b end as vcD8b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD8y,'')<>'' then t4.vcD8y else t3.vcD8y end as vcD8y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD9b,'')<>'' then t4.vcD9b else t3.vcD9b end as vcD9b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD9y,'')<>'' then t4.vcD9y else t3.vcD9y end as vcD9y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD10b,'')<>'' then t4.vcD10b else t3.vcD10b end as vcD10b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD10y,'')<>'' then t4.vcD10y else t3.vcD10y end as vcD10y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD11b,'')<>'' then t4.vcD11b else t3.vcD11b end as vcD11b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD11y,'')<>'' then t4.vcD11y else t3.vcD11y end as vcD11y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD12b,'')<>'' then t4.vcD12b else t3.vcD12b end as vcD12b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD12y,'')<>'' then t4.vcD12y else t3.vcD12y end as vcD12y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD13b,'')<>'' then t4.vcD13b else t3.vcD13b end as vcD13b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD13y,'')<>'' then t4.vcD13y else t3.vcD13y end as vcD13y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD14b,'')<>'' then t4.vcD14b else t3.vcD14b end as vcD14b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD14y,'')<>'' then t4.vcD14y else t3.vcD14y end as vcD14y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD15b,'')<>'' then t4.vcD15b else t3.vcD15b end as vcD15b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD15y,'')<>'' then t4.vcD15y else t3.vcD15y end as vcD15y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD16b,'')<>'' then t4.vcD16b else t3.vcD16b end as vcD16b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD16y,'')<>'' then t4.vcD16y else t3.vcD16y end as vcD16y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD17b,'')<>'' then t4.vcD17b else t3.vcD17b end as vcD17b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD17y,'')<>'' then t4.vcD17y else t3.vcD17y end as vcD17y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD18b,'')<>'' then t4.vcD18b else t3.vcD18b end as vcD18b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD18y,'')<>'' then t4.vcD18y else t3.vcD18y end as vcD18y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD19b,'')<>'' then t4.vcD19b else t3.vcD19b end as vcD19b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD19y,'')<>'' then t4.vcD19y else t3.vcD19y end as vcD19y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD20b,'')<>'' then t4.vcD20b else t3.vcD20b end as vcD20b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD20y,'')<>'' then t4.vcD20y else t3.vcD20y end as vcD20y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD21b,'')<>'' then t4.vcD21b else t3.vcD21b end as vcD21b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD21y,'')<>'' then t4.vcD21y else t3.vcD21y end as vcD21y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD22b,'')<>'' then t4.vcD22b else t3.vcD22b end as vcD22b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD22y,'')<>'' then t4.vcD22y else t3.vcD22y end as vcD22y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD23b,'')<>'' then t4.vcD23b else t3.vcD23b end as vcD23b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD23y,'')<>'' then t4.vcD23y else t3.vcD23y end as vcD23y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD24b,'')<>'' then t4.vcD24b else t3.vcD24b end as vcD24b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD24y,'')<>'' then t4.vcD24y else t3.vcD24y end as vcD24y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD25b,'')<>'' then t4.vcD25b else t3.vcD25b end as vcD25b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD25y,'')<>'' then t4.vcD25y else t3.vcD25y end as vcD25y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD26b,'')<>'' then t4.vcD26b else t3.vcD26b end as vcD26b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD26y,'')<>'' then t4.vcD26y else t3.vcD26y end as vcD26y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD27b,'')<>'' then t4.vcD27b else t3.vcD27b end as vcD27b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD27y,'')<>'' then t4.vcD27y else t3.vcD27y end as vcD27y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD28b,'')<>'' then t4.vcD28b else t3.vcD28b end as vcD28b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD28y,'')<>'' then t4.vcD28y else t3.vcD28y end as vcD28y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD29b,'')<>'' then t4.vcD29b else t3.vcD29b end as vcD29b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD29y,'')<>'' then t4.vcD29y else t3.vcD29y end as vcD29y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD30b,'')<>'' then t4.vcD30b else t3.vcD30b end as vcD30b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD30y,'')<>'' then t4.vcD30y else t3.vcD30y end as vcD30y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD31b,'')<>'' then t4.vcD31b else t3.vcD31b end as vcD31b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD31y,'')<>'' then t4.vcD31y else t3.vcD31y end as vcD31y,     ");
+                            strSql.AppendLine("  t3.montouch,t3.DADDTIME,t3.DUPDTIME,t3.CUPDUSER,t3.vcSupplier_id     ");
+                            strSql.AppendLine("  from      ");
+                            strSql.AppendLine("  (     ");
+                            strSql.AppendLine("  select * from WeekPackPlanTbl where vcMonth='" + dTtime + "' and isnull(montouch,'')='' and (isnull(vcMonTotal,'')<>'')     ");
+                            strSql.AppendLine("  )t3     ");
+                            strSql.AppendLine("  left join     ");
+                            strSql.AppendLine("  (     ");
+                            strSql.AppendLine("  select * from WeekPackPlanTbl	where montouch='" + dTtime + "'     ");
+                            strSql.AppendLine("  )t4 on t3.vcPartsno=t4.vcPartsno     ");
+
+                            strSql.AppendLine("    )cc1 on cc.vcPartsno=cc1.vcPartsno   ");
                             strSql.AppendLine("    )c on a.vcPartsno=c.vcPartsno                                ");
                         }
                         break;
                     case "2":
-                        strSql.AppendLine("    select * from WeekKanBanPlanTbl where vcMonth='" + dFtime + "' and isnull(montouch,'')=''      ");
-                        strSql.AppendLine("    union all                                                    ");
-                        strSql.AppendLine("    select * from WeekKanBanPlanTbl	where montouch='" + dFtime + "'      ");
+
+
+                        strSql.AppendLine("  select      ");
+                        strSql.AppendLine("    case when isnull(s.vcMonth,'')<>'' then s.vcMonth else ss.vcMonth end as vcMonth,     ");
+                        strSql.AppendLine("    case when isnull(s.vcPartsno,'')<>'' then s.vcPartsno else ss.vcPartsno end as vcPartsno,     ");
+                        strSql.AppendLine("    case when isnull(s.vcDock,'')<>'' then s.vcDock else ss.vcDock end as vcDock,     ");
+                        strSql.AppendLine("    case when isnull(s.vcCarType,'')<>'' then s.vcCarType else ss.vcCarType end as vcCarType,     ");
+                        strSql.AppendLine("    case when isnull(s.vcProject1,'')<>'' then s.vcProject1 else ss.vcProject1 end as vcProject1,     ");
+                        strSql.AppendLine("    case when isnull(s.vcProjectName,'')<>'' then s.vcProjectName else ss.vcProjectName end as vcProjectName,     ");
+                        strSql.AppendLine("    case when isnull(s.vcMonTotal,'')<>'' then s.vcMonTotal else ss.vcMonTotal end as vcMonTotal,       ");
+                     
+                        strSql.AppendLine("  case when isnull(ss.vcD1b,'')<>''then ss.vcD1b else s.vcD1b end as vcD1b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD2b,'')<>''then ss.vcD2b else s.vcD2b end as vcD2b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD3b,'')<>''then ss.vcD3b else s.vcD3b end as vcD3b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD4b,'')<>''then ss.vcD4b else s.vcD4b end as vcD4b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD5b,'')<>''then ss.vcD5b else s.vcD5b end as vcD5b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD6b,'')<>''then ss.vcD6b else s.vcD6b end as vcD6b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD7b,'')<>''then ss.vcD7b else s.vcD7b end as vcD7b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD8b,'')<>''then ss.vcD8b else s.vcD8b end as vcD8b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD9b,'')<>''then ss.vcD9b else s.vcD9b end as vcD9b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD10b,'')<>''then ss.vcD10b else s.vcD10b end as vcD10b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD1y,'')<>''then ss.vcD1y else s.vcD1y end as vcD1y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD2y,'')<>''then ss.vcD2y else s.vcD2y end as vcD2y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD3y,'')<>''then ss.vcD3y else s.vcD3y end as vcD3y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD4y,'')<>''then ss.vcD4y else s.vcD4y end as vcD4y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD5y,'')<>''then ss.vcD5y else s.vcD5y end as vcD5y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD6y,'')<>''then ss.vcD6y else s.vcD6y end as vcD6y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD7y,'')<>''then ss.vcD7y else s.vcD7y end as vcD7y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD8y,'')<>''then ss.vcD8y else s.vcD8y end as vcD8y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD9y,'')<>''then ss.vcD9y else s.vcD9y end as vcD9y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD10y,'')<>''then ss.vcD10y else s.vcD10y end as vcD10y,     ");
+
+                        strSql.AppendLine("  case when isnull(ss.vcD11b,'')<>''then ss.vcD11b else s.vcD11b end as vcD11b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD12b,'')<>''then ss.vcD12b else s.vcD12b end as vcD12b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD13b,'')<>''then ss.vcD13b else s.vcD13b end as vcD13b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD14b,'')<>''then ss.vcD14b else s.vcD14b end as vcD14b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD15b,'')<>''then ss.vcD15b else s.vcD15b end as vcD15b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD16b,'')<>''then ss.vcD16b else s.vcD16b end as vcD16b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD17b,'')<>''then ss.vcD17b else s.vcD17b end as vcD17b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD18b,'')<>''then ss.vcD18b else s.vcD18b end as vcD18b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD19b,'')<>''then ss.vcD19b else s.vcD19b end as vcD19b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD20b,'')<>''then ss.vcD20b else s.vcD20b end as vcD20b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD11y,'')<>''then ss.vcD11y else s.vcD11y end as vcD11y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD12y,'')<>''then ss.vcD12y else s.vcD12y end as vcD12y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD13y,'')<>''then ss.vcD13y else s.vcD13y end as vcD13y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD14y,'')<>''then ss.vcD14y else s.vcD14y end as vcD14y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD15y,'')<>''then ss.vcD15y else s.vcD15y end as vcD15y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD16y,'')<>''then ss.vcD16y else s.vcD16y end as vcD16y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD17y,'')<>''then ss.vcD17y else s.vcD17y end as vcD17y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD18y,'')<>''then ss.vcD18y else s.vcD18y end as vcD18y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD19y,'')<>''then ss.vcD19y else s.vcD19y end as vcD19y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD20y,'')<>''then ss.vcD20y else s.vcD20y end as vcD20y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD21b,'')<>''then ss.vcD21b else s.vcD21b end as vcD21b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD22b,'')<>''then ss.vcD22b else s.vcD22b end as vcD22b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD23b,'')<>''then ss.vcD23b else s.vcD23b end as vcD23b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD24b,'')<>''then ss.vcD24b else s.vcD24b end as vcD24b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD25b,'')<>''then ss.vcD25b else s.vcD25b end as vcD25b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD26b,'')<>''then ss.vcD26b else s.vcD26b end as vcD26b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD27b,'')<>''then ss.vcD27b else s.vcD27b end as vcD27b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD28b,'')<>''then ss.vcD28b else s.vcD28b end as vcD28b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD29b,'')<>''then ss.vcD29b else s.vcD29b end as vcD29b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD30b,'')<>''then ss.vcD30b else s.vcD30b end as vcD30b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD31b,'')<>''then ss.vcD31b else s.vcD31b end as vcD31b,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD21y,'')<>''then ss.vcD21y else s.vcD21y end as vcD21y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD22y,'')<>''then ss.vcD22y else s.vcD22y end as vcD22y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD23y,'')<>''then ss.vcD23y else s.vcD23y end as vcD23y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD24y,'')<>''then ss.vcD24y else s.vcD24y end as vcD24y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD25y,'')<>''then ss.vcD25y else s.vcD25y end as vcD25y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD26y,'')<>''then ss.vcD26y else s.vcD26y end as vcD26y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD27y,'')<>''then ss.vcD27y else s.vcD27y end as vcD27y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD28y,'')<>''then ss.vcD28y else s.vcD28y end as vcD28y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD29y,'')<>''then ss.vcD29y else s.vcD29y end as vcD29y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD30y,'')<>''then ss.vcD30y else s.vcD30y end as vcD30y,     ");
+                        strSql.AppendLine("  case when isnull(ss.vcD31y,'')<>''then ss.vcD31y else s.vcD31y end as vcD31y,     ");
+                        strSql.AppendLine("  s.montouch,s.DADDTIME,s.DUPDTIME,s.CUPDUSER,s.vcSupplier_id     ");
+                        strSql.AppendLine("  from(     ");
+                        strSql.AppendLine("    select * from MonthKanBanPlanTbl where vcMonth='" + dFtime + "'     ");
+                        strSql.AppendLine("  )s full join     ");
+                        strSql.AppendLine("  (     ");
+
+                        strSql.AppendLine("  select t1.vcMonth,t1.vcPartsno,t1.vcDock,t1.vcCarType,t1.vcProject1,t1.vcProjectName,t1.vcMonTotal,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD1b,'')<>'' then t2.vcD1b else t1.vcD1b end as vcD1b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD1y,'')<>'' then t2.vcD1y else t1.vcD1y end as vcD1y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD2b,'')<>'' then t2.vcD2b else t1.vcD2b end as vcD2b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD2y,'')<>'' then t2.vcD2y else t1.vcD2y end as vcD2y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD3b,'')<>'' then t2.vcD3b else t1.vcD3b end as vcD3b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD3y,'')<>'' then t2.vcD3y else t1.vcD3y end as vcD3y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD4b,'')<>'' then t2.vcD4b else t1.vcD4b end as vcD4b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD4y,'')<>'' then t2.vcD4y else t1.vcD4y end as vcD4y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD5b,'')<>'' then t2.vcD5b else t1.vcD5b end as vcD5b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD5y,'')<>'' then t2.vcD5y else t1.vcD5y end as vcD5y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD6b,'')<>'' then t2.vcD6b else t1.vcD6b end as vcD6b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD6y,'')<>'' then t2.vcD6y else t1.vcD6y end as vcD6y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD7b,'')<>'' then t2.vcD7b else t1.vcD7b end as vcD7b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD7y,'')<>'' then t2.vcD7y else t1.vcD7y end as vcD7y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD8b,'')<>'' then t2.vcD8b else t1.vcD8b end as vcD8b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD8y,'')<>'' then t2.vcD8y else t1.vcD8y end as vcD8y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD9b,'')<>'' then t2.vcD9b else t1.vcD9b end as vcD9b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD9y,'')<>'' then t2.vcD9y else t1.vcD9y end as vcD9y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD10b,'')<>'' then t2.vcD10b else t1.vcD10b end as vcD10b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD10y,'')<>'' then t2.vcD10y else t1.vcD10y end as vcD10y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD11b,'')<>'' then t2.vcD11b else t1.vcD11b end as vcD11b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD11y,'')<>'' then t2.vcD11y else t1.vcD11y end as vcD11y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD12b,'')<>'' then t2.vcD12b else t1.vcD12b end as vcD12b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD12y,'')<>'' then t2.vcD12y else t1.vcD12y end as vcD12y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD13b,'')<>'' then t2.vcD13b else t1.vcD13b end as vcD13b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD13y,'')<>'' then t2.vcD13y else t1.vcD13y end as vcD13y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD14b,'')<>'' then t2.vcD14b else t1.vcD14b end as vcD14b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD14y,'')<>'' then t2.vcD14y else t1.vcD14y end as vcD14y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD15b,'')<>'' then t2.vcD15b else t1.vcD15b end as vcD15b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD15y,'')<>'' then t2.vcD15y else t1.vcD15y end as vcD15y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD16b,'')<>'' then t2.vcD16b else t1.vcD16b end as vcD16b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD16y,'')<>'' then t2.vcD16y else t1.vcD16y end as vcD16y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD17b,'')<>'' then t2.vcD17b else t1.vcD17b end as vcD17b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD17y,'')<>'' then t2.vcD17y else t1.vcD17y end as vcD17y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD18b,'')<>'' then t2.vcD18b else t1.vcD18b end as vcD18b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD18y,'')<>'' then t2.vcD18y else t1.vcD18y end as vcD18y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD19b,'')<>'' then t2.vcD19b else t1.vcD19b end as vcD19b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD19y,'')<>'' then t2.vcD19y else t1.vcD19y end as vcD19y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD20b,'')<>'' then t2.vcD20b else t1.vcD20b end as vcD20b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD20y,'')<>'' then t2.vcD20y else t1.vcD20y end as vcD20y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD21b,'')<>'' then t2.vcD21b else t1.vcD21b end as vcD21b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD21y,'')<>'' then t2.vcD21y else t1.vcD21y end as vcD21y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD22b,'')<>'' then t2.vcD22b else t1.vcD22b end as vcD22b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD22y,'')<>'' then t2.vcD22y else t1.vcD22y end as vcD22y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD23b,'')<>'' then t2.vcD23b else t1.vcD23b end as vcD23b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD23y,'')<>'' then t2.vcD23y else t1.vcD23y end as vcD23y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD24b,'')<>'' then t2.vcD24b else t1.vcD24b end as vcD24b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD24y,'')<>'' then t2.vcD24y else t1.vcD24y end as vcD24y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD25b,'')<>'' then t2.vcD25b else t1.vcD25b end as vcD25b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD25y,'')<>'' then t2.vcD25y else t1.vcD25y end as vcD25y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD26b,'')<>'' then t2.vcD26b else t1.vcD26b end as vcD26b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD26y,'')<>'' then t2.vcD26y else t1.vcD26y end as vcD26y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD27b,'')<>'' then t2.vcD27b else t1.vcD27b end as vcD27b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD27y,'')<>'' then t2.vcD27y else t1.vcD27y end as vcD27y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD28b,'')<>'' then t2.vcD28b else t1.vcD28b end as vcD28b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD28y,'')<>'' then t2.vcD28y else t1.vcD28y end as vcD28y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD29b,'')<>'' then t2.vcD29b else t1.vcD29b end as vcD29b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD29y,'')<>'' then t2.vcD29y else t1.vcD29y end as vcD29y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD30b,'')<>'' then t2.vcD30b else t1.vcD30b end as vcD30b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD30y,'')<>'' then t2.vcD30y else t1.vcD30y end as vcD30y,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD31b,'')<>'' then t2.vcD31b else t1.vcD31b end as vcD31b,     ");
+                        strSql.AppendLine("  case when isnull(t2.vcD31y,'')<>'' then t2.vcD31y else t1.vcD31y end as vcD31y,     ");
+                        strSql.AppendLine("  t1.montouch,t1.DADDTIME,t1.DUPDTIME,t1.CUPDUSER,t1.vcSupplier_id     ");
+                        strSql.AppendLine("  from      ");
+                        strSql.AppendLine("  (     ");
+                        strSql.AppendLine("  select * from WeekKanBanPlanTbl where vcMonth='"+ dFtime + "' and isnull(montouch,'')='' and (isnull(vcMonTotal,'')<>'')     ");
+                        strSql.AppendLine("  )t1     ");
+                        strSql.AppendLine("  left join     ");
+                        strSql.AppendLine("  (     ");
+                        strSql.AppendLine("  select * from WeekKanBanPlanTbl	where montouch='"+ dFtime + "'     ");
+                        strSql.AppendLine("  )t2 on t1.vcPartsno=t2.vcPartsno     ");
+                        strSql.AppendLine("  )ss on s.vcPartsno=ss.vcPartsno      ");
+
                         strSql.AppendLine("    )a                                                           ");
                         if (dFtime.Split("-")[1] != dTtime.Split("-")[1])
                         {
                             strSql.AppendLine("    left join                                                   ");
                             strSql.AppendLine("    (                                                            ");
-                            strSql.AppendLine("    select * from WeekKanBanPlanTbl where vcMonth='" + dTtime + "'  and isnull(montouch,'')=''     ");
-                            strSql.AppendLine("    union all                                                    ");
-                            strSql.AppendLine("    select * from WeekKanBanPlanTbl	where montouch='" + dTtime + "'     ");
+
+                            strSql.AppendLine("  select      ");
+                            strSql.AppendLine("    case when isnull(cc.vcMonth,'')<>'' then cc.vcMonth else cc1.vcMonth end as vcMonth,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcPartsno,'')<>'' then cc.vcPartsno else cc1.vcPartsno end as vcPartsno,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcDock,'')<>'' then cc.vcDock else cc1.vcDock end as vcDock,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcCarType,'')<>'' then cc.vcCarType else cc1.vcCarType end as vcCarType,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcProject1,'')<>'' then cc.vcProject1 else cc1.vcProject1 end as vcProject1,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcProjectName,'')<>'' then cc.vcProjectName else cc1.vcProjectName end as vcProjectName,     ");
+                            strSql.AppendLine("    case when isnull(cc.vcMonTotal,'')<>'' then cc.vcMonTotal else cc1.vcMonTotal end as vcMonTotal,       ");
+
+                            strSql.AppendLine("  case when isnull(cc1.vcD1b,'')<>''then cc1.vcD1b else cc.vcD1b end as vcD1b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD2b,'')<>''then cc1.vcD2b else cc.vcD2b end as vcD2b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD3b,'')<>''then cc1.vcD3b else cc.vcD3b end as vcD3b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD4b,'')<>''then cc1.vcD4b else cc.vcD4b end as vcD4b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD5b,'')<>''then cc1.vcD5b else cc.vcD5b end as vcD5b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD6b,'')<>''then cc1.vcD6b else cc.vcD6b end as vcD6b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD7b,'')<>''then cc1.vcD7b else cc.vcD7b end as vcD7b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD8b,'')<>''then cc1.vcD8b else cc.vcD8b end as vcD8b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD9b,'')<>''then cc1.vcD9b else cc.vcD9b end as vcD9b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD10b,'')<>''then cc1.vcD10b else cc.vcD10b end as vcD10b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD1y,'')<>''then cc1.vcD1y else cc.vcD1y end as vcD1y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD2y,'')<>''then cc1.vcD2y else cc.vcD2y end as vcD2y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD3y,'')<>''then cc1.vcD3y else cc.vcD3y end as vcD3y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD4y,'')<>''then cc1.vcD4y else cc.vcD4y end as vcD4y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD5y,'')<>''then cc1.vcD5y else cc.vcD5y end as vcD5y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD6y,'')<>''then cc1.vcD6y else cc.vcD6y end as vcD6y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD7y,'')<>''then cc1.vcD7y else cc.vcD7y end as vcD7y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD8y,'')<>''then cc1.vcD8y else cc.vcD8y end as vcD8y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD9y,'')<>''then cc1.vcD9y else cc.vcD9y end as vcD9y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD10y,'')<>''then cc1.vcD10y else cc.vcD10y end as vcD10y,     ");
+
+                            strSql.AppendLine("  case when isnull(cc1.vcD11b,'')<>''then cc1.vcD11b else cc.vcD11b end as vcD11b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD12b,'')<>''then cc1.vcD12b else cc.vcD12b end as vcD12b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD13b,'')<>''then cc1.vcD13b else cc.vcD13b end as vcD13b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD14b,'')<>''then cc1.vcD14b else cc.vcD14b end as vcD14b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD15b,'')<>''then cc1.vcD15b else cc.vcD15b end as vcD15b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD16b,'')<>''then cc1.vcD16b else cc.vcD16b end as vcD16b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD17b,'')<>''then cc1.vcD17b else cc.vcD17b end as vcD17b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD18b,'')<>''then cc1.vcD18b else cc.vcD18b end as vcD18b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD19b,'')<>''then cc1.vcD19b else cc.vcD19b end as vcD19b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD20b,'')<>''then cc1.vcD20b else cc.vcD20b end as vcD20b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD11y,'')<>''then cc1.vcD11y else cc.vcD11y end as vcD11y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD12y,'')<>''then cc1.vcD12y else cc.vcD12y end as vcD12y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD13y,'')<>''then cc1.vcD13y else cc.vcD13y end as vcD13y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD14y,'')<>''then cc1.vcD14y else cc.vcD14y end as vcD14y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD15y,'')<>''then cc1.vcD15y else cc.vcD15y end as vcD15y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD16y,'')<>''then cc1.vcD16y else cc.vcD16y end as vcD16y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD17y,'')<>''then cc1.vcD17y else cc.vcD17y end as vcD17y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD18y,'')<>''then cc1.vcD18y else cc.vcD18y end as vcD18y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD19y,'')<>''then cc1.vcD19y else cc.vcD19y end as vcD19y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD20y,'')<>''then cc1.vcD20y else cc.vcD20y end as vcD20y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD21b,'')<>''then cc1.vcD21b else cc.vcD21b end as vcD21b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD22b,'')<>''then cc1.vcD22b else cc.vcD22b end as vcD22b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD23b,'')<>''then cc1.vcD23b else cc.vcD23b end as vcD23b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD24b,'')<>''then cc1.vcD24b else cc.vcD24b end as vcD24b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD25b,'')<>''then cc1.vcD25b else cc.vcD25b end as vcD25b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD26b,'')<>''then cc1.vcD26b else cc.vcD26b end as vcD26b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD27b,'')<>''then cc1.vcD27b else cc.vcD27b end as vcD27b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD28b,'')<>''then cc1.vcD28b else cc.vcD28b end as vcD28b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD29b,'')<>''then cc1.vcD29b else cc.vcD29b end as vcD29b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD30b,'')<>''then cc1.vcD30b else cc.vcD30b end as vcD30b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD31b,'')<>''then cc1.vcD31b else cc.vcD31b end as vcD31b,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD21y,'')<>''then cc1.vcD21y else cc.vcD21y end as vcD21y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD22y,'')<>''then cc1.vcD22y else cc.vcD22y end as vcD22y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD23y,'')<>''then cc1.vcD23y else cc.vcD23y end as vcD23y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD24y,'')<>''then cc1.vcD24y else cc.vcD24y end as vcD24y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD25y,'')<>''then cc1.vcD25y else cc.vcD25y end as vcD25y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD26y,'')<>''then cc1.vcD26y else cc.vcD26y end as vcD26y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD27y,'')<>''then cc1.vcD27y else cc.vcD27y end as vcD27y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD28y,'')<>''then cc1.vcD28y else cc.vcD28y end as vcD28y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD29y,'')<>''then cc1.vcD29y else cc.vcD29y end as vcD29y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD30y,'')<>''then cc1.vcD30y else cc.vcD30y end as vcD30y,     ");
+                            strSql.AppendLine("  case when isnull(cc1.vcD31y,'')<>''then cc1.vcD31y else cc.vcD31y end as vcD31y,     ");
+                            strSql.AppendLine("  cc1.montouch,cc1.DADDTIME,cc1.DUPDTIME,cc1.CUPDUSER,cc1.vcSupplier_id     ");
+                            strSql.AppendLine("  from(     ");
+                            strSql.AppendLine("    select * from MonthKanBanPlanTbl where vcMonth='" + dTtime + "'     ");
+                            strSql.AppendLine("  )cc full join     ");
+                            strSql.AppendLine("  (     ");
+
+                            strSql.AppendLine("  select t3.vcMonth,t3.vcPartsno,t3.vcDock,t3.vcCarType,t3.vcProject1,t3.vcProjectName,t3.vcMonTotal,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD1b,'')<>'' then t4.vcD1b else t3.vcD1b end as vcD1b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD1y,'')<>'' then t4.vcD1y else t3.vcD1y end as vcD1y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD2b,'')<>'' then t4.vcD2b else t3.vcD2b end as vcD2b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD2y,'')<>'' then t4.vcD2y else t3.vcD2y end as vcD2y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD3b,'')<>'' then t4.vcD3b else t3.vcD3b end as vcD3b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD3y,'')<>'' then t4.vcD3y else t3.vcD3y end as vcD3y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD4b,'')<>'' then t4.vcD4b else t3.vcD4b end as vcD4b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD4y,'')<>'' then t4.vcD4y else t3.vcD4y end as vcD4y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD5b,'')<>'' then t4.vcD5b else t3.vcD5b end as vcD5b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD5y,'')<>'' then t4.vcD5y else t3.vcD5y end as vcD5y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD6b,'')<>'' then t4.vcD6b else t3.vcD6b end as vcD6b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD6y,'')<>'' then t4.vcD6y else t3.vcD6y end as vcD6y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD7b,'')<>'' then t4.vcD7b else t3.vcD7b end as vcD7b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD7y,'')<>'' then t4.vcD7y else t3.vcD7y end as vcD7y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD8b,'')<>'' then t4.vcD8b else t3.vcD8b end as vcD8b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD8y,'')<>'' then t4.vcD8y else t3.vcD8y end as vcD8y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD9b,'')<>'' then t4.vcD9b else t3.vcD9b end as vcD9b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD9y,'')<>'' then t4.vcD9y else t3.vcD9y end as vcD9y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD10b,'')<>'' then t4.vcD10b else t3.vcD10b end as vcD10b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD10y,'')<>'' then t4.vcD10y else t3.vcD10y end as vcD10y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD11b,'')<>'' then t4.vcD11b else t3.vcD11b end as vcD11b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD11y,'')<>'' then t4.vcD11y else t3.vcD11y end as vcD11y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD12b,'')<>'' then t4.vcD12b else t3.vcD12b end as vcD12b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD12y,'')<>'' then t4.vcD12y else t3.vcD12y end as vcD12y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD13b,'')<>'' then t4.vcD13b else t3.vcD13b end as vcD13b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD13y,'')<>'' then t4.vcD13y else t3.vcD13y end as vcD13y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD14b,'')<>'' then t4.vcD14b else t3.vcD14b end as vcD14b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD14y,'')<>'' then t4.vcD14y else t3.vcD14y end as vcD14y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD15b,'')<>'' then t4.vcD15b else t3.vcD15b end as vcD15b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD15y,'')<>'' then t4.vcD15y else t3.vcD15y end as vcD15y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD16b,'')<>'' then t4.vcD16b else t3.vcD16b end as vcD16b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD16y,'')<>'' then t4.vcD16y else t3.vcD16y end as vcD16y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD17b,'')<>'' then t4.vcD17b else t3.vcD17b end as vcD17b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD17y,'')<>'' then t4.vcD17y else t3.vcD17y end as vcD17y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD18b,'')<>'' then t4.vcD18b else t3.vcD18b end as vcD18b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD18y,'')<>'' then t4.vcD18y else t3.vcD18y end as vcD18y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD19b,'')<>'' then t4.vcD19b else t3.vcD19b end as vcD19b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD19y,'')<>'' then t4.vcD19y else t3.vcD19y end as vcD19y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD20b,'')<>'' then t4.vcD20b else t3.vcD20b end as vcD20b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD20y,'')<>'' then t4.vcD20y else t3.vcD20y end as vcD20y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD21b,'')<>'' then t4.vcD21b else t3.vcD21b end as vcD21b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD21y,'')<>'' then t4.vcD21y else t3.vcD21y end as vcD21y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD22b,'')<>'' then t4.vcD22b else t3.vcD22b end as vcD22b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD22y,'')<>'' then t4.vcD22y else t3.vcD22y end as vcD22y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD23b,'')<>'' then t4.vcD23b else t3.vcD23b end as vcD23b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD23y,'')<>'' then t4.vcD23y else t3.vcD23y end as vcD23y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD24b,'')<>'' then t4.vcD24b else t3.vcD24b end as vcD24b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD24y,'')<>'' then t4.vcD24y else t3.vcD24y end as vcD24y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD25b,'')<>'' then t4.vcD25b else t3.vcD25b end as vcD25b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD25y,'')<>'' then t4.vcD25y else t3.vcD25y end as vcD25y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD26b,'')<>'' then t4.vcD26b else t3.vcD26b end as vcD26b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD26y,'')<>'' then t4.vcD26y else t3.vcD26y end as vcD26y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD27b,'')<>'' then t4.vcD27b else t3.vcD27b end as vcD27b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD27y,'')<>'' then t4.vcD27y else t3.vcD27y end as vcD27y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD28b,'')<>'' then t4.vcD28b else t3.vcD28b end as vcD28b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD28y,'')<>'' then t4.vcD28y else t3.vcD28y end as vcD28y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD29b,'')<>'' then t4.vcD29b else t3.vcD29b end as vcD29b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD29y,'')<>'' then t4.vcD29y else t3.vcD29y end as vcD29y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD30b,'')<>'' then t4.vcD30b else t3.vcD30b end as vcD30b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD30y,'')<>'' then t4.vcD30y else t3.vcD30y end as vcD30y,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD31b,'')<>'' then t4.vcD31b else t3.vcD31b end as vcD31b,     ");
+                            strSql.AppendLine("  case when isnull(t4.vcD31y,'')<>'' then t4.vcD31y else t3.vcD31y end as vcD31y,     ");
+                            strSql.AppendLine("  t3.montouch,t3.DADDTIME,t3.DUPDTIME,t3.CUPDUSER,t3.vcSupplier_id     ");
+                            strSql.AppendLine("  from      ");
+                            strSql.AppendLine("  (     ");
+                            strSql.AppendLine("  select * from WeekKanBanPlanTbl where vcMonth='" + dTtime + "' and isnull(montouch,'')='' and (isnull(vcMonTotal,'')<>'')     ");
+                            strSql.AppendLine("  )t3     ");
+                            strSql.AppendLine("  left join     ");
+                            strSql.AppendLine("  (     ");
+                            strSql.AppendLine("  select * from WeekKanBanPlanTbl	where montouch='" + dTtime + "'     ");
+                            strSql.AppendLine("  )t4 on t3.vcPartsno=t4.vcPartsno     ");
+
+                            strSql.AppendLine("    )cc1 on cc.vcPartsno=cc1.vcPartsno   ");
                             strSql.AppendLine("    )c on a.vcPartsno=c.vcPartsno                                ");
                         }
                         break;
                 }
                 strSql.AppendLine("    left join                                                   ");
                 strSql.AppendLine("    (                                                            ");
+
+                strSql.AppendLine("   select temp1.vcPartsNo,temp2.vcPackNo,temp2.vcPackGPSNo,temp2.iBiYao,temp2.vcSupplierCode,temp2.dFrom1,temp2.dTo1   ");
+                strSql.AppendLine("   ,temp2.iRelease,temp2.vcSupplierName   ");
+                strSql.AppendLine("   from(   ");
                 strSql.AppendLine("    select  * from TPartInfoMaster  where GETDATE() between dTimeFrom and dTimeTo                    ");
 
                 if (OrderPartPlant.Count != 0)
@@ -613,9 +1382,10 @@ namespace DataAccess
                     }
                     strSql.AppendLine("    )                                                            ");
                 }
-                strSql.AppendLine("    )b on a.vcPartsno=b.vcPartsNo                                                                    ");
-                strSql.AppendLine("    left join                                                                                       ");
-                strSql.AppendLine("    (                                                                                                ");
+                strSql.AppendLine("  )temp1    ");
+                strSql.AppendLine("  inner join    ");
+                strSql.AppendLine("  (    ");
+
                 strSql.AppendLine("        select t.vcPartsNo,t.vcPackNo,t.vcPackGPSNo,y.iRelease,y.vcSupplierName,y.vcSupplierCode,t.iBiYao,  ");
 
                 strSql.AppendLine("      case when dFrom>'" + dFromBegin + "' then dFrom else '" + dFromBegin + "'end as dFrom1,            ");
@@ -628,23 +1398,12 @@ namespace DataAccess
                 strSql.AppendLine("       )t left join                                                                                 ");
                 strSql.AppendLine("       (                                                                                             ");
                 strSql.AppendLine("       select * from TPackBase                                                                       ");
-                //if (OrderState.Count != 0)
-                //{
 
-                //    strSql.AppendLine("                where   vcSupplierCode in(                                                      ");
-                //    for (int i = 0; i < OrderState.Count; i++)
-                //    {
-                //        if (OrderState.Count - i == 1)
-                //        {
-                //            strSql.AppendLine("   '" + OrderState[i] + "'   \n");
-                //        }
-                //        else
-                //            strSql.AppendLine("  '" + OrderState[i] + "' ,   \n");
-                //    }
-                //    strSql.AppendLine("                )                                                                               ");
-                //}
                 strSql.AppendLine("       )y on t.vcPackNo=y.vcPackNo                                                                   ");
-                strSql.AppendLine("      )d on a.vcPartsno=d.vcPartsNo                                                                  ");
+                strSql.AppendLine("       )temp2 on temp1.vcPartsNo=temp2.vcPartsNo              ");
+                strSql.AppendLine("   )d on a.vcPartsno=d.vcPartsNo    ");
+                strSql.AppendLine("  where isnull(d.vcPackNo,'')<>''    ");
+
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -1590,7 +2349,8 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Rows.Count; i++)
                 {
-                    if (OrderState.IndexOf(listInfoData.Rows[i]["vcSupplierCode"].ToString()) !=-1) {
+                    if (OrderState.IndexOf(listInfoData.Rows[i]["vcSupplierCode"].ToString()) != -1)
+                    {
                         sql.Append("  INSERT INTO [dbo].[TPackWeekInfo]    \r\n");
                         sql.Append("             ([vcPartsNo]    \r\n");
                         sql.Append("             ,[vcPackNo]    \r\n");
@@ -2131,7 +2891,7 @@ namespace DataAccess
                         sql.Append("      getdate()                   \r\n");
                         sql.Append("   )                       \r\n");
                     }
-                  
+
 
 
                 }

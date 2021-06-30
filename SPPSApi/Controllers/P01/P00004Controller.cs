@@ -25,6 +25,52 @@ namespace SPPSApi.Controllers.P01
     {
       _webHostEnvironment = webHostEnvironment;
     }
+    #region 获取出荷打印机
+    [HttpPost]
+    [EnableCors("any")]
+    public string GetShipPrinter([FromBody] dynamic data)
+    {
+      string strToken = Request.Headers["X-Token"];
+      if (!isLogin(strToken))
+      {
+        return error_login();
+      }
+      LoginInfo loginInfo = getLoginByToken(strToken);
+      string opearteId = loginInfo.UserId;
+      ApiResult apiResult = new ApiResult();
+      try
+      {
+        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        string pointtype = dataForm.pointtype == null ? "" : dataForm.pointtype;//设备类型
+        string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
+        DataTable dtPrintName = P00004_Logic.checkPrintName(iP, pointtype);
+        bool bCheckPrint = false;
+        if ( pointtype == "PAD")//平板
+        {
+          if (dtPrintName.Rows.Count != 1)
+            bCheckPrint = true;
+        }
+        if (bCheckPrint)
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "该设备绑定打印机有误，请联系管理员设置。";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+      }
+      catch (Exception ex)
+      {
+        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+        apiResult.code = ComConstant.ERROR_CODE;
+        apiResult.data = "验证出荷打印机失败!";
+        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+      }
+
+      return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+    }
+    #endregion
+
+
+
     #region 出荷-初始化-尝试绑定Dock与叉车
     public string ValidateUserApi([FromBody] dynamic data)
     {
@@ -299,6 +345,21 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
+
+        string strKind = "DOT PRINTER";
+
+        DataTable dtPrintName = P00004_Logic.GetPrintName(iP, strKind);        
+        string strPrinterName = "";
+        if (dtPrintName.Rows.Count == 0 )
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "该点位标签打印机未进行设置，请设置后重试。";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+        strPrinterName = dtPrintName.Rows[0]["vcPrinterName"].ToString();
+        
+
+
 
         //1.验证DOCK中箱数与器具数一致
         #region 前提数据校验
@@ -879,7 +940,7 @@ namespace SPPSApi.Controllers.P01
         //按照DOCK解绑TSell_DockCar
         //插入TPrint_Temp
         //删除出荷临时表
-        bool bRet = P00004_Logic.setCastListInfo(dtOperateSJ_Temp, dtOperateSJ_InOutput_Temp, dtOrder_Temp, dtSell_Temp, dtShipList_Temp, dtSell_Sum_Temp, dtSell_Tool_Temp, iP, strXSNo, dockSell, opearteId);
+        bool bRet = P00004_Logic.setCastListInfo(dtOperateSJ_Temp, dtOperateSJ_InOutput_Temp, dtOrder_Temp, dtSell_Temp, dtShipList_Temp, dtSell_Sum_Temp, dtSell_Tool_Temp, iP, strXSNo, dockSell, opearteId,strPrinterName);
         if (!bRet)
         {
           apiResult.code = ComConstant.ERROR_CODE;

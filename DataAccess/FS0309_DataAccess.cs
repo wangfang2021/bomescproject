@@ -905,7 +905,9 @@ namespace DataAccess
                 strSql.Append("       select vcSupplier_id,vcPart_id,vcReceiver,max(iAutoId) as iMaxId from TPrice           \n");
                 strSql.Append("       where   1=1       \n");
                 if(strAutoId!="")
-                 strSql.Append("       and iAutoId<>"+ strAutoId + "          \n");
+                 strSql.Append("       and   iAutoId<"+ strAutoId + "           \n");
+                strSql.Append("       and dPricebegin<>dPriceEnd  and decPriceTNPWithTax is not null        \n");
+                strSql.Append("       and  convert(varchar(12),getdate(),112)<=convert(varchar(12),dPriceEnd,112)        \n");
                 strSql.Append("       and vcPart_id='"+ strPartId + "'          \n");
                 strSql.Append("       and vcSupplier_id='" + strSupplier + "'          \n");
                 strSql.Append("       and vcReceiver='" + strReceiver + "'                     \n");
@@ -971,8 +973,11 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("    select vcSupplier_id,vcPart_id,vcReceiver,max(iAutoId) as iMaxId from TPrice             \n");
                 strSql.Append("    where  1=1                   \n");
-                if(strAutoId!="")
-                    strSql.Append("  and  iAutoId<>"+ strAutoId + "                     \n");
+ 
+                if (strAutoId != "")
+                    strSql.Append("       and   iAutoId<" + strAutoId + "           \n");
+                strSql.Append("    and dPricebegin<>dPriceEnd  and decPriceTNPWithTax is not null        \n");
+                strSql.Append("    and  convert(varchar(12),getdate(),112)<=convert(varchar(12),dPriceEnd,112)        \n");
                 strSql.Append("    and vcPart_id='"+ strPartId + "'                     \n");
                 strSql.Append("    and vcSupplier_id='"+ strSupplier + "'                     \n");
                 strSql.Append("    and vcReceiver='" + strReceiver + "'                     \n");

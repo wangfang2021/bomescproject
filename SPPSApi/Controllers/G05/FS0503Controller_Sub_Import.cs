@@ -115,7 +115,15 @@ namespace SPPSApi.Controllers.G05
                 }
                 for (int m=0;m< importDt.Rows.Count;m++)
                 {
-                    if (importDt.Rows[m]["vcState"].ToString()!="待回复"&& importDt.Rows[m]["vcState"].ToString() != "退回")
+                    if (importDt.Rows[m]["vcWorkArea"].ToString().Trim().Length>1)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = importDt.Rows[m]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "工区内容长度不能超过1位！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                    if (importDt.Rows[m]["vcState"].ToString() != "待回复" && importDt.Rows[m]["vcState"].ToString() != "退回")
                     {
                         DataRow dataRow = dataTable.NewRow();
                         dataRow["vcPartNo"] = importDt.Rows[m]["vcPartNo"].ToString();

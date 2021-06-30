@@ -100,7 +100,12 @@ namespace Logic
             }
         }
 
-        private static decimal getOnLineDetails(DataTable dtPointDetails, DataTable dtRest)
+    public DataTable checkPrintName(string iP, string strPointType)
+    {
+      return P00003_DataAccess.checkPrintName(iP, strPointType);
+    }
+
+    private static decimal getOnLineDetails(DataTable dtPointDetails, DataTable dtRest)
         {
             try
             {
@@ -476,16 +481,21 @@ namespace Logic
                 throw ex;
             }
         }
-        public bool setCastListInfo(DataTable dtOperateSJ_Temp, DataTable dtCaseList_Temp, string strIP, string caseno, string boxno, string scanTime, string strOperId)
+        public bool setCastListInfo(DataTable dtOperateSJ_Temp, DataTable dtCaseList_Temp, string strIP, string caseno, string boxno, string scanTime, string strOperId, string strCasePrinterName)
         {
             try
             {
-                return P00003_DataAccess.setCastListInfo( dtOperateSJ_Temp,  dtCaseList_Temp,  strIP,  caseno,  boxno,  scanTime,  strOperId);
+                return P00003_DataAccess.setCastListInfo( dtOperateSJ_Temp,  dtCaseList_Temp,  strIP,  caseno,  boxno,  scanTime,  strOperId,strCasePrinterName);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
+
+    public DataTable GetPrintName(string iP, string strKind)
+    {
+      return P00003_DataAccess.GetPrintName(iP, strKind);
     }
+  }
 }

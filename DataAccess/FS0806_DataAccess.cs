@@ -56,7 +56,7 @@ namespace DataAccess
                     dStart = "2001/01/01 00:01:00";
                 if (dEnd == "" || dEnd == null)
                     dEnd = "2099/12/31 23:59:59";
-                strSql.Append("and isnull(t1.dStart,'2001/01/01 00:01:00') >= '" + dStart + "' and isnull(t1.dEnd,'2099/12/31 23:59:59') <= '" + dEnd + "'  \n");
+                strSql.Append("and isnull(t1.dEnd,'2001/01/01 00:01:00') >= '" + dStart + "' and isnull(t1.dEnd,'2099/12/31 23:59:59') <= '" + dEnd + "'  \n");
                 if (vcLabelNo != "" && vcLabelNo != null)
                     strSql.Append("and '" + vcLabelNo + "' between t1.vcLabelStart and t1.vcLabelEnd   \n");
                 if (vcStatus != "" && vcStatus != null)

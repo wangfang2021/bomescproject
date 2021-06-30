@@ -720,6 +720,7 @@ namespace SPPSApi.Controllers.G12
                         }
                         else
                         {
+                            DeleteprinterCREX(vcPorType, vcorderno, vcComDate01, vcBanZhi01);
                             return msg;
                         }
                     }

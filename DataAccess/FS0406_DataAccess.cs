@@ -111,9 +111,9 @@ namespace DataAccess
                         string newinTime = inTime.Substring(0, 6);
                         //sbr.AppendLine("INSERT INTO TIF_IN(vcDiff, vcNo, vcPart_id, dInTime, iQuantity,vcPartName, vcRelation, vcOperatorId, dOperatorTime)");
                         sbr.AppendLine("SELECT b.vcBillType,a.vcInputNo,a.vcPart_id,CONVERT(VARCHAR(8),a.dStart,112) AS DATEHT, a.dStart, a.iQuantity,vcPartNameCn,'" + Relation + "' AS vcRelation,'" + userId + "' AS vcOperatorId,GETDATE() AS dOperatorTime FROM (");
-                        sbr.AppendLine("SELECT vcPart_id,vcInputNo,dStart,iQuantity,vcSupplier_id,vcSHF ");
+                        sbr.AppendLine("SELECT vcPart_id,vcInputNo,dEnd as dStart,iQuantity,vcSupplier_id,vcSHF ");
                         sbr.AppendLine("FROM TOperateSJ ");
-                        sbr.AppendLine("WHERE vcZYType = 'S0' AND CONVERT(VARCHAR(6),dStart,112)  = '" + newinTime + "' AND vcSHF = '" + Receiver + "'");
+                        sbr.AppendLine("WHERE vcZYType = 'S0' AND CONVERT(VARCHAR(6),dEnd,112)  = '" + newinTime + "' AND vcSHF = '" + Receiver + "'");
                         sbr.AppendLine(") a");
                         sbr.AppendLine("LEFT JOIN(");
                         sbr.AppendLine("SELECT vcBillType,vcPartId,vcSupplierId,vcReceiver,vcPartNameCn,dFromTime,dToTime FROM TSPMaster where isnull(vcDelete, '') <> '1'   ");

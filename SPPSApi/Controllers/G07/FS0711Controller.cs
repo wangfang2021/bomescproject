@@ -174,6 +174,14 @@ namespace SPPSApi.Controllers.G07
                 DataTable dt = FS0711_Logic.Search(PackSpot, PackNo, PackGPSNo, SupplierCodeList);
 
 
+                if (dt.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有可导出数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                }
+
                 string resMsg = "";
                 string[] head = { "包装场", "包装材品番", "GPS品番", "供应商", "理论在库", "安全在库" };
 

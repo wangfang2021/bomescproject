@@ -1040,7 +1040,7 @@ namespace DataAccess
                         strSql.AppendLine("    case when isnull(s.vcProject1,'')<>'' then s.vcProject1 else ss.vcProject1 end as vcProject1,     ");
                         strSql.AppendLine("    case when isnull(s.vcProjectName,'')<>'' then s.vcProjectName else ss.vcProjectName end as vcProjectName,     ");
                         strSql.AppendLine("    case when isnull(s.vcMonTotal,'')<>'' then s.vcMonTotal else ss.vcMonTotal end as vcMonTotal,       ");
-                     
+
                         strSql.AppendLine("  case when isnull(ss.vcD1b,'')<>''then ss.vcD1b else s.vcD1b end as vcD1b,     ");
                         strSql.AppendLine("  case when isnull(ss.vcD2b,'')<>''then ss.vcD2b else s.vcD2b end as vcD2b,     ");
                         strSql.AppendLine("  case when isnull(ss.vcD3b,'')<>''then ss.vcD3b else s.vcD3b end as vcD3b,     ");
@@ -1176,11 +1176,11 @@ namespace DataAccess
                         strSql.AppendLine("  t1.montouch,t1.DADDTIME,t1.DUPDTIME,t1.CUPDUSER,t1.vcSupplier_id     ");
                         strSql.AppendLine("  from      ");
                         strSql.AppendLine("  (     ");
-                        strSql.AppendLine("  select * from WeekKanBanPlanTbl where vcMonth='"+ dFtime + "' and isnull(montouch,'')='' and (isnull(vcMonTotal,'')<>'')     ");
+                        strSql.AppendLine("  select * from WeekKanBanPlanTbl where vcMonth='" + dFtime + "' and isnull(montouch,'')='' and (isnull(vcMonTotal,'')<>'')     ");
                         strSql.AppendLine("  )t1     ");
                         strSql.AppendLine("  left join     ");
                         strSql.AppendLine("  (     ");
-                        strSql.AppendLine("  select * from WeekKanBanPlanTbl	where montouch='"+ dFtime + "'     ");
+                        strSql.AppendLine("  select * from WeekKanBanPlanTbl	where montouch='" + dFtime + "'     ");
                         strSql.AppendLine("  )t2 on t1.vcPartsno=t2.vcPartsno     ");
                         strSql.AppendLine("  )ss on s.vcPartsno=ss.vcPartsno      ");
 
@@ -1438,25 +1438,12 @@ namespace DataAccess
             {
 
                 StringBuilder sql = new StringBuilder();
-                string SupplierCode = "";
-
+              
+                DataView dv = listInfoData.DefaultView;
+                DataTable dtt = dv.ToTable(true, "vcSupplierCode");
                 string dt1 = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                if (OrderState.Count > 0)
-                {
-                    for (int j = 0; j < OrderState.Count; j++)
-                    {
-                        if (j != 0)
-                        {
-                            SupplierCode = SupplierCode + "," + OrderState[j].ToString();
-                        }
-                        else
-                        {
-                            SupplierCode = SupplierCode + OrderState[j].ToString();
 
-                        }
 
-                    }
-                }
                 switch (strKind)
                 {
                     case "0":
@@ -1466,34 +1453,40 @@ namespace DataAccess
                         strKind = "包装计划";
                         break;
                     case "2":
-                        strKind = "看板2计划";
+                        strKind = "看板计划";
                         break;
                 }
 
                 string Name = strBegin + "/" + strFromBeginBZ + " " + strEnd + "/" + strFromEndBZ + " " + strKind;
                 sql.AppendLine("     delete from  TPackWeekInfo     \n");
-                sql.AppendLine("     INSERT INTO [dbo].[TPackSearch]       \n");
-                sql.AppendLine("                ([vcSupplier]       \n");
-                sql.AppendLine("                ,[vcYearMonth]       \n");
-                sql.AppendLine("                ,[vcNSDiff]       \n");
-                sql.AppendLine("                ,[vcNSQJ]       \n");
-                sql.AppendLine("                ,[vcNSState]       \n");
-                sql.AppendLine("                ,[dFaBuTime]       \n");
-                sql.AppendLine("                ,[dFirstDownload]       \n");
-                sql.AppendLine("                ,[vcOperatorID]       \n");
-                sql.AppendLine("                ,[dOperatorTime])       \n");
-                sql.AppendLine("          VALUES       \n");
-                sql.AppendLine("         (   \n");
-                sql.AppendLine("         '" + SupplierCode + "',   \n");
-                sql.AppendLine("         NULL,   \n");
-                sql.AppendLine("         '周度内示',   \n");
-                sql.AppendLine("         '" + Name + "',   \n");
-                sql.AppendLine("         '0',   \n");
-                sql.AppendLine("         '" + dt1 + "',   \n");
-                sql.AppendLine("         NULL,   \n");
-                sql.AppendLine("   '" + strUserId + "',   \n");
-                sql.AppendLine("   getdate()  \n");
-                sql.AppendLine("         )   \n");
+
+                for (int a = 0; a < dtt.Rows.Count; a++)
+                {
+                    sql.AppendLine("     INSERT INTO [dbo].[TPackSearch]       \n");
+                    sql.AppendLine("                ([vcSupplier]       \n");
+                    sql.AppendLine("                ,[vcYearMonth]       \n");
+                    sql.AppendLine("                ,[vcNSDiff]       \n");
+                    sql.AppendLine("                ,[vcNSQJ]       \n");
+                    sql.AppendLine("                ,[vcNSState]       \n");
+                    sql.AppendLine("                ,[dFaBuTime]       \n");
+                    sql.AppendLine("                ,[dFirstDownload]       \n");
+                    sql.AppendLine("                ,[vcOperatorID]       \n");
+                    sql.AppendLine("                ,[dOperatorTime])       \n");
+                    sql.AppendLine("          VALUES       \n");
+                    sql.AppendLine("         (   \n");
+                    sql.AppendLine("         '" + dtt.Rows[a]["vcSupplierCode"].ToString() + "',   \n");
+                    sql.AppendLine("         NULL,   \n");
+                    sql.AppendLine("         '周度内示',   \n");
+                    sql.AppendLine("         '" + Name + "',   \n");
+                    sql.AppendLine("         '0',   \n");
+                    sql.AppendLine("         '" + dt1 + "',   \n");
+                    sql.AppendLine("         NULL,   \n");
+                    sql.AppendLine("   '" + strUserId + "',   \n");
+                    sql.AppendLine("   getdate()  \n");
+                    sql.AppendLine("         )   \n");
+
+                }
+               
 
                 for (int i = 0; i < listInfoData.Rows.Count; i++)
                 {

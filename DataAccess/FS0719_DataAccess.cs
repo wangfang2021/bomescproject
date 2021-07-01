@@ -367,9 +367,9 @@ namespace DataAccess
                         {//新增
                             strOrderNo = GetOrderNo(OrderNoOld);
                             OrderNoOld = strOrderNo;
-                            DataRow[] dr = dtbase.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"] + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"] + "'");
+                            DataRow[] dr = dtbase.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString().Trim() + "'");
                             DateTime time = Convert.ToDateTime(listInfoData[i]["dNaRuTime"].ToString().Split(' ')[1]);
-                            DataRow[] dr1 = dtFaZhuTime.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"] + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"] + "'");
+                            DataRow[] dr1 = dtFaZhuTime.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString().Trim() + "'");
                             string bianci = "";
                             for (int y = 0; y < dr1.Length; y++)
                             {

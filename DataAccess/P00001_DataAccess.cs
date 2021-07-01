@@ -1432,13 +1432,9 @@ namespace DataAccess
     public DataTable checkPrintName(string iP, string strPointType)
     {
       StringBuilder GetPrintSql = new StringBuilder();
-      if (strPointType == "COM" || strPointType == "PDA")
+      if (strPointType == "PDA" || strPointType == "PAD" )
       {
-        GetPrintSql.Append("select vcUserFlag from TPrint where vcKind in ('LABEL PRINTER','LASEL PRINTER') and vcPrinterIp='" + iP + "'");
-      }
-      if (strPointType == "PAD")//PAD
-      {
-        GetPrintSql.Append("select vcUserFlag from TPrint where vcKind in ('LABEL PRINTER','LASEL PRINTER','DOT PRINTER') and vcPrinterIp='" + iP + "'");
+        GetPrintSql.Append("select vcUserFlag from TPrint where vcKind in ('PAC PRINTER','LABEL PRINTER R') and vcPrinterIp='" + iP + "'");
       }
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
@@ -1753,11 +1749,11 @@ namespace DataAccess
       stringBuilder.AppendLine("--7查询入库指令书结构");
       stringBuilder.AppendLine("SELECT top(1)* FROM [dbo].[TInvList]");
       stringBuilder.AppendLine("--8查询本次上传一场构内数据");
-      stringBuilder.AppendLine("select vcKanBan from TOperatorQB where vcReflectFlag='0' and  vcHostIp='"+strIP+"' and vcPackingPlant='1' and vcIOType='1'");
+      stringBuilder.AppendLine("select vcKanBan from TOperatorQB where vcReflectFlag='0' and  vcHostIp='"+strIP+ "' and vcPackingPlant='1' and vcIOType='1' and vcKanBan!=''");
       stringBuilder.AppendLine("--9查询本次上传二场构内数据");
-      stringBuilder.AppendLine("select vcKanBan from TOperatorQB where vcReflectFlag='0' and  vcHostIp='"+strIP+"' and vcPackingPlant='2' and vcIOType='1'");
+      stringBuilder.AppendLine("select vcKanBan from TOperatorQB where vcReflectFlag='0' and  vcHostIp='"+strIP+ "' and vcPackingPlant='2' and vcIOType='1' and vcKanBan!=''");
       stringBuilder.AppendLine("--10查询本次上传三场构内数据");
-      stringBuilder.AppendLine("select vcKanBan from TOperatorQB where vcReflectFlag='0' and  vcHostIp='"+strIP+"' and vcPackingPlant='3' and vcIOType='1'");
+      stringBuilder.AppendLine("select vcKanBan from TOperatorQB where vcReflectFlag='0' and  vcHostIp='"+strIP+ "' and vcPackingPlant='3' and vcIOType='1' and vcKanBan!=''");
 
 
 
@@ -2158,7 +2154,7 @@ namespace DataAccess
       }
     }
 
-    public bool setInputInfo(string strIP, string strPointName, string strPrinterName, DataTable dtPackList_Temp, DataTable dtLabelList_Temp, DataTable dtInv_Temp, DataTable dtOrder_Temp, string strOperId)
+    public bool setInputInfo(string strIP, string strPointName, string strPrinterName, DataTable dtPackList_Temp, DataTable dtLabelList_Temp, DataTable dtInv_Temp, DataTable dtOrder_Temp, string strOperId, string strPackPrinterName)
     {
       SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
       sqlConnection.Open();
@@ -2917,7 +2913,7 @@ namespace DataAccess
         strSql_printinfo.AppendLine("		   select distinct 'TPackList_Temp'");
         strSql_printinfo.AppendLine("		   ,'SPR13PKBP'");
         strSql_printinfo.AppendLine("		   ,@strIP");
-        strSql_printinfo.AppendLine("		   ,'LASEL PRINTER'");
+        strSql_printinfo.AppendLine("		   ,'"+strPackPrinterName+"'");
         strSql_printinfo.AppendLine("		   ,'1'");
         strSql_printinfo.AppendLine("		   ,'" + strOperId + "'");
         strSql_printinfo.AppendLine("		   ,getdate()");
@@ -2984,10 +2980,19 @@ namespace DataAccess
         return false;
       }
     }
-    public DataTable GetPrintName(string iP)
+    public DataTable GetPrintName(string iP, string strKind)
     {
       StringBuilder stringBuilder = new StringBuilder();
-      stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='LABEL PRINTER'");
+      if (strKind== "LABEL PRINTER R") {
+        stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='LABEL PRINTER R'");
+      }
+      if (strKind== "PAC PRINTER") {
+        stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='PAC PRINTER'");
+
+      }
+
+
+      
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
       DataSet ds = new DataSet();

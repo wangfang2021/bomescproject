@@ -67,7 +67,39 @@ namespace DataAccess
                 }
             }
         }
-        public DataTable getDockAndForkInfo(string dock, string fork, string strFlag)
+
+    public DataTable checkPrintName(string iP, string strPointType)
+    {
+      StringBuilder GetPrintSql = new StringBuilder();
+      if ( strPointType == "PAD")
+      {
+        GetPrintSql.Append("select vcUserFlag from TPrint where vcKind ='DOT PRINTER' and vcPrinterIp='" + iP + "'");
+      }
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = GetPrintSql.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+        return ds.Tables[0];
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+    }
+
+    public DataTable getDockAndForkInfo(string dock, string fork, string strFlag)
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
@@ -334,7 +366,40 @@ namespace DataAccess
                 }
             }
         }
-        public void setOutPut_Temp(string dock, string fork, string strFlag, string strPackingPlant, string strIP, string strOperater)
+
+    public DataTable GetPrintName(string iP, string strKind)
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      if (strKind == "DOT PRINTER")
+      {
+        stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='DOT PRINTER'");
+      }
+
+      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+      DataSet ds = new DataSet();
+      try
+      {
+        ConnSql.Open();
+        string strSQL = stringBuilder.ToString();
+        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+        da.Fill(ds);
+        return ds.Tables[0];
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        if (ConnectionState.Open == ConnSql.State)
+        {
+          ConnSql.Close();
+        }
+      }
+    }
+
+    public void setOutPut_Temp(string dock, string fork, string strFlag, string strPackingPlant, string strIP, string strOperater)
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("DELETE FROM [dbo].[TOperate_OutPut_Temp] WHERE vcDockSell='" + dock + "' ");
@@ -603,7 +668,7 @@ namespace DataAccess
             DataTable dtShipList_Temp,
             DataTable dtSell_Sum_Temp,
             DataTable dtSell_Tool_Temp,
-            string strIP, string strSellno, string strDock, string strOperId)
+            string strIP, string strSellno, string strDock, string strOperId, string strPrinterName)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
             sqlConnection.Open();
@@ -1280,7 +1345,7 @@ namespace DataAccess
                 strSql_mod_pt.AppendLine("           ('TShipList'");
                 strSql_mod_pt.AppendLine("           ,'SPR07SHPP'");
                 strSql_mod_pt.AppendLine("           ,@IP");
-                strSql_mod_pt.AppendLine("           ,'LASEL PRINTER'");
+                strSql_mod_pt.AppendLine("           ,'"+strPrinterName+"'");
                 strSql_mod_pt.AppendLine("           ,'4'");
                 strSql_mod_pt.AppendLine("           ,@vcOperatorID");
                 strSql_mod_pt.AppendLine("           ,GETDATE()");
@@ -1450,7 +1515,7 @@ namespace DataAccess
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("select * from TSell_Sum where vcYinQuType='" + type + "' and vcBanZhi='" + banZhi + "' and vcDate='" + date + "'");
+            stringBuilder.AppendLine("select vcBanZhi,FORMAT(vcDate,'yyyy-MM-dd') as vcDate,vcBianCi,vcSellNo,iToolQuantity,vcTruckNo,vcQianFen,vcOperatorID,FORMAT(dOperatorTime,'yyyy-MM-dd hh:mm:ss') as dOperatorTime from TSell_Sum where vcYinQuType='" + type + "' and vcBanZhi='" + banZhi + "' and vcDate='" + date + "'");
             DataSet ds = new DataSet();
             try
             {

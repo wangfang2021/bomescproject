@@ -2471,6 +2471,48 @@ namespace Logic
                             dtOperHistory.Rows.Add(dataRow_History);
                             #endregion
                         }
+
+                        //备注1    vcRemark1
+                        string strRemark1 = drOperCheck[0]["vcRemark1"].ToString();
+                        dataRow_mod["vcRemark1"] = strRemark1;
+                        if (strRemark1 != dtImport.Rows[i]["vcRemark1"].ToString())
+                        {
+                            dataRow_mod["vcRemark1"] = dtImport.Rows[i]["vcRemark1"].ToString();
+                            #region HistoryNewRow
+                            bCheckUpdate = true;
+                            DataRow dataRow_History = dtOperHistory.NewRow();
+                            dataRow_History["vcPackingPlant"] = strPackingPlant;
+                            dataRow_History["vcPartId"] = strPartId;
+                            dataRow_History["vcReceiver"] = strReceiver;
+                            dataRow_History["vcSupplierId"] = strSupplierId;
+                            dataRow_History["vcChangeItem"] = "备注1修改";
+                            dataRow_History["vcAction"] = strRemark1 + "==>" + dtImport.Rows[i]["vcRemark1"].ToString();
+                            dataRow_History["vcActionTime"] = "";
+                            dataRow_History["error"] = "";
+                            dtOperHistory.Rows.Add(dataRow_History);
+                            #endregion
+                        }
+
+                        //备注2   vcRemark2
+                        string strRemark2 = drOperCheck[0]["vcRemark2"].ToString();
+                        dataRow_mod["vcRemark2"] = strRemark2;
+                        if (strRemark2 != dtImport.Rows[i]["vcRemark2"].ToString())
+                        {
+                            dataRow_mod["vcRemark2"] = dtImport.Rows[i]["vcRemark2"].ToString();
+                            #region HistoryNewRow
+                            bCheckUpdate = true;
+                            DataRow dataRow_History = dtOperHistory.NewRow();
+                            dataRow_History["vcPackingPlant"] = strPackingPlant;
+                            dataRow_History["vcPartId"] = strPartId;
+                            dataRow_History["vcReceiver"] = strReceiver;
+                            dataRow_History["vcSupplierId"] = strSupplierId;
+                            dataRow_History["vcChangeItem"] = "备注2修改";
+                            dataRow_History["vcAction"] = strRemark2 + "==>" + dtImport.Rows[i]["vcRemark2"].ToString();
+                            dataRow_History["vcActionTime"] = "";
+                            dataRow_History["error"] = "";
+                            dtOperHistory.Rows.Add(dataRow_History);
+                            #endregion
+                        }
                         #endregion
 
                         if (bCheckUpdate)

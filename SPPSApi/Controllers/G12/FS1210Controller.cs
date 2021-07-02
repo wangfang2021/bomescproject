@@ -236,7 +236,7 @@ namespace SPPSApi.Controllers.G12
                     if (dtKANB.Rows.Count != 0)
                     {
                         #region 取非空数据
-                        vcPhotoPath = print.PhotoToArray(dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
+                        vcPhotoPath = print.PhotoToArray(_webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\" + dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
                         vcSupplierCode = dtKANB.Rows[0]["vcSupplierCode"].ToString();//供应商
                         vcSupplierPlant = dtKANB.Rows[0]["vcSupplierPlant"].ToString();//供应商工区
                         vcCpdCompany = dtKANB.Rows[0]["vcCpdCompany"].ToString();//收货方
@@ -666,7 +666,7 @@ namespace SPPSApi.Controllers.G12
                     if (dtKANB.Rows.Count != 0)
                     {
                         #region 取非空数据
-                        vcPhotoPath = print.PhotoToArray(dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
+                        vcPhotoPath = print.PhotoToArray(_webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\" + dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
                         vcSupplierCode = dtKANB.Rows[0]["vcSupplierCode"].ToString();//供应商
                         vcSupplierPlant = dtKANB.Rows[0]["vcSupplierPlant"].ToString();//供应商工区
                         vcCpdCompany = dtKANB.Rows[0]["vcCpdCompany"].ToString();//收货方
@@ -1089,7 +1089,7 @@ namespace SPPSApi.Controllers.G12
                     if (dtKANB.Rows.Count != 0)
                     {
                         #region 取非空数据
-                        vcPhotoPath = print.PhotoToArray(dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
+                        vcPhotoPath = print.PhotoToArray(_webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\" + dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
                         vcSupplierCode = dtKANB.Rows[0]["vcSupplierCode"].ToString();//供应商
                         vcSupplierPlant = dtKANB.Rows[0]["vcSupplierPlant"].ToString();//供应商工区
                         vcCpdCompany = dtKANB.Rows[0]["vcCpdCompany"].ToString();//收货方

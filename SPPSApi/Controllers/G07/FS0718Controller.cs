@@ -103,7 +103,7 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 string strDownloadDiff = dataForm.strDownloadDiff;
-                DataTable dt = FS0718_Logic.Search(strDownloadDiff,loginInfo.UserId);
+                DataTable dt = FS0718_Logic.Search(loginInfo.UserId,strDownloadDiff);
 
                 #region 格式化DataTable
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -341,11 +341,10 @@ namespace SPPSApi.Controllers.G07
                         DataTable dt = FS0718_Logic.Search_Week(strSearch_SupplierCode,strSearch_dFaBuTime);
                         for (int t = 0; t < dt.Rows.Count; t++)
                         {
+
                             dt.Rows[t]["vcNum"] = (t + 1).ToString();
                         }
-
                         string resMsg = "";
-                        
                         int count = 0;
                         string[] headData = new string[0];
                         string[] fieldsData = new string[0];
@@ -376,11 +375,13 @@ namespace SPPSApi.Controllers.G07
                             int x = 1;
                             for (int j = 1; j <= 31; j++)
                             {
+
                                 if (dt.Rows[0]["vcD" + j + "bFShow"].ToString() == "true")
                                 {
                                     headData[4 + x] = j + "日白值F";
                                     fieldsData[4 + x] = "vcD" + j + "bF";
                                     x++;
+
                                 }
                                 if (dt.Rows[0]["vcD" + j + "yFShow"].ToString() == "true")
                                 {
@@ -400,19 +401,23 @@ namespace SPPSApi.Controllers.G07
                                     headData[4 + x] = j + "日夜值T";
                                     fieldsData[4 + x] = "vcD" + j + "yT";
                                     x++;
+
                                 }
                             }
+
+
                         }
                         else
                         {
+
                             DateTime dt1 = Convert.ToDateTime(strBegin).AddDays(1 - Convert.ToDateTime(strBegin).Day).AddMonths(1).AddDays(-1);
-                            int ss = (Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1) * 2;
+                            int ss = (Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("/")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1) * 2;
                             int cs = Convert.ToInt32(strEnd.Split("-")[2]) * 2;
                             if (strFromBeginBZ == "1")
                             {
                                 ss--;
                             }
-                            else if (strFromBeginBZ == "0")
+                            else if (strFromEndBZ == "0")
                             {
                                 cs--;
                             }
@@ -437,6 +442,7 @@ namespace SPPSApi.Controllers.G07
                                     headData[4 + x] = j + "日白值F";
                                     fieldsData[4 + x] = "vcD" + j + "bF";
                                     x++;
+
                                 }
                                 if (dt.Rows[0]["vcD" + j + "yFShow"].ToString() == "true")
                                 {
@@ -444,6 +450,11 @@ namespace SPPSApi.Controllers.G07
                                     fieldsData[4 + x] = "vcD" + j + "yF";
                                     x++;
                                 }
+
+                            }
+                            for (int j = 1; j <= 31; j++)
+                            {
+
                                 if (dt.Rows[0]["vcD" + j + "bTShow"].ToString() == "true")
                                 {
                                     headData[4 + x] = j + "日白值T";
@@ -456,8 +467,14 @@ namespace SPPSApi.Controllers.G07
                                     headData[4 + x] = j + "日夜值T";
                                     fieldsData[4 + x] = "vcD" + j + "yT";
                                     x++;
+
                                 }
+
                             }
+
+
+
+
                         }
                         string[] head = headData;
                         string[] fields = fieldsData;

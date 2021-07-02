@@ -231,6 +231,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
+                sql.Append("  delete TPackFaZhuTime where iAutoId in(   \r\n ");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (i != 0)
@@ -238,6 +239,7 @@ namespace DataAccess
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                     sql.Append(iAutoId);
                 }
+                
                 sql.Append("  )   \r\n ");
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }

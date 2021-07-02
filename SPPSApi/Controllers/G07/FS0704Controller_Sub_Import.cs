@@ -108,8 +108,8 @@ namespace SPPSApi.Controllers.G07
 
                 #region  检查本身导入文件时间重叠行
                 DataTable dtcope = importDt.Copy();
-                
-         
+
+
                 DateTime dd = DateTime.Now;
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
@@ -122,22 +122,28 @@ namespace SPPSApi.Controllers.G07
                     while (j > 0)
                     {
 
-                        DateTime dRuHeFromDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["dRuHeFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcRuHeFromDay"].ToString()));
+                        DateTime dRuHeFromDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[j]["dRuHeFromTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[j]["dRuHeFromTime"].ToString()).Minute + ":" + DateTime.Parse(dr[j]["dRuHeFromTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[j]["vcRuHeFromDay"].ToString()));
                         if (dRuHeFromDay < dBZtime)
                             dRuHeFromDay = dRuHeFromDay.AddDays(1);
-                        DateTime dRuHeToDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["druHeToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcRuHeToDay"].ToString()));
+                        DateTime dRuHeToDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[j]["druHeToTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[j]["druHeToTime"].ToString()).Minute + ":" + DateTime.Parse(dr[j]["druHeToTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[j]["vcRuHeToDay"].ToString()));
                         if (dRuHeToDay < dBZtime)
                             dRuHeToDay = dRuHeToDay.AddDays(1);
-                        DateTime dFaZhuFromDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["dFaZhuFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcFaZhuFromDay"].ToString()));
+                        DateTime dFaZhuFromDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[j]["dFaZhuFromTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[j]["dFaZhuFromTime"].ToString()).Minute + ":" + DateTime.Parse(dr[j]["dFaZhuFromTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[j]["vcFaZhuFromDay"].ToString()));
                         if (dFaZhuFromDay < dBZtime)
                             dFaZhuFromDay = dFaZhuFromDay.AddDays(1);
-                        DateTime dFaZhuToDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["dFaZhuToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcFaZhuToDay"].ToString()));
+                        DateTime dFaZhuToDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[j]["dFaZhuToTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[j]["dFaZhuToTime"].ToString()).Minute + ":" + DateTime.Parse(dr[j]["dFaZhuToTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[j]["vcFaZhuToDay"].ToString()));
                         if (dFaZhuToDay < dBZtime)
                             dFaZhuToDay = dFaZhuToDay.AddDays(1);
-                        DateTime dNaQiFromDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["dNaQiFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcNaQiFromDay"].ToString()));
+                        DateTime dNaQiFromDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[j]["dNaQiFromTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[j]["dNaQiFromTime"].ToString()).Minute + ":" + DateTime.Parse(dr[j]["dNaQiFromTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[j]["vcNaQiFromDay"].ToString()));
                         if (dNaQiFromDay < dBZtime)
                             dNaQiFromDay = dNaQiFromDay.AddDays(1);
-                        DateTime dNaQiToDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["dNaQiToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcNaQiToDay"].ToString()));
+                        DateTime dNaQiToDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[j]["dNaQiToTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[j]["dNaQiToTime"].ToString()).Minute + ":" + DateTime.Parse(dr[j]["dNaQiToTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[j]["vcNaQiToDay"].ToString()));
                         if (dNaQiToDay < dBZtime)
                             dNaQiToDay = dNaQiToDay.AddDays(1);
 
@@ -191,13 +197,24 @@ namespace SPPSApi.Controllers.G07
 
                         for (int z = 0; z <= j - 1; z++)
                         {
-                           
-                            DateTime dRuHeFromDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["dRuHeFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcRuHeFromDay"].ToString()));
-                            DateTime dRuHeToDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["druHeToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcRuHeToDay"].ToString()));
-                            DateTime dFaZhuFromDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["dFaZhuFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcFaZhuFromDay"].ToString()));
-                            DateTime dFaZhuToDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["dFaZhuToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcFaZhuToDay"].ToString()));
-                            DateTime dNaQiFromDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["dNaQiFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcNaQiFromDay"].ToString()));
-                            DateTime dNaQiToDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["dNaQiToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcNaQiToDay"].ToString()));
+
+                            DateTime dRuHeFromDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[z]["dRuHeFromTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[z]["dRuHeFromTime"].ToString()).Minute + ":" + DateTime.Parse(dr[z]["dRuHeFromTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[z]["vcRuHeFromDay"].ToString()));
+
+                            DateTime dRuHeToDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[z]["druHeToTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[z]["druHeToTime"].ToString()).Minute + ":" + DateTime.Parse(dr[z]["druHeToTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[z]["vcRuHeToDay"].ToString()));
+
+                            DateTime dFaZhuFromDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[z]["dFaZhuFromTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[z]["dFaZhuFromTime"].ToString()).Minute + ":" + DateTime.Parse(dr[z]["dFaZhuFromTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[z]["vcFaZhuFromDay"].ToString()));
+
+                            DateTime dFaZhuToDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[z]["dFaZhuToTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[z]["dFaZhuToTime"].ToString()).Minute + ":" + DateTime.Parse(dr[z]["dFaZhuToTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[z]["vcFaZhuToDay"].ToString()));
+
+                            DateTime dNaQiFromDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[z]["dNaQiFromTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[z]["dNaQiFromTime"].ToString()).Minute + ":" + DateTime.Parse(dr[z]["dNaQiFromTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[z]["vcNaQiFromDay"].ToString()));
+
+                            DateTime dNaQiToDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + DateTime.Parse(dr[z]["dNaQiToTime"].ToString()).Hour
+                            + ":" + DateTime.Parse(dr[z]["dNaQiToTime"].ToString()).Minute + ":" + DateTime.Parse(dr[z]["dNaQiToTime"].ToString()).Second).AddDays(Convert.ToInt32(dr[z]["vcNaQiToDay"].ToString()));
 
 
                             if ((dRuHeFromDay <= dRuHeFromDay1 && dRuHeFromDay1 <= dRuHeToDay) || (dRuHeFromDay <= dRuHeToDay1 && dRuHeToDay1 <= dRuHeToDay))
@@ -220,7 +237,7 @@ namespace SPPSApi.Controllers.G07
                             }
                         }
                         j--;
-                        
+
                     }
                     importDt.Rows.RemoveAt(i);
                     i = -1;

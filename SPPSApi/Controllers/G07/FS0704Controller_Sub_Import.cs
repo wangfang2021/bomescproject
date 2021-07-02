@@ -266,9 +266,6 @@ namespace SPPSApi.Controllers.G07
                             DateTime dNaQiToDay = DateTime.ParseExact(dtcope.Rows[a]["dNaQiToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
 
 
-
-
-
                             for (int z = 0; z <= count - 1; z++)
                             {
                                 DateTime dRuHeFromDay1 = DateTime.ParseExact(dr[z]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);

@@ -239,7 +239,6 @@ namespace DataAccess
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                     sql.Append(iAutoId);
                 }
-                
                 sql.Append("  )   \r\n ");
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }

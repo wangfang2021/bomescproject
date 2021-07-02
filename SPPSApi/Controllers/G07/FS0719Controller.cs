@@ -294,9 +294,21 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             try
             {
+
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                
+                DataTable dtHF = FS0719_Logic.SearchHF(loginInfo.UserId);
+                if (dtHF.Rows.Count==0) {
+
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "此登录者并无恢复权限！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+
+
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {

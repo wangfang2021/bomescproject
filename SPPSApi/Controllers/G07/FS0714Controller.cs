@@ -171,10 +171,20 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = FS0714_Logic.Search(PackSpot, PackNo, PackGPSNo, dFromB, dToE); ;
+                DataTable dt = FS0714_Logic.Search(PackSpot, PackNo, PackGPSNo, dFromB, dToE);
+
+                if (dt.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有可导出数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                }
+
+
                 string[] fields = { "vcPackSpot","vcPackNo","vcPackGPSNo","vcSupplierID","vcXiuZhengFlag","iNumber","dBuJiTime","vcXiuZhengNote"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0714_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0714_Export.xlsx", 2, loginInfo.UserId, "包材盘点维护");
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -241,7 +251,7 @@ namespace SPPSApi.Controllers.G07
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败:"+ strErrorPartId;
+                    apiResult.data = "保存失败:" + strErrorPartId;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;

@@ -143,6 +143,7 @@ namespace SPPSApi.Controllers.P01
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "DOCK位数为六位，请修改后再试。";
+          apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         //vcFlag 0:绑定中  1：已解绑
@@ -153,6 +154,7 @@ namespace SPPSApi.Controllers.P01
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "该叉车号绑定DOCK异常，请联系管理员处理。";
+          apiResult.type = "LS";
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         if (dtDockAndFork.Rows.Count == 1)
@@ -162,6 +164,7 @@ namespace SPPSApi.Controllers.P01
           {
             apiResult.code = ComConstant.ERROR_CODE;
             apiResult.data = "叉车号:" + fork + "已经绑定" + strDock + "";
+            apiResult.type = "LS";
           }
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
@@ -174,6 +177,7 @@ namespace SPPSApi.Controllers.P01
         ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "system");
         apiResult.code = ComConstant.ERROR_CODE;
         apiResult.data = "叉车与DOCK绑定失败";
+        apiResult.type = "LS";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
     }
@@ -283,6 +287,7 @@ namespace SPPSApi.Controllers.P01
         ComMessage.GetInstance().ProcessMessage(FunctionID, "", ex, "system");
         apiResult.code = ComConstant.ERROR_CODE;
         apiResult.data = "删除箱号失败";
+        apiResult.type = "LS";
         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
       }
     }

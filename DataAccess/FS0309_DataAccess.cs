@@ -889,11 +889,11 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("    declare @lastPriceOrigin decimal(18,2) --上一状态原值          \n");
-                strSql.Append("    declare @lastPriceAfter decimal(18,2) --上一状态参考值          \n");
+                strSql.Append("    declare @lastPriceOrigin decimal(18,8) --上一状态原值          \n");
+                strSql.Append("    declare @lastPriceAfter decimal(18,8) --上一状态参考值          \n");
                 strSql.Append("    declare @lastPriceTNPWithTax decimal(18,2) --上一状态含税          \n");
-                strSql.Append("    declare @priceOrigin decimal(18,2) --当前状态原值          \n");
-                strSql.Append("    declare @priceAfter decimal(18,2) --当前状态参考值          \n");
+                strSql.Append("    declare @priceOrigin decimal(18,8) --当前状态原值          \n");
+                strSql.Append("    declare @priceAfter decimal(18,8) --当前状态参考值          \n");
                 strSql.Append("    declare @priceTNPWithTax decimal(18,2) --当前状态含税          \n");
                 strSql.Append("    declare @decXiShu decimal(18,2) --公式系数          \n");
                 strSql.Append("    declare @decTaxRate decimal(18,2) --税率          \n");

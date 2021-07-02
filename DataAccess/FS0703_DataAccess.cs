@@ -752,52 +752,46 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                string SupplierCode = "";
+
 
                 string dt1 = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                if (SupplierCodeList.Count > 0)
-                {
-                    for (int j = 0; j < SupplierCodeList.Count; j++)
-                    {
-                        if (j != 0)
-                        {
-                            SupplierCode = SupplierCode + "," + SupplierCodeList[j].ToString();
-                        }
-                        else
-                        {
-                            SupplierCode = SupplierCode + SupplierCodeList[j].ToString();
 
-                        }
+                DataView dv = listInfoData.DefaultView;
+                DataTable dtt = dv.ToTable(true, "vcSupplierCode");
 
-                    }
-                }
+
+
 
                 sql.AppendLine("     delete  from  TPackNSCalculation         \n");
 
+                for (int a = 0; a < dtt.Rows.Count; a++)
+                {
+                    sql.AppendLine("     INSERT INTO [dbo].[TPackSearch]       \n");
+                    sql.AppendLine("                ([vcSupplier]       \n");
+                    sql.AppendLine("                ,[vcYearMonth]       \n");
+                    sql.AppendLine("                ,[vcNSDiff]       \n");
+                    sql.AppendLine("                ,[vcNSQJ]       \n");
+                    sql.AppendLine("                ,[vcNSState]       \n");
+                    sql.AppendLine("                ,[dFaBuTime]       \n");
+                    sql.AppendLine("                ,[dFirstDownload]       \n");
+                    sql.AppendLine("                ,[vcOperatorID]       \n");
+                    sql.AppendLine("                ,[dOperatorTime])       \n");
+                    sql.AppendLine("          VALUES       \n");
+                    sql.AppendLine("         (   \n");
+                    sql.AppendLine("         '" + dtt.Rows[a]["vcSupplierCode"].ToString() + "',   \n");
+                    sql.AppendLine("         '" + PackFrom + "',   \n");
+                    sql.AppendLine("         '月度内示',   \n");
+                    sql.AppendLine("         NULL,   \n");
+                    sql.AppendLine("         '0',   \n");
+                    sql.AppendLine("         '" + dt1 + "',   \n");
+                    sql.AppendLine("         NULL,   \n");
+                    sql.AppendLine("   '" + userId + "',   \n");
+                    sql.AppendLine("   getdate()  \n");
+                    sql.AppendLine("         )   \n");
 
+                }
 
-                sql.AppendLine("     INSERT INTO [dbo].[TPackSearch]       \n");
-                sql.AppendLine("                ([vcSupplier]       \n");
-                sql.AppendLine("                ,[vcYearMonth]       \n");
-                sql.AppendLine("                ,[vcNSDiff]       \n");
-                sql.AppendLine("                ,[vcNSQJ]       \n");
-                sql.AppendLine("                ,[vcNSState]       \n");
-                sql.AppendLine("                ,[dFaBuTime]       \n");
-                sql.AppendLine("                ,[dFirstDownload]       \n");
-                sql.AppendLine("                ,[vcOperatorID]       \n");
-                sql.AppendLine("                ,[dOperatorTime])       \n");
-                sql.AppendLine("          VALUES       \n");
-                sql.AppendLine("         (   \n");
-                sql.AppendLine("         '" + SupplierCode + "',   \n");
-                sql.AppendLine("         '" + PackFrom + "',   \n");
-                sql.AppendLine("         '月度内示',   \n");
-                sql.AppendLine("         NULL,   \n");
-                sql.AppendLine("         '0',   \n");
-                sql.AppendLine("         '" + dt1 + "',   \n");
-                sql.AppendLine("         NULL,   \n");
-                sql.AppendLine("   '" + userId + "',   \n");
-                sql.AppendLine("   getdate()  \n");
-                sql.AppendLine("         )   \n");
+                
 
                 for (int i = 0; i < listInfoData.Rows.Count; i++)
                 {

@@ -121,7 +121,30 @@ namespace DataAccess
                     throw ex;
             }
         }
+
+
         #endregion
+
+        /// <summary>
+        /// 恢复权限
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public DataTable SearchHF(string userId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine(" select * from TOutCode where vcCodeId='C061'and vcIsColum='0'and vcValue1='"+ userId + "'    ");
+     
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
 

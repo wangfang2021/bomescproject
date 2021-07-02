@@ -75,7 +75,7 @@ namespace SPPSApi.Controllers.G07
                                                     ,"发注作业时刻(止)","包材纳期日期(起)","包材纳期时刻(起)","包材纳期日期(止)","包材纳期时刻(止)","包材纳入便次名称","包装厂","TC(FROM)","TC(TO)"},
                                                 {"vcFaZhuID","vcRuHeFromDay","dRuHeFromTime","vcRuHeToDay","druHeToTime","vcFaZhuFromDay","dFaZhuFromTime",
                                                  "vcFaZhuToDay","dFaZhuToTime","vcNaQiFromDay","dNaQiFromTime","vcNaQiToDay","dNaQiToTime","vcBianCi","vcPackSpot","dFrom","dTo"},
-                                                {"","",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"","","","",FieldCheck.Date,FieldCheck.Date},
+                                                {"","","","","","","","","","","","","","","","",""},
                                                 {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0" },
                                                 {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0" }
                                                    };//最小长度设定,可以为空用0
@@ -108,37 +108,36 @@ namespace SPPSApi.Controllers.G07
 
                 #region  检查本身导入文件时间重叠行
                 DataTable dtcope = importDt.Copy();
-                dtcope.Clear();
-
-
+                
+         
+                DateTime dd = DateTime.Now;
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
                     //查找工作日的一天
                     DataTable dtBZtime = FS0704_Logic.SearchBZ(importDt.Rows[i]["vcPackSpot"].ToString());
                     DateTime dBZtime = DateTime.Parse(dtBZtime.Rows[0]["vcBeginTime"].ToString());
+
                     DataRow[] dr = importDt.Select("vcFaZhuID='" + importDt.Rows[i]["vcFaZhuID"].ToString() + "'");
-                    //dtcope.Rows.Add(dr);
-                    i = dr.Length;
                     int j = dr.Length - 1;
                     while (j > 0)
                     {
 
-                        DateTime dRuHeFromDay = DateTime.Parse(dr[j]["dRuHeFromTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcRuHeFromDay"].ToString()));
+                        DateTime dRuHeFromDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["dRuHeFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcRuHeFromDay"].ToString()));
                         if (dRuHeFromDay < dBZtime)
                             dRuHeFromDay = dRuHeFromDay.AddDays(1);
-                        DateTime dRuHeToDay = DateTime.Parse(dr[j]["druHeToTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcRuHeToDay"].ToString()));
+                        DateTime dRuHeToDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["druHeToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcRuHeToDay"].ToString()));
                         if (dRuHeToDay < dBZtime)
                             dRuHeToDay = dRuHeToDay.AddDays(1);
-                        DateTime dFaZhuFromDay = DateTime.Parse(dr[j]["dFaZhuFromTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcFaZhuFromDay"].ToString()));
+                        DateTime dFaZhuFromDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["dFaZhuFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcFaZhuFromDay"].ToString()));
                         if (dFaZhuFromDay < dBZtime)
                             dFaZhuFromDay = dFaZhuFromDay.AddDays(1);
-                        DateTime dFaZhuToDay = DateTime.Parse(dr[j]["dFaZhuToTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcFaZhuToDay"].ToString()));
+                        DateTime dFaZhuToDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["dFaZhuToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcFaZhuToDay"].ToString()));
                         if (dFaZhuToDay < dBZtime)
                             dFaZhuToDay = dFaZhuToDay.AddDays(1);
-                        DateTime dNaQiFromDay = DateTime.Parse(dr[j]["dNaQiFromTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcNaQiFromDay"].ToString()));
+                        DateTime dNaQiFromDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["dNaQiFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcNaQiFromDay"].ToString()));
                         if (dNaQiFromDay < dBZtime)
                             dNaQiFromDay = dNaQiFromDay.AddDays(1);
-                        DateTime dNaQiToDay = DateTime.Parse(dr[j]["dNaQiToTime"].ToString()).AddDays(Convert.ToInt32(dr[j]["vcNaQiToDay"].ToString()));
+                        DateTime dNaQiToDay = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[j]["dNaQiToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[j]["vcNaQiToDay"].ToString()));
                         if (dNaQiToDay < dBZtime)
                             dNaQiToDay = dNaQiToDay.AddDays(1);
 
@@ -189,21 +188,16 @@ namespace SPPSApi.Controllers.G07
                             apiResult.data = dr[j]["vcFaZhuID"].ToString() + "包材纳期时间不能小于部品入荷时间和发注作业时间！";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
+
                         for (int z = 0; z <= j - 1; z++)
                         {
-                            //DateTime dRuHeFromDay1 = DateTime.ParseExact(dr[z]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            //DateTime dRuHeToDay1 = DateTime.ParseExact(dr[z]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            //DateTime dFaZhuFromDay1 = DateTime.ParseExact(dr[z]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            //DateTime dFaZhuToDay1 = DateTime.ParseExact(dr[z]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            //DateTime dNaQiFromDay1 = DateTime.ParseExact(dr[z]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            //DateTime dNaQiToDay1 = DateTime.ParseExact(dr[z]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-
-                            DateTime dRuHeFromDay1 = DateTime.Parse(dr[z]["dRuHeFromTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcRuHeFromDay"].ToString()));
-                            DateTime dRuHeToDay1 = DateTime.Parse(dr[z]["druHeToTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcRuHeToDay"].ToString()));
-                            DateTime dFaZhuFromDay1 = DateTime.Parse(dr[z]["dFaZhuFromTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcFaZhuFromDay"].ToString()));
-                            DateTime dFaZhuToDay1 = DateTime.Parse(dr[z]["dFaZhuToTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcFaZhuToDay"].ToString()));
-                            DateTime dNaQiFromDay1 = DateTime.Parse(dr[z]["dNaQiFromTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcNaQiFromDay"].ToString()));
-                            DateTime dNaQiToDay1 = DateTime.Parse(dr[z]["dNaQiToTime"].ToString()).AddDays(Convert.ToInt32(dr[z]["vcNaQiToDay"].ToString()));
+                           
+                            DateTime dRuHeFromDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["dRuHeFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcRuHeFromDay"].ToString()));
+                            DateTime dRuHeToDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["druHeToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcRuHeToDay"].ToString()));
+                            DateTime dFaZhuFromDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["dFaZhuFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcFaZhuFromDay"].ToString()));
+                            DateTime dFaZhuToDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["dFaZhuToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcFaZhuToDay"].ToString()));
+                            DateTime dNaQiFromDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["dNaQiFromTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcNaQiFromDay"].ToString()));
+                            DateTime dNaQiToDay1 = DateTime.Parse(dd.Year + "/" + dd.Month + "/" + dd.Day + " " + dr[z]["dNaQiToTime"].ToString().Split(" ")[1]).AddDays(Convert.ToInt32(dr[z]["vcNaQiToDay"].ToString()));
 
 
                             if ((dRuHeFromDay <= dRuHeFromDay1 && dRuHeFromDay1 <= dRuHeToDay) || (dRuHeFromDay <= dRuHeToDay1 && dRuHeToDay1 <= dRuHeToDay))
@@ -226,7 +220,10 @@ namespace SPPSApi.Controllers.G07
                             }
                         }
                         j--;
+                        
                     }
+                    importDt.Rows.RemoveAt(i);
+                    i = -1;
                 }
 
                 #endregion
@@ -235,21 +232,21 @@ namespace SPPSApi.Controllers.G07
                 #region 判断对应逻辑下是否有重叠时间
                 DataTable dtLJtime = FS0704_Logic.SearchLJTime("", "", "");
 
-                for (int a = 0; a < importDt.Rows.Count; a++)
+                for (int a = 0; a < dtcope.Rows.Count; a++)
                 {
-                    DataRow[] dr = dtLJtime.Select("vcFaZhuID='" + importDt.Rows[a]["vcFaZhuID"].ToString() + "'and vcBianCi<>'" + importDt.Rows[a]["vcBianCi"].ToString() + "'and vcPackSpot='" + importDt.Rows[a]["vcPackSpot"].ToString() + "'");
+                    DataRow[] dr = dtLJtime.Select("vcFaZhuID='" + dtcope.Rows[a]["vcFaZhuID"].ToString() + "'and vcBianCi<>'" + dtcope.Rows[a]["vcBianCi"].ToString() + "'and vcPackSpot='" + dtcope.Rows[a]["vcPackSpot"].ToString() + "'");
                     if (dr.Length > 0)
                     {
                         int count = dtcope.Rows.Count - 1;
                         a = dtLJtime.Rows.Count;
                         while (count > 0)
                         {
-                            DateTime dRuHeFromDay = DateTime.ParseExact(importDt.Rows[a]["dRuHeFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dRuHeToDay = DateTime.ParseExact(importDt.Rows[a]["druHeToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dFaZhuFromDay = DateTime.ParseExact(importDt.Rows[a]["dFaZhuFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dFaZhuToDay = DateTime.ParseExact(importDt.Rows[a]["dFaZhuToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dNaQiFromDay = DateTime.ParseExact(importDt.Rows[a]["dNaQiFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dNaQiToDay = DateTime.ParseExact(importDt.Rows[a]["dNaQiToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            DateTime dRuHeFromDay = DateTime.ParseExact(dtcope.Rows[a]["dRuHeFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            DateTime dRuHeToDay = DateTime.ParseExact(dtcope.Rows[a]["druHeToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            DateTime dFaZhuFromDay = DateTime.ParseExact(dtcope.Rows[a]["dFaZhuFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            DateTime dFaZhuToDay = DateTime.ParseExact(dtcope.Rows[a]["dFaZhuToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            DateTime dNaQiFromDay = DateTime.ParseExact(dtcope.Rows[a]["dNaQiFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            DateTime dNaQiToDay = DateTime.ParseExact(dtcope.Rows[a]["dNaQiToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
 
 
 
@@ -294,7 +291,7 @@ namespace SPPSApi.Controllers.G07
                 #endregion
 
 
-                FS0704_Logic.importSave(importDt, loginInfo.UserId);
+                FS0704_Logic.importSave(dtcope, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

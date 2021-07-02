@@ -458,7 +458,7 @@ namespace DataAccess
                 sql.Append("			select * from WeekPackPlanTbl where vcMonth='" + dBZDate.Substring(0, 7).Replace("/", "-") + "' --斜杠改成横杠       \n");
                 sql.Append("		)t1     \n");
                 sql.Append("		left join (    \n");
-                sql.Append("			select * from TPackageMaster where vcReceiver='APC06' and vcPackingPlant='" + strUserId + "'    \n");
+                sql.Append("			select * from TPackageMaster where vcReceiver='APC06' and vcPackingPlant='" + strUnit + "'    \n");
                 sql.Append("		) t2 on t1.vcPartsno=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplierId    \n");
                 sql.Append("		left join TPMRelation t3 on t2.vcSmallPM=t3.vcSmallPM    \n");
                 sql.Append("		group by t2.vcBZPlant,t3.vcBigPM,t2.vcSmallPM    \n");

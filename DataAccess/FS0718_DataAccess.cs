@@ -14,16 +14,21 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strDownloadDiff)
+        public DataTable Search(string strSupplier,string strDownloadDiff)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("           select * from TPackSearch where  1=1               \n");
+                if (!string.IsNullOrEmpty(strSupplier))
+                {
+                    strSql.AppendLine("       and vcSupplier = '"+strSupplier+"'   ");
+                }
                 if (!string.IsNullOrEmpty(strDownloadDiff))
                 {
-                    strSql.AppendLine("       and dFirstDownload " + strDownloadDiff + "          ");
+                    strSql.AppendLine("       and dFirstDownload " + strDownloadDiff + "   ");
                 }
+                strSql.AppendLine("     order by dFaBuTime desc     ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -228,11 +233,11 @@ namespace DataAccess
             
             for (int i = 0; i < listInfoData.Count; i++)
             {
-                string strFaBuTime = listInfoData[i]["dFaBuTime"].ToString().Replace("/","-");
+                string iAutoID = listInfoData[i]["iAutoID"].ToString();
                 strSql.AppendLine("      update TPackSearch set dFirstDownload = case when dFirstDownload is null then GETDATE() else dFirstDownload END        ");
                 strSql.AppendLine("      ,vcOperatorID = '"+strUserID+"'       ");
                 strSql.AppendLine("      ,dOperatorTime = GETDATE()       ");
-                strSql.AppendLine("      where dFaBuTime = '"+strFaBuTime+"'       ");
+                strSql.AppendLine("      where iAutoID = '"+iAutoID+"'       ");
             }
             excute.ExcuteSqlWithStringOper(strSql.ToString());
         }

@@ -442,6 +442,7 @@ namespace DataAccess
                 sql.Append("		sum(isnull(vcD" + iday + "b,0))+sum(isnull(vcD" + iday + "y,0)) as 合计        \n");
                 sql.Append("		from (        \n");
                 sql.Append("			select * from MonthPackPlanTbl where vcMonth='" + dBZDate.Substring(0, 7).Replace("/", "-") + "' --斜杠改成横杠       \n");
+                sql.Append("            and vcPartsno not in (select vcPartsno from WeekPackPlanTbl where vcMonth='" + dBZDate.Substring(0, 7).Replace("/", "-") + "')--斜杠改成横杠       \n");
                 sql.Append("		)t1        \n");
                 sql.Append("		left join (    \n");
                 sql.Append("			select * from TPackageMaster where vcReceiver='APC06' and vcPackingPlant='" + strUnit + "'    \n");

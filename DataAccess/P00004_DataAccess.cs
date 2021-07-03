@@ -993,6 +993,7 @@ namespace DataAccess
                 strSql_add_sl.AppendLine("           ,[vcSender]");
                 strSql_add_sl.AppendLine("           ,[vcLabelStart]");
                 strSql_add_sl.AppendLine("           ,[vcLabelEnd]");
+                strSql_add_sl.AppendLine("           ,[vcFzgc]");
                 strSql_add_sl.AppendLine("           ,[vcSupplier_id])");
                 strSql_add_sl.AppendLine("     VALUES");
                 strSql_add_sl.AppendLine("           (@dHosDate");
@@ -1017,6 +1018,7 @@ namespace DataAccess
                 strSql_add_sl.AppendLine("           ,NULL");
                 strSql_add_sl.AppendLine("           ,@vcLabelStart");
                 strSql_add_sl.AppendLine("           ,@vcLabelEnd");
+                strSql_add_sl.AppendLine("           ,@vcFzgc");
                 strSql_add_sl.AppendLine("           ,@vcSupplier_id)");
 
                 sqlCommand_add_sl.CommandText = strSql_add_sl.ToString();
@@ -1042,6 +1044,7 @@ namespace DataAccess
                 //sqlCommand_add_sl.Parameters.AddWithValue("@vcSender", "");
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcLabelStart", "");
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcLabelEnd", "");
+                sqlCommand_add_sl.Parameters.AddWithValue("@vcFzgc", "");
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcSupplier_id", "");
                 #endregion
                 foreach (DataRow item in dtSell_Temp.Rows)
@@ -1069,6 +1072,7 @@ namespace DataAccess
                     //sqlCommand_add_sl.Parameters["@vcSender"].Value = item["vcSender"].ToString();
                     sqlCommand_add_sl.Parameters["@vcLabelStart"].Value = item["vcLabelStart"].ToString();
                     sqlCommand_add_sl.Parameters["@vcLabelEnd"].Value = item["vcLabelEnd"].ToString();
+                    sqlCommand_add_sl.Parameters["@vcFzgc"].Value = item["vcFzgc"].ToString();
                     sqlCommand_add_sl.Parameters["@vcSupplier_id"].Value = item["vcSupplier_id"].ToString();
                     #endregion
                     sqlCommand_add_sl.ExecuteNonQuery();

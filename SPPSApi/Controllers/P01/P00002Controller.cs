@@ -361,6 +361,22 @@ namespace SPPSApi.Controllers.P01
                 string ngBlame = dataForm.NGBlame == null ? "" : dataForm.NGBlame;
                 string ngReason = dataForm.NGReason == null ? "" : dataForm.NGReason;
                 string ngQuantity = dataForm.NGQuantity == null ? "" : dataForm.NGQuantity;
+
+                string ngBlame1 = dataForm.NGBlame1 == null ? "" : dataForm.NGBlame1;
+                string ngReason1 = dataForm.NGReason1 == null ? "" : dataForm.NGReason1;
+                string ngQuantity1 = dataForm.NGQuantity1 == null ? "" : dataForm.NGQuantity1;
+
+                string ngBlame2 = dataForm.NGBlame2 == null ? "" : dataForm.NGBlame2;
+                string ngReason2 = dataForm.NGReason2 == null ? "" : dataForm.NGReason2;
+                string ngQuantity2 = dataForm.NGQuantity2 == null ? "" : dataForm.NGQuantity2;
+
+                string ngBlame3 = dataForm.NGBlame3 == null ? "" : dataForm.NGBlame3;
+                string ngReason3 = dataForm.NGReason3 == null ? "" : dataForm.NGReason3;
+                string ngQuantity3 = dataForm.NGQuantity3 == null ? "" : dataForm.NGQuantity3;
+
+                string ngBlame4 = dataForm.NGBlame4 == null ? "" : dataForm.NGBlame4;
+                string ngReason4 = dataForm.NGReason4 == null ? "" : dataForm.NGReason4;
+                string ngQuantity4 = dataForm.NGQuantity4 == null ? "" : dataForm.NGQuantity4;
                 //2.获取点位IP并获得点位名称
                 if (iP == "")
                 {
@@ -483,17 +499,76 @@ namespace SPPSApi.Controllers.P01
                 #endregion
 
                 #region addrows
-                DataRow drInfo_NG_Temp = dtInfo_NG_Temp.NewRow();
-                drInfo_NG_Temp["vcPart_id"] = partId;
-                drInfo_NG_Temp["vcKBOrderNo"] = kanbanOrderNo;
-                drInfo_NG_Temp["vcKBLFNo"] = kanbanSerial;
-                drInfo_NG_Temp["vcSR"] = dock;
-                drInfo_NG_Temp["iNGQuantity"] = ngQuantity;
-                drInfo_NG_Temp["vcNGReason"] = ngReason;
-                drInfo_NG_Temp["vcZRBS"] = ngBlame;
-                drInfo_NG_Temp["vcOperatorID"] = opearteId;
-                drInfo_NG_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
-                dtInfo_NG_Temp.Rows.Add(drInfo_NG_Temp);
+                if (ngQuantity != "" && ngQuantity != "0")
+                {
+                    DataRow drInfo_NG_Temp = dtInfo_NG_Temp.NewRow();
+                    drInfo_NG_Temp["vcPart_id"] = partId;
+                    drInfo_NG_Temp["vcKBOrderNo"] = kanbanOrderNo;
+                    drInfo_NG_Temp["vcKBLFNo"] = kanbanSerial;
+                    drInfo_NG_Temp["vcSR"] = dock;
+                    drInfo_NG_Temp["iNGQuantity"] = ngQuantity;
+                    drInfo_NG_Temp["vcNGReason"] = ngReason;
+                    drInfo_NG_Temp["vcZRBS"] = ngBlame;
+                    drInfo_NG_Temp["vcOperatorID"] = opearteId;
+                    drInfo_NG_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
+                    dtInfo_NG_Temp.Rows.Add(drInfo_NG_Temp);
+                }
+                if (ngQuantity1 != "" && ngQuantity1 != "0")
+                {
+                    DataRow drInfo_NG_Temp = dtInfo_NG_Temp.NewRow();
+                    drInfo_NG_Temp["vcPart_id"] = partId;
+                    drInfo_NG_Temp["vcKBOrderNo"] = kanbanOrderNo;
+                    drInfo_NG_Temp["vcKBLFNo"] = kanbanSerial;
+                    drInfo_NG_Temp["vcSR"] = dock;
+                    drInfo_NG_Temp["iNGQuantity"] = ngQuantity1;
+                    drInfo_NG_Temp["vcNGReason"] = ngReason1;
+                    drInfo_NG_Temp["vcZRBS"] = ngBlame1;
+                    drInfo_NG_Temp["vcOperatorID"] = opearteId;
+                    drInfo_NG_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
+                    dtInfo_NG_Temp.Rows.Add(drInfo_NG_Temp);
+                }
+                if (ngQuantity2 != "" && ngQuantity2 != "0")
+                {
+                    DataRow drInfo_NG_Temp = dtInfo_NG_Temp.NewRow();
+                    drInfo_NG_Temp["vcPart_id"] = partId;
+                    drInfo_NG_Temp["vcKBOrderNo"] = kanbanOrderNo;
+                    drInfo_NG_Temp["vcKBLFNo"] = kanbanSerial;
+                    drInfo_NG_Temp["vcSR"] = dock;
+                    drInfo_NG_Temp["iNGQuantity"] = ngQuantity2;
+                    drInfo_NG_Temp["vcNGReason"] = ngReason2;
+                    drInfo_NG_Temp["vcZRBS"] = ngBlame2;
+                    drInfo_NG_Temp["vcOperatorID"] = opearteId;
+                    drInfo_NG_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
+                    dtInfo_NG_Temp.Rows.Add(drInfo_NG_Temp);
+                }
+                if (ngQuantity3 != "" && ngQuantity3 != "0")
+                {
+                    DataRow drInfo_NG_Temp = dtInfo_NG_Temp.NewRow();
+                    drInfo_NG_Temp["vcPart_id"] = partId;
+                    drInfo_NG_Temp["vcKBOrderNo"] = kanbanOrderNo;
+                    drInfo_NG_Temp["vcKBLFNo"] = kanbanSerial;
+                    drInfo_NG_Temp["vcSR"] = dock;
+                    drInfo_NG_Temp["iNGQuantity"] = ngQuantity3;
+                    drInfo_NG_Temp["vcNGReason"] = ngReason3;
+                    drInfo_NG_Temp["vcZRBS"] = ngBlame3;
+                    drInfo_NG_Temp["vcOperatorID"] = opearteId;
+                    drInfo_NG_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
+                    dtInfo_NG_Temp.Rows.Add(drInfo_NG_Temp);
+                }
+                if (ngQuantity4 != "" && ngQuantity4 != "0")
+                {
+                    DataRow drInfo_NG_Temp = dtInfo_NG_Temp.NewRow();
+                    drInfo_NG_Temp["vcPart_id"] = partId;
+                    drInfo_NG_Temp["vcKBOrderNo"] = kanbanOrderNo;
+                    drInfo_NG_Temp["vcKBLFNo"] = kanbanSerial;
+                    drInfo_NG_Temp["vcSR"] = dock;
+                    drInfo_NG_Temp["iNGQuantity"] = ngQuantity4;
+                    drInfo_NG_Temp["vcNGReason"] = ngReason4;
+                    drInfo_NG_Temp["vcZRBS"] = ngBlame4;
+                    drInfo_NG_Temp["vcOperatorID"] = opearteId;
+                    drInfo_NG_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
+                    dtInfo_NG_Temp.Rows.Add(drInfo_NG_Temp);
+                }
                 #endregion
                 //5.写入数据库
                 bool bResult = P00002_Logic.setCheckInfo(dtInfo_SJ_Temp, dtInfo_NG_Temp);

@@ -68,6 +68,7 @@ namespace Logic
                 DataTable dtTagTemp = dtTag.Clone();
                 for (int i = 0; i < dataTable.Rows.Count; i++)
                 {
+                    string strPartId = dataTable.Rows[i]["vcPartId"].ToString();
                     string bInPutOrder = dataTable.Rows[i]["bInPutOrder"].ToString();
                     string bTag = dataTable.Rows[i]["bTag"].ToString();
                     string strInPutOrderNo = dataTable.Rows[i]["vcInPutOrderNo"].ToString();
@@ -129,7 +130,7 @@ namespace Logic
                                     for (int j = Convert.ToInt32(strTagLianFFrom.Substring(6, 5)); j <= Convert.ToInt32(strTagLianFTo.Substring(6, 5)); j++)
                                     {
                                         string strTagNo = strTagLianFFrom.Substring(0, 6) + (100000 + j).ToString().Substring(1, 5);
-                                        DataRow[] drTagList = dtTagInfo.Select("vcInno='" + strInPutOrderNo + "' and vcPrintcount='" + strTagNo + "'");
+                                        DataRow[] drTagList = dtTagInfo.Select("vcInno='" + strInPutOrderNo + "' and vcPrintcount='" + strPartId+ strTagNo + "'");
                                         if (drTagList.Length == 0)
                                         {
                                             DataRow dataRow = dtMessage.NewRow();

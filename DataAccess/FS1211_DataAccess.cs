@@ -42,11 +42,11 @@ namespace DataAccess
             }
             if (vcTF.Length > 0)
             {
-                ocmd.CommandText += "        and t1.dStart>=CONVERT(datetime,'" + vcTF + "')";
+                ocmd.CommandText += "        and t1.dEnd>=CONVERT(datetime,'" + vcTF + "')";
             }
             if (vcTO.Length > 0)
             {
-                ocmd.CommandText += "        and t1.dStart<=CONVERT(datetime,'" + vcTO + "')";
+                ocmd.CommandText += "        and t1.dEnd<=CONVERT(datetime,'" + vcTO + "')";
             }
             ocmd.CommandText += "  group by vcPart_id,vcSHF,vcSR,vcKBOrderNo";
             ocmd.CommandText += "        union all ";
@@ -65,11 +65,11 @@ namespace DataAccess
             }
             if (vcTF.Length > 0)
             {
-                ocmd.CommandText += "        and t1.dStart>=CONVERT(datetime,'" + vcTF + "')";
+                ocmd.CommandText += "        and t1.dEnd>=CONVERT(datetime,'" + vcTF + "')";
             }
             if (vcTO.Length > 0)
             {
-                ocmd.CommandText += "        and t1.dStart<=CONVERT(datetime,'" + vcTO + "')";
+                ocmd.CommandText += "        and t1.dEnd<=CONVERT(datetime,'" + vcTO + "')";
             }
             ocmd.CommandText += "  group by vcPart_id,vcSHF,vcSR,vcKBOrderNo ";
             ocmd.CommandText += "   ) topr";
@@ -272,7 +272,7 @@ namespace DataAccess
             DataTable dtEDorder = SearchData(ssql);
             string tmpsql = " select vcPart_id,vcSHF,vcSR,vcInputNo,iQuantity,vcKBOrderNo,vcKBLFNo,";
             tmpsql += " case when packingcondition='1' then '未包装' else '已包装' end as packingcondition,";
-            tmpsql += " vcBZPlant,dStart,vcOperatorID,vcSheBeiNo,dOperatorTime,'T0' as otype,'紧急' as vcEDflag ";
+            tmpsql += " vcBZPlant,dEnd,vcOperatorID,vcSheBeiNo,dOperatorTime,'T0' as otype,'紧急' as vcEDflag ";
             tmpsql += " from TOperateSJ t where vcZYType='S0' ";
             tmpsql += " and (";
             for (int i = 0; i < dtEDorder.Rows.Count; i++)
@@ -316,7 +316,7 @@ namespace DataAccess
             DataTable dtEDorder2 = SearchData(ssql);
             string tmpsql2 = " select vcPart_id,vcSHF,vcSR,vcInputNo,iQuantity,vcKBOrderNo,vcKBLFNo,";
             tmpsql2 += " case when packingcondition='1' then '未包装' else '已包装' end as packingcondition,";
-            tmpsql2 += " vcBZPlant,dStart,vcOperatorID,vcSheBeiNo,dOperatorTime,'T1' as otype,'紧急' as vcEDflag ";
+            tmpsql2 += " vcBZPlant,dEnd,vcOperatorID,vcSheBeiNo,dOperatorTime,'T1' as otype,'紧急' as vcEDflag ";
             tmpsql2 += " from TOperateSJ t where vcZYType='S0' ";
             tmpsql2 += "  and ( ";
             for (int i = 0; i < dtEDorder2.Rows.Count; i++)
@@ -356,7 +356,7 @@ namespace DataAccess
             sb.AppendLine("  select tall.*,t2.otype,'通常' as vcEDflag from (");
             sb.AppendLine("   select t1.vcPart_id,t1.vcSHF,t1.vcSR,t1.vcInputNo,t1.iQuantity,t1.vcKBOrderNo,t1.vcKBLFNo,");
             sb.AppendLine("   case when t1.packingcondition='1' then '未包装' else '已包装' end as packingcondition,");
-            sb.AppendLine("   t1.vcBZPlant,dStart,");
+            sb.AppendLine("   t1.vcBZPlant,dEnd,");
             sb.AppendLine("   t1.vcOperatorID,t1.vcSheBeiNo,t1.dOperatorTime from TOperateSJ t1 ");
             sb.AppendLine("   where t1.vcZYType='S0'");
             if (vcMon.Length > 0)
@@ -392,7 +392,7 @@ namespace DataAccess
             sb.AppendLine("   union all ");
             sb.AppendLine("   select t1.vcPart_id,t1.vcSHF,t1.vcSR,t1.vcInputNo,t1.iQuantity,t1.vcKBOrderNo,t1.vcKBLFNo,");
             sb.AppendLine("   case when t1.packingcondition='1' then '未包装' else '已包装' end as packingcondition,");
-            sb.AppendLine("   t1.vcBZPlant,dStart,");
+            sb.AppendLine("   t1.vcBZPlant,dEnd,");
             sb.AppendLine("   t1.vcOperatorID,t1.vcSheBeiNo,t1.dOperatorTime from TOperateSJ t1 ");
             sb.AppendLine("   where t1.vcZYType='S0'");
             if (vcMon.Length > 0)
@@ -742,7 +742,7 @@ namespace DataAccess
 
                 sbSQL = new StringBuilder();
                 DataTable tmp2 = new DataTable();
-                sbSQL.AppendLine(" select distinct t.vcPart_id, t.vcSR, t.vcKBOrderNo, t.vcKBLFNo, t.dStart ");
+                sbSQL.AppendLine(" select distinct t.vcPart_id, t.vcSR, t.vcKBOrderNo, t.vcKBLFNo, t.dEnd ");
                 sbSQL.AppendLine(" from TOperateSJ t ");//作业实绩表
                 sbSQL.AppendLine(" left join (");
                 sbSQL.AppendLine("              select a.vcPartId, a.vcReceiver, b.vcSufferIn from TSPMaster a "); //品番基础数据
@@ -833,7 +833,7 @@ namespace DataAccess
                         DataRow[] arrayDR = tmp2.Select(" vcPart_id = '" + tmp.Rows[i]["vcPartNo"] + "' and vcSR = '" + tmp.Rows[i]["vcDock"] + "' and vcKBOrderNo = '" + tmp.Rows[i]["vcOrderNo"] + "' and vcKBLFNo = '" + tmp.Rows[i]["vcSerial"] + "'  ");
                         if (arrayDR.Length >= 1)
                         {
-                            tmp.Rows[i]["vcRealProcTime"] = arrayDR[0]["dStart"].ToString();
+                            tmp.Rows[i]["vcRealProcTime"] = arrayDR[0]["dEnd"].ToString();
                         }
                         else
                         {
@@ -859,7 +859,7 @@ namespace DataAccess
                         DataRow[] arrayDR = tmp2.Select(" vcPart_id = '" + tmp.Rows[i]["vcPartNo"] + "' and vcSR = '" + tmp.Rows[i]["vcDock"] + "' and vcKBOrderNo = '" + tmp.Rows[i]["vcOrderNo"] + "' and vcKBLFNo = '" + tmp.Rows[i]["vcSerial"] + "'  ");
                         if (arrayDR.Length >= 1)
                         {
-                            tmp.Rows[i]["vcRealProcTime"] = arrayDR[0]["dStart"].ToString();
+                            tmp.Rows[i]["vcRealProcTime"] = arrayDR[0]["dEnd"].ToString();
                         }
                     }
                 }

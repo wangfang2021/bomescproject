@@ -661,7 +661,7 @@ namespace SPPSApi.Controllers.P01
           DataTable getStatus = P00001_Logic.GetPointStatus4(pointNo);
           if (getStatus.Rows.Count == 0)
           {
-            int poiResultIn = P00001_Logic.InsertPoint1(pointNo);
+             P00001_Logic.InsertPoint1(pointNo);
           }
           else if (getStatus.Rows.Count == 1)
           {
@@ -898,7 +898,7 @@ namespace SPPSApi.Controllers.P01
           P00001_Logic.UpdateTrolley(trolley, opearteId, serverTime, iP, lotId);
         }
         int pacSeqNoNew = int.Parse(pacSeqNo) + 1;
-        int pacResultUp = P00001_Logic.UpdateSeqNo(packingSpot, formatServerTime, pacSeqNoNew, tmpString);//更新连番表
+         P00001_Logic.UpdateSeqNo(packingSpot, formatServerTime, pacSeqNoNew, tmpString);//更新连番表
         p00001_DataEntity.lotId = lotId;
         apiResult.data = p00001_DataEntity;
       }
@@ -982,7 +982,7 @@ namespace SPPSApi.Controllers.P01
           string pacSeqNo = pacSeqNodt.Rows[0][2].ToString();//取得包材段取连番号
           string lotId = formatServerTime.Substring(2, 6).Trim() + "-" + packingSpot.Substring(1, 1).Trim() + "-" + pacSeqNo.PadLeft(5, '0').Trim();
           int pacSeqNoNew = int.Parse(pacSeqNo) + 1;
-          int pacResultUp = P00001_Logic.UpdateSeqNo(packingSpot, formatServerTime, pacSeqNoNew, tmpString);//更新连番表
+           P00001_Logic.UpdateSeqNo(packingSpot, formatServerTime, pacSeqNoNew, tmpString);//更新连番表
           P00001_Logic.UpdateQB(lotId, iP, trolley);
         }
         else

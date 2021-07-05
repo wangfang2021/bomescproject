@@ -161,9 +161,9 @@ namespace Logic
             P00001_DataAccess.InsertSeqNo(packingSpot, serverTime, tmpString);
         }
 
-        public static int UpdateSeqNo(string packingSpot, string serverTime, int seqNoNew, string tmpString)
+        public static void UpdateSeqNo(string packingSpot, string serverTime, int seqNoNew, string tmpString)
         {
-            return P00001_DataAccess.UpdateSeqNo(packingSpot, serverTime, seqNoNew, tmpString);
+              P00001_DataAccess.UpdateSeqNo(packingSpot, serverTime, seqNoNew, tmpString);
         }
 
 
@@ -186,9 +186,9 @@ namespace Logic
             return P00001_DataAccess.GetPointStatus4(pointNo);
         }
 
-        public static int InsertPoint1(string pointNo)
+        public static void InsertPoint1(string pointNo)
         {
-            return P00001_DataAccess.InsertPoint1(pointNo);
+              P00001_DataAccess.InsertPoint1(pointNo);
 
         }
 

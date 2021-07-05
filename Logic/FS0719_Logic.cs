@@ -119,7 +119,15 @@ namespace Logic
             FS0719_DataAccess.SaveFZ(dt, userId, ref strErrorPartId);
         }
 
+
+
         #endregion
+
+        //恢复权限
+        public DataTable SearchHF(string userId)
+        {
+           return FS0719_DataAccess.SearchHF(userId);
+        }
 
     }
 }

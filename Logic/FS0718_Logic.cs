@@ -18,36 +18,10 @@ namespace Logic
         }
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strDownloadDiff,string strSupplier)
+        public DataTable Search(string strSupplier,string strDownloadDiff)
         {
             
-            DataTable dt_All = fs0718_DataAccess.Search(strDownloadDiff);
-            DataTable returnDT = dt_All.Clone();
-            if (dt_All!=null && dt_All.Rows.Count>0)
-            {
-                for (int i = 0; i < dt_All.Rows.Count; i++)
-                {
-                    //获取dt的供应商字段的值
-                    string vcSupplier = dt_All.Rows[i]["vcSupplier"].ToString();
-                    //判断供应商是否时多个
-                    //获取供应商数组
-                    string[] suppliers = vcSupplier.Split(',');
-                    if (suppliers.Count()>0)
-                    {
-                        for (int j = 0; j < suppliers.Count(); j++)
-                        {
-                            if (suppliers[j]==strSupplier)
-                            {
-                                dt_All.Rows[i]["vcSupplier"] = strSupplier;
-                                returnDT.ImportRow(dt_All.Rows[i]);
-                            }
-                        }
-                    }
-                }
-            }
-            returnDT.DefaultView.Sort = "dFaBuTime desc";
-            returnDT = returnDT.DefaultView.ToTable();
-            return returnDT;
+            return fs0718_DataAccess.Search(strSupplier,strDownloadDiff);
         }
         #endregion
 
@@ -61,7 +35,9 @@ namespace Logic
         #region 检索需要导出的周度内示
         public DataTable Search_Week(string strSupplierCode,string strDFaBuTime) 
         {
-            strDFaBuTime = Convert.ToDateTime(strDFaBuTime).ToString();
+            //添加转化时间未固定格式
+            strDFaBuTime = Convert.ToDateTime(strDFaBuTime).ToString("yyyy-MM-dd HH:mm:ss");
+
             return fs0718_DataAccess.Search_Week(strSupplierCode,strDFaBuTime);
         }
         #endregion

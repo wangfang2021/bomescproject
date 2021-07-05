@@ -993,6 +993,7 @@ namespace DataAccess
                 strSql_add_sl.AppendLine("           ,[vcSender]");
                 strSql_add_sl.AppendLine("           ,[vcLabelStart]");
                 strSql_add_sl.AppendLine("           ,[vcLabelEnd]");
+                strSql_add_sl.AppendLine("           ,[vcFzgc]");
                 strSql_add_sl.AppendLine("           ,[vcSupplier_id])");
                 strSql_add_sl.AppendLine("     VALUES");
                 strSql_add_sl.AppendLine("           (@dHosDate");
@@ -1017,6 +1018,7 @@ namespace DataAccess
                 strSql_add_sl.AppendLine("           ,NULL");
                 strSql_add_sl.AppendLine("           ,@vcLabelStart");
                 strSql_add_sl.AppendLine("           ,@vcLabelEnd");
+                strSql_add_sl.AppendLine("           ,@vcFzgc");
                 strSql_add_sl.AppendLine("           ,@vcSupplier_id)");
 
                 sqlCommand_add_sl.CommandText = strSql_add_sl.ToString();
@@ -1042,6 +1044,7 @@ namespace DataAccess
                 //sqlCommand_add_sl.Parameters.AddWithValue("@vcSender", "");
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcLabelStart", "");
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcLabelEnd", "");
+                sqlCommand_add_sl.Parameters.AddWithValue("@vcFzgc", "");
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcSupplier_id", "");
                 #endregion
                 foreach (DataRow item in dtSell_Temp.Rows)
@@ -1069,6 +1072,7 @@ namespace DataAccess
                     //sqlCommand_add_sl.Parameters["@vcSender"].Value = item["vcSender"].ToString();
                     sqlCommand_add_sl.Parameters["@vcLabelStart"].Value = item["vcLabelStart"].ToString();
                     sqlCommand_add_sl.Parameters["@vcLabelEnd"].Value = item["vcLabelEnd"].ToString();
+                    sqlCommand_add_sl.Parameters["@vcFzgc"].Value = item["vcFzgc"].ToString();
                     sqlCommand_add_sl.Parameters["@vcSupplier_id"].Value = item["vcSupplier_id"].ToString();
                     #endregion
                     sqlCommand_add_sl.ExecuteNonQuery();
@@ -1409,7 +1413,8 @@ namespace DataAccess
             stringBuilder.AppendLine(",SUBSTRING(vcControlno,3,8) as inv_date");
             stringBuilder.AppendLine(",vcPart_id as part_no");
             stringBuilder.AppendLine(",vcPartsnamechn as part_name");
-            stringBuilder.AppendLine(",vcCaseno as case_no");
+            //stringBuilder.AppendLine(",vcCaseno as case_no");
+            stringBuilder.AppendLine(",SUBSTRING(vcBoxNo,1,4)+'-'+SUBSTRING(vcBoxNo,5,8) as case_no");
             stringBuilder.AppendLine(",vcOrderno as ord_no");
             stringBuilder.AppendLine(",vcSeqno as item_no");
             stringBuilder.AppendLine(",'TFTM' AS dlr_no");
@@ -1482,12 +1487,18 @@ namespace DataAccess
                 sbr.AppendLine("<p>FTMS各位相关同事,大家好!</p>");
                 sbr.AppendLine("<p>非常感谢一直以来对TFTM补给业务的支持！</p>");
                 sbr.AppendLine("<p>附件为销售数据,请查收！</p>");
-                sbr.AppendLine("<p><br></p>");
-                sbr.AppendLine("<p>发货日期:<u style=\"color: rgb(230, 0, 0);\">" + strDateTime + "</u></p>");
-                sbr.AppendLine("<p>发货班值:<u style=\"color: rgb(230, 0, 0);\">" + strBanZhi + "</u></p>");
-                sbr.AppendLine("<p>便次区分:<u style=\"color: rgb(230, 0, 0);\">" + strYingQuName + "第" + strBianCi + "便</u></p>");
-                sbr.AppendLine("<p>引取车牌照号:<u style=\"color: rgb(230, 0, 0);\">" + truckNo + "</u></p>");
-                sbr.AppendLine("<p>铅封号：<u style=\"color: rgb(230, 0, 0);\">" + strQianFengNo + "</u></p>");
+                //sbr.AppendLine("<p><br></p>");
+                sbr.AppendLine("<p></p>");
+                //sbr.AppendLine("<p>发货日期:<u style=\"color: rgb(230, 0, 0);\">" + strDateTime + "</u></p>");
+                //sbr.AppendLine("<p>发货班值:<u style=\"color: rgb(230, 0, 0);\">" + strBanZhi + "</u></p>");
+                //sbr.AppendLine("<p>便次区分:<u style=\"color: rgb(230, 0, 0);\">" + strYingQuName + "第" + strBianCi + "便</u></p>");
+                //sbr.AppendLine("<p>引取车牌照号:<u style=\"color: rgb(230, 0, 0);\">" + truckNo + "</u></p>");
+                //sbr.AppendLine("<p>铅封号：<u style=\"color: rgb(230, 0, 0);\">" + strQianFengNo + "</u></p>");
+                sbr.AppendLine("<p>发货日期:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "</p>");
+                sbr.AppendLine("<p>发货班值:" + strBanZhi + "</p>");
+                sbr.AppendLine("<p>便次区分:" + strYingQuName + "第" + strBianCi + "便</p>");
+                sbr.AppendLine("<p>引取车牌照号:" + truckNo + "</p>");
+                sbr.AppendLine("<p>铅封号：" + strQianFengNo + "</p>");
                 sbr.AppendLine("<p>器具明细:</p>");
                 for (int i = 0; i < dtSell_Tool.Rows.Count; i++)
                 {
@@ -1495,8 +1506,10 @@ namespace DataAccess
                     string strQTY = dtSell_Tool.Rows[i]["iToolQuantity"].ToString();
                     sbr.AppendLine("<p>" + strToolCode + "&nbsp;&nbsp;:" + strQTY + "</p>");
                 }
-                sbr.AppendLine("<p>合计数量:<u style=\"color: rgb(230, 0, 0);\">" + strToolQuantity + "</u>个</p>");
-                sbr.AppendLine("<p><br></p>");
+                //sbr.AppendLine("<p>合计数量:<u style=\"color: rgb(230, 0, 0);\">" + strToolQuantity + "</u>个</p>");
+                sbr.AppendLine("<p>合计数量:" + strToolQuantity + "个</p>");
+                //sbr.AppendLine("<p><br></p>");
+                sbr.AppendLine("<p></p>");
                 sbr.AppendLine("<p>收货时请及时确认数量！</p>");
                 sbr.AppendLine("<p>请查收。</p>");
                 //sbr.AppendLine("<p>如有问题，请随时与我联络（联络方式：022-66230666-xxxx）。</p><p><br></p>");

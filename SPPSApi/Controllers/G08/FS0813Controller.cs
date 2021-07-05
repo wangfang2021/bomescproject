@@ -105,6 +105,7 @@ namespace SPPSApi.Controllers.G08
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);

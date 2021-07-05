@@ -20,7 +20,9 @@ namespace DataAccess
                 strSql.AppendLine("SELECT A.vcCpdcompany as vcReceiver,a.vcPart_Id as vcPartId,a.vcInno as vcInPutOrderNo,");
                 strSql.AppendLine("	        cast(a.vcInputnum as int)/cast(vcPackingquantity as int) as vcLabelNum,");
                 strSql.AppendLine("	        cast(a.vcInputnum as int)/cast(vcPackingquantity as int) as vcInPutNum,");
-                strSql.AppendLine("	        '0' as bInPutOrder,'0' as bTag,b.vcTagLianFFrom,b.vcTagLianFTo FROM ");
+                strSql.AppendLine("	        '0' as bInPutOrder,'0' as bTag,");
+                strSql.AppendLine("	        SUBSTRING(b.vcTagLianFFrom,13,50) as vcTagLianFFrom, ");
+                strSql.AppendLine("	        SUBSTRING(b.vcTagLianFTo,13,50) as vcTagLianFTo FROM ");
                 strSql.AppendLine("(select * from TInvList where 1=1");
                 if (strReceiver != "")
                 {

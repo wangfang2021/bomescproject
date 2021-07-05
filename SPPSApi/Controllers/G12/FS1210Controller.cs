@@ -236,7 +236,7 @@ namespace SPPSApi.Controllers.G12
                     if (dtKANB.Rows.Count != 0)
                     {
                         #region 取非空数据
-                        vcPhotoPath = print.PhotoToArray(dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
+                        vcPhotoPath = print.PhotoToArray(_webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\" + dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
                         vcSupplierCode = dtKANB.Rows[0]["vcSupplierCode"].ToString();//供应商
                         vcSupplierPlant = dtKANB.Rows[0]["vcSupplierPlant"].ToString();//供应商工区
                         vcCpdCompany = dtKANB.Rows[0]["vcCpdCompany"].ToString();//收货方
@@ -435,7 +435,7 @@ namespace SPPSApi.Controllers.G12
                                                 binding.ReceiveTimeout = TimeSpan.MaxValue;
                                                 binding.SendTimeout = TimeSpan.MaxValue;
                                                 SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
-                                                EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
+                                                EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25013/PrintTable.asmx");
                                                 PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                                 msg = client.PrintExcel_Confirmation(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                             }
@@ -478,7 +478,7 @@ namespace SPPSApi.Controllers.G12
                                         binding.ReceiveTimeout = TimeSpan.MaxValue;
                                         binding.SendTimeout = TimeSpan.MaxValue;
                                         SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
-                                        EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
+                                        EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25013/PrintTable.asmx");
                                         PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                         exdthj_msg = client.PrintExcel_Confirmation(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                     }
@@ -666,7 +666,7 @@ namespace SPPSApi.Controllers.G12
                     if (dtKANB.Rows.Count != 0)
                     {
                         #region 取非空数据
-                        vcPhotoPath = print.PhotoToArray(dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
+                        vcPhotoPath = print.PhotoToArray(_webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\" + dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
                         vcSupplierCode = dtKANB.Rows[0]["vcSupplierCode"].ToString();//供应商
                         vcSupplierPlant = dtKANB.Rows[0]["vcSupplierPlant"].ToString();//供应商工区
                         vcCpdCompany = dtKANB.Rows[0]["vcCpdCompany"].ToString();//收货方
@@ -860,7 +860,7 @@ namespace SPPSApi.Controllers.G12
                                             binding.ReceiveTimeout = TimeSpan.MaxValue;
                                             binding.SendTimeout = TimeSpan.MaxValue;
                                             SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
-                                            EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
+                                            EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25013/PrintTable.asmx");
                                             PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                             msg = client.PrintExcel_Confirmation(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                         }
@@ -918,7 +918,7 @@ namespace SPPSApi.Controllers.G12
                                     binding.ReceiveTimeout = TimeSpan.MaxValue;
                                     binding.SendTimeout = TimeSpan.MaxValue;
                                     SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
-                                    EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
+                                    EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25013/PrintTable.asmx");
                                     PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                     exdthj_msg = client.PrintExcel_Confirmation(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                 }
@@ -1089,7 +1089,7 @@ namespace SPPSApi.Controllers.G12
                     if (dtKANB.Rows.Count != 0)
                     {
                         #region 取非空数据
-                        vcPhotoPath = print.PhotoToArray(dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
+                        vcPhotoPath = print.PhotoToArray(_webHostEnvironment.ContentRootPath + "Doc\\Image\\SPPartImage\\" + dtKANB.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
                         vcSupplierCode = dtKANB.Rows[0]["vcSupplierCode"].ToString();//供应商
                         vcSupplierPlant = dtKANB.Rows[0]["vcSupplierPlant"].ToString();//供应商工区
                         vcCpdCompany = dtKANB.Rows[0]["vcCpdCompany"].ToString();//收货方

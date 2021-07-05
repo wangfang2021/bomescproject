@@ -231,6 +231,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
+                sql.Append("  delete TPackFaZhuTime where iAutoId in(   \r\n ");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (i != 0)

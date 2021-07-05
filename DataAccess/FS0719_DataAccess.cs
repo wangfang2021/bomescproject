@@ -121,7 +121,30 @@ namespace DataAccess
                     throw ex;
             }
         }
+
+
         #endregion
+
+        /// <summary>
+        /// 恢复权限
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public DataTable SearchHF(string userId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine(" select * from TOutCode where vcCodeId='C061'and vcIsColum='0'and vcValue1='"+ userId + "'    ");
+     
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
 
@@ -367,9 +390,9 @@ namespace DataAccess
                         {//新增
                             strOrderNo = GetOrderNo(OrderNoOld);
                             OrderNoOld = strOrderNo;
-                            DataRow[] dr = dtbase.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"] + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"] + "'");
+                            DataRow[] dr = dtbase.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString().Trim() + "'");
                             DateTime time = Convert.ToDateTime(listInfoData[i]["dNaRuTime"].ToString().Split(' ')[1]);
-                            DataRow[] dr1 = dtFaZhuTime.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"] + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"] + "'");
+                            DataRow[] dr1 = dtFaZhuTime.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString().Trim() + "'");
                             string bianci = "";
                             for (int y = 0; y < dr1.Length; y++)
                             {

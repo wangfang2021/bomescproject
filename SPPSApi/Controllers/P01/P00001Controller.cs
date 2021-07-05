@@ -410,6 +410,7 @@ namespace SPPSApi.Controllers.P01
     [EnableCors("any")]
     public string UpdateStatus3Api([FromBody] dynamic data)
     {
+      /*
       string strToken = Request.Headers["X-Token"];
       if (!isLogin(strToken))
       {
@@ -417,6 +418,7 @@ namespace SPPSApi.Controllers.P01
       }
       LoginInfo loginInfo = getLoginByToken(strToken);
       string opearteId = loginInfo.UserId;
+      */
       ApiResult apiResult = new ApiResult();
       try
       {

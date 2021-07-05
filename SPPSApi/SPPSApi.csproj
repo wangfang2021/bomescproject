@@ -240,7 +240,9 @@
     </Content>
     <Content Include="Doc\Template\FS0716.xlsx" />
     <Content Include="Doc\Template\FS0716_Export.xlsx" />
-    <Content Include="Doc\Template\FS0719.xlsx" />
+    <Content Include="Doc\Template\FS0719.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Doc\Template\FS1301_Template.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

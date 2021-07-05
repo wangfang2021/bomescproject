@@ -391,6 +391,12 @@ namespace DataAccess
                             strOrderNo = GetOrderNo(OrderNoOld);
                             OrderNoOld = strOrderNo;
                             DataRow[] dr = dtbase.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString().Trim() + "'");
+                            if (dr.Length==0)
+                            {
+                                strErrorPartId = listInfoData[i]["vcPackGPSNo"].ToString().Trim()+"不在包材基础数据中！";
+                                return;
+                            }
+
                             DateTime time = Convert.ToDateTime(listInfoData[i]["dNaRuTime"].ToString().Split(' ')[1]);
                             DataRow[] dr1 = dtFaZhuTime.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString().Trim() + "'");
                             string bianci = "";
@@ -1102,7 +1108,7 @@ namespace DataAccess
                     }
                     else
                     {
-                        if (Convert.ToDecimal(drpm[0]["iNum"].ToString()) - Convert.ToDecimal(dt.Rows[i]["iOrderNumber"].ToString()) > 0 || dt.Rows[i]["vcRecover"].ToString() == "1")
+                        if (Convert.ToDecimal(drpm[0]["iNum"].ToString()) - Convert.ToDecimal(dt.Rows[i]["iOrderNumber"].ToString()) >= 0 || dt.Rows[i]["vcRecover"].ToString() == "1")
                         {
                             sql.AppendLine("  INSERT INTO [dbo].[TB_B0030]    \r\n");
                             sql.AppendLine("             ([ORDER_NO]    \r\n");

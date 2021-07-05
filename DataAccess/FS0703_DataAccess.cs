@@ -294,6 +294,10 @@ namespace DataAccess
                 //}
 
                 strSql.AppendLine("    )tt1      ");
+                strSql.AppendLine("     where (tt1.iD1+tt1.iD2+tt1.iD3+tt1.iD4+tt1.iD5+tt1.iD6+tt1.iD7+tt1.iD8+tt1.iD9+tt1.iD10+             ");
+                strSql.AppendLine("   tt1.iD11+tt1.iD12+tt1.iD13+tt1.iD14+tt1.iD15+tt1.iD16+tt1.iD17+tt1.iD18+tt1.iD19+tt1.iD20+             ");
+                strSql.AppendLine("   tt1.iD21+tt1.iD22+tt1.iD23+tt1.iD24+tt1.iD25+tt1.iD26+tt1.iD27+tt1.iD28+tt1.iD29+tt1.iD30+tt1.iD31)>0        ");
+                strSql.AppendLine("         ");
                 strSql.AppendLine("         ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

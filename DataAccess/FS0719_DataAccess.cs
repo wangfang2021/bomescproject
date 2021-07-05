@@ -391,6 +391,12 @@ namespace DataAccess
                             strOrderNo = GetOrderNo(OrderNoOld);
                             OrderNoOld = strOrderNo;
                             DataRow[] dr = dtbase.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString().Trim() + "'");
+                            if (dr.Length==0)
+                            {
+                                strErrorPartId = listInfoData[i]["vcPackGPSNo"].ToString().Trim()+"不在包材基础数据中！";
+                                return;
+                            }
+
                             DateTime time = Convert.ToDateTime(listInfoData[i]["dNaRuTime"].ToString().Split(' ')[1]);
                             DataRow[] dr1 = dtFaZhuTime.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString().Trim() + "'");
                             string bianci = "";

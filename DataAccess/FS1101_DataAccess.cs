@@ -26,7 +26,7 @@ namespace DataAccess
                 strSql.AppendLine("(select * from TPackList_Temp  ");
                 if (strTrolleyNo != "")
                 {
-                    strSql.AppendLine(" where iAutoId in (select MAX(iAutoId) as iAutoId from tpacklist where vcTrolleyNo='" + strTrolleyNo + "') ");
+                    strSql.AppendLine(" where iAutoId in (select MAX(iAutoId) as iAutoId from TPackList_Temp where vcTrolleyNo='" + strTrolleyNo + "') ");
                 }
                 strSql.AppendLine(")a  ");
                 strSql.AppendLine("left join  ");
@@ -64,14 +64,15 @@ namespace DataAccess
                 strSql.AppendLine("select a.vcTrolleyNo,a.vcLotid,a.vcPackingpartsno,a.vcPackinggroup");
                 strSql.AppendLine("		,cast(a.dQty as varchar(50)) as dQty,a.vcPackingpartslocation");
                 strSql.AppendLine("		,convert(varchar(10),getdate(),23) as dPrintDate");
-                strSql.AppendLine("		,b.vcLabelStart,b.vcLabelEnd");
+                strSql.AppendLine("		,a.vcLabelStart,a.vcLabelEnd");
                 strSql.AppendLine("from");
                 strSql.AppendLine("(select * from TPackList_Temp where vcLotid='" + strPackMaterNo + "')a");
-                //strSql.AppendLine("(select * from tpacklist where vcLotid='" + strPackMaterNo + "')a");
-                strSql.AppendLine("left join  ");
-                strSql.AppendLine("(select * from TOperateSJ where vcZYType='S0')b  ");
-                strSql.AppendLine("on a.vcInno=b.vcInputNo  ");
                 strSql.AppendLine("order by a.[iAutoId]");
+                //strSql.AppendLine("(select * from tpacklist where vcLotid='" + strPackMaterNo + "')a");
+                //strSql.AppendLine("left join  ");
+                //strSql.AppendLine("(select * from TOperateSJ where vcZYType='S0')b  ");
+                //strSql.AppendLine("on a.vcInno=b.vcInputNo  ");
+                //strSql.AppendLine("order by a.[iAutoId]");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

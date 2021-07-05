@@ -426,9 +426,14 @@ namespace DataAccess
         public DataTable SCFZDataSearchComputeJG(string strPackSpot)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendLine("            declare @vcBianCi varchar(100)          ");
-            strSql.AppendLine("            set @vcBianCi = (select top 1 vcBianCi from TPackCompute where vcPackSpot = '"+strPackSpot+"' group by vcBianCi order by vcBianCi desc )          ");
-            strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcBianCi = @vcBianCi and iF_DingGou >0 and vcPackNo <> 'MBC'        ");
+            strSql.AppendLine("            declare @vcBianCi varchar(100)                    ");
+            strSql.AppendLine("            set @vcBianCi = (          ");
+            strSql.AppendLine("            					select top 1 vcBianCi from           ");
+            strSql.AppendLine("            					(          ");
+            strSql.AppendLine("            						select  MAX(iAutoId) iAutoId,vcBianCi from TPackCompute where vcPackSpot = '"+strPackSpot+"' group by vcBianCi          ");
+            strSql.AppendLine("            					)a order by iAutoId desc          ");
+            strSql.AppendLine("            				)          ");
+            strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '"+strPackSpot+"' and vcBianCi = @vcBianCi and iF_DingGou >0 and vcPackNo <> 'MBC'          ");
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
         #endregion
@@ -437,8 +442,13 @@ namespace DataAccess
         public DataTable admitEmptyDataSearch(string strPackSpot)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendLine("            declare @vcBianCi varchar(100)          ");
-            strSql.AppendLine("            set @vcBianCi = (select top 1 vcBianCi from TPackCompute where vcPackSpot = '" + strPackSpot + "' group by vcBianCi order by vcBianCi desc )          ");
+            strSql.AppendLine("            declare @vcBianCi varchar(100)                    ");
+            strSql.AppendLine("            set @vcBianCi = (          ");
+            strSql.AppendLine("            					select top 1 vcBianCi from           ");
+            strSql.AppendLine("            					(          ");
+            strSql.AppendLine("            						select  MAX(iAutoId) iAutoId,vcBianCi from TPackCompute where vcPackSpot = '" + strPackSpot + "' group by vcBianCi          ");
+            strSql.AppendLine("            					)a order by iAutoId desc          ");
+            strSql.AppendLine("            				)          ");
             strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcBianCi = @vcBianCi          ");
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }

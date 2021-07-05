@@ -1413,7 +1413,8 @@ namespace DataAccess
             stringBuilder.AppendLine(",SUBSTRING(vcControlno,3,8) as inv_date");
             stringBuilder.AppendLine(",vcPart_id as part_no");
             stringBuilder.AppendLine(",vcPartsnamechn as part_name");
-            stringBuilder.AppendLine(",vcCaseno as case_no");
+            //stringBuilder.AppendLine(",vcCaseno as case_no");
+            stringBuilder.AppendLine(",SUBSTRING(vcBoxNo,1,4)+'-'+SUBSTRING(vcBoxNo,5,8) as case_no");
             stringBuilder.AppendLine(",vcOrderno as ord_no");
             stringBuilder.AppendLine(",vcSeqno as item_no");
             stringBuilder.AppendLine(",'TFTM' AS dlr_no");
@@ -1493,7 +1494,7 @@ namespace DataAccess
                 //sbr.AppendLine("<p>便次区分:<u style=\"color: rgb(230, 0, 0);\">" + strYingQuName + "第" + strBianCi + "便</u></p>");
                 //sbr.AppendLine("<p>引取车牌照号:<u style=\"color: rgb(230, 0, 0);\">" + truckNo + "</u></p>");
                 //sbr.AppendLine("<p>铅封号：<u style=\"color: rgb(230, 0, 0);\">" + strQianFengNo + "</u></p>");
-                sbr.AppendLine("<p>发货日期:" + strDateTime + "</p>");
+                sbr.AppendLine("<p>发货日期:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "</p>");
                 sbr.AppendLine("<p>发货班值:" + strBanZhi + "</p>");
                 sbr.AppendLine("<p>便次区分:" + strYingQuName + "第" + strBianCi + "便</p>");
                 sbr.AppendLine("<p>引取车牌照号:" + truckNo + "</p>");

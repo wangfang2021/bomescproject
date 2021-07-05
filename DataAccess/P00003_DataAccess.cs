@@ -13,33 +13,105 @@ namespace DataAccess
     public class P00003_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public int UpdateCase1(string opearteId, string iP)
+        public void UpdateCase1(string opearteId, string iP)
         {
-            StringBuilder UpdateCaseSql = new StringBuilder();
-            UpdateCaseSql.Append("  update TCaseInfo set vcStatus='1' where vcHostIp='" + iP + "' and vcOperatorID='" + opearteId + "' and vcStatus='0'");
+            //StringBuilder UpdateCaseSql = new StringBuilder();
+            //UpdateCaseSql.Append("  update TCaseInfo set vcStatus='1' where vcHostIp='" + iP + "' and vcOperatorID='" + opearteId + "' and vcStatus='0'");
+            //return excute.ExcuteSqlWithStringOper(UpdateCaseSql.ToString());
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("  update TCaseInfo set vcStatus='1' where vcHostIp='" + iP + "' and vcOperatorID='" + opearteId + "' and vcStatus='0'");
 
-            return excute.ExcuteSqlWithStringOper(UpdateCaseSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                //return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         public DataTable GetUserRole(string user)
         {
-            StringBuilder GetUserRoleSql = new StringBuilder();
-            GetUserRoleSql.Append("select vcPackUnLock from TPointPower  where vcUserId='" + user + "'");
-            return excute.ExcuteSqlWithSelectToDT(GetUserRoleSql.ToString());
+            //StringBuilder GetUserRoleSql = new StringBuilder();
+            //GetUserRoleSql.Append("select vcPackUnLock from TPointPower  where vcUserId='" + user + "'");
+            //return excute.ExcuteSqlWithSelectToDT(GetUserRoleSql.ToString());
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("select vcPackUnLock from TPointPower  where vcUserId='" + user + "'");
+
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
-        public int UpdateEffi1(string pointNo, decimal effi)
+        public void UpdateEffi1(string pointNo, decimal effi)
         {
-            StringBuilder UpdateEffiSql = new StringBuilder();
-            UpdateEffiSql.Append("update TPointState set decEfficacy='" + effi * 100 + "' where vcPointNo='" + pointNo + "'");
-            return excute.ExcuteSqlWithStringOper(UpdateEffiSql.ToString());
+            //StringBuilder UpdateEffiSql = new StringBuilder();
+            //UpdateEffiSql.Append("update TPointState set decEfficacy='" + effi * 100 + "' where vcPointNo='" + pointNo + "'");
+            //return excute.ExcuteSqlWithStringOper(UpdateEffiSql.ToString());
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("update TPointState set decEfficacy='" + effi * 100 + "' where vcPointNo='" + pointNo + "'");
+
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                //return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         public DataTable getBanZhiTime(string strPackPlant, string strFlag)
         {
+            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
             try
             {
-                SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
                 SqlParameter[] pars = new SqlParameter[]{
                     new SqlParameter("@flag", strFlag),
                     new SqlParameter("@PackPlant",strPackPlant)
@@ -63,13 +135,45 @@ namespace DataAccess
             {
                 throw ex;
             }
+            finally
+            {
+                if (ConnectionState.Open == sqlConnection.State)
+                {
+                    sqlConnection.Close();
+                }
+            }
         }
 
         public DataTable GetPoint(string iP)
         {
-            StringBuilder GetPointSql = new StringBuilder();
-            GetPointSql.Append("select vcPointNo from TPointInfo where vcPointIp = '" + iP + "' and vcUsed = '在用'");
-            return excute.ExcuteSqlWithSelectToDT(GetPointSql.ToString());
+            //StringBuilder GetPointSql = new StringBuilder();
+            //GetPointSql.Append("select vcPointNo from TPointInfo where vcPointIp = '" + iP + "' and vcUsed = '在用'");
+            //return excute.ExcuteSqlWithSelectToDT(GetPointSql.ToString());
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("select vcPointNo from TPointInfo where vcPointIp = '" + iP + "' and vcUsed = '在用'");
+
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         public DataSet getOperPointInfo(string strPackPlant, string strBanZhi, string strHosDate, string strOperater, string strFromTime_nw)
@@ -103,84 +207,231 @@ namespace DataAccess
             strSql.AppendLine("LEFT JOIN");
             strSql.AppendLine("(SELECT * FROM TPMRelation)T2");
             strSql.AppendLine("ON T1.vcSmallPM=T2.vcSmallPM");
-            return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = strSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+            //return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
         }
 
-    public DataTable checkPrintName(string iP, string strPointType)
-    {
-      StringBuilder GetPrintSql = new StringBuilder();
-      if (strPointType == "COM" || strPointType == "PAD")
-      {
-        GetPrintSql.Append("select vcUserFlag from TPrint where vcKind in ('CASE PRINTER','LABEL PRINTER') and vcPrinterIp='" + iP + "'");
-      }
-      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-
-      DataSet ds = new DataSet();
-      try
-      {
-        ConnSql.Open();
-        string strSQL = GetPrintSql.ToString();
-        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-        da.Fill(ds);
-        return ds.Tables[0];
-      }
-      catch (Exception ex)
-      {
-        throw ex;
-      }
-      finally
-      {
-        if (ConnectionState.Open == ConnSql.State)
+        public DataTable checkPrintName(string iP, string strPointType)
         {
-          ConnSql.Close();
-        }
-      }
-    }
+            StringBuilder GetPrintSql = new StringBuilder();
+            if (strPointType == "COM" || strPointType == "PAD")
+            {
+                GetPrintSql.Append("select vcUserFlag from TPrint where vcKind in ('CASE PRINTER','LABEL PRINTER') and vcPrinterIp='" + iP + "'");
+            }
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
-    public int UpdateStatus4(string pointNo, string opearteId)
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = GetPrintSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
+
+        public void UpdateStatus4(string pointNo, string opearteId)
         {
             StringBuilder UpdateStatusSql = new StringBuilder();
             UpdateStatusSql.Append("update TPointState set vcState='暂停' where vcPointNo='" + pointNo + "' and vcOperater='" + opearteId + "'");
-            return excute.ExcuteSqlWithStringOper(UpdateStatusSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = UpdateStatusSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                //return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
-        public int UpdateStatus5(string pointNo, string opearteId)
+        public void UpdateStatus5(string pointNo, string opearteId)
         {
             StringBuilder UpdateStatusSql = new StringBuilder();
             UpdateStatusSql.Append("update TPointState set vcState='正常' where vcPointNo='" + pointNo + "' and vcOperater='" + opearteId + "'");
-            return excute.ExcuteSqlWithStringOper(UpdateStatusSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = UpdateStatusSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                //return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
-        public int UpdateEffi(string formatDate, string opearteId, string stopTime)
+        public void UpdateEffi(string formatDate, string opearteId, string stopTime)
         {
             StringBuilder UpdateEffiSql = new StringBuilder();
             UpdateEffiSql.Append("update  TOperateSJ_Effiency set iStopTime=" + stopTime + " where vcDate='" + formatDate + "' and vcBZPlant='H2' and vcOperatorID='" + opearteId + "'");
-            return excute.ExcuteSqlWithStringOper(UpdateEffiSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = UpdateEffiSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                //return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         public DataTable GetStatus2(string iP, string opearteId)
         {
             StringBuilder GetStatusSql = new StringBuilder();
             GetStatusSql.Append("select t1.vcState,t1.vcPointNo from TPointState t1,TPointInfo t2 where t1.vcPointNo=t2.vcPointNo and t2.vcPointIp='" + iP + "' and t2.vcUsed='在用'   and t1.vcOperater='" + opearteId + "'");
-            return excute.ExcuteSqlWithSelectToDT(GetStatusSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = GetStatusSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         public DataTable GetTime(string formatDate, string opearteId)
         {
             StringBuilder GetTimeSql = new StringBuilder();
             GetTimeSql.Append("  select vcTotalTime,iFrequency,vcEffiency,dStartTime,ISNULL(vcPackTotalTime,0) from TOperateSJ_Effiency where vcOperatorID='" + opearteId + "' and vcDate='" + formatDate + "'");
-            return excute.ExcuteSqlWithSelectToDT(GetTimeSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = GetTimeSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
 
         }
 
-        public int UpdateFre(string time, string serverTime, string formatDate, string opearteId)
+        public void UpdateFre(string time, string serverTime, string formatDate, string opearteId)
         {
             StringBuilder UpdateFreSql = new StringBuilder();
             UpdateFreSql.Append("update TOperateSJ_Effiency set dStartTime='" + time + "',dOperatorTime='" + serverTime + "' where vcOperatorID='" + opearteId + "' and vcDate='" + formatDate + "'");
-            return excute.ExcuteSqlWithStringOper(UpdateFreSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = UpdateFreSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                //return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
-        public int InsertFre(string time, string formatDate, string effiEncy, string opearteId, string serverTime, string iP, string date, string banZhi)
+        public void InsertFre(string time, string formatDate, string effiEncy, string opearteId, string serverTime, string iP, string date, string banZhi)
         {
             StringBuilder InsertFreSql = new StringBuilder();
             // InsertFreSql.Append("INSERT INTO TOperateSJ_Effiency (dStartTime ,vcDate ,vcTotalTime,iFrequency ,vcEffiency,vcOperatorID,dOperatorTime) \n");
@@ -188,16 +439,56 @@ namespace DataAccess
             InsertFreSql.Append("INSERT INTO TOperateSJ_Effiency(vcBZPlant,vcPointIp,dHosDate,vcBanZhi,dStartTime\n");
             InsertFreSql.Append(" ,iStopTime,vcDate,vcTotalTime,iFrequency,vcEffiency,vcOperatorID,dOperatorTime,vcPackTotalTime)\n");
             InsertFreSql.Append("     VALUES('H2','" + iP + "','" + date + "','" + banZhi + "','" + time + "',0,'" + formatDate + "',0,0,'" + effiEncy + "','" + opearteId + "','" + serverTime + "','0')\n");
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
-
-            return excute.ExcuteSqlWithStringOper(InsertFreSql.ToString());
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = InsertFreSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                //return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         public DataTable GetStanTime()
         {
             StringBuilder GetStanTimeSql = new StringBuilder();
             GetStanTimeSql.Append("select decObjective from TDisplaySettings");
-            return excute.ExcuteSqlWithSelectToDT(GetStanTimeSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = GetStanTimeSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         public DataTable GetPackData(string partId, string scanTime)
@@ -205,7 +496,28 @@ namespace DataAccess
             StringBuilder GetPackDataSql = new StringBuilder();
             string time = scanTime.Replace("-", "").Substring(0, 8);
             GetPackDataSql.Append("  select vcDistinguish as distinguish,count(vcDistinguish) as sum from TPackItem where vcPartsNo='" + partId + "' and dFrom<'" + time + "' and dTo>'" + time + "' group by vcDistinguish order by vcDistinguish");
-            return excute.ExcuteSqlWithSelectToDT(GetPackDataSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = GetPackDataSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         public DataTable GetBanZhi(string serverTime)
@@ -216,14 +528,56 @@ namespace DataAccess
             GetBanZhiSql.Append("union select convert(varchar(10), dateadd(DAY, 0, GETDATE()), 23) as dHosDate, vcBanZhi, convert(varchar(10), dateadd(DAY, 0, GETDATE()), 23) + ' ' + convert(varchar(10), tFromTime, 24) as tFromTime,case when vcCross = '1' then convert(varchar(10), dateadd(day, 1, dateadd(DAY, 0, GETDATE())), 23) else convert(varchar(10), dateadd(DAY, 0, GETDATE()), 23) end + ' ' + convert(varchar(10), tToTime, 24) as tToTime from TBZTime where vcBanZhi = '夜' and vcPackPlant = 'H2'\n");
             GetBanZhiSql.Append("union select convert(varchar(10), dateadd(DAY, 1, GETDATE()), 23) as dHosDate, vcBanZhi, convert(varchar(10), dateadd(DAY, 1, GETDATE()), 23) + ' ' + convert(varchar(10), tFromTime, 24) as tFromTime,case when vcCross = '1' then convert(varchar(10), dateadd(day, 1, dateadd(DAY, 1, GETDATE())), 23) else convert(varchar(10), dateadd(DAY, 1, GETDATE()), 23) end + ' ' + convert(varchar(10), tToTime, 24) as tToTime from TBZTime where vcBanZhi = '白' and vcPackPlant = 'H2'\n");
             GetBanZhiSql.Append(")t where tFromTime<=GETDATE() and tToTime>=GETDATE()\n");
-            return excute.ExcuteSqlWithSelectToDT(GetBanZhiSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = GetBanZhiSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         public DataTable GetCase(string opearteId)
         {
             StringBuilder GetCaseSql = new StringBuilder();
             GetCaseSql.Append("select top(1)vcBoxNo from TCaseInfo where  vcStatus='0' and vcOperatorID='" + opearteId + "' order by dOperatorTime desc");
-            return excute.ExcuteSqlWithSelectToDT(GetCaseSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = GetCaseSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         public DataTable GetPM(string dock, string partId)
@@ -231,14 +585,56 @@ namespace DataAccess
             StringBuilder GetPMSql = new StringBuilder();
             string formatpartId = partId.Substring(0, 5);
             GetPMSql.Append("  select vcSmallPM from TPackageMaster where vcPart_id='" + partId + "' and vcSR='" + dock + "'");
-            return excute.ExcuteSqlWithSelectToDT(GetPMSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = GetPMSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         public DataTable GetData(string partId, string dock, string kanbanOrderNo, string kanbanSerial)
         {
             StringBuilder GetDataSql = new StringBuilder();
             GetDataSql.Append("  select vcBZUnit,vcCheckType from  TOperateSJ where vcPart_id='" + partId + "' and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcSR='" + dock + "' and vcZYType='S0' ");
-            return excute.ExcuteSqlWithSelectToDT(GetDataSql.ToString());
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = GetDataSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
         }
 
         //========================================================================重写========================================================================
@@ -417,43 +813,43 @@ namespace DataAccess
             }
         }
 
-    public DataTable GetPrintName(string iP, string strKind)
-    {
-      StringBuilder stringBuilder = new StringBuilder();
-      if (strKind == "LABEL PRINTER")
-      {
-        stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='LABEL PRINTER'");
-      }
-      if (strKind == "CASE PRINTER")
-      {
-        stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='CASE PRINTER'");
-
-      }
-      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-
-      DataSet ds = new DataSet();
-      try
-      {
-        ConnSql.Open();
-        string strSQL = stringBuilder.ToString();
-        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-        da.Fill(ds);
-        return ds.Tables[0];
-      }
-      catch (Exception ex)
-      {
-        throw ex;
-      }
-      finally
-      {
-        if (ConnectionState.Open == ConnSql.State)
+        public DataTable GetPrintName(string iP, string strKind)
         {
-          ConnSql.Close();
-        }
-      }
-    }
+            StringBuilder stringBuilder = new StringBuilder();
+            if (strKind == "LABEL PRINTER")
+            {
+                stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='LABEL PRINTER'");
+            }
+            if (strKind == "CASE PRINTER")
+            {
+                stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='CASE PRINTER'");
 
-    public DataTable GetPackList(string strInno)
+            }
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
+
+        public DataTable GetPackList(string strInno)
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
@@ -1262,7 +1658,7 @@ namespace DataAccess
                 strSql_mod_pt.AppendLine("           ('TCaseList'");
                 strSql_mod_pt.AppendLine("           ,'SPR09PACP'");
                 strSql_mod_pt.AppendLine("           ,@IP");
-                strSql_mod_pt.AppendLine("           ,'"+strCasePrinterName+"'");
+                strSql_mod_pt.AppendLine("           ,'" + strCasePrinterName + "'");
                 strSql_mod_pt.AppendLine("           ,'3'");
                 strSql_mod_pt.AppendLine("           ,@vcOperatorID");
                 strSql_mod_pt.AppendLine("           ,GETDATE()");

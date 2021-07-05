@@ -288,7 +288,7 @@ namespace SPPSApi.Controllers.P01
           decimal[] effi = P00003_Logic.getOperEfficacyInfo("H2", opearteId, pointNo);
           if (!(effi[0] < 0))
           {
-            int effiResult = P00003_Logic.UpdateEffi1(pointNo, effi[2]);
+             P00003_Logic.UpdateEffi1(pointNo, effi[2]);
             P00003_DataEntity.totalTime = effi[1].ToString();
             P00003_DataEntity.effiEncy = (effi[2] * 100).ToString();
             P00003_DataEntity.stanTime = getStanTime.Rows[0][0].ToString();
@@ -422,7 +422,7 @@ namespace SPPSApi.Controllers.P01
           string pointNo = getStatus2.Rows[0][1].ToString();
           if ((status == "False" || status == "") && getStatus2.Rows[0][0].ToString() == "正常")//将状态修改为暂停
           {
-            int statusResultUp = P00003_Logic.UpdateStatus4(pointNo, opearteId);
+            P00003_Logic.UpdateStatus4(pointNo, opearteId);
 
 
 
@@ -432,8 +432,8 @@ namespace SPPSApi.Controllers.P01
           else if (status == "True" && getStatus2.Rows[0][0].ToString() == "暂停" && stopTime != "")//将状态修改为正常
           {
 
-            int statusResultUp = P00003_Logic.UpdateStatus5(pointNo, opearteId);
-            int effiResultUp = P00003_Logic.UpdateEffi(formatDate, opearteId, stopTime);
+              P00003_Logic.UpdateStatus5(pointNo, opearteId);
+             P00003_Logic.UpdateEffi(formatDate, opearteId, stopTime);
           }
 
         }
@@ -501,10 +501,10 @@ namespace SPPSApi.Controllers.P01
         {
           string date = getBanZhi.Rows[0][0].ToString();
           string banZhi = getBanZhi.Rows[0][1].ToString();
-          int freResultIn = P00003_Logic.InsertFre(time, formatDate, effiEncy, opearteId, serverTime, iP, date, banZhi);
+           P00003_Logic.InsertFre(time, formatDate, effiEncy, opearteId, serverTime, iP, date, banZhi);
           getTime = P00003_Logic.GetTime(formatDate, opearteId);
 
-          int freResultUp = P00003_Logic.UpdateFre(time, serverTime, formatDate, opearteId);
+           P00003_Logic.UpdateFre(time, serverTime, formatDate, opearteId);
 
 
 
@@ -535,7 +535,7 @@ namespace SPPSApi.Controllers.P01
           string startTime = getTime.Rows[0][3].ToString();
 
 
-          int freResultUp = P00003_Logic.UpdateFre(time, serverTime, formatDate, opearteId);
+           P00003_Logic.UpdateFre(time, serverTime, formatDate, opearteId);
 
           getTime = P00003_Logic.GetTime(formatDate, opearteId);
 
@@ -596,7 +596,7 @@ namespace SPPSApi.Controllers.P01
 
         string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
         string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
-        int caseResultUp = P00003_Logic.UpdateCase1(opearteId, iP);
+        P00003_Logic.UpdateCase1(opearteId, iP);
       }
       catch (Exception ex)
       {

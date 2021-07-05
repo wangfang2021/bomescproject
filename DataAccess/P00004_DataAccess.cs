@@ -1486,12 +1486,18 @@ namespace DataAccess
                 sbr.AppendLine("<p>FTMS各位相关同事,大家好!</p>");
                 sbr.AppendLine("<p>非常感谢一直以来对TFTM补给业务的支持！</p>");
                 sbr.AppendLine("<p>附件为销售数据,请查收！</p>");
-                sbr.AppendLine("<p><br></p>");
-                sbr.AppendLine("<p>发货日期:<u style=\"color: rgb(230, 0, 0);\">" + strDateTime + "</u></p>");
-                sbr.AppendLine("<p>发货班值:<u style=\"color: rgb(230, 0, 0);\">" + strBanZhi + "</u></p>");
-                sbr.AppendLine("<p>便次区分:<u style=\"color: rgb(230, 0, 0);\">" + strYingQuName + "第" + strBianCi + "便</u></p>");
-                sbr.AppendLine("<p>引取车牌照号:<u style=\"color: rgb(230, 0, 0);\">" + truckNo + "</u></p>");
-                sbr.AppendLine("<p>铅封号：<u style=\"color: rgb(230, 0, 0);\">" + strQianFengNo + "</u></p>");
+                //sbr.AppendLine("<p><br></p>");
+                sbr.AppendLine("<p></p>");
+                //sbr.AppendLine("<p>发货日期:<u style=\"color: rgb(230, 0, 0);\">" + strDateTime + "</u></p>");
+                //sbr.AppendLine("<p>发货班值:<u style=\"color: rgb(230, 0, 0);\">" + strBanZhi + "</u></p>");
+                //sbr.AppendLine("<p>便次区分:<u style=\"color: rgb(230, 0, 0);\">" + strYingQuName + "第" + strBianCi + "便</u></p>");
+                //sbr.AppendLine("<p>引取车牌照号:<u style=\"color: rgb(230, 0, 0);\">" + truckNo + "</u></p>");
+                //sbr.AppendLine("<p>铅封号：<u style=\"color: rgb(230, 0, 0);\">" + strQianFengNo + "</u></p>");
+                sbr.AppendLine("<p>发货日期:" + strDateTime + "</p>");
+                sbr.AppendLine("<p>发货班值:" + strBanZhi + "</p>");
+                sbr.AppendLine("<p>便次区分:" + strYingQuName + "第" + strBianCi + "便</p>");
+                sbr.AppendLine("<p>引取车牌照号:" + truckNo + "</p>");
+                sbr.AppendLine("<p>铅封号：" + strQianFengNo + "</p>");
                 sbr.AppendLine("<p>器具明细:</p>");
                 for (int i = 0; i < dtSell_Tool.Rows.Count; i++)
                 {
@@ -1499,8 +1505,10 @@ namespace DataAccess
                     string strQTY = dtSell_Tool.Rows[i]["iToolQuantity"].ToString();
                     sbr.AppendLine("<p>" + strToolCode + "&nbsp;&nbsp;:" + strQTY + "</p>");
                 }
-                sbr.AppendLine("<p>合计数量:<u style=\"color: rgb(230, 0, 0);\">" + strToolQuantity + "</u>个</p>");
-                sbr.AppendLine("<p><br></p>");
+                //sbr.AppendLine("<p>合计数量:<u style=\"color: rgb(230, 0, 0);\">" + strToolQuantity + "</u>个</p>");
+                sbr.AppendLine("<p>合计数量:" + strToolQuantity + "个</p>");
+                //sbr.AppendLine("<p><br></p>");
+                sbr.AppendLine("<p></p>");
                 sbr.AppendLine("<p>收货时请及时确认数量！</p>");
                 sbr.AppendLine("<p>请查收。</p>");
                 //sbr.AppendLine("<p>如有问题，请随时与我联络（联络方式：022-66230666-xxxx）。</p><p><br></p>");

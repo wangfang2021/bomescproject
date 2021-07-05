@@ -999,7 +999,8 @@ namespace DataAccess
                     filePath = fileList[i]["filePath"].ToString();
                     fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                     fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
-                    DataTable dockTmp = getJinJiDockTable(DateTime.Now.ToString("yyyyMM"));
+                    //DataTable dockTmp = getJinJiDockTable(DateTime.Now.ToString("yyyyMM"));
+                    DataTable dockTmp = getJinJiDockTable(dTargetDate.Replace("-", "").Replace("/", "").Substring(0, 6).ToString());
                     Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
                     List<string> TargetYM = new List<string>();
 

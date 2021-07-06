@@ -214,6 +214,14 @@ namespace SPPSApi.Controllers.G07
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+
+                    if (string.IsNullOrEmpty(listInfoData[i]["vcPackGPSNo"].ToString().Trim()))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "有没有填写品番项！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                    }
                     if (bAddFlag == true)
                     {//新增
                         hasFind = true;

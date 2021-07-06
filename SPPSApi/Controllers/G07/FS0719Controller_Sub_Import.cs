@@ -147,22 +147,22 @@ namespace SPPSApi.Controllers.G07
                 }
                 #endregion
 
-                var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcOrderNo") } into g
-                             where g.Count() > 1
-                             select g;
-                if (result.Count() > 0)
-                {
-                    StringBuilder sbr = new StringBuilder();
-                    sbr.Append("导入数据重复:<br/>");
-                    foreach (var item in result)
-                    {
-                        sbr.Append("订单号:" + item.Key.r2 + "重复<br/>");
-                    }
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = sbr.ToString();
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                //var result = from r in importDt.AsEnumerable()
+                //             group r by new { r2 = r.Field<string>("vcOrderNo") } into g
+                //             where g.Count() > 1
+                //             select g;
+                //if (result.Count() > 0)
+                //{
+                //    StringBuilder sbr = new StringBuilder();
+                //    sbr.Append("导入数据重复:<br/>");
+                //    foreach (var item in result)
+                //    {
+                //        sbr.Append("订单号:" + item.Key.r2 + "重复<br/>");
+                //    }
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = sbr.ToString();
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
 
 
 

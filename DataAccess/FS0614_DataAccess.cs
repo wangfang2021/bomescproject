@@ -833,6 +833,7 @@ namespace DataAccess
                                 string vcHaoJiu = "";
                                 string vcOrderPlant = "";
                                 string vcSupplierPacking = "";
+                                string vcSupplierPlace = "";
                                 string isTag = "";
                                 Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, (DataTable)dockTmp[ObjToString(listInfoData[i]["vcTargetYM"])]);
 
@@ -845,6 +846,7 @@ namespace DataAccess
                                 vcHaoJiu = ObjToString(hashtable["vcHaoJiu"]);
                                 vcOrderPlant = ObjToString(hashtable["vcOrderPlant"]);
                                 vcSupplierPacking = ObjToString(hashtable["vcSupplierPacking"]);
+                                vcSupplierPlace = ObjToString(hashtable["vcSupplierPlace"]);
                                 isTag = ObjToString(hashtable["vcSupplierPacking"]);
 
                                 DataRow[] packingSpotRow = PackSpot.Select("vcPart_id = '" + vcPart_id + "' AND vcReceiver = '" + CPD + "' AND vcSupplierId = '" + vcSupplierId + "' AND vcPackingPlant = '" +
@@ -942,7 +944,7 @@ namespace DataAccess
                                     sbr.Append(ComFunction.getSqlValue(vcDock, false) + "  ,");
                                     sbr.Append(ComFunction.getSqlValue(vcSupplierId, false) + "  , ");
                                     sbr.Append(ComFunction.getSqlValue(vcSupplierPlant, false) + "  ,");
-                                    sbr.Append(ComFunction.getSqlValue(vcSupplierPacking, false) + "  ,");
+                                    sbr.Append(ComFunction.getSqlValue(vcSupplierPlace, false) + "  ,");
                                     sbr.Append(ComFunction.getSqlValue(vcCarType, false) + "  ,");
                                     sbr.Append(ComFunction.getSqlValue(list[0], false) + "  , ");
                                     sbr.Append(ComFunction.getSqlValue(list[1], true) + ",");

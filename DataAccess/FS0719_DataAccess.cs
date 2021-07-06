@@ -848,8 +848,8 @@ namespace DataAccess
                         //}
                         sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + ",");
-                        sql.AppendLine("'" + dr2[0]["vcValue3"].ToString() + "',");
                         sql.AppendLine("'" + dr2[0]["vcValue4"].ToString() + "',");
+                        sql.AppendLine("'" + dr2[0]["vcValue3"].ToString() + "',");
                         sql.AppendLine($"     		{strUserId},");
                         sql.AppendLine("     		getDate()");
                         sql.AppendLine("     	); ");

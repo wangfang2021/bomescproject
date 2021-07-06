@@ -14,13 +14,13 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
         #region 
-        public DataTable SearchSupplier()
+        public DataTable SearchClear()
         {
             try
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcPackSupplierCode as vcValue,vcPackSupplierName as vcName from TPackSupplier; ");
+                strSql.AppendLine("      SELECT * FROM TPackOrderFaZhu WHERE iAutoId='0' ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -848,8 +848,8 @@ namespace DataAccess
                         //}
                         sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
                         sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + ",");
-                        sql.AppendLine("'" + dr2[0]["vcValue3"].ToString() + "',");
                         sql.AppendLine("'" + dr2[0]["vcValue4"].ToString() + "',");
+                        sql.AppendLine("'" + dr2[0]["vcValue3"].ToString() + "',");
                         sql.AppendLine($"     		{strUserId},");
                         sql.AppendLine("     		getDate()");
                         sql.AppendLine("     	); ");

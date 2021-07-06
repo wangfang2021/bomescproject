@@ -58,8 +58,8 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_C023 = ComFunction.convertAllToResult(FS0701_Logic.SearchPackSpot(loginInfo.UserId));//包装场
 
                 res.Add("C023", dataList_C023);
-                List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0719_Logic.SearchSupplier());//供应商
-                res.Add("optionSupplier", dataList_Supplier);
+                //List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0719_Logic.SearchSupplier());//供应商
+                //res.Add("optionSupplier", dataList_Supplier);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -116,7 +116,45 @@ namespace SPPSApi.Controllers.G07
         #endregion
 
 
+        #region 重置
+        [HttpPost]
+        [EnableCors("any")]
+        public string clearApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
+            try
+            {
+
+                DataTable dt = FS0719_Logic.SearchClear();
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dNaRuTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M07UE1902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
 
 
 
@@ -218,7 +256,7 @@ namespace SPPSApi.Controllers.G07
                     if (string.IsNullOrEmpty(listInfoData[i]["vcPackGPSNo"].ToString().Trim()))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "有没有填写品番项！";
+                        apiResult.data = "第"+(listInfoData.Count-i).ToString()+ "有没有填写品番项！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                     }

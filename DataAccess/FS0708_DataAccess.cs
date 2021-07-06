@@ -56,7 +56,7 @@ namespace DataAccess
                 strSql.AppendLine("      	1 = 1");
                 if (SupplierName.Count != 0)
                 {
-                    strSql.AppendLine($"      AND vcSupplierID in( ");
+                    strSql.AppendLine($"      AND vcPackSupplierID in( ");
                     for (int i = 0; i < SupplierName.Count; i++)
                     {
                         if (SupplierName.Count - i == 1)
@@ -131,7 +131,7 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrEmpty(dNaRuFrom) || !string.IsNullOrEmpty(dNaRuTo))
                 {
-                    strSql.AppendLine($"      AND dNaRuYuDing BETWEEN '{dNaRuFrom}' and '{dNaRuTo}'");
+                    strSql.AppendLine($"      AND dNaRuShiJi BETWEEN '{dNaRuFrom}' and '{dNaRuTo}'");
                 }
                 if (!string.IsNullOrEmpty(dFaZhuFrom) || !string.IsNullOrEmpty(dFaZhuTo))
                 {
@@ -139,7 +139,7 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrEmpty(dNaQiFrom) || !string.IsNullOrEmpty(dNaQiTo))
                 {
-                    strSql.AppendLine($"      AND dNaRuShiJi BETWEEN '{dNaQiFrom}' and '{dNaQiTo}'");
+                    strSql.AppendLine($"      AND dNaRuYuDing BETWEEN '{dNaQiFrom}' and '{dNaQiTo}'");
                 }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

@@ -1615,7 +1615,7 @@ namespace DataAccess
                 stringBuilder.AppendLine("--4.检验内外");
                 stringBuilder.AppendLine("select vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace	 from TSPMaster WHERE vcPartId='" + partId + "' and dFromTime<=GETDATE() and dToTime>=GETDATE()");
                 stringBuilder.AppendLine("--5.包材");
-                stringBuilder.AppendLine("select vcPackNo,iBiYao from TPackItem where vcPartsNo='" + partId + "' and dUsedFrom<=GETDATE() and dUsedTo>=GETDATE()");
+                stringBuilder.AppendLine("select vcPackNo,iBiYao from TPackItem where vcPartsNo='" + partId + "' and dUsedFrom<=GETDATE() and dUsedTo>=GETDATE() and  dFrom<=GETDATE() and  dTo>=GETDATE()");
                 stringBuilder.AppendLine("--6.标签");
                 stringBuilder.AppendLine("select vcPartNameCN, vcSCSName, vcSCSAdress, vcZXBZNo from TtagMaster where vcPart_Id = '" + partId + "' and dTimeFrom <= GETDATE() and dTimeTo >= GETDATE()");
                 stringBuilder.AppendLine("--7.订单量");
@@ -1843,8 +1843,8 @@ namespace DataAccess
             stringBuilder.AppendLine("		from ");
             stringBuilder.AppendLine("(select * from TOperatorQB  where vcHostIp='" + strIP + "' and vcZYType='S0' and vcReflectFlag='0')a");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select vcPackNo,iBiYao,vcPartsNo,vcDistinguish  from TPackItem where dUsedFrom<=GETDATE() and dUsedTo>=GETDATE())b");
-            stringBuilder.AppendLine("on a.vcPart_id = b.vcPartsNo");
+            stringBuilder.AppendLine("(select *  from TPackItem where dUsedFrom<=GETDATE() and dUsedTo>=GETDATE())b");
+            stringBuilder.AppendLine("on a.vcPart_id = b.vcPartsNo and b.dFrom<=GETDATE() and b.dTo>=GETDATE()");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select vcPackLocation,vcDistinguish,vcPackSpot,vcPackNo from TPackBase where dPackFrom<=GETDATE() and dPackTo>=GETDATE())c");
             stringBuilder.AppendLine("on b.vcPackNo=c.vcPackNo and a.vcBZPlant=c.vcPackSpot");

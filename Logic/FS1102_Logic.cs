@@ -49,7 +49,7 @@ namespace Logic
                         dataRow["iTotalcnt"] = dtSPInfo.Rows[j]["iTotalcnt"].ToString();
                         dataRow["iTotalpiece"] = dtSPInfo.Rows[j]["iTotalpiece"].ToString();
                         dataRow["dPrintDate"] = dtSPInfo.Rows[j]["dPrintDate"].ToString();
-                        byte[] vcCodemage = fS0617_Logic.GenerateQRCode(dtSPInfo.Rows[j]["vcCaseno"].ToString());//二维码信息
+                        byte[] vcCodemage = fS0617_Logic.GenerateQRCode(dtSPInfo.Rows[j]["vcCasenoocde"].ToString());//二维码信息
                         dataRow["vcCodemage"] = vcCodemage;
                         dtSub.Rows.Add(dataRow);
                     }

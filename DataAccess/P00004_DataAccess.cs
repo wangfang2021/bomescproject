@@ -1409,20 +1409,7 @@ namespace DataAccess
         public DataTable getSellInfo(string strSellno)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            //stringBuilder.AppendLine("select vcInvoiceno as inv_no");
-            //stringBuilder.AppendLine(",SUBSTRING(vcControlno,3,8) as inv_date");
-            ////stringBuilder.AppendLine(",vcPart_id as part_no");
-            //stringBuilder.AppendLine(",CASE SUBSTRING(vcPart_id,11,2) WHEN '00' THEN SUBSTRING(vcPart_id,1,10) ELSE vcPart_id END AS part_no");
-            //stringBuilder.AppendLine(",vcPartsnamechn as part_name");
-            ////stringBuilder.AppendLine(",vcCaseno as case_no");
-            //stringBuilder.AppendLine(",SUBSTRING(vcBoxNo,1,4)+'-'+SUBSTRING(vcBoxNo,5,8) as case_no");
-            //stringBuilder.AppendLine(",vcOrderno as ord_no");
-            //stringBuilder.AppendLine(",vcSeqno as item_no");
-            //stringBuilder.AppendLine(",'TFTM' AS dlr_no");
-            //stringBuilder.AppendLine(",vcShippingqty as qty");
-            //stringBuilder.AppendLine(",vcCostwithtaxes as price ");
-            //stringBuilder.AppendLine("from TShipList ");
-            //stringBuilder.AppendLine("where vcControlno='" + strSellno + "'");
+            stringBuilder.AppendLine("select inv_no,inv_date,part_no,REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(part_name, CHAR(13), ''),CHAR(10),''),CHAR(9),''),'，',''),',','') AS part_name,case_no,ord_no,item_no,dlr_no,sum(CAST(qty as int)) as qty,price from (");
             stringBuilder.AppendLine("select vcInvoiceno as inv_no");
             stringBuilder.AppendLine(",SUBSTRING(vcControlno,3,8) as inv_date");
             stringBuilder.AppendLine(",CASE WHEN SUBSTRING(vcPart_id,11,2)='00' THEN SUBSTRING(vcPart_id,1,10) ELSE vcPart_id END AS part_no");
@@ -1434,7 +1421,8 @@ namespace DataAccess
             stringBuilder.AppendLine(",vcShippingqty as qty");
             stringBuilder.AppendLine(",vcCostwithtaxes as price ");
             stringBuilder.AppendLine("from TShipList ");
-            stringBuilder.AppendLine("where vcControlno='" + strSellno + "'");
+            stringBuilder.AppendLine("where vcControlno='" + strSellno + "')aa");
+            stringBuilder.AppendLine("group by inv_no,inv_date,part_no,part_name,case_no,ord_no,item_no,dlr_no,price");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
             DataSet ds = new DataSet();

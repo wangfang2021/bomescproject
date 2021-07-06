@@ -14,13 +14,13 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
         #region 
-        public DataTable SearchSupplier()
+        public DataTable SearchClear()
         {
             try
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcPackSupplierCode as vcValue,vcPackSupplierName as vcName from TPackSupplier; ");
+                strSql.AppendLine("      SELECT * FROM TPackOrderFaZhu WHERE iAutoId='0' ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

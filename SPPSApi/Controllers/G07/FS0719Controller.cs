@@ -256,7 +256,7 @@ namespace SPPSApi.Controllers.G07
                     if (string.IsNullOrEmpty(listInfoData[i]["vcPackGPSNo"].ToString().Trim()))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "有没有填写品番项！";
+                        apiResult.data = "第"+(listInfoData.Count-i).ToString()+ "有没有填写品番项！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                     }

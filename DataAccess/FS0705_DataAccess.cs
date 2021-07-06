@@ -246,7 +246,7 @@ namespace DataAccess
             strSql.Append("              					    (                  \r\n");
             strSql.Append("              					        select a.vcPartsNo,a.vcPackNo,a.iBiYao from               \r\n");
             strSql.Append("              					        (              \r\n");
-            strSql.Append("              					            select vcPartsNo,iBiYao,vcPackNo from TPackItem               \r\n");
+            strSql.Append("              					            select vcPartsNo,iBiYao,vcPackNo from TPackItem where dFrom<getdate() and getdate()<dTo               \r\n");
             strSql.Append("              					        )a               \r\n");
             strSql.Append("              					        left join               \r\n");
             strSql.Append("              					        (              \r\n");
@@ -325,7 +325,7 @@ namespace DataAccess
             strSql.AppendLine("       		(      ");
             strSql.AppendLine("       			select vcPartsNo,vcPackNo       ");
             strSql.AppendLine("       			from TPackItem      ");
-            strSql.AppendLine("       			where dUsedFrom<GETDATE() and GETDATE()<dUsedTo      ");
+            strSql.AppendLine("       			where dFrom<GETDATE() and GETDATE()<dTo      ");
             strSql.AppendLine("       		)a      ");
             strSql.AppendLine("       		left join      ");
             strSql.AppendLine("       		(      ");
@@ -351,7 +351,7 @@ namespace DataAccess
             strSql.AppendLine("       		(      ");
             strSql.AppendLine("       			select vcPartsNo,vcPackNo       ");
             strSql.AppendLine("       			from TPackItem      ");
-            strSql.AppendLine("       			where dUsedFrom<GETDATE() and GETDATE()<dUsedTo      ");
+            strSql.AppendLine("       			where dFrom<GETDATE() and GETDATE()<dTo      ");
             strSql.AppendLine("       		)a      ");
             strSql.AppendLine("       		left join      ");
             strSql.AppendLine("       		(      ");

@@ -136,8 +136,8 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine(" select * from TOutCode where vcCodeId='C061'and vcIsColum='0'and vcValue1='"+ userId + "'    ");
-     
+                strSql.AppendLine(" select * from TOutCode where vcCodeId='C061'and vcIsColum='0'and vcValue1='" + userId + "'    ");
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -281,10 +281,24 @@ namespace DataAccess
                 string NowDE = DateTime.Now.AddDays(1 - DateTime.Now.Day).Date.AddMonths(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm:ss");
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine(" select t1.vcPackGPSNo,t1.vcBZPlant,   ");
-                strSql.AppendLine(" case when ISNULL(t2.iNumber,0)<>0 then t1.iPartNums-t2.iNumber else t1.iPartNums end as iNum   ");
-                strSql.AppendLine(" from (   ");
-                strSql.AppendLine(" select b.vcPackGPSNo,sum(a.iPartNums) as iPartNums,c.vcBZPlant from (   ");
+
+
+
+                //strSql.AppendLine(" select t1.vcPackGPSNo,t1.vcBZPlant,   ");
+                //strSql.AppendLine(" case when ISNULL(t2.iNumber,0)<>0 then t1.iPartNums-t2.iNumber else t1.iPartNums end as iNum   ");
+                //strSql.AppendLine(" from (   ");
+
+                strSql.AppendLine("  select Table1.vcPackGPSNo,Table1.vcBZPlant,   ");
+                strSql.AppendLine("  case when Table1.iRelease>=Table1.iPartNums-Table1.iNumber then Table1.iRelease    ");
+                strSql.AppendLine("  when Table1.iRelease<Table1.iPartNums-Table1.iNumber then Table1.iPartNums-Table1.iNumber   ");
+                strSql.AppendLine("  else Table1.iPartNums end   ");
+                strSql.AppendLine("  as iNum   ");
+                strSql.AppendLine("  from (   ");
+                strSql.AppendLine("  select t1.vcPackGPSNo,t1.vcBZPlant,t1.iPartNums,t1.iRelease,isnull(t2.iNumber,0) as iNumber   ");
+                strSql.AppendLine("  from (      ");
+
+                //d.iRelease为新加项
+                strSql.AppendLine(" select b.vcPackGPSNo,sum(a.iPartNums) as iPartNums,c.vcBZPlant,d.iRelease from (   ");
 
                 strSql.AppendLine(" select vcPart_id,vcDXYM,iPartNums from TSoqReply where vcCLYM='" + strN_CL + "'and vcDXYM='" + strN + "'   ");
                 strSql.AppendLine(" union all    ");
@@ -298,16 +312,24 @@ namespace DataAccess
                 strSql.AppendLine(" (   ");
                 strSql.AppendLine(" select * from TPackItem  where dFrom<='" + NowDE + "'and dTo>='" + NowDF + "'    ");
                 strSql.AppendLine(" )b on a.vcPart_id=b.vcPartsNo   ");
+
+                strSql.AppendLine("  left join  ");
+                strSql.AppendLine("  (  ");
+                strSql.AppendLine("  select * from TPackBase  where GETDATE() between  dPackFrom and dPackTo  ");
+                strSql.AppendLine("  )d on b.vcPackNo=d.vcPackNo  ");
+
                 strSql.AppendLine(" left join   ");
                 strSql.AppendLine(" (   ");
                 strSql.AppendLine(" select * from TPackageMaster where GETDATE() between dTimeFrom and dTimeTo    ");
                 strSql.AppendLine(" )c on a.vcPart_id=c.vcPart_id   ");
-                strSql.AppendLine(" group by b.vcPackGPSNo,c.vcBZPlant   ");
+                strSql.AppendLine(" group by b.vcPackGPSNo,c.vcBZPlant,d.iRelease    ");
                 strSql.AppendLine(" )t1 left join   ");
                 strSql.AppendLine(" (   ");
                 strSql.AppendLine(" select vcPackGPSNo,sum(iNumber)as iNumber from TPackWork where vcZuoYeQuFen='1'   ");
                 strSql.AppendLine(" group by vcPackGPSNo   ");
                 strSql.AppendLine(" )t2 on t1.vcPackGPSNo=t2.vcPackGPSNo   ");
+                strSql.AppendLine(" )Table1    ");
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -391,9 +413,9 @@ namespace DataAccess
                             strOrderNo = GetOrderNo(OrderNoOld);
                             OrderNoOld = strOrderNo;
                             DataRow[] dr = dtbase.Select("vcPackGPSNo='" + listInfoData[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + listInfoData[i]["vcPackSpot"].ToString().Trim() + "'");
-                            if (dr.Length==0)
+                            if (dr.Length == 0)
                             {
-                                strErrorPartId = listInfoData[i]["vcPackGPSNo"].ToString().Trim()+"不在包材基础数据中！";
+                                strErrorPartId = listInfoData[i]["vcPackGPSNo"].ToString().Trim() + "有误！";
                                 return;
                             }
 
@@ -688,7 +710,7 @@ namespace DataAccess
                         }
                         DataRow[] dr = dtbase.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "'");
 
-                        if (Convert.ToInt32(dt.Rows[i]["iOrderNumber"]) % Convert.ToInt32(dr[i]["iZCRelease"]) != 0)
+                        if (Convert.ToInt32(dt.Rows[i]["iOrderNumber"]) % Convert.ToInt32(dr[0]["iRelease"].ToString()) != 0)
                         {
                             strErrorPartId = "此订单号:" + drorder[i]["vcOrderNo"].ToString() + "的发注收容数不是订购数量的整数倍！请修改订购数量";
                             return;
@@ -737,7 +759,7 @@ namespace DataAccess
                         }
                         DataRow[] dr2 = dtCode.Select(" vcValue2='" + dt.Rows[i]["vcPackSpot"] + "'");
 
-                        if (Convert.ToInt32(dt.Rows[i]["iOrderNumber"]) % Convert.ToInt32(dr[i]["iZCRelease"]) != 0)
+                        if (Convert.ToInt32(dt.Rows[i]["iOrderNumber"]) % Convert.ToInt32(dr[0]["iRelease"].ToString()) != 0)
                         {
                             strErrorPartId = "此订单号:" + dr[i]["vcPackGPSNo"].ToString() + "的发注收容数不是订购数量的整数倍！请修改订购数量";
                             return;
@@ -1004,7 +1026,7 @@ namespace DataAccess
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     DataRow[] drpm = dtpm.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "' and  vcBZPlant='" + dt.Rows[i]["vcPackSpot"] + "'");
-                    if (drpm.Length == 0 && (string.IsNullOrEmpty(dt.Rows[i]["vcRecover"].ToString())||dt.Rows[i]["vcRecover"].ToString() == "0"))
+                    if (drpm.Length == 0 && (string.IsNullOrEmpty(dt.Rows[i]["vcRecover"].ToString()) || dt.Rows[i]["vcRecover"].ToString() == "0"))
                     {
 
                         string vcOrderNo = dt.Rows[i]["vcOrderNo"].ToString();
@@ -1055,7 +1077,7 @@ namespace DataAccess
                         sql.AppendLine("      '" + dt.Rows[i]["vcNaRuUnit"].ToString() + "' , \r\n");//单位
                         sql.AppendLine("     '" + userId + "', \r\n");//创建用户??要备注成补给么
                         sql.AppendLine("     '" + dtime1 + "', \r\n");//创建时间
-                        sql.AppendLine("     '" + (dt.Rows[i]["dNaRuTime"].ToString()+'-'+ dt.Rows[i]["vcNaRuBianci"].ToString()) + "', \r\n");//备注
+                        sql.AppendLine("     '" + (dt.Rows[i]["dNaRuTime"].ToString() + '-' + dt.Rows[i]["vcNaRuBianci"].ToString()) + "', \r\n");//备注
                         sql.AppendLine("     '0' \r\n");//是否已经发邮件标识
                         sql.AppendLine("       ) \r\n");
 

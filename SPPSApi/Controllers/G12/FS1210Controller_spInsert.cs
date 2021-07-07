@@ -29,7 +29,7 @@ namespace SPPSApi.Controllers.G12
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         FS1210_Logic logic = new FS1210_Logic();
-        private readonly string FunctionID = "FS1210"; 
+        private readonly string FunctionID = "FS1210";
 
         public FS1210Controller_spInsert(IWebHostEnvironment webHostEnvironment)
         {

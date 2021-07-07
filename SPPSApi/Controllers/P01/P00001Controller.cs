@@ -242,9 +242,9 @@ namespace SPPSApi.Controllers.P01
                 {
                     DataRow[] drSite = null;
                     if (pointtype == "PDA")
-                        drSite = dtSite.Select("vcSiteType='" + pointtype + "'");
+                        drSite = dtSite.Select("vcSiteType='PDA'");
                     else
-                        drSite = dtSite.Select("vcSiteType<>'" + pointtype + "'");
+                        drSite = dtSite.Select("vcSiteType<>'PDA'");
                     if (drSite != null && drSite.Length != 0)
                     {
                         if (drSite[0]["vcIP"].ToString() != iP)

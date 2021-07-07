@@ -284,7 +284,8 @@ namespace SPPSApi.Controllers.G15
                     string dPackDate = Convert.ToDateTime(listInfoData[i]["dPackDate"].ToString()).ToString("yyyy-MM-dd");
                     string iLJBZRemain = listInfoData[i]["iLJBZRemain"] == null ? "" : listInfoData[i]["iLJBZRemain"].ToString();
                     string iLJBZRemain_old = listInfoData[i]["iLJBZRemain_old"] == null ? "" : listInfoData[i]["iLJBZRemain_old"].ToString();
-                    string time = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+                    //string time = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+                    string time = DateTime.Now.ToString("yyyy-MM-dd");
                     if (iLJBZRemain != iLJBZRemain_old && dPackDate != time)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

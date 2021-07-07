@@ -483,7 +483,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                string strUrl = "https://wxsite.ftms.com.cn/carowner/part?tabindex=3&tracingcode=";
+                string strUrl = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=";
                 strSql.AppendLine("select a.vcPartENName as vcPartsnameen");
                 strSql.AppendLine("		,a.vcPartId as vcPart_id");
                 strSql.AppendLine("		,'' as vcInno");
@@ -503,7 +503,7 @@ namespace DataAccess
                 strSql.AppendLine("		,b.vcSCSName as vcSuppliername");
                 strSql.AppendLine("		,b.vcSCSAdress as vcSupplieraddress");
                 strSql.AppendLine("		,b.vcZXBZNo as vcExecutestandard");
-                strSql.AppendLine("		,a.vcCarfamilyCode as vcCartype");
+                strSql.AppendLine("		,b.vcCarTypeName as vcCartype");
                 strSql.AppendLine("		from ");
                 strSql.AppendLine("  (select * from TSPMaster)a");
                 strSql.AppendLine("  left join");

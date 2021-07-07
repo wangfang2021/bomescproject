@@ -618,8 +618,8 @@ namespace DataAccess
                 stringBuilder.AppendLine("end");
                 stringBuilder.AppendLine("else");
                 stringBuilder.AppendLine("begin");
-                stringBuilder.AppendLine("update TSeqNo set SEQNO=SEQNO+" + iAddNum + "  where FLAG='" + tmpString + "' and DDATE='" + formatServerTime + "'");
                 stringBuilder.AppendLine("select SEQNO as vcSeqNo  from TSeqNo   where FLAG='" + tmpString + "' and DDATE='" + formatServerTime + "'");
+                stringBuilder.AppendLine("update TSeqNo set SEQNO=SEQNO+" + iAddNum + "  where FLAG='" + tmpString + "' and DDATE='" + formatServerTime + "'");
                 stringBuilder.AppendLine("end");
             }
             if (strType == "便次号")
@@ -633,8 +633,8 @@ namespace DataAccess
                 stringBuilder.AppendLine("end");
                 stringBuilder.AppendLine("else");
                 stringBuilder.AppendLine("begin");
-                stringBuilder.AppendLine("update TSeqNo set SEQNO=SEQNO+" + iAddNum + "  where FLAG='" + tmpString + "' and DDATE='" + strHosDate + "' and FIELD1='" + strBanZhi + "'");
                 stringBuilder.AppendLine("select SEQNO as vcSeqNo  from TSeqNo   where FLAG='" + tmpString + "' and DDATE='" + strHosDate + "' and FIELD1='" + strBanZhi + "'");
+                stringBuilder.AppendLine("update TSeqNo set SEQNO=SEQNO+" + iAddNum + "  where FLAG='" + tmpString + "' and DDATE='" + strHosDate + "' and FIELD1='" + strBanZhi + "'");
                 stringBuilder.AppendLine("end");
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();

@@ -58,7 +58,7 @@ namespace DataAccess
                 strSql.AppendLine("	,vcCaseno as vcCasenoocde");
                 strSql.AppendLine("	,vcCasebarcode AS vcCaseno");
                 strSql.AppendLine("	,SUBSTRING(vcCasebarcode,1,4)+'-'+SUBSTRING(vcCasebarcode,5,4) as vcCaseno_name");
-                strSql.AppendLine("	,vcInno,vcPart_id");
+                strSql.AppendLine("	,vcInno");
                 strSql.AppendLine("	,CASE WHEN SUBSTRING(vcPart_id,11,2)='00' ");
                 strSql.AppendLine("	THEN SUBSTRING(vcPart_id,1,5) +'-'+SUBSTRING(vcPart_id,6,5) ");
                 strSql.AppendLine("	ELSE SUBSTRING(vcPart_id,1,5) +'-'+SUBSTRING(vcPart_id,6,5) +'-'+SUBSTRING(vcPart_id,11,2) END AS vcPart_id");

@@ -1752,6 +1752,36 @@ namespace DataAccess
                 }
             }
         }
+        public void delInputInfoQB(string strIP, string serverTime)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("delete from TOperatorQB where iAutoId in (");
+            stringBuilder.AppendLine("select iAutoId from (SELECT ROW_NUMBER() OVER(partition by vcKBOrderNo,vcKBLFNo,vcPart_id,vcSR order by iAutoId) [rank],");
+            stringBuilder.AppendLine("iAutoId,vcKBOrderNo,vcKBLFNo,vcPart_id,vcSR ");
+            stringBuilder.AppendLine("FROM TOperatorQB where vcReflectFlag='0' and vcZYType='S0' and vcHostIp='"+ strIP + "'");
+            stringBuilder.AppendLine(")a where rank>1)");
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
         public DataSet getInputInfoFromDB(string strIP, string serverTime)
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();

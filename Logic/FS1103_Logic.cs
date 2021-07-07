@@ -130,11 +130,11 @@ namespace Logic
                                     for (int j = Convert.ToInt32(strTagLianFFrom.Substring(6, 5)); j <= Convert.ToInt32(strTagLianFTo.Substring(6, 5)); j++)
                                     {
                                         string strTagNo = strTagLianFFrom.Substring(0, 6) + (100000 + j).ToString().Substring(1, 5);
-                                        DataRow[] drTagList = dtTagInfo.Select("vcInno='" + strInPutOrderNo + "' and vcPrintcount='" + strPartId+ strTagNo + "'");
+                                        DataRow[] drTagList = dtTagInfo.Select("vcInno='" + strInPutOrderNo + "' and vcPrintcount='" + strPartId + strTagNo + "'");
                                         if (drTagList.Length == 0)
                                         {
                                             DataRow dataRow = dtMessage.NewRow();
-                                            dataRow["vcMessage"] = "所选标签ID"+ strTagNo+"超出入库指令书"+ strInPutOrderNo+"发行范围";
+                                            dataRow["vcMessage"] = "所选标签ID" + strTagNo + "超出入库指令书" + strInPutOrderNo + "发行范围";
                                             dtMessage.Rows.Add(dataRow);
                                         }
                                         else
@@ -188,7 +188,7 @@ namespace Logic
                         drInvInfo["vcPartslocation"] = dtInvInfo_temp.Rows[0]["vcPartslocation"].ToString();
                         drInvInfo["vcInputnum"] = strInPutNum;
                         drInvInfo["vcPackingquantity"] = dtInvInfo_temp.Rows[0]["vcPackingquantity"].ToString();
-                        if(Convert.ToInt32(strInPutNum)%Convert.ToInt32(dtInvInfo_temp.Rows[0]["vcPackingquantity"].ToString())!=0)
+                        if (Convert.ToInt32(strInPutNum) % Convert.ToInt32(dtInvInfo_temp.Rows[0]["vcPackingquantity"].ToString()) != 0)
                         {
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcMessage"] = "所选择的入库指令书" + strInvo + "入库指令书数量不为包装单位整数倍";
@@ -346,7 +346,7 @@ namespace Logic
                 drTagTemp["vcPrindate"] = dtPartInfo.Rows[0]["vcPrindate"].ToString();
                 byte[] iCodemage = fS0617_Logic.GenerateQRCode(dtPartInfo.Rows[0]["vcQrcodeString1"].ToString());//二维码信息
                 drTagTemp["iQrcode"] = iCodemage;
-                drTagTemp["vcPrintcount"] = dtPartInfo.Rows[0]["vcPrintcount1"].ToString();
+                drTagTemp["vcPrintcount"] = dtPartInfo.Rows[0]["vcPart_id"].ToString() + dtPartInfo.Rows[0]["vcPrintcount1"].ToString();
                 drTagTemp["vcPartnamechineese"] = dtPartInfo.Rows[0]["vcPartnamechineese"].ToString();
                 drTagTemp["vcSuppliername"] = dtPartInfo.Rows[0]["vcSuppliername"].ToString();
                 drTagTemp["vcSupplieraddress"] = dtPartInfo.Rows[0]["vcSupplieraddress"].ToString();

@@ -668,7 +668,8 @@ namespace SPPSApi.Controllers.G06
                     writer.Close();
 
                 }
-                string key = filename.ToString().Trim().Substring(0, filename.ToString().Trim().LastIndexOf("."));
+                //string key = filename.ToString().Trim().Substring(0, filename.ToString().Trim().LastIndexOf("."));
+                string key = filename.ToString().Trim();
                 files.Add(key, System.IO.File.ReadAllBytes(realPath + filename));
             }
             return files;

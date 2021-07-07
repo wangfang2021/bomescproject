@@ -672,7 +672,7 @@ namespace SPPSApi.Controllers.G12
                                     string exdttt_msg = lg.CreateTempTable(exdttt, "FS1209_Excel_", out exdttt_tmp);//创建打印临时表
                                     string exdthj_msg = lg.CreateTempTable(exdthj, "FS1209_Excel_", out exdthj_tmp);//创建打印临时表                
                                     if (exdthj_msg.Length == 0)
-                                    {
+                                    { 
                                         try
                                         {
                                             BasicHttpBinding binding = new BasicHttpBinding();
@@ -681,7 +681,7 @@ namespace SPPSApi.Controllers.G12
                                             binding.ReceiveTimeout = TimeSpan.MaxValue;
                                             binding.SendTimeout = TimeSpan.MaxValue;
                                             SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
-                                            EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
+                                            EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx"); 
                                             PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                             exdthj_msg = client.PrintExcel_Confirmation(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                         }

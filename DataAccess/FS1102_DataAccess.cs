@@ -52,11 +52,23 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select vcCpdcode,vcCpdname,vcCpdaddress,vcCasebarcode AS vcCaseno,SUBSTRING(vcCasebarcode,1,4)+'-'+SUBSTRING(vcCasebarcode,5,4) as vcCaseno_name,vcInno,vcPart_id,vcPartsname,iQty,iTotalcnt,iTotalpiece,CONVERT(varchar(23),GETDATE(),23) as dPrintDate");
-                //strSql.AppendLine("select vcCpdcode,vcCpdname,vcCpdaddress,vcCasenoIntact AS vcCaseno,SUBSTRING(vcCaseno,1,4)+'-'+SUBSTRING(vcCaseno,5,4) as vcCaseno_name,vcInno,vcPart_id,vcPartsname,iQty,iTotalcnt,iTotalpiece,CONVERT(varchar(23),GETDATE(),23) as dPrintDate");
+                strSql.AppendLine("select vcCpdcode");
+                strSql.AppendLine("	,vcCpdname");
+                strSql.AppendLine("	,vcCpdaddress");
+                strSql.AppendLine("	,vcCaseno as vcCasenoocde");
+                strSql.AppendLine("	,vcCasebarcode AS vcCaseno");
+                strSql.AppendLine("	,SUBSTRING(vcCasebarcode,1,4)+'-'+SUBSTRING(vcCasebarcode,5,4) as vcCaseno_name");
+                strSql.AppendLine("	,vcInno,vcPart_id");
+                strSql.AppendLine("	,CASE WHEN SUBSTRING(vcPart_id,11,2)='00' ");
+                strSql.AppendLine("	THEN SUBSTRING(vcPart_id,1,5) +'-'+SUBSTRING(vcPart_id,6,5) ");
+                strSql.AppendLine("	ELSE SUBSTRING(vcPart_id,1,5) +'-'+SUBSTRING(vcPart_id,6,5) +'-'+SUBSTRING(vcPart_id,11,2) END AS vcPart_id");
+                strSql.AppendLine("	,vcPartsname");
+                strSql.AppendLine("	,iQty");
+                strSql.AppendLine("	,iTotalcnt");
+                strSql.AppendLine("	,iTotalpiece");
+                strSql.AppendLine("	,CONVERT(varchar(23),GETDATE(),23) as dPrintDate");
                 strSql.AppendLine("from TCaseList");
                 strSql.AppendLine("where vcCpdcode='" + strReceiver + "' and vcCasebarcode='" + strCaseNo.Replace("-", "") + "'");
-                //strSql.AppendLine("where vcCpdcode='" + strReceiver + "' and vcCaseno='" + strCaseNo.Replace("-", "") + "'");
                 strSql.AppendLine("order by iAutoId");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

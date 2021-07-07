@@ -1022,11 +1022,29 @@ namespace DataAccess
         }
         public bool setPackAndZxInfo(string strIP, string strPointName, string strType, string partId, string kanbanOrderNo, string kanbanSerial, string dock, string packQuantity, string caseno, string boxno, string scanTime, DataTable dtPackList, string strOperId)
         {
+            //------
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
             sqlConnection.Open();
             SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
             try
             {
+                //StringBuilder stringBuilder = new StringBuilder();
+                //stringBuilder.AppendLine("select * from ");
+                //stringBuilder.AppendLine("(select vcInputNo,vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR,iQuantity as iQuantity_rh");
+                //stringBuilder.AppendLine("		,cast(case when ''='' then '0' else '' end as int) as iQuantity_bcbz ");
+                //stringBuilder.AppendLine("from TOperateSJ WHERE vcZYType in ('S0')");
+                //stringBuilder.AppendLine("and vcPart_id='' and vcKBOrderNo='' and vcKBLFNo='' and vcSR='')a");
+                //stringBuilder.AppendLine("left join");
+                //stringBuilder.AppendLine("(select vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR,ISNULL(sum(cast(iQuantity as int)),0) as iQuantity_sum");
+                //stringBuilder.AppendLine("from TOperateSJ where vcZYType in ('S2') group by vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR)b");
+                //stringBuilder.AppendLine("on a.vcPart_id=b.vcPart_id and a.vcKBOrderNo=b.vcKBOrderNo and a.vcKBLFNo=b.vcKBLFNo and a.vcSR=b.vcSR");
+                //stringBuilder.AppendLine("WHERE a.iQuantity_bcbz+ISNULL(b.iQuantity_sum,0)<=a.iQuantity_rh AND cast(a.iQuantity_bcbz as int)>0");
+                //string strSQL = stringBuilder.ToString();
+                //SqlDataAdapter da = new SqlDataAdapter(strSQL, sqlConnection);
+                //DataSet ds = new DataSet();
+                //da.Fill(ds);
+                //if (ds.Tables[0].Rows.Count != 0)
+                //{
                 if (strType != "包装不装箱")
                 {
                     #region 2.插入装箱实绩TBoxMaster  sqlCommand_add_bm
@@ -1198,7 +1216,7 @@ namespace DataAccess
                     StringBuilder strSql_mod_io = new StringBuilder();
 
                     #region SQL and Parameters
-                    strSql_mod_io.AppendLine("update TOperateSJ_InOutput set iDBZ=iDBZ-@Quantity,iDZX=iDZX+@Quantity,vcOperatorID=@Quantity,dOperatorTime=GETDATE() ");
+                    strSql_mod_io.AppendLine("update TOperateSJ_InOutput set iDBZ=iDBZ-@Quantity,iDZX=iDZX+@Quantity,vcOperatorID='"+ strOperId + "',dOperatorTime=GETDATE() ");
                     strSql_mod_io.AppendLine("where vcPart_id=@Part_id and vcKBOrderNo=@KBOrderNo and vcKBLFNo=@KBLFNo and vcSR=@SR");
                     sqlCommand_mod_io.CommandText = strSql_mod_io.ToString();
                     sqlCommand_mod_io.Parameters.AddWithValue("@Quantity", packQuantity);
@@ -1297,6 +1315,7 @@ namespace DataAccess
                     }
                     #endregion
                 }
+                //}
                 #region 写入数据库
 
                 //提交事务

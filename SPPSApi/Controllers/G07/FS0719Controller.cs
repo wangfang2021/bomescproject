@@ -260,6 +260,8 @@ namespace SPPSApi.Controllers.G07
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                     }
+
+
                     if (bAddFlag == true)
                     {//新增
                         hasFind = true;
@@ -282,13 +284,29 @@ namespace SPPSApi.Controllers.G07
                         }
 
                     }
-                    if (listInfoData[i]["VCFaBuType"].ToString() == "0")
+                    if (listInfoData[i]["iOrderNumber"].ToString() == "0"||string.IsNullOrEmpty(listInfoData[i]["iOrderNumber"].ToString()))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "订购数量不能为0！";
+                        apiResult.data = "订购数量不能为0或是空！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-
+                    if (string.IsNullOrEmpty(listInfoData[i]["dNaRuTime"].ToString())) {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "纳入预定时间不能为空！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (string.IsNullOrEmpty(listInfoData[i]["vcNaRuBianci"].ToString()))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "纳入便次不能为空！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (string.IsNullOrEmpty(listInfoData[i]["vcPackSpot"].ToString()))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "包装场不能为空！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
 
 
                 }

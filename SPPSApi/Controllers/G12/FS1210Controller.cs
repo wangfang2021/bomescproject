@@ -434,7 +434,7 @@ namespace SPPSApi.Controllers.G12
                                                 binding.OpenTimeout = TimeSpan.MaxValue;
                                                 binding.ReceiveTimeout = TimeSpan.MaxValue;
                                                 binding.SendTimeout = TimeSpan.MaxValue;
-                                                EndpointAddress address = new EndpointAddress("http://localhost:25012/PrintTable.asmx");
+                                                EndpointAddress address = new EndpointAddress("http://172.23.180.116:25012/PrintTable.asmx");
                                                 PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                                 msg = client.PrintExcel_Confirmation(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                             }
@@ -476,7 +476,7 @@ namespace SPPSApi.Controllers.G12
                                         binding.OpenTimeout = TimeSpan.MaxValue;
                                         binding.ReceiveTimeout = TimeSpan.MaxValue;
                                         binding.SendTimeout = TimeSpan.MaxValue;
-                                        EndpointAddress address = new EndpointAddress("http://localhost:25012/PrintTable.asmx");
+                                        EndpointAddress address = new EndpointAddress("http://172.23.180.116:25012/PrintTable.asmx");
                                         PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                         exdthj_msg = client.PrintExcel_Confirmation(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                     }
@@ -857,7 +857,7 @@ namespace SPPSApi.Controllers.G12
                                             binding.OpenTimeout = TimeSpan.MaxValue;
                                             binding.ReceiveTimeout = TimeSpan.MaxValue;
                                             binding.SendTimeout = TimeSpan.MaxValue;
-                                            EndpointAddress address = new EndpointAddress("http://localhost:25012/PrintTable.asmx");
+                                            EndpointAddress address = new EndpointAddress("http://172.23.180.116:25012/PrintTable.asmx");
                                             PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                             msg = client.PrintExcel_Confirmation(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                         }
@@ -914,7 +914,7 @@ namespace SPPSApi.Controllers.G12
                                     binding.OpenTimeout = TimeSpan.MaxValue;
                                     binding.ReceiveTimeout = TimeSpan.MaxValue;
                                     binding.SendTimeout = TimeSpan.MaxValue;
-                                    EndpointAddress address = new EndpointAddress("http://localhost:25012/PrintTable.asmx");
+                                    EndpointAddress address = new EndpointAddress("http://172.23.180.116:25012/PrintTable.asmx");
                                     PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                     exdthj_msg = client.PrintExcel_Confirmation(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                 }

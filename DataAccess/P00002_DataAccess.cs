@@ -40,7 +40,7 @@ namespace DataAccess
         public DataTable GetSPIS(string partId, string scanTime, string supplierId)
         {
             StringBuilder GetSPISSql = new StringBuilder();
-            GetSPISSql.Append("select vcPicUrl from TSPISQf where vcSupplierCode='" + supplierId + "' and vcTimeFrom<='" + scanTime + "' and vcTimeTo>='" + scanTime + "' and vcPartId='" + partId + "'");
+            GetSPISSql.Append("select vcPicUrl from TSPISQf where vcSupplierCode='" + supplierId + "' and vcTimeFrom<=GETDATE() and vcTimeTo>=GETDATE() and vcPartId='" + partId + "'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
             DataSet ds = new DataSet();
@@ -125,15 +125,15 @@ namespace DataAccess
             stringBuilder.AppendLine("where vcPart_id='" + partId + "' and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcSR='" + dock + "' and vcZYType='S1')b");
             stringBuilder.AppendLine("on a.vcPart_id=b.vcPart_id and a.vcKBOrderNo=b.vcKBOrderNo and a.vcKBLFNo=b.vcKBLFNo and a.vcSR=b.vcSR");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select * from tCheckMethod_Master where vcPartId='" + partId + "' and dFromTime<='" + scanTime + "' and dToTime>='" + scanTime + "')c");
+            stringBuilder.AppendLine("(select * from tCheckMethod_Master where vcPartId='" + partId + "' and dFromTime<=GETDATE() and dToTime>=GETDATE())c");
             stringBuilder.AppendLine("on a.vcPart_id=c.vcPartId and a.vcSupplier_id=c.vcSupplierId");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(SELECT * FROM [tCheckQf] ");
-            stringBuilder.AppendLine("where [vcTimeFrom]<='" + scanTime + "'  and [vcTimeTo]>='" + scanTime + "' )d");
+            stringBuilder.AppendLine("where [vcTimeFrom]<=GETDATE()  and [vcTimeTo]>=GETDATE())d");
             stringBuilder.AppendLine("ON c.vcPartId=d.vcPartId AND c.vcSupplierId=d.[vcSupplierCode]");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(SELECT * FROM TSPISQf ");
-            stringBuilder.AppendLine("where [vcTimeFrom]<='" + scanTime + "'  and [vcTimeTo]>='" + scanTime + "' )e");
+            stringBuilder.AppendLine("where [vcTimeFrom]<=GETDATE()  and [vcTimeTo]>=GETDATE() )e");
             stringBuilder.AppendLine("ON c.vcPartId=e.vcPartId AND c.vcSupplierId=e.[vcSupplierCode]");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select * from tCheckSpot)f");

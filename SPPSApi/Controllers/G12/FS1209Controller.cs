@@ -625,7 +625,7 @@ namespace SPPSApi.Controllers.G12
                                                     binding.ReceiveTimeout = TimeSpan.MaxValue;
                                                     binding.SendTimeout = TimeSpan.MaxValue;
                                                     SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
-                                                    EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
+                                                    EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25013/PrintTable.asmx");
                                                     PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                                     msg = client.PrintExcel_Confirmation(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                                 }
@@ -681,7 +681,7 @@ namespace SPPSApi.Controllers.G12
                                             binding.ReceiveTimeout = TimeSpan.MaxValue;
                                             binding.SendTimeout = TimeSpan.MaxValue;
                                             SqlConnectionStringBuilder cn = new SqlConnectionStringBuilder(ComConnectionHelper.GetConnectionString());
-                                            EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25012/PrintTable.asmx");
+                                            EndpointAddress address = new EndpointAddress("http://" + cn.DataSource + ":25013/PrintTable.asmx");
                                             PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                                             exdthj_msg = client.PrintExcel_Confirmation(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                         }

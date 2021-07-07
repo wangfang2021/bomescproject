@@ -19,7 +19,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcPackSupplierCode as vcValue,vcPackSupplierName as vcName from TPackSupplier; ");
+                strSql.AppendLine("      select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where isnull(vcSupplierCode,'')<>''  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -56,7 +56,7 @@ namespace DataAccess
                 strSql.AppendLine("      	1 = 1");
                 if (SupplierName.Count != 0)
                 {
-                    strSql.AppendLine($"      AND vcSupplierID in( ");
+                    strSql.AppendLine($"      AND vcPackSupplierID in( ");
                     for (int i = 0; i < SupplierName.Count; i++)
                     {
                         if (SupplierName.Count - i == 1)
@@ -131,7 +131,7 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrEmpty(dNaRuFrom) || !string.IsNullOrEmpty(dNaRuTo))
                 {
-                    strSql.AppendLine($"      AND dNaRuYuDing BETWEEN '{dNaRuFrom}' and '{dNaRuTo}'");
+                    strSql.AppendLine($"      AND dNaRuShiJi BETWEEN '{dNaRuFrom}' and '{dNaRuTo}'");
                 }
                 if (!string.IsNullOrEmpty(dFaZhuFrom) || !string.IsNullOrEmpty(dFaZhuTo))
                 {
@@ -139,7 +139,7 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrEmpty(dNaQiFrom) || !string.IsNullOrEmpty(dNaQiTo))
                 {
-                    strSql.AppendLine($"      AND dNaRuShiJi BETWEEN '{dNaQiFrom}' and '{dNaQiTo}'");
+                    strSql.AppendLine($"      AND dNaRuYuDing BETWEEN '{dNaQiFrom}' and '{dNaQiTo}'");
                 }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

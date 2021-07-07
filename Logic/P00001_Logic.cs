@@ -161,9 +161,9 @@ namespace Logic
             P00001_DataAccess.InsertSeqNo(packingSpot, serverTime, tmpString);
         }
 
-        public static int UpdateSeqNo(string packingSpot, string serverTime, int seqNoNew, string tmpString)
+        public static void UpdateSeqNo(string packingSpot, string serverTime, int seqNoNew, string tmpString)
         {
-            return P00001_DataAccess.UpdateSeqNo(packingSpot, serverTime, seqNoNew, tmpString);
+              P00001_DataAccess.UpdateSeqNo(packingSpot, serverTime, seqNoNew, tmpString);
         }
 
 
@@ -186,9 +186,9 @@ namespace Logic
             return P00001_DataAccess.GetPointStatus4(pointNo);
         }
 
-        public static int InsertPoint1(string pointNo)
+        public static void InsertPoint1(string pointNo)
         {
-            return P00001_DataAccess.InsertPoint1(pointNo);
+              P00001_DataAccess.InsertPoint1(pointNo);
 
         }
 
@@ -449,18 +449,15 @@ namespace Logic
       #region 写入Y
       string sFilePathY = "";
       if (strPlant=="1") {
-        sFilePathY = @"X:\" + name + "_Y_" + formatTime + ".xml";
-
+        sFilePathY = @"A:\" + name + "_Y_" + formatTime + ".xml";
       }
       if (strPlant == "2")
       {
-        sFilePathY = @"Y:\" + name + "_Y_" + formatTime + ".xml";
-
+        sFilePathY = @"B:\" + name + "_Y_" + formatTime + ".xml";
       }
       if (strPlant == "3")
       {
-        sFilePathY = @"Z:\" + name + "_Y_" + formatTime + ".xml";
-
+        sFilePathY = @"E:\" + name + "_Y_" + formatTime + ".xml";
       }
       string s = "";
       if (File.Exists(sFilePathY))
@@ -522,7 +519,8 @@ namespace Logic
       x11.InnerText = sData.SERIAL_NO.Trim();
       nodes.AppendChild(x11);
 
-      XmlElement x12 = doc.CreateElement("DOCK_ARRIALTIME");
+      //XmlElement x12 = doc.CreateElement("DOCK_ARRIALTIME");
+      XmlElement x12 = doc.CreateElement("DOCK_ARRIVAL_DATE");
       x12.InnerText = "";
       nodes.AppendChild(x12);
 
@@ -544,7 +542,7 @@ namespace Logic
 
       //2017-04-20 增加扫描点位 李志远 start
       XmlElement x17 = doc.CreateElement("SCAN_AREA");
-      x17.InnerText = "buji";
+      x17.InnerText = "020";
       nodes.AppendChild(x17);
 
       //end

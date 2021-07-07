@@ -23,9 +23,9 @@ namespace Logic
             return P00003_DataAccess.GetPackData(partId, scanTime);
         }
 
-        public int UpdateCase1(string opearteId, string iP)
+        public void UpdateCase1(string opearteId, string iP)
         {
-            return P00003_DataAccess.UpdateCase1(opearteId, iP);
+            P00003_DataAccess.UpdateCase1(opearteId, iP);
         }
 
         public DataTable GetUserRole(string user)
@@ -38,9 +38,9 @@ namespace Logic
             return P00003_DataAccess.GetPoint(iP);
         }
 
-        public int UpdateEffi1(string pointNo, decimal effi)
+        public void UpdateEffi1(string pointNo, decimal effi)
         {
-            return P00003_DataAccess.UpdateEffi1(pointNo, effi);
+              P00003_DataAccess.UpdateEffi1(pointNo, effi);
         }
 
         public static decimal[] getOperEfficacyInfo(string strPackPlant, string strOperater, string strPointNo)
@@ -308,14 +308,14 @@ namespace Logic
             return P00003_DataAccess.GetStatus2(iP, opearteId);
         }
 
-        public int UpdateStatus4(string pointNo, string opearteId)
+        public void UpdateStatus4(string pointNo, string opearteId)
         {
-            return P00003_DataAccess.UpdateStatus4(pointNo, opearteId);
+            P00003_DataAccess.UpdateStatus4(pointNo, opearteId);
         }
 
-        public int UpdateStatus5(string pointNo, string opearteId)
+        public void UpdateStatus5(string pointNo, string opearteId)
         {
-            return P00003_DataAccess.UpdateStatus5(pointNo, opearteId);
+              P00003_DataAccess.UpdateStatus5(pointNo, opearteId);
         }
 
         public DataTable GetTime(string formatDate, string opearteId)
@@ -323,19 +323,19 @@ namespace Logic
             return P00003_DataAccess.GetTime(formatDate, opearteId);
         }
 
-        public int UpdateEffi(string formatDate, string opearteId, string stopTime)
+        public void UpdateEffi(string formatDate, string opearteId, string stopTime)
         {
-            return P00003_DataAccess.UpdateEffi(formatDate, opearteId, stopTime);
+             P00003_DataAccess.UpdateEffi(formatDate, opearteId, stopTime);
         }
 
-        public int InsertFre(string time, string formatDate, string effiEncy, string opearteId, string serverTime, string iP, string date, string banZhi)
+        public void InsertFre(string time, string formatDate, string effiEncy, string opearteId, string serverTime, string iP, string date, string banZhi)
         {
-            return P00003_DataAccess.InsertFre(time, formatDate, effiEncy, opearteId, serverTime, iP, date, banZhi);
+              P00003_DataAccess.InsertFre(time, formatDate, effiEncy, opearteId, serverTime, iP, date, banZhi);
         }
 
-        public int UpdateFre(string time, string serverTime, string formatDate, string opearteId)
+        public void UpdateFre(string time, string serverTime, string formatDate, string opearteId)
         {
-            return P00003_DataAccess.UpdateFre(time, serverTime, formatDate, opearteId);
+              P00003_DataAccess.UpdateFre(time, serverTime, formatDate, opearteId);
         }
 
         public static DataTable GetPM(string dock, string partId)

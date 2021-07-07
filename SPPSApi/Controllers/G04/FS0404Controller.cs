@@ -852,6 +852,21 @@ namespace SPPSApi.Controllers.G04
                 for (int i = 0; i < fileList.Count; i++)
                 {
                     string fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+
+                    string filePath = fileList[i]["filePath"].ToString();
+                    string msg1 = string.Empty;
+                    Order order = GetPartFromFile(realPath + filePath, fileName, ref msg1);
+                    string fileNameOrder = order.Head.No;
+
+                    //判段上传的订单号号是否存在
+                    DataTable dtExitNew = fs0404_Logic.isCheckByOrderNo(fileNameOrder);
+                    if (dtExitNew.Rows.Count > 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = fileName + "订单号已存在，不能再上传!";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
                     //判段上传的订单号号是否存在
                     DataTable dtExit = fs0404_Logic.isCheckByOrderNo(fileName);
                     if (dtExit.Rows.Count > 0)

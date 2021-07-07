@@ -18,10 +18,13 @@ namespace Logic
         }
 
 
-        public DataTable SearchSupplier()
+        public DataTable SearchClear()
         {
-            return FS0719_DataAccess.SearchSupplier();
+            return FS0719_DataAccess.SearchClear();
         }
+
+
+
 
         #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
         public DataTable Search()

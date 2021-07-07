@@ -231,7 +231,14 @@ namespace DataAccess
             strSql.Append("              			    ) a                  \r\n");
             strSql.Append("              			    left join                  \r\n");
             strSql.Append("              	        	(                  \r\n");
-            strSql.Append("                      			select vcPackNo, convert(int,ISNULL(iG_ShengYu,'0')) as iG_ShengYu from TPackCompute where vcPackSpot = '"+strPackSpot+"' and vcFaZhuID = '"+strFaZhuID+"'                  \r\n");
+            strSql.Append("                      		    select a.vcPackNo,b.iG_ShengYu from 	                  \r\n");
+            strSql.Append("                      			(                  \r\n");
+            strSql.Append("                      				select MAX(iAutoId) as MaxiAutoId,vcPackNo from TPackCompute where vcPackSpot = '"+strPackSpot+"' and vcFaZhuID = '"+strFaZhuID+"' group by vcPackNo                  \r\n");
+            strSql.Append("                      			)a                  \r\n");
+            strSql.Append("                      			left join                  \r\n");
+            strSql.Append("                      			(                  \r\n");
+            strSql.Append("                      				select iAutoId,convert(int,ISNULL(iG_ShengYu,'0')) as iG_ShengYu from TPackCompute                  \r\n");
+            strSql.Append("                      			)b on a.MaxiAutoId = b.iAutoId                                  \r\n");
             strSql.Append("              			    ) b on a.vcPackNo = b.vcPackNo                  \r\n");
             strSql.Append("              			    left join                  \r\n");
             strSql.Append("              			    (               \r\n");
@@ -246,17 +253,18 @@ namespace DataAccess
             strSql.Append("              					    (                  \r\n");
             strSql.Append("              					        select a.vcPartsNo,a.vcPackNo,a.iBiYao from               \r\n");
             strSql.Append("              					        (              \r\n");
-            strSql.Append("              					            select vcPartsNo,iBiYao,vcPackNo from TPackItem               \r\n");
+            strSql.Append("              					            select vcPartsNo,iBiYao,vcPackNo from TPackItem where dFrom<getdate() and getdate()<dTo               \r\n");
             strSql.Append("              					        )a               \r\n");
             strSql.Append("              					        left join               \r\n");
             strSql.Append("              					        (              \r\n");
-            strSql.Append("              					        select * from TPackageMaster where vcBZPlant = '"+strPackSpot+"'              \r\n");
+            strSql.Append("              					        select vcPart_id from TPackageMaster where vcBZPlant = '" + strPackSpot+"'              \r\n");
             strSql.Append("              					        )b on a.vcPartsNo= b.vcPart_id              \r\n");
             strSql.Append("              					    ) b on a.vcPart_id = b.vcPartsNo                  \r\n");
             strSql.Append("              					   inner join                   \r\n");
             strSql.Append("              					   (                  \r\n");
             strSql.Append("              					   	select vcPackNo,dPackFrom,dPackTo from TPackBase                  \r\n");
-            strSql.Append("              					   )c on b.vcPackNo =c.vcPackNo and ( c.dPackFrom<a.dEnd and a.dEnd<c.dPackTo )                  \r\n");
+            strSql.Append("              					   )c on b.vcPackNo =c.vcPackNo                 \r\n");
+            strSql.Append("              					   where c.dPackFrom<a.dEnd and a.dEnd<c.dPackTo                   \r\n");
             strSql.Append("              				    ) a group by vcPackNo                  \r\n");
             strSql.Append("              			    ) c on a.vcPackNo = c.vcPackNo                  \r\n");
             strSql.Append("              			    left join                  \r\n");
@@ -272,7 +280,7 @@ namespace DataAccess
             strSql.Append("              			    ) d on a.vcPackNo = d.vcPackNo                  \r\n");
             strSql.Append("              			    left join                  \r\n");
             strSql.Append("              			    (               \r\n");
-            strSql.Append("              				    select vcPackNo,vcPackSpot,iSJNumber from TPack_FaZhu_ShiJi where vcPackSpot = '" + strPackSpot + "' and vcType = '1' and dNaRuShiJi is not null and ( @dBegin<=dNaRuShiJi and dNaRuShiJi<=@dEnd)                   \r\n");
+            strSql.Append("              				    select vcPackNo,vcPackSpot,sum(ISNULL(iSJNumber,0)) as iSJNumber from TPack_FaZhu_ShiJi where vcPackSpot = '"+strPackSpot+ "' and vcType = '1' and dNaRuShiJi is not null and ( @dBegin<=dNaRuShiJi and dNaRuShiJi<=@dEnd) group by vcPackNo,vcPackSpot                   \r\n");
             strSql.Append("              			    ) e on a.vcPackNo = e.vcPackNo and a.vcPackSpot = e.vcPackSpot                \r\n");
             strSql.Append("              		    ) a --计算出A-E            \r\n");
             strSql.Append("              	    )a      --计算出F            \r\n");
@@ -280,7 +288,7 @@ namespace DataAccess
             strSql.Append("           )a group by vcFaZhuID,vcTimeStr,vcPackNo,vcPackGPSNo,A,B,F,G      \r\n");
             
             #region 插入计算时间履历表
-            strSql.Append("       insert into TPackCompute_Time(vcPackSpot,vcFaZhuID,dBegin,dEnd,vcOperatorID,dOperatorTime,vcFlag) values ('" + strPackSpot + "','" + strFaZhuID + "',@dEnd,GETDATE(),'000000',GETDATE(),'" + strFlag + "');      \r\n");
+            strSql.Append("       insert into TPackCompute_Time(vcPackSpot,vcFaZhuID,dBegin,dEnd,vcOperatorID,dOperatorTime,vcFlag) values ('" + strPackSpot + "','" + strFaZhuID + "',@dBegin,@dEnd,'000000',GETDATE(),'" + strFlag + "');      \r\n");
             #endregion
             excute.ExcuteSqlWithStringOper(strSql.ToString());
         }
@@ -325,9 +333,9 @@ namespace DataAccess
             strSql.AppendLine("       		(      ");
             strSql.AppendLine("       			select vcPartsNo,vcPackNo       ");
             strSql.AppendLine("       			from TPackItem      ");
-            strSql.AppendLine("       			where dUsedFrom<GETDATE() and GETDATE()<dUsedTo      ");
+            strSql.AppendLine("       			where dFrom<GETDATE() and GETDATE()<dTo      ");
             strSql.AppendLine("       		)a      ");
-            strSql.AppendLine("       		left join      ");
+            strSql.AppendLine("       		inner join      ");
             strSql.AppendLine("       		(      ");
             strSql.AppendLine("       			select vcPart_id,vcBZPlant from TPackageMaster      ");
             strSql.AppendLine("       		)b on a.vcPartsNo = b.vcPart_id      ");
@@ -351,7 +359,7 @@ namespace DataAccess
             strSql.AppendLine("       		(      ");
             strSql.AppendLine("       			select vcPartsNo,vcPackNo       ");
             strSql.AppendLine("       			from TPackItem      ");
-            strSql.AppendLine("       			where dUsedFrom<GETDATE() and GETDATE()<dUsedTo      ");
+            strSql.AppendLine("       			where dFrom<GETDATE() and GETDATE()<dTo      ");
             strSql.AppendLine("       		)a      ");
             strSql.AppendLine("       		left join      ");
             strSql.AppendLine("       		(      ");
@@ -426,9 +434,14 @@ namespace DataAccess
         public DataTable SCFZDataSearchComputeJG(string strPackSpot)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendLine("            declare @vcBianCi varchar(100)          ");
-            strSql.AppendLine("            set @vcBianCi = (select top 1 vcBianCi from TPackCompute where vcPackSpot = '"+strPackSpot+"' group by vcBianCi order by vcBianCi desc )          ");
-            strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcBianCi = @vcBianCi and iF_DingGou >0 and vcPackNo <> 'MBC'        ");
+            strSql.AppendLine("            declare @vcBianCi varchar(100)                    ");
+            strSql.AppendLine("            set @vcBianCi = (          ");
+            strSql.AppendLine("            					select top 1 vcBianCi from           ");
+            strSql.AppendLine("            					(          ");
+            strSql.AppendLine("            						select  MAX(iAutoId) iAutoId,vcBianCi from TPackCompute where vcPackSpot = '"+strPackSpot+"' group by vcBianCi          ");
+            strSql.AppendLine("            					)a order by iAutoId desc          ");
+            strSql.AppendLine("            				)          ");
+            strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '"+strPackSpot+"' and vcBianCi = @vcBianCi and iF_DingGou >0 and vcPackNo <> 'MBC'          ");
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
         #endregion
@@ -437,8 +450,13 @@ namespace DataAccess
         public DataTable admitEmptyDataSearch(string strPackSpot)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendLine("            declare @vcBianCi varchar(100)          ");
-            strSql.AppendLine("            set @vcBianCi = (select top 1 vcBianCi from TPackCompute where vcPackSpot = '" + strPackSpot + "' group by vcBianCi order by vcBianCi desc )          ");
+            strSql.AppendLine("            declare @vcBianCi varchar(100)                    ");
+            strSql.AppendLine("            set @vcBianCi = (          ");
+            strSql.AppendLine("            					select top 1 vcBianCi from           ");
+            strSql.AppendLine("            					(          ");
+            strSql.AppendLine("            						select  MAX(iAutoId) iAutoId,vcBianCi from TPackCompute where vcPackSpot = '" + strPackSpot + "' group by vcBianCi          ");
+            strSql.AppendLine("            					)a order by iAutoId desc          ");
+            strSql.AppendLine("            				)          ");
             strSql.AppendLine("            select * from TPackCompute where vcPackSpot = '" + strPackSpot + "' and vcBianCi = @vcBianCi          ");
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }

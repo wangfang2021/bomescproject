@@ -22,11 +22,11 @@ namespace DataAccess
                 //strSql.AppendLine("select a.iAutoId, a.vcInno as vcInPutOrderNo,a.vcLotid as vcPackMaterNo,a.[vcTrolleyNo] AS vcTrolleyNo,a.vcPackingpartsno as vcPackPartId  ");
                 strSql.AppendLine("	from   ");
                 //strSql.AppendLine("		,cast(dQty as varchar(50)) as iQty,vcPackingpartslocation as vcLocation,a.vcPackinggroup,'1' as bSelectFlag 	from   ");
-                //strSql.AppendLine("(select * from tpacklist  ");
-                strSql.AppendLine("(select * from TPackList_Temp  ");
+                strSql.AppendLine("(select * from tpacklist  ");
+                //strSql.AppendLine("(select * from TPackList_Temp  ");
                 if (strTrolleyNo != "")
                 {
-                    strSql.AppendLine(" where iAutoId in (select MAX(iAutoId) as iAutoId from TPackList_Temp where vcTrolleyNo='" + strTrolleyNo + "') ");
+                    strSql.AppendLine(" where iAutoId in (select MAX(iAutoId) as iAutoId from tpacklist where vcTrolleyNo='" + strTrolleyNo + "') ");
                 }
                 strSql.AppendLine(")a  ");
                 strSql.AppendLine("left join  ");

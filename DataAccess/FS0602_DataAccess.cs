@@ -1328,7 +1328,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("select distinct vcValue2 as vcEmail1,vcValue1 as vcLXR1 from TOutCode where vcCodeId='C052' and vcIsColum='0'");
+                sbr.AppendLine("select distinct vcValue2 as vcEmail1,vcValue1 as vcLXR1 from TOutCode where vcCodeId='C006' and vcIsColum='0'");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

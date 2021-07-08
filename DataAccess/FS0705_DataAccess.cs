@@ -288,7 +288,7 @@ namespace DataAccess
             strSql.Append("           )a group by vcFaZhuID,vcTimeStr,vcPackNo,vcPackGPSNo,A,B,F,G      \r\n");
             
             #region 插入计算时间履历表
-            strSql.Append("       insert into TPackCompute_Time(vcPackSpot,vcFaZhuID,dBegin,dEnd,vcOperatorID,dOperatorTime,vcFlag) values ('" + strPackSpot + "','" + strFaZhuID + "',@dBegin,@dEnd,'000000',GETDATE(),'" + strFlag + "');      \r\n");
+            strSql.Append("       insert into TPackCompute_Time(vcPackSpot,vcFaZhuID,dBegin,dEnd,vcOperatorID,dOperatorTime,vcFlag) values ('" + strPackSpot + "','" + strFaZhuID + "',@dBegin,@dEnd,'"+strUserID+"',GETDATE(),'" + strFlag + "');      \r\n");
             #endregion
             excute.ExcuteSqlWithStringOper(strSql.ToString());
         }

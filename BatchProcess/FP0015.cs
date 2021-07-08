@@ -578,7 +578,7 @@ namespace BatchProcess
                         sql.Append("    '0',  \n");
                         sql.Append("    '" + dtcope.Rows[z]["vcOrderNo"].ToString() + "',  \n");
                         sql.Append("    '" + PackNo1 + "',  \n");
-                        sql.Append("    '" + dtcope.Rows[z]["vcPackNo"].ToString() + "',  \n");
+                        sql.Append("    '" + dtcope.Rows[z]["vcPackGPSNo"].ToString() + "',  \n");
                         sql.Append("    '" + dtcope.Rows[z]["vcSupplieCode"].ToString() + "',  \n");
                         sql.Append("  '" + PackSpot1 + "',    \n");
                         sql.Append("    '" + dtcope.Rows[z]["iSJNum"].ToString() + "',  \n");

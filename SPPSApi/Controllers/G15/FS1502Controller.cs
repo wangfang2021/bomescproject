@@ -263,7 +263,7 @@ namespace SPPSApi.Controllers.G15
                     {
                         {"累积包装残","计划调整","实行计划-白","实行计划-夜"},//中文字段名
                         {"iLJBZRemain","iPlanTZ","iSSPlan_Day","iSSPlan_Night"},//英文字段名
-                        {FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},//数据类型校验
+                        {FieldCheck.NumCharL,FieldCheck.NumCharL,FieldCheck.NumCharL,FieldCheck.NumCharL},//数据类型校验
                         {"0","0","0","0"},//最大长度设定,不校验最大长度用0
                         {"0","0","1","1"},//最小长度设定,可以为空用0
                         {"7","8","9","10"},//前台显示列号，从0开始计算,注意有选择框的是0

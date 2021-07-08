@@ -88,7 +88,7 @@ namespace DataAccess
             sql.Append("    left join       \n");
             sql.Append("    (       \n");
             sql.Append("       select vcPartId,vcSupplierId,vcReceiver,dFromTime,dToTime from TSPMaster      \n");
-            sql.Append("  	 where      \n");
+            sql.Append("  	 where  ISNULL(vcDelete,'')<>'1' and    \n");
             sql.Append("  	 convert(varchar(6),dFromTime,112)='" + strYearMonth + "' or    \n");
             sql.Append("  	 convert(varchar(6),dToTime,112)='" + strYearMonth + "'    \n");
             sql.Append("    )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId and a.vcReceiver=b.vcReceiver       \n");
@@ -228,15 +228,15 @@ namespace DataAccess
                     "and vcInOutFlag='0')t1    \n");
                 sql.Append("left join(    \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
-                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
+                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112) and ISNULL(vcDelete,'')<>'1'   \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
                 sql.Append("left join(    \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
-                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and '" + strNSYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
+                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and '" + strNSYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112) and ISNULL(vcDelete,'')<>'1'   \n");//TFTM和APC06是写死的
                 sql.Append(")t3 on t1.vcPart_id=t3.vcPartId    \n");
                 sql.Append("left join(    \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
-                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and '" + strNNSYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
+                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and '" + strNNSYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112) and ISNULL(vcDelete,'')<>'1'   \n");//TFTM和APC06是写死的
                 sql.Append(")t4 on t1.vcPart_id=t4.vcPartId    \n");
 
                 //N月
@@ -251,7 +251,7 @@ namespace DataAccess
                 sql.Append("left join        \n");
                 sql.Append("(--手配主表        \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime         \n");
-                sql.Append("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and dFromTime<>dToTime     \n");
+                sql.Append("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and dFromTime<>dToTime and ISNULL(vcDelete,'')<>'1'    \n");
                 sql.Append(")t3 on t1.vcPart_id=t3.vcPartId and '" + strDXYM + "' between convert(varchar(6),t3.dFromTime,112) and convert(varchar(6),t3.dToTime,112)        \n");
                 sql.Append("left join             \n");
                 sql.Append("(    --//受入 N        \n");
@@ -273,7 +273,7 @@ namespace DataAccess
                 sql.Append("left join        \n");
                 sql.Append("(--手配主表        \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime         \n");
-                sql.Append("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and dFromTime<>dToTime     \n");
+                sql.Append("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and dFromTime<>dToTime and ISNULL(vcDelete,'')<>'1'    \n");
                 sql.Append(")t3 on t1.vcPart_id=t3.vcPartId and '" + strNSYM + "' between convert(varchar(6),t3.dFromTime,112) and convert(varchar(6),t3.dToTime,112)        \n");
                 sql.Append("left join             \n");
                 sql.Append("(    --//受入 N        \n");
@@ -295,7 +295,7 @@ namespace DataAccess
                 sql.Append("left join        \n");
                 sql.Append("(--手配主表        \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime         \n");
-                sql.Append("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and dFromTime<>dToTime     \n");
+                sql.Append("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and dFromTime<>dToTime and ISNULL(vcDelete,'')<>'1'    \n");
                 sql.Append(")t3 on t1.vcPart_id=t3.vcPartId and '" + strNNSYM + "' between convert(varchar(6),t3.dFromTime,112) and convert(varchar(6),t3.dToTime,112)        \n");
                 sql.Append("left join             \n");
                 sql.Append("(    --//受入 N        \n");

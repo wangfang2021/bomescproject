@@ -98,7 +98,7 @@ namespace BatchProcess
                 sql.Append("			select * from TPackageMaster where vcReceiver='APC06' and vcPackingPlant='" + strUnit + "'    \n");
                 sql.Append("		) t2 on t1.vcPartsno=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplierId    \n");
                 sql.Append("		left join TPMRelation t3 on t2.vcSmallPM=t3.vcSmallPM    \n");
-                sql.Append("        left join (select * from TSPMaster where vcReceiver='APC06' and vcPackingPlant='" + strUnit + "')t4          \n");
+                sql.Append("        left join (select * from TSPMaster where vcReceiver='APC06' and vcPackingPlant='" + strUnit + "' and dFromTime<>dToTime and ISNULL(vcDelete,'')<>'1')t4          \n");
                 sql.Append("        on t1.vcPartsno=t4.vcPartId and t1.vcSupplier_id=t4.vcSupplierId          \n");
                 sql.Append("        where t4.vcOrderingMethod='0'          \n");//只找月度的
                 sql.Append("		group by t2.vcBZPlant,t3.vcBigPM,t2.vcSmallPM    \n");
@@ -244,10 +244,13 @@ namespace BatchProcess
                 sql.AppendLine("	select * from TPackingPlan_Report where vcYearMonth='" + sub1_YYYYMM + "' and vcKind='当日实际'");
                 sql.AppendLine(")t3 on t1.vcPlant=t3.vcPlant and t1.vcBigPM=t3.vcBigPM and t1.vcSmallPM=t3.vcSmallPM");
 
-                sql.AppendLine("--更新N-1日累计残量=N-2日累计残量+N-1日当日残");
-                sql.AppendLine("update t1 set t1.iD" + sub1_day + "=isnull(t2.iD" + sub2_day + ",0)+isnull(t3.iD" + sub1_day + ",0) ");
+                //sql.AppendLine("--更新N-1日累计残量=N-2日累计残量+N-1日当日残");
+                //sql.AppendLine("update t1 set t1.iD" + sub1_day + "=isnull(t2.iD" + sub2_day + ",0)+isnull(t3.iD" + sub1_day + ",0) ");
+                sql.AppendLine("--更新N日累计残量=N-2日累计残量+N-1日当日残");
+                sql.AppendLine("update t1 set t1.iD" + now_day + "=isnull(t2.iD" + sub2_day + ",0)+isnull(t3.iD" + sub1_day + ",0) ");
                 sql.AppendLine("from (");
-                sql.AppendLine("	select * from TPackingPlan_Report where vcYearMonth='" + sub1_YYYYMM + "' and vcKind='累计残量'");
+                //sql.AppendLine("	select * from TPackingPlan_Report where vcYearMonth='" + sub1_YYYYMM + "' and vcKind='累计残量'");
+                sql.AppendLine("	select * from TPackingPlan_Report where vcYearMonth='" + now_YYYYMM + "' and vcKind='累计残量'");
                 sql.AppendLine(")t1");
                 sql.AppendLine("left join (");
                 sql.AppendLine("	select * from TPackingPlan_Report where vcYearMonth='" + sub2_YYYYMM + "' and vcKind='累计残量'");
@@ -269,15 +272,20 @@ namespace BatchProcess
                 sql.AppendLine("	where vcYearMonth='" + now_YYYYMM + "' and vcKind='紧急订单'");
                 sql.AppendLine(")t2 on t1.vcPlant=t2.vcPlant and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
 
-                sql.AppendLine("--更新N-1日累计残");
-                sql.AppendLine("update t1 set t1.iLJBZRemain=t2.iD" + sub1_day + "");
+                //sql.AppendLine("--更新N-1日累计残");
+                //sql.AppendLine("update t1 set t1.iLJBZRemain=t2.iD" + sub1_day + "");
+                sql.AppendLine("--更新N日累计残");
+                sql.AppendLine("update t1 set t1.iLJBZRemain=t2.iD" + now_day + "");
                 sql.AppendLine("from ");
                 sql.AppendLine("(");
-                sql.AppendLine("	select * from TPackingPlan_Summary where dPackDate='" + sub1_YYYYMMDD + "'");
+                //sql.AppendLine("	select * from TPackingPlan_Summary where dPackDate='" + sub1_YYYYMMDD + "'");
+                sql.AppendLine("	select * from TPackingPlan_Summary where dPackDate='" + now_YYYYMMDD + "'");
                 sql.AppendLine(")t1");
                 sql.AppendLine("left join (");
-                sql.AppendLine("	select id" + sub1_day + ",vcPlant,vcBigPM,vcSmallPM from TPackingPlan_Report ");
-                sql.AppendLine("	where vcYearMonth='" + sub1_YYYYMM + "' and vcKind='累计残量'");
+                //sql.AppendLine("	select id" + sub1_day + ",vcPlant,vcBigPM,vcSmallPM from TPackingPlan_Report ");
+                //sql.AppendLine("	where vcYearMonth='" + sub1_YYYYMM + "' and vcKind='累计残量'");
+                sql.AppendLine("	select id" + now_day + ",vcPlant,vcBigPM,vcSmallPM from TPackingPlan_Report ");
+                sql.AppendLine("	where vcYearMonth='" + now_YYYYMM + "' and vcKind='累计残量'");
                 sql.AppendLine(")t2 on t1.vcPlant=t2.vcPlant and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
 
                 sql.AppendLine("--更新N日实行计划");

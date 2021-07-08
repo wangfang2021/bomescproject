@@ -56,8 +56,10 @@ namespace SPPSApi.Controllers.G08
 
                 List<Object> dataList_C058 = ComFunction.convertAllToResult(ComFunction.getTCode("C058"));//引取类别
                 List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
+                List<Object> dataList_C031 = ComFunction.convertAllToResult(ComFunction.getTCode("C031"));//班值
                 res.Add("C058", dataList_C058);
                 res.Add("C005", dataList_C005);
+                res.Add("C031", dataList_C031);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;

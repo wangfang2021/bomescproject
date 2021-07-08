@@ -465,7 +465,7 @@ namespace DataAccess
                 string part_00 = strPart_id + "00";
                 string part_ed = strPart_id + "ED";
                 StringBuilder sql = new StringBuilder();
-                sql.AppendLine("select count(1) from TSPMaster where vcPartId in ('"+part_00+"','"+part_ed+"')");
+                sql.AppendLine("select count(1) from TSPMaster where vcPartId in ('"+part_00+"','"+part_ed+ "')  and dFromTime<>dToTime and ISNULL(vcDelete,'')<>'1'  ");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)

@@ -422,7 +422,7 @@ namespace DataAccess
                     cmdUpdate1.CommandText += "set TOutsidePurchaseManage.vcNoReceiveNumber=TOutsidePurchaseManage.vcOrderNumber-b.iQuantity ";
                     cmdUpdate1.CommandText += "from (select sum(iQuantity) as iQuantity,vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant ";
                     cmdUpdate1.CommandText += "      from TOperateSJ ";
-                    cmdUpdate1.CommandText += "      where vcZYType='S0' and substring(convert(varchar,dStart,112),1,6)>='" + vcTargetMonthFrom + "' and substring(convert(varchar,dStart,112),1,6)<='" + vcTargetMonthTo + "' ";
+                    cmdUpdate1.CommandText += "      where vcZYType='S0' and substring(convert(varchar,dEnd,112),1,6)>='" + vcTargetMonthFrom + "' and substring(convert(varchar,dEnd,112),1,6)<='" + vcTargetMonthTo + "' ";
                     cmdUpdate1.CommandText += "      group by vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant) b ";
                     cmdUpdate1.CommandText += "where TOutsidePurchaseManage.vcOrderNo=b.vcKBOrderNo and TOutsidePurchaseManage.vcPartNo=b.vcPart_id ";
                     cmdUpdate1.CommandText += "and TOutsidePurchaseManage.vcDock=b.vcSR and TOutsidePurchaseManage.vcSupplier_id=b.vcSupplier_id ";

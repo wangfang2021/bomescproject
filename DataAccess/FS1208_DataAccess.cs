@@ -612,7 +612,7 @@ namespace DataAccess
                 //优化测试
 
                 #region 2021-6-9 废弃黑白件逻辑
-                //cmd.CommandType = CommandType.Text;
+                cmd.CommandType = CommandType.Text;
                 //cmd.CommandText = "update TKanbanPrintTbl set TKanbanPrintTbl.vcPrintflagED=a.vcPartsED,TKanbanPrintTbl.vcDockED=a.vcDockED  ";
                 //cmd.CommandText += "from (select substring(vcPartsNo,1,10)+'00' as vcPartsNo,vcPartsNo as vcPartsED,vcDock as vcDockED from tPartInfoMaster ";
                 //cmd.CommandText += "where substring(vcPartsNo,11,2)='ED' and dTimeTo>=convert(varchar,getdate(),112)) a where TKanbanPrintTbl.vcPartsNo=a.vcPartsNo;";

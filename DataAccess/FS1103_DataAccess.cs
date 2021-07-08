@@ -413,7 +413,7 @@ namespace DataAccess
                 strSql_tag.AppendLine("      ,[iDateprintflg]");
                 strSql_tag.AppendLine("      ,[vcComputernm]");
                 strSql_tag.AppendLine("      ,[vcPrindate]");
-                strSql_tag.AppendLine("      ,[iQrcode] as [iQrcode1]]");
+                strSql_tag.AppendLine("      ,[iQrcode] as [iQrcode1]");
                 strSql_tag.AppendLine("      ,[vcPrintcount] as [vcPrintcount1]");
                 strSql_tag.AppendLine("      ,[vcPartnamechineese]");
                 strSql_tag.AppendLine("      ,[vcSuppliername]");

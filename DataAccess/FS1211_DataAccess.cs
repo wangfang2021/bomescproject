@@ -272,7 +272,7 @@ namespace DataAccess
             DataTable dtEDorder = SearchData(ssql);
             string tmpsql = " select vcPart_id,vcSHF,vcSR,vcInputNo,iQuantity,vcKBOrderNo,vcKBLFNo,";
             tmpsql += " case when packingcondition='1' then '未包装' else '已包装' end as packingcondition,";
-            tmpsql += " vcBZPlant,dEnd,vcOperatorID,vcSheBeiNo,dOperatorTime,'T0' as otype,'紧急' as vcEDflag ";
+            tmpsql += " vcBZPlant,dEnd as dStart,vcOperatorID,vcSheBeiNo,dOperatorTime,'T0' as otype,'紧急' as vcEDflag ";
             tmpsql += " from TOperateSJ t where vcZYType='S0' ";
             tmpsql += " and (";
             for (int i = 0; i < dtEDorder.Rows.Count; i++)

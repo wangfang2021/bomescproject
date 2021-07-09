@@ -236,6 +236,21 @@ namespace DataAccess
         }
         #endregion
 
+        public DataTable GetBatchExcute(string dBZDate)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.AppendLine("select * from SLog where vcFunctionID='FP0033' and CONVERT(varchar(10),dCreateTime,120)='"+dBZDate.Replace("/","-")+"'");
+                sql.AppendLine("and vcMessage like '%正常结束%'");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #region 导入后保存
         public void importSave_Sub(DataTable dt, string vcFZPlant, string dBZDate, string strUserId, string strUnit)
         {

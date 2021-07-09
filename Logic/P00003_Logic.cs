@@ -40,7 +40,7 @@ namespace Logic
 
         public void UpdateEffi1(string pointNo, decimal effi)
         {
-              P00003_DataAccess.UpdateEffi1(pointNo, effi);
+            P00003_DataAccess.UpdateEffi1(pointNo, effi);
         }
 
         public static decimal[] getOperEfficacyInfo(string strPackPlant, string strOperater, string strPointNo)
@@ -100,12 +100,12 @@ namespace Logic
             }
         }
 
-    public DataTable checkPrintName(string iP, string strPointType)
-    {
-      return P00003_DataAccess.checkPrintName(iP, strPointType);
-    }
+        public DataTable checkPrintName(string iP, string strPointType)
+        {
+            return P00003_DataAccess.checkPrintName(iP, strPointType);
+        }
 
-    private static decimal getOnLineDetails(DataTable dtPointDetails, DataTable dtRest)
+        private static decimal getOnLineDetails(DataTable dtPointDetails, DataTable dtRest)
         {
             try
             {
@@ -315,7 +315,7 @@ namespace Logic
 
         public void UpdateStatus5(string pointNo, string opearteId)
         {
-              P00003_DataAccess.UpdateStatus5(pointNo, opearteId);
+            P00003_DataAccess.UpdateStatus5(pointNo, opearteId);
         }
 
         public DataTable GetTime(string formatDate, string opearteId)
@@ -325,17 +325,17 @@ namespace Logic
 
         public void UpdateEffi(string formatDate, string opearteId, string stopTime)
         {
-             P00003_DataAccess.UpdateEffi(formatDate, opearteId, stopTime);
+            P00003_DataAccess.UpdateEffi(formatDate, opearteId, stopTime);
         }
 
         public void InsertFre(string time, string formatDate, string effiEncy, string opearteId, string serverTime, string iP, string date, string banZhi)
         {
-              P00003_DataAccess.InsertFre(time, formatDate, effiEncy, opearteId, serverTime, iP, date, banZhi);
+            P00003_DataAccess.InsertFre(time, formatDate, effiEncy, opearteId, serverTime, iP, date, banZhi);
         }
 
         public void UpdateFre(string time, string serverTime, string formatDate, string opearteId)
         {
-              P00003_DataAccess.UpdateFre(time, serverTime, formatDate, opearteId);
+            P00003_DataAccess.UpdateFre(time, serverTime, formatDate, opearteId);
         }
 
         public static DataTable GetPM(string dock, string partId)
@@ -485,7 +485,7 @@ namespace Logic
         {
             try
             {
-                return P00003_DataAccess.setCastListInfo( dtOperateSJ_Temp,  dtCaseList_Temp,  strIP,  caseno,  boxno,  scanTime,  strOperId,strCasePrinterName);
+                return P00003_DataAccess.setCastListInfo(dtOperateSJ_Temp, dtCaseList_Temp, strIP, caseno, boxno, scanTime, strOperId, strCasePrinterName);
             }
             catch (Exception ex)
             {
@@ -493,9 +493,29 @@ namespace Logic
             }
         }
 
-    public DataTable GetPrintName(string iP, string strKind)
-    {
-      return P00003_DataAccess.GetPrintName(iP, strKind);
+        public DataTable GetPrintName(string iP, string strKind)
+        {
+            return P00003_DataAccess.GetPrintName(iP, strKind);
+        }
+        public void WriteLog(string logs, string path)
+        {
+            try
+            {
+                if (!System.IO.File.Exists(path))
+                {
+                    FileStream stream = System.IO.File.Create(path);
+                    stream.Close();
+                    stream.Dispose();
+                }
+                using (StreamWriter writer = new StreamWriter(path, true))
+                {
+                    writer.WriteLine(logs);
+                }
+            }
+            catch
+            {
+                return;
+            }
+        }
     }
-  }
 }

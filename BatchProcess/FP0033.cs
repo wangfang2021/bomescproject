@@ -55,6 +55,54 @@ namespace BatchProcess
 
                 StringBuilder sql = new StringBuilder();
 
+                #region 外注
+                sql.Append("delete from TPackingPlan_Summary where dPackDate='" + now_YYYYMMDD + "'  and vcInOutType='外注'   \n");
+                sql.Append("INSERT INTO [TPackingPlan_Summary]        \n");
+                sql.Append("           (vcPlant    \n");
+                sql.Append("		   ,[dPackDate]        \n");
+                sql.Append("           ,[vcBigPM]     \n");
+                sql.Append("		   ,vcSmallPM    \n");
+                sql.Append("		   ,vcStandardTime    \n");
+                sql.Append("           ,[iBZPlan_Day]        \n");
+                sql.Append("           ,[iBZPlan_Night]        \n");
+                sql.Append("           ,[iBZPlan_Heji]        \n");
+                sql.Append("           ,[vcInOutType]        \n");
+                sql.Append("           ,[vcOperatorID]        \n");
+                sql.Append("           ,[dOperatorTime])        \n");
+                sql.Append("select a1.vcPlant,'" + now_YYYYMMDD + "',a1.vcBigPM,a1.vcSmallPM,a1.vcStandardTime,    \n");
+                sql.Append("isnull(a2.A,0) as A,isnull(a2.B,0) as B,isnull(a2.C,0) as C,'外注' as kind,'" + strUserId + "','" + now + "'        \n");
+                sql.Append("from (        \n");
+                sql.Append("	--大品目    \n");
+                sql.Append("	select t1.vcValue as vcPlant,t2.* from (    \n");
+                sql.Append("		select * from TCode where vcCodeId='C023'    \n");
+                sql.Append("	)t1    \n");
+                sql.Append("	left join (    \n");
+                sql.Append("		select t1.vcBigPM,t2.vcSmallPM,t2.vcStandardTime from (    \n");
+                sql.Append("			select vcValue1 as vcBigPM from TOutCode where vcCodeId='C003' and vcIsColum='0' and vcValue2='外注'     \n");
+                sql.Append("		)t1    \n");
+                sql.Append("		left join TPMRelation t2 on t1.vcBigPM=t2.vcBigPM    \n");
+                sql.Append("	)t2 on 1=1    \n");
+                sql.Append(")a1        \n");
+                sql.Append("left join (        \n");
+                sql.Append("	--白夜合计        \n");
+                sql.Append("	select t1.vcPlant,t1.vcBigPM,t1.vcSmallPM,ISNULL(t1.白,0) as A,ISNULL(t1.夜,0) as B,        \n");
+                sql.Append("	ISNULL(t1.白,0)+ISNULL(t1.夜,0) as C        \n");
+                sql.Append("	from        \n");
+                sql.Append("	(        \n");
+                sql.Append("		select t1.vcPlant,t3.vcBigPM,t2.vcSmallPM,t1.vcPackBZ,sum(t1.iPackNum) as iPackNum from (        \n");
+                sql.Append("			select * from TPackingPlan where vcPackDate='" + now_YYYYMMDD + "'        \n");
+                sql.Append("		)t1        \n");
+                sql.Append("		left join (    \n");
+                sql.Append("			select * from TPackageMaster where vcReceiver='APC06' and vcPackingPlant='" + strUnit + "'    \n");
+                sql.Append("		) t2 on t1.vcPartId=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplierId    \n");
+                sql.Append("		left join TPMRelation t3 on t2.vcSmallPM=t3.vcSmallPM    \n");
+                sql.Append("		group by t1.vcPlant,t3.vcBigPM,t2.vcSmallPM,t1.vcPackBZ    \n");
+                sql.Append("	) test pivot(sum(iPackNum) for vcPackBZ in(白,夜)) t1        \n");
+                sql.Append(")a2 on a1.vcBigPM=a2.vcBigPM and a1.vcSmallPM=a2.vcSmallPM and a1.vcPlant=a2.vcPlant    \n");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+                #endregion
+
+                sql.Length = 0;
                 #region 先抓取内制数据到summary表中，因为会有 某日有内制计划但没外注计划的时候
                 sql.Append("delete from TPackingPlan_Summary where dPackDate='" + now_YYYYMMDD + "' and vcInOutType='内制'    \n");
                 int iday = Convert.ToInt32(now_day);

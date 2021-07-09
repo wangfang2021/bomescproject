@@ -43,7 +43,7 @@ namespace DataAccess
                 strSql.AppendLine("                       '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],             ");
                 strSql.AppendLine("                       '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],               ");
                 strSql.AppendLine("                      null as [vcOperatorID], null as [dOperatorTime]           ");
-                strSql.AppendLine("                         from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'            ");
+                strSql.AppendLine("                         from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1' and  dFromTime<>dToTime            ");
                 strSql.AppendLine("                         AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))             ");
                 strSql.AppendLine("                          OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))) a            ");
                 strSql.AppendLine("                         left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b                ");
@@ -144,7 +144,7 @@ namespace DataAccess
                 //strSql.AppendLine("      and a.vcReceiver=d.vcReceiver and a.dFromTime = d.dFromTime and a.dToTime=d.dToTime   ");
                 //strSql.AppendLine("        ");
                 //strSql.AppendLine("      where b.vcPartNo is null and d.iPackingQty is null     ");
-                strSql.AppendLine("        from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'    ");
+                strSql.AppendLine("        from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'  and  dFromTime<>dToTime    ");
                 strSql.AppendLine("        AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))     ");
                 strSql.AppendLine("         OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))) a    ");
                 strSql.AppendLine("        left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b        ");
@@ -331,7 +331,7 @@ namespace DataAccess
                 //strSql.AppendLine("      and a.vcReceiver=d.vcReceiver and a.dFromTime = d.dFromTime and a.dToTime=d.dToTime   ");
                 //strSql.AppendLine("        ");
                 //strSql.AppendLine("      where b.vcPartNo is null and d.iPackingQty is null     ");
-                strSql.AppendLine("        from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'    ");
+                strSql.AppendLine("        from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1' and  dFromTime<>dToTime     ");
                 strSql.AppendLine("        AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))     ");
                 strSql.AppendLine("         OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))) a    ");
                 strSql.AppendLine("        left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b        ");
@@ -554,7 +554,7 @@ namespace DataAccess
                 strSql.AppendLine("                        '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],             ");
                 strSql.AppendLine("                        '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],               ");
                 strSql.AppendLine("                       null as [vcOperatorID], null as [dOperatorTime]           ");
-                strSql.AppendLine("                          from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'            ");
+                strSql.AppendLine("                          from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1' and  dFromTime<>dToTime            ");
                 strSql.AppendLine("                          AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))             ");
                 strSql.AppendLine("                           OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))) a            ");
                 strSql.AppendLine("                          left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b                ");
@@ -715,7 +715,7 @@ namespace DataAccess
                 strSql.AppendLine("           '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],           ");
                 strSql.AppendLine("           '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],             ");
                 strSql.AppendLine("          null as [vcOperatorID], null as [dOperatorTime]         ");
-                strSql.AppendLine("             from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'          ");
+                strSql.AppendLine("             from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'  and  dFromTime<>dToTime         ");
                 strSql.AppendLine("             AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))           ");
                 strSql.AppendLine("              OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))) a          ");
                 strSql.AppendLine("             left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b              ");
@@ -796,7 +796,7 @@ namespace DataAccess
                 strSql.AppendLine("          '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],            ");
                 strSql.AppendLine("          '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],              ");
                 strSql.AppendLine("         null as [vcOperatorID], null as [dOperatorTime]          ");
-                strSql.AppendLine("            from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'           ");
+                strSql.AppendLine("            from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1' and  dFromTime<>dToTime           ");
                 strSql.AppendLine("            AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))            ");
                 strSql.AppendLine("             OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))) a           ");
                 strSql.AppendLine("            left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b               ");
@@ -875,7 +875,7 @@ namespace DataAccess
                 strSql.AppendLine("           '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],           ");
                 strSql.AppendLine("           '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],             ");
                 strSql.AppendLine("          null as [vcOperatorID], null as [dOperatorTime]         ");
-                strSql.AppendLine("             from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'          ");
+                strSql.AppendLine("             from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'  and  dFromTime<>dToTime          ");
                 strSql.AppendLine("             AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))           ");
                 strSql.AppendLine("              OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))) a          ");
                 strSql.AppendLine("             left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b              ");
@@ -1234,7 +1234,7 @@ namespace DataAccess
                 strSql.AppendLine("       '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],       ");
                 strSql.AppendLine("       '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],        ");
                 strSql.AppendLine("      null as [vcOperatorID], null as [dOperatorTime]    ");
-                strSql.AppendLine("       from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'   ");
+                strSql.AppendLine("       from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1' and  dFromTime<>dToTime    ");
                 strSql.AppendLine("       AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))    ");
                 strSql.AppendLine("        OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))) a   ");
                 strSql.AppendLine("       left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b       ");
@@ -1943,7 +1943,7 @@ namespace DataAccess
                 sql.AppendLine("             null as [vcMemo],null as  [vcImageRoutes],   ");
                 sql.AppendLine("  		   '"+ userId + "' as [vcInserter],GETDATE() as [vcInserterDate],   ");
                 sql.AppendLine("            '" + userId + "' as [vcOperatorID], GETDATE() as [dOperatorTime]      ");
-                sql.AppendLine("               from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'       ");
+                sql.AppendLine("               from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1' and  dFromTime<>dToTime       ");
                 sql.AppendLine("               AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))        ");
                 sql.AppendLine("                OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))) a       ");
                 sql.AppendLine("               left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b           ");

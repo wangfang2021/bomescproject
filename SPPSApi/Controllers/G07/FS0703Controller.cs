@@ -133,7 +133,7 @@ namespace SPPSApi.Controllers.G07
                 DataTable dtException = new DataTable();
                 dtException.Columns.Add("vcpart_id", Type.GetType("System.String"));
                 dtException.Columns.Add("vcException", Type.GetType("System.String"));
-
+            
                 dtcope.TableName = "123";
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {

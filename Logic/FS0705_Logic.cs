@@ -309,8 +309,8 @@ namespace Logic
                                             //dY_To = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dRuHeToTime"].ToString());//入荷结束时间
                                             //task.dRuheToDate = dY_To;
                                             //这种往后找的便次，有且只有：当前时间>=后找到的便次对应发注作业起，用户才能看见
-                                            DateTime dX_temp = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dFaZhuFromTime"].ToString());//发注起始时间
-                                            if(DateTime.Now>=dX_temp)
+                                            //DateTime dX_temp = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dFaZhuFromTime"].ToString());//发注起始时间
+                                            //if(DateTime.Now>=dX_temp)
                                                 hasFind = true;
                                             break;
                                         }
@@ -321,8 +321,8 @@ namespace Logic
                                             //dY_To = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dRuHeToTime"].ToString());//入荷结束时间
                                             //task.dRuheToDate = dY_To;
                                             //这种往后找的便次，有且只有：当前时间>=后找到的便次对应发注作业起，用户才能看见
-                                            DateTime dX_temp = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dFaZhuFromTime"].ToString());//发注起始时间
-                                            if (DateTime.Now >= dX_temp)
+                                            //DateTime dX_temp = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dFaZhuFromTime"].ToString());//发注起始时间
+                                            //if (DateTime.Now >= dX_temp)
                                                 hasFind = true;
                                             break;
                                         }

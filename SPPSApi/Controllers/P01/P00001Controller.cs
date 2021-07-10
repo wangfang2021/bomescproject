@@ -1639,7 +1639,7 @@ namespace SPPSApi.Controllers.P01
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "更新入库数据失败";
+                apiResult.data = "更新入库数据失败,请重试";
                 apiResult.type = "LS";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }

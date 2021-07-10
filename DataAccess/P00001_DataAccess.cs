@@ -2277,7 +2277,7 @@ namespace DataAccess
         strSql_addinfo.AppendLine("           ,[vcPackingPlant])");
         strSql_addinfo.AppendLine("select vcZYType,");
         strSql_addinfo.AppendLine("vcBZPlant,");
-        strSql_addinfo.AppendLine("vcInputNo,");
+        strSql_addinfo.AppendLine("case when vcInputNo='' then null else vcInputNo end as vcInputNo ,");
         strSql_addinfo.AppendLine("vcKBOrderNo,");
         strSql_addinfo.AppendLine("vcKBLFNo,");
         strSql_addinfo.AppendLine("vcPart_id,");

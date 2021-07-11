@@ -517,7 +517,12 @@ namespace Logic
         #region 生成发注数据的检索计算结果（舍弃订购数量为NULL或者为0的数据）
         public DataTable SCFZDataSearchComputeJG(string strPackSpot)
         {
-            return fs0705_DataAccess.SCFZDataSearchComputeJG(strPackSpot);
+            DataTable dt = fs0705_DataAccess.SCFZDataSearchComputeJG(strPackSpot);
+
+            //如果找到订单号不为空的数据，则说明上次进行过发注了，返回null
+            int count = dt.Select("vcOrderNo is not null").Length;
+            return count <= 0 ? dt : null;
+
         }
         #endregion
 

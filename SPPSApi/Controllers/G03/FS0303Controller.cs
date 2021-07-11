@@ -268,11 +268,11 @@ namespace SPPSApi.Controllers.G03
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            string strPart_id = dataForm.vcPart_id;
+            
             try
             {
-                DataTable dt = fs0303_Logic.SearchTeji(strPart_id);
+                string strAutoId = dataForm.data.iAutoId;
+                DataTable dt = fs0303_Logic.SearchTeji(strAutoId);
                 DataTable dtResult = dt.Clone();
                 if (dt.Rows.Count > 0)
                 {

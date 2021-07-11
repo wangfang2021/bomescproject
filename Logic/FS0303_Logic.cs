@@ -36,9 +36,9 @@ namespace Logic
         #endregion
 
         #region 检索特记
-        public DataTable SearchTeji(string strPart_id)
+        public DataTable SearchTeji(string strAutoId)
         {
-            return fs0303_DataAccess.SearchTeji(strPart_id);
+            return fs0303_DataAccess.SearchTeji(strAutoId);
         }
         #endregion
 
@@ -57,9 +57,9 @@ namespace Logic
         #endregion
 
         #region 保存特记
-        public void SaveTeJi(List<Dictionary<string, Object>> listInfoData, string strUserId, string strPartId)
+        public void SaveTeJi(List<Dictionary<string, Object>> listInfoData, string strUserId, string strAutoId)
         {
-            fs0303_DataAccess.SaveTeJi(listInfoData, strUserId, strPartId);
+            fs0303_DataAccess.SaveTeJi(listInfoData, strUserId, strAutoId);
         }
         #endregion
 

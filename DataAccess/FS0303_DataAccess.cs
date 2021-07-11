@@ -111,12 +111,12 @@ namespace DataAccess
         #endregion
 
         #region 检索特记
-        public DataTable SearchTeji(string strPart_id)
+        public DataTable SearchTeji(string strAutoId)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("   select top 1 vcMeno,'0' as vcModFlag,'0' as vcAddFlag from TUnit where vcPart_id='" + strPart_id + "'   \n");
+                strSql.Append("   select vcMeno,'0' as vcModFlag,'0' as vcAddFlag from TUnit where iAutoId='" + strAutoId + "'   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)
@@ -1004,7 +1004,7 @@ namespace DataAccess
         #endregion
 
         #region 保存特记
-        public void SaveTeJi(List<Dictionary<string, Object>> listInfoData, string strUserId, string strPartId)
+        public void SaveTeJi(List<Dictionary<string, Object>> listInfoData, string strUserId, string strAutoId)
         {
             try
             {
@@ -1015,7 +1015,7 @@ namespace DataAccess
                     string strMeno = listInfoData[i]["vcMeno"].ToString();
                     sbrTeJi.Append(strMeno + ";");
                 }
-                sql.Append("    update TUnit set vcMeno='" + sbrTeJi.ToString() + "' where vcPart_id='" + strPartId + "'   \r\n ");
+                sql.Append("    update TUnit set vcMeno='" + sbrTeJi.ToString() + "' where iAutoId='" + strAutoId + "'   \r\n ");
                 excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)

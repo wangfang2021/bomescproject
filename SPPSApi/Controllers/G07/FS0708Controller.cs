@@ -217,13 +217,13 @@ namespace SPPSApi.Controllers.G07
             }
             List<Object> OrderState = new List<object>();
 
-            if (dataForm.SupplierName.ToObject<List<Object>>() == null)
+            if (dataForm.OrderState.ToObject<List<Object>>() == null)
             {
                 OrderState = new List<object>();
             }
             else
             {
-                OrderState = dataForm.OrderStateData.ToObject<List<Object>>();
+                OrderState = dataForm.OrderState.ToObject<List<Object>>();
             }
 
             string IsQianPin = dataForm.IsQianPin;
@@ -256,11 +256,15 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
+                string resMsg = "";
+                string[] head = {"包装场","订单号","包材品番","GPS品番","订购数量","实纳数量","发注类型","发注时间","预定纳入时间","纳入便次","实际纳入时间","纳入状态","供应商代码","费用负担部署","仓库代码" };
+
                 string[] fields = { "vcPackSpot","vcOrderNo","vcPackNo","vcPackGPSNo", "iOrderNumber","iSJNumber","vcType",
-                    "dFaZhuTime","dNaRuYuDing","vcNaRuBianCi","dNaRuShiJi","vcState","vcPackSupplierID","vcPackSupplierName",
-                    "vcFeiYongName","vcZuCode"
+                    "dFaZhuTime","dNaRuYuDing","vcNaRuBianCi","dNaRuShiJi","vcState","vcPackSupplierID",
+                    "vcFeiYongID","vcCangKuID"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0708_Export.xlsx", 1, loginInfo.UserId, "包装材基础数据");
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "包材订单导出", ref resMsg);
+
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

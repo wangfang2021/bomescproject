@@ -1028,8 +1028,8 @@ namespace SPPSApi.Controllers.P01
                 string kanbanOrderNo = dataForm.KanbanOrderNo == null ? "" : dataForm.KanbanOrderNo;//看板订单号
                 string kanbanSerial = dataForm.KanbanSerial == null ? "" : dataForm.KanbanSerial;//看板连番
                 string scanTime = dataForm.ScanTime == null ? "" : dataForm.ScanTime;//客户端时间
-                if(scanTime=="")
-                    scanTime= DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
+                if (scanTime == "")
+                    scanTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 string timeStart = dataForm.TimeStart == null ? "" : dataForm.TimeStart;
                 string timeEnd = dataForm.TimeEnd == null ? "" : dataForm.TimeEnd;
@@ -1066,20 +1066,24 @@ namespace SPPSApi.Controllers.P01
                     strType = "只装箱";
                     packQuantity = quantity;
                 }
-
-                #region 记录日志
-                string path = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
-                string log = "作业员:" + opearteId
-                    + "；作业台IP:" + iP
-                    + "；作业时间:" + serverTime
-                    + "；作业内容:" + strType
+                #region 记录日志-begin
+                string path_begin = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_begin = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:" + strType + "(begin)"
                     + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
-                P00003_Logic.WriteLog(log, path);
+                new P00003_Logic().WriteLog(log_begin, path_begin);
                 #endregion
-
                 DataTable dtPackWork = P00003_Logic.getPackInfo(partId, kanbanOrderNo, kanbanSerial, dock, packQuantity);
                 P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
-
+                #region 记录日志-end
+                string path_end = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_end = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:" + strType + "(end)"
+                    + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
+                new P00003_Logic().WriteLog(log_end, path_end);
+                #endregion
                 DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
                 string kanbanQuantity = "0";
                 if (dtCaseNoInfo.Rows.Count > 0)
@@ -1154,19 +1158,24 @@ namespace SPPSApi.Controllers.P01
                 string strType = "包装不装箱";
                 string boxno = caseNo;
 
-                #region 记录日志
-                string path = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
-                string log = "作业员:" + opearteId
-                    + "；作业台IP:" + iP
-                    + "；作业时间:" + serverTime
-                    + "；作业内容:" + strType
+                #region 记录日志-begin
+                string path_begin = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_begin = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:" + strType + "(begin)"
                     + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
-                P00003_Logic.WriteLog(log, path);
+                new P00003_Logic().WriteLog(log_begin, path_begin);
                 #endregion
-
                 DataTable dtPackWork = P00003_Logic.getPackInfo(partId, kanbanOrderNo, kanbanSerial, dock, packQuantity);
                 P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
-
+                #region 记录日志-end
+                string path_end = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_end = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:" + strType + "(end)"
+                    + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
+                new P00003_Logic().WriteLog(log_end, path_end);
+                #endregion
                 DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
                 string kanbanQuantity = "0";
                 if (dtCaseNoInfo.Rows.Count > 0)
@@ -1203,7 +1212,7 @@ namespace SPPSApi.Controllers.P01
             {
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
                 string strPointState = "1";
-                   string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
+                string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 //按照IP获取点位使用的箱号getOperCaseNo
                 DataTable dtOperCaseNo = P00003_Logic.getOperCaseNo(iP, strPointState, opearteId);
                 if (dtOperCaseNo.Rows.Count == 0)
@@ -1341,7 +1350,14 @@ namespace SPPSApi.Controllers.P01
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
-
+                #region 记录日志-begin
+                string path_begin = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_begin = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:" + "打印装箱单(begin)"
+                    + "；作业对象：" + caseNo + "";
+                new P00003_Logic().WriteLog(log_begin, path_begin);
+                #endregion
                 string strKind = "LABEL PRINTER";
                 string strKindCase = "CASE PRINTER";
                 DataTable dtPrintName = P00003_Logic.GetPrintName(iP, strKind);
@@ -1395,7 +1411,16 @@ namespace SPPSApi.Controllers.P01
                     apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                for (int i = 0; i < dtBoxMasterInfo.Rows.Count; i++)
+                {
+                    if (Convert.ToInt32(dtBoxMasterInfo.Rows[i]["iDBZ"].ToString()) < 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "存在重复包装数据，请查询后删除再处理。";
+                        apiResult.type = "LS";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 //获取表结构
                 DataSet dsTable = P00003_Logic.getTableFromDB(serverTime);
                 //作业实绩表
@@ -1477,16 +1502,15 @@ namespace SPPSApi.Controllers.P01
                 //插入装箱单打印表
                 string strBoxNo = caseNo.Split('*')[1];
                 string strCaseNo = caseNo;
-                #region 记录日志
-                string path = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
-                string log = "作业员:" + opearteId
-                    + "；作业台IP:" + iP
-                    + "；作业时间:" + serverTime
-                    + "；作业内容:" + "打印装箱单"
-                    + "；作业对象：" + caseNo + "";
-                P00003_Logic.WriteLog(log, path);
-                #endregion
                 P00003_Logic.setCastListInfo(dtOperateSJ_Temp, dtCaseList_Temp, iP, caseNo, strBoxNo, scanTime, opearteId, strCasePrinterName);
+                #region 记录日志-end
+                string path_end = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_end = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:" + "打印装箱单(end)"
+                    + "；作业对象：" + caseNo + "";
+                new P00003_Logic().WriteLog(log_begin, path_begin);
+                #endregion
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

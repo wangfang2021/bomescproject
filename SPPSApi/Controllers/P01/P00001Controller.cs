@@ -1114,6 +1114,15 @@ namespace SPPSApi.Controllers.P01
                 string tmpString2 = "INOH2";//入库指令书
                                             //2.必要录入字段的校验
                                             //2.1 IP作为后续操作的依据不能为空
+                #region 记录日志
+                string path_begin = @"G:\ScanFile\Log\现场作业\入荷_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_begin = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:上传入荷(begin)"
+                    + "；作业对象：" + iP + "的扫描数据";
+                new P00003_Logic().WriteLog(log_begin, path_begin);
+                #endregion
+
                 if (iP == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -1614,21 +1623,15 @@ namespace SPPSApi.Controllers.P01
                         P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
                     }
                 }
+                #endregion
 
-
-
-
-                //if (inoutFlag == "1" && kanBan != "")
-                //{
-                //    DataTable getPointNo = P00001_Logic.GetPointNo(iP);
-                //    if (getPointNo.Rows.Count == 1)
-                //    {
-                //        string name = getPointNo.Rows[0][1].ToString().PadLeft(5, '0');
-                //        string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
-                //        DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
-                //        P00001_Logic.SaveXml(data2, serverTime, name, formatTime);
-                //    }
-                //}
+                #region 记录日志
+                string path_end = @"G:\ScanFile\Log\现场作业\入荷_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_end = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:上传入荷(end)"
+                    + "；作业对象：" + iP + "的扫描数据";
+                new P00003_Logic().WriteLog(log_end, path_end);
                 #endregion
 
                 p00001_DataEntity.result = "入库成功";
@@ -1681,6 +1684,15 @@ namespace SPPSApi.Controllers.P01
                 string reg = @"^[0-9]+$";
                 string reg1 = @"^[a-z0-9A-Z]+$";
                 string packingSpot = "H2";
+                #endregion
+
+                #region 记录日志
+                string path_begin = @"G:\ScanFile\Log\现场作业\入荷_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_begin = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:扫描入荷看板(begin)"
+                    + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
+                new P00003_Logic().WriteLog(log_begin, path_begin);
                 #endregion
 
                 #region //2.必要录入字段的校验
@@ -1835,6 +1847,16 @@ namespace SPPSApi.Controllers.P01
                 }
                 #endregion
                 P00001_Logic.Insert(trolley, partId, quantity, dock, kanbanOrderNo, kanbanSerial, scanTime, iP, serverTime, cpdCompany, inno, opearteId, packingSpot, packingQuatity, lblSart, lblEnd, supplierId, supplierPlant, trolleySeqNo, inoutFlag, kanBan, orderplant);//插入实绩情报表
+
+                #region 记录日志
+                string path_end = @"G:\ScanFile\Log\现场作业\入荷_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_end = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:扫描入荷看板(end)"
+                    + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
+                new P00003_Logic().WriteLog(log_end, path_end);
+                #endregion
+
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
 

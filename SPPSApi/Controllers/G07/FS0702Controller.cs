@@ -378,7 +378,7 @@ namespace SPPSApi.Controllers.G07
                 //    "vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"
                 //};
                 string[] fields = {"vcIsorNo","iAutoId", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
-                    "vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"
+                    "vcPackGPSNo","dFromNull","dToNull","vcDistinguish","iBiYao"
                 };
                 // string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0702_Export.xlsx", 1, loginInfo.UserId, FunctionID);
 

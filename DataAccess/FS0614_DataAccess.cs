@@ -1143,9 +1143,9 @@ namespace DataAccess
                                 foreach (string key in NQ.Keys)
                                 {
                                     DataRow[] packrows = PackInfo.Select("dFrom<='" + key + "' AND dTo>='" + key + "' AND dPackFrom<='" + key + "' AND dPackTo>='" + key + "' AND vcPartsNo = '" + vcPart_id + "'");
-                                    string Year = key.Substring(0, 4);
-                                    string Month = key.Substring(4, 2);
-                                    int day = Convert.ToInt32(key.Substring(6, 2));
+                                    string Year = ((List<string>)NQ[key])[1].Substring(0, 4);
+                                    string Month = ((List<string>)NQ[key])[1].Substring(4, 2);
+                                    int day = Convert.ToInt32(((List<string>)NQ[key])[1].Substring(6, 2));
                                     double partnum = Convert.ToDouble(((List<string>)NQ[key])[0]);
 
                                     if (packrows.Length > 0)

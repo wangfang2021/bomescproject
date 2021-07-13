@@ -167,7 +167,7 @@ namespace DataAccess
                 strSql.AppendLine("        from TPackItem where  dFrom<='9999-12-31 23:59:59'and dTo>='"+ NowDF + "'      ");
                 strSql.AppendLine("        )a2 left join     ");
                 strSql.AppendLine("        (     ");
-                strSql.AppendLine("         select * from TPackBase where GETDATE() between  dPackFrom and dPackTo       ");
+                strSql.AppendLine("         select * from TPackBase where  dPackFrom<='9999-12-31 23:59:59'and dPackTo>='"+ NowDF + "'      ");
                 strSql.AppendLine("        )b2 on a2.vcPackNo=b2.vcPackNo     ");
                 strSql.AppendLine("        left join     ");
                 strSql.AppendLine("        (     ");

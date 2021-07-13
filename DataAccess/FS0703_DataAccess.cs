@@ -142,7 +142,7 @@ namespace DataAccess
                 strSql.AppendLine("    isnull(iD21,'') as iD21,isnull(iD22,'') as iD22,isnull(iD23,'') as iD23,isnull(iD24,'') as iD24,isnull(iD25,'') as iD25,       ");
                 strSql.AppendLine("    isnull(iD26,'') as iD26,isnull(iD27,'') as iD27,isnull(iD28,'') as iD28,isnull(iD29,'') as iD29,isnull(iD30,'') as iD30,       ");
                 strSql.AppendLine("    isnull(iD31,'') as iD31            ");
-                strSql.AppendLine("   from TSoqReply where vcDXYM='"+ strN_1 + "' and vcCLYM='"+ strN_CL + "'       ");
+                strSql.AppendLine("   from TSoqReply where vcDXYM='" + strN_1 + "' and vcCLYM='"+ strN_CL + "'       ");
                 strSql.AppendLine("  )b on a.vcPart_id=b.vcPart_id       ");
                 strSql.AppendLine("  left join       ");
                 strSql.AppendLine("  (       ");
@@ -155,7 +155,7 @@ namespace DataAccess
                 strSql.AppendLine("     isnull(iD21,'') as iD21,isnull(iD22,'') as iD22,isnull(iD23,'') as iD23,isnull(iD24,'') as iD24,isnull(iD25,'') as iD25,      ");
                 strSql.AppendLine("     isnull(iD26,'') as iD26,isnull(iD27,'') as iD27,isnull(iD28,'') as iD28,isnull(iD29,'') as iD29,isnull(iD30,'') as iD30,      ");
                 strSql.AppendLine("     isnull(iD31,'') as iD31           ");
-                strSql.AppendLine("    from TSoqReply where vcDXYM='"+ strN_2 + "' and vcCLYM='"+ strN_CL + "'      ");
+                strSql.AppendLine("    from TSoqReply where vcDXYM='" + strN_2 + "' and vcCLYM='"+ strN_CL + "'      ");
                 strSql.AppendLine("   )c on a.vcPart_id=c.vcPart_id      ");
                 strSql.AppendLine("   left join      ");
                 strSql.AppendLine("   (      ");

@@ -54,6 +54,14 @@ namespace DataAccess
                 strSql.AppendLine("      	TPack_FaZhu_ShiJi");
                 strSql.AppendLine("      WHERE");
                 strSql.AppendLine("      	1 = 1");
+                if (!string.IsNullOrEmpty(OrderFrom) && !string.IsNullOrEmpty(OrderTo))
+                {
+                    strSql.AppendLine("  and  iAutoId>=(select iAutoId from TPack_FaZhu_ShiJi where vcOrderNo='" + OrderFrom + "')     ");
+                    strSql.AppendLine("  and iAutoId<=(select iAutoId from TPack_FaZhu_ShiJi where vcOrderNo='" + OrderTo + "')     ");
+                    strSql.AppendLine("      ");
+                }
+
+
                 if (SupplierName.Count != 0)
                 {
                     strSql.AppendLine($"      AND vcPackSupplierID in( ");

@@ -143,7 +143,7 @@ namespace SPPSApi.Controllers.G07
                         string strAfterBZ = strAfter.Split('/')[strAfter.Split('/').Length - 1];
                         if (strAfterBZ == "0")
                         {
-                            strAfterBZ = "白班";
+                            strAfterBZ = "白值";
                         }
                         else if (strAfterBZ == "1") 
                         {

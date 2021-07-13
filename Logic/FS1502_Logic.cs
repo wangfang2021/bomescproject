@@ -122,6 +122,15 @@ namespace Logic
         }
         #endregion
 
+        public bool isBatchExcute(string dBZDate)
+        {
+            DataTable dt = fs1502_DataAccess.GetBatchExcute(dBZDate);
+            if (dt.Rows.Count > 0)
+                return true;
+            else
+                return false;
+        }
+
         #region 导入后保存
         public void importSave_Sub(DataTable dt, string vcFZPlant, string dBZDate, string strUserId, string strUnit)
         {

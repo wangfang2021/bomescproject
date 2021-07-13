@@ -402,7 +402,7 @@ namespace DataAccess
                     {
                         iInputQtyDailySum += int.Parse(dt.Rows[i]["vcD" + j].ToString());
                     }
-                    sb.Append("" + iInputQtyDailySum + ",0,0,'" + vcUserId + "',getdate()); \r\n");
+                    sb.Append("" + iInputQtyDailySum + ",0,0,'" + vcUserId + "',dateadd(day,-1,dateadd(M,1,convert(datetime,'"+ dt.Rows[i]["vcMonth"].ToString().Replace("-", "") + "'+'01')))); \r\n");
                 }
                 SqlCommand cmd = new SqlCommand(sb.ToString(), conn, trans);
                 try

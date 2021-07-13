@@ -324,6 +324,14 @@ namespace SPPSApi.Controllers.P01
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
                 string strYinQuType = "";
                 string strYingQuName = "";
+                #region 记录日志-begin
+                string path_begin = @"G:\ScanFile\Log\现场作业\出荷_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_begin = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:" + "出荷上传(begin)";
+                    //+ "；作业对象：" + caseNo + "";
+                new P00003_Logic().WriteLog(log_begin, path_begin);
+                #endregion
                 if (bian == "1")
                 {
                     strYinQuType = "cx";
@@ -363,9 +371,6 @@ namespace SPPSApi.Controllers.P01
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 strPrinterName = dtPrintName.Rows[0]["vcPrinterName"].ToString();
-
-
-
 
                 //1.验证DOCK中箱数与器具数一致
                 #region 前提数据校验
@@ -1082,6 +1087,13 @@ namespace SPPSApi.Controllers.P01
                 }
                 #endregion
 
+                #region 记录日志-end
+                string path_end = @"G:\ScanFile\Log\现场作业\出荷_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_end = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:" + "出荷上传(end)";
+                new P00003_Logic().WriteLog(log_begin, path_begin);
+                #endregion
                 P00004_DataEntity.shipResult = "发货成功";
                 apiResult.data = P00004_DataEntity;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -57,20 +57,17 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "该设备绑定打印机有误，请联系管理员设置。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0001", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "验证出荷打印机失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
-
-
 
         #region 出荷-初始化-尝试绑定Dock与叉车
         public string ValidateUserApi([FromBody] dynamic data)
@@ -108,18 +105,15 @@ namespace SPPSApi.Controllers.P01
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
+            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0002", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "获取信息失败!";
+                apiResult.data = "初始化绑定叉车与DOCK失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
         }
         #endregion
 
@@ -175,7 +169,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "system");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0003", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "叉车与DOCK绑定失败";
                 apiResult.type = "LS";
@@ -225,7 +219,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0004", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "叉车与DOCK解绑失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -257,9 +251,9 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0005", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "获取出货数据失败";
+                apiResult.data = "查询出荷履历失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -285,7 +279,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "", ex, "system");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0006", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除箱号失败";
                 apiResult.type = "LS";
@@ -329,7 +323,7 @@ namespace SPPSApi.Controllers.P01
                 string log_begin = "作业员:" + opearteId
                     + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     + "；作业内容:" + "出荷上传(begin)";
-                    //+ "；作业对象：" + caseNo + "";
+                //+ "；作业对象：" + caseNo + "";
                 new P00003_Logic().WriteLog(log_begin, path_begin);
                 #endregion
                 if (bian == "1")
@@ -749,33 +743,33 @@ namespace SPPSApi.Controllers.P01
                             {
                                 #region addrow-dtSell
                                 DataRow drSell_Temp = dtSell_Temp.NewRow();
-                            //drSell_Temp["dHosDate"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            //drSell_Temp["vcBanZhi"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            //drSell_Temp["vcBianCi"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            //drSell_Temp["vcSellNo"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            drSell_Temp["vcTruckNo"] = truckNo;
-                            drSell_Temp["vcSHF"] = dtDockInfo_clone.Rows[i]["vcSHF"].ToString();
-                            drSell_Temp["vcPart_id"] = dtDockInfo_clone.Rows[i]["vcPart_id"].ToString();
-                            drSell_Temp["vcOrderNo"] = orderNo;
-                            drSell_Temp["vcLianFanNo"] = seqNo;
-                            //drSell_Temp["vcInvoiceNo"] = dtDockInfo_clone.Rows[i][""].ToString();//截位销售号
-                            drSell_Temp["vcCaseNo"] = dtDockInfo_clone.Rows[i]["vcCaseNo"].ToString();
-                            drSell_Temp["vcBoxNo"] = dtDockInfo_clone.Rows[i]["vcBoxNo"].ToString();
-                            drSell_Temp["vcPartsNameEN"] = dtDockInfo_clone.Rows[i]["vcPartENName"].ToString();
-                            drSell_Temp["iQuantity"] = iResultQtyDailySum;
-                            drSell_Temp["decPriceWithTax"] = dtDockInfo_clone.Rows[i]["decPriceTNPWithTax"].ToString();
-                            drSell_Temp["decMoney"] = (iResultQtyDailySum * Convert.ToDecimal(dtDockInfo_clone.Rows[i]["decPriceTNPWithTax"].ToString())).ToString("#0.00");
-                            drSell_Temp["vcOperatorID"] = opearteId;
-                            //drSell_Temp["dOperatorTime"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            drSell_Temp["vcYinQuType"] = strYinQuType;
-                            //drSell_Temp["vcSender"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            drSell_Temp["vcLabelStart"] = dtDockInfo_clone.Rows[i]["vcLabelStart"].ToString();
-                            drSell_Temp["vcLabelEnd"] = dtDockInfo_clone.Rows[i]["vcLabelEnd"].ToString();
-                            drSell_Temp["vcSupplier_id"] = dtDockInfo_clone.Rows[i]["vcSupplier_id"].ToString();
-                            drSell_Temp["vcFzgc"] = dtDockInfo_clone.Rows[i]["vcOrderPlant"].ToString();
-                            dtSell_Temp.Rows.Add(drSell_Temp);
-                            #endregion
-                            
+                                //drSell_Temp["dHosDate"] = dtDockInfo_clone.Rows[i][""].ToString();
+                                //drSell_Temp["vcBanZhi"] = dtDockInfo_clone.Rows[i][""].ToString();
+                                //drSell_Temp["vcBianCi"] = dtDockInfo_clone.Rows[i][""].ToString();
+                                //drSell_Temp["vcSellNo"] = dtDockInfo_clone.Rows[i][""].ToString();
+                                drSell_Temp["vcTruckNo"] = truckNo;
+                                drSell_Temp["vcSHF"] = dtDockInfo_clone.Rows[i]["vcSHF"].ToString();
+                                drSell_Temp["vcPart_id"] = dtDockInfo_clone.Rows[i]["vcPart_id"].ToString();
+                                drSell_Temp["vcOrderNo"] = orderNo;
+                                drSell_Temp["vcLianFanNo"] = seqNo;
+                                //drSell_Temp["vcInvoiceNo"] = dtDockInfo_clone.Rows[i][""].ToString();//截位销售号
+                                drSell_Temp["vcCaseNo"] = dtDockInfo_clone.Rows[i]["vcCaseNo"].ToString();
+                                drSell_Temp["vcBoxNo"] = dtDockInfo_clone.Rows[i]["vcBoxNo"].ToString();
+                                drSell_Temp["vcPartsNameEN"] = dtDockInfo_clone.Rows[i]["vcPartENName"].ToString();
+                                drSell_Temp["iQuantity"] = iResultQtyDailySum;
+                                drSell_Temp["decPriceWithTax"] = dtDockInfo_clone.Rows[i]["decPriceTNPWithTax"].ToString();
+                                drSell_Temp["decMoney"] = (iResultQtyDailySum * Convert.ToDecimal(dtDockInfo_clone.Rows[i]["decPriceTNPWithTax"].ToString())).ToString("#0.00");
+                                drSell_Temp["vcOperatorID"] = opearteId;
+                                //drSell_Temp["dOperatorTime"] = dtDockInfo_clone.Rows[i][""].ToString();
+                                drSell_Temp["vcYinQuType"] = strYinQuType;
+                                //drSell_Temp["vcSender"] = dtDockInfo_clone.Rows[i][""].ToString();
+                                drSell_Temp["vcLabelStart"] = dtDockInfo_clone.Rows[i]["vcLabelStart"].ToString();
+                                drSell_Temp["vcLabelEnd"] = dtDockInfo_clone.Rows[i]["vcLabelEnd"].ToString();
+                                drSell_Temp["vcSupplier_id"] = dtDockInfo_clone.Rows[i]["vcSupplier_id"].ToString();
+                                drSell_Temp["vcFzgc"] = dtDockInfo_clone.Rows[i]["vcOrderPlant"].ToString();
+                                dtSell_Temp.Rows.Add(drSell_Temp);
+                                #endregion
+
                                 #region addrow-dtShipList
                                 DataRow drShipList_Temp = dtShipList_Temp.NewRow();
                                 drShipList_Temp["vcPackingspot"] = dtDockInfo_clone.Rows[i]["vcBZPlant"].ToString();
@@ -1100,9 +1094,9 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0007", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "发货失败";
+                apiResult.data = "出荷数据上传失败";
                 apiResult.type = "LS";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
@@ -1153,7 +1147,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0008", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "获取出货便次明细失败";
                 apiResult.type = "LS";
@@ -1199,7 +1193,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0009", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "获取器具信息失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

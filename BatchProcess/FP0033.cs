@@ -98,7 +98,7 @@ namespace BatchProcess
                 sql.Append("		left join TPMRelation t3 on t2.vcSmallPM=t3.vcSmallPM    \n");
                 sql.Append("		group by t1.vcPlant,t3.vcBigPM,t2.vcSmallPM,t1.vcPackBZ    \n");
                 sql.Append("	) test pivot(sum(iPackNum) for vcPackBZ in(白,夜)) t1        \n");
-                sql.Append(")a2 on a1.vcBigPM=a2.vcBigPM and a1.vcSmallPM=a2.vcSmallPM and a1.vcPlant=a2.vcPlant    \n");
+                sql.Append(")a2 on isnull(a1.vcBigPM,'')=isnull(a2.vcBigPM,'') and isnull(a1.vcSmallPM,'')=isnull(a2.vcSmallPM,'') and a1.vcPlant=a2.vcPlant    \n");
                 excute.ExcuteSqlWithStringOper(sql.ToString());
                 #endregion
 
@@ -163,7 +163,7 @@ namespace BatchProcess
                 sql.Append("		group by t2.vcBZPlant,t3.vcBigPM,t2.vcSmallPM    \n");
                 sql.Append("	)t1        \n");
                 sql.Append("	group by vcBZPlant,vcBigPM,vcSmallPM        \n");
-                sql.Append(")a2 on a1.vcBigPM=a2.vcBigPM and a1.vcSmallPM=a2.vcSmallPM and a1.vcPlant=a2.vcBZPlant    \n");
+                sql.Append(")a2 on isnull(a1.vcBigPM,'')=isnull(a2.vcBigPM,'') and isnull(a1.vcSmallPM,'')=isnull(a2.vcSmallPM,'') and a1.vcPlant=a2.vcBZPlant    \n");
                 excute.ExcuteSqlWithStringOper(sql.ToString());
                 #endregion
 
@@ -203,7 +203,7 @@ namespace BatchProcess
                 sql.AppendLine("select t1.kind,t1.vcPlant,'" + now_YYYYMM + "',t1.vcBigPM,t1.vcSmallPM from temp t1");
                 sql.AppendLine("left join (select * from TPackingPlan_Report where vcYearMonth='" + now_YYYYMM + "') t2 ");
                 sql.AppendLine("on t1.kind=t2.vcKind and t1.vcPlant=t2.vcPlant");
-                sql.AppendLine("and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
+                sql.AppendLine("and isnull(t1.vcBigPM,'')=isnull(t2.vcBigPM,'') and isnull(t1.vcSmallPM,'')=isnull(t2.vcSmallPM,'')");
                 sql.AppendLine("where t2.iAutoId is null");
                 excute.ExcuteSqlWithStringOper(sql.ToString());
                 #endregion
@@ -235,7 +235,7 @@ namespace BatchProcess
                 sql.AppendLine("	) t2 on t1.vcPartNo=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplierId    ");
                 sql.AppendLine("	left join TPMRelation t3 on t2.vcSmallPM=t3.vcSmallPM    ");
                 sql.AppendLine("	group by t2.vcBZPlant,t3.vcBigPM,t2.vcSmallPM    ");
-                sql.AppendLine(")t3 on t1.vcPlant=t3.vcBZPlant and t1.vcBigPM=t3.vcBigPM and t1.vcSmallPM=t3.vcSmallPM");
+                sql.AppendLine(")t3 on t1.vcPlant=t3.vcBZPlant and isnull(t1.vcBigPM,'')=isnull(t3.vcBigPM,'') and isnull(t1.vcSmallPM,'')=isnull(t3.vcSmallPM,'')");
 
                 sql.AppendLine("--更新N日紧急订单");
                 sql.AppendLine("update t1 set t1.iD" + now_day + "=isnull(t3.iD" + now_day + ",0)");
@@ -257,7 +257,7 @@ namespace BatchProcess
                 sql.AppendLine("	) t2 on t1.vcPartNo=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplierId    ");
                 sql.AppendLine("	left join TPMRelation t3 on t2.vcSmallPM=t3.vcSmallPM    ");
                 sql.AppendLine("	group by t2.vcBZPlant,t3.vcBigPM,t2.vcSmallPM    ");
-                sql.AppendLine(")t3 on t1.vcPlant=t3.vcBZPlant and t1.vcBigPM=t3.vcBigPM and t1.vcSmallPM=t3.vcSmallPM");
+                sql.AppendLine(")t3 on t1.vcPlant=t3.vcBZPlant and isnull(t1.vcBigPM,'')=isnull(t3.vcBigPM,'') and isnull(t1.vcSmallPM,'')=isnull(t3.vcSmallPM,'')");
 
                 sql.AppendLine("--更新N-1日当日实际");
                 sql.AppendLine("update t1 set t1.iD" + sub1_day + "=t2.iD" + sub1_day + "");
@@ -278,7 +278,7 @@ namespace BatchProcess
                 sql.AppendLine("	) t2 on t1.vcPart_id=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplierId    ");
                 sql.AppendLine("	left join TPMRelation t3 on t2.vcSmallPM=t3.vcSmallPM    ");
                 sql.AppendLine("	group by t2.vcBZPlant,t3.vcBigPM,t2.vcSmallPM ");
-                sql.AppendLine(")t2 on t1.vcPlant=t2.vcBZPlant and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
+                sql.AppendLine(")t2 on t1.vcPlant=t2.vcBZPlant and isnull(t1.vcBigPM,'')=isnull(t2.vcBigPM,'') and isnull(t1.vcSmallPM,'')=isnull(t2.vcSmallPM,'')");
 
                 sql.AppendLine("--更新N-1日当日残=N-1日计划-N-1日实际");
                 sql.AppendLine("update t1 set t1.iD" + sub1_day + "=isnull(t2.iD" + sub1_day + ",0)-isnull(t3.iD" + sub1_day + ",0) ");
@@ -290,7 +290,7 @@ namespace BatchProcess
                 sql.AppendLine(")t2 on t1.vcPlant=t2.vcPlant and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
                 sql.AppendLine("left join (");
                 sql.AppendLine("	select * from TPackingPlan_Report where vcYearMonth='" + sub1_YYYYMM + "' and vcKind='当日实际'");
-                sql.AppendLine(")t3 on t1.vcPlant=t3.vcPlant and t1.vcBigPM=t3.vcBigPM and t1.vcSmallPM=t3.vcSmallPM");
+                sql.AppendLine(")t3 on t1.vcPlant=t3.vcPlant and isnull(t1.vcBigPM,'')=isnull(t3.vcBigPM,'') and isnull(t1.vcSmallPM,'')=isnull(t3.vcSmallPM,'')");
 
                 //sql.AppendLine("--更新N-1日累计残量=N-2日累计残量+N-1日当日残");
                 //sql.AppendLine("update t1 set t1.iD" + sub1_day + "=isnull(t2.iD" + sub2_day + ",0)+isnull(t3.iD" + sub1_day + ",0) ");
@@ -305,7 +305,7 @@ namespace BatchProcess
                 sql.AppendLine(")t2 on t1.vcPlant=t2.vcPlant and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
                 sql.AppendLine("left join (");
                 sql.AppendLine("	select * from TPackingPlan_Report where vcYearMonth='" + sub1_YYYYMM + "' and vcKind='当日残'");
-                sql.AppendLine(")t3 on t1.vcPlant=t3.vcPlant and t1.vcBigPM=t3.vcBigPM and t1.vcSmallPM=t3.vcSmallPM");
+                sql.AppendLine(")t3 on t1.vcPlant=t3.vcPlant and isnull(t1.vcBigPM,'')=isnull(t3.vcBigPM,'') and isnull(t1.vcSmallPM,'')=isnull(t3.vcSmallPM,'')");
                 #endregion
 
                 #region 更新汇总表
@@ -318,7 +318,7 @@ namespace BatchProcess
                 sql.AppendLine("left join (");
                 sql.AppendLine("	select id" + now_day + ",vcPlant,vcBigPM,vcSmallPM from TPackingPlan_Report ");
                 sql.AppendLine("	where vcYearMonth='" + now_YYYYMM + "' and vcKind='紧急订单'");
-                sql.AppendLine(")t2 on t1.vcPlant=t2.vcPlant and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
+                sql.AppendLine(")t2 on t1.vcPlant=t2.vcPlant and isnull(t1.vcBigPM,'')=isnull(t2.vcBigPM,'') and isnull(t1.vcSmallPM,'')=isnull(t2.vcSmallPM,'')");
 
                 //sql.AppendLine("--更新N-1日累计残");
                 //sql.AppendLine("update t1 set t1.iLJBZRemain=t2.iD" + sub1_day + "");
@@ -334,7 +334,7 @@ namespace BatchProcess
                 //sql.AppendLine("	where vcYearMonth='" + sub1_YYYYMM + "' and vcKind='累计残量'");
                 sql.AppendLine("	select id" + now_day + ",vcPlant,vcBigPM,vcSmallPM from TPackingPlan_Report ");
                 sql.AppendLine("	where vcYearMonth='" + now_YYYYMM + "' and vcKind='累计残量'");
-                sql.AppendLine(")t2 on t1.vcPlant=t2.vcPlant and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
+                sql.AppendLine(")t2 on t1.vcPlant=t2.vcPlant and isnull(t1.vcBigPM,'')=isnull(t2.vcBigPM,'') and isnull(t1.vcSmallPM,'')=isnull(t2.vcSmallPM,'')");
 
                 sql.AppendLine("--更新N日实行计划");
                 sql.AppendLine("update t set ");

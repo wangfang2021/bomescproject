@@ -2739,11 +2739,11 @@ namespace DataAccess
             public void addFail(PackFail pack)
             {
                 bool exist = false;
-                for (int i = 0; i < this.fail.Count; i++)
+                for (int i = 0; i < fail.Count; i++)
                 {
                     if (fail[i].Year == pack.Year && fail[i].Month == pack.Month)
                     {
-                        this.fail[i].AddPack(pack.list[0]);
+                        fail[i].AddPack(pack.list[0]);
                         exist = true;
                         break;
                     }

@@ -1165,10 +1165,10 @@ namespace DataAccess
                                             else
                                             {
                                                 PackFail pack = new PackFail(Year, Month);
-                                                pack.list.Add(new PackItem(Year, Month, vcPart_id+"(MBC)", day, partnum));
+                                                pack.list.Add(new PackItem(Year, Month, vcPart_id + "(MBC)", day, partnum));
                                                 packEmail.addFail(pack);
                                             }
-                                            
+
 
                                         }
                                     }
@@ -2739,11 +2739,11 @@ namespace DataAccess
             public void addFail(PackFail pack)
             {
                 bool exist = false;
-                for (int i = 0; i < fail.Count; i++)
+                for (int i = 0; i < this.fail.Count; i++)
                 {
-                    if (success[i].Year == pack.Year && success[i].Month == pack.Month)
+                    if (fail[i].Year == pack.Year && fail[i].Month == pack.Month)
                     {
-                        fail[i].AddPack(pack.list[0]);
+                        this.fail[i].AddPack(pack.list[0]);
                         exist = true;
                         break;
                     }

@@ -719,9 +719,9 @@ namespace Logic
 
 
         #region 调整数据输入-检索
-        public DataTable search_Sub(string strPackNo, string strPackGPSNo, string strFrom, string strTo, string strType)
+        public DataTable search_Sub(string strPackNo, string strPackGPSNo, string strFrom, string strTo, string strType,string strPackSpot)
         {
-            return fs0705_DataAccess.search_Sub(strPackNo, strPackGPSNo, strFrom, strTo, strType);
+            return fs0705_DataAccess.search_Sub(strPackNo, strPackGPSNo, strFrom, strTo, strType,strPackSpot);
         }
         #endregion
 
@@ -733,30 +733,30 @@ namespace Logic
         #endregion
 
         #region 调整数据输入-导入后保存
-        public void importSave_Sub(DataTable dt, string strUserId)
+        public void importSave_Sub(DataTable dt, string strUserId,string strPackSpot)
         {
-            fs0705_DataAccess.importSave_Sub(dt, strUserId);
+            fs0705_DataAccess.importSave_Sub(dt, strUserId,strPackSpot);
         }
         #endregion
 
         #region 获取品番是否满足保存条件
-        public DataTable getIsSave(List<Dictionary<string, Object>> listInfoData) 
+        public DataTable getIsSave(List<Dictionary<string, Object>> listInfoData,string strPackSpot) 
         {
-            return fs0705_DataAccess.getIsSave(listInfoData);
+            return fs0705_DataAccess.getIsSave(listInfoData,strPackSpot);
         }
         #endregion
 
         #region 获取品番是否满足保存条件
-        public DataTable getIsSave(DataTable dt)
+        public DataTable getIsSave(DataTable dt,string strPackSpot)
         {
-            return fs0705_DataAccess.getIsSave(dt);
+            return fs0705_DataAccess.getIsSave(dt,strPackSpot);
         }
         #endregion
 
         #region 计算过程检索
-        public DataTable searchPackCompute(string strPackNo, string strPackGPSNo,string strFaZhuID, string strFrom, string strTo)
+        public DataTable searchPackCompute(string strPackNo, string strPackGPSNo,string strFaZhuID, string strFrom, string strTo,string strPackSpot)
         {
-            return fs0705_DataAccess.searchPackCompute(strPackNo, strPackGPSNo, strFaZhuID, strFrom, strTo);
+            return fs0705_DataAccess.searchPackCompute(strPackNo, strPackGPSNo, strFaZhuID, strFrom, strTo,strPackSpot);
         }
         #endregion
 

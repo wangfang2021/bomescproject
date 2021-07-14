@@ -938,7 +938,7 @@ namespace DataAccess
             {
                 //0613记录日志
 
-                ComMessage.GetInstance().ProcessMessage("P00001", "M03UE0901", ex, "000000");
+                ComMessage.GetInstance().ProcessMessage("P00003", "P03UE0022", ex,strOperId);
                 //回滚事务
                 if (sqlTransaction != null && sqlConnection != null)
                 {
@@ -1216,7 +1216,7 @@ namespace DataAccess
                     StringBuilder strSql_mod_io = new StringBuilder();
 
                     #region SQL and Parameters
-                    strSql_mod_io.AppendLine("update TOperateSJ_InOutput set iDBZ=iDBZ-@Quantity,iDZX=iDZX+@Quantity,vcOperatorID='"+ strOperId + "',dOperatorTime=GETDATE() ");
+                    strSql_mod_io.AppendLine("update TOperateSJ_InOutput set iDBZ=iDBZ-@Quantity,iDZX=iDZX+@Quantity,vcOperatorID='" + strOperId + "',dOperatorTime=GETDATE() ");
                     strSql_mod_io.AppendLine("where vcPart_id=@Part_id and vcKBOrderNo=@KBOrderNo and vcKBLFNo=@KBLFNo and vcSR=@SR");
                     sqlCommand_mod_io.CommandText = strSql_mod_io.ToString();
                     sqlCommand_mod_io.Parameters.AddWithValue("@Quantity", packQuantity);
@@ -1710,7 +1710,7 @@ namespace DataAccess
             {
                 //0613记录日志
 
-                ComMessage.GetInstance().ProcessMessage("P00001", "M03UE0901", ex, "000000");
+                ComMessage.GetInstance().ProcessMessage("P00003", "P03UE0021", ex, strOperId);
                 //回滚事务
                 if (sqlTransaction != null && sqlConnection != null)
                 {

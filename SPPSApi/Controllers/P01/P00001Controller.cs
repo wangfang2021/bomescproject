@@ -1582,7 +1582,7 @@ namespace SPPSApi.Controllers.P01
                 if (!bResult)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "数据上传失败，请联系管理员或者重新登录再试。";
+                    apiResult.data = "数据上传失败(原因：数据冲突或网络原因)，请重新上传。";
                     apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }

@@ -19,7 +19,7 @@ namespace BatchProcess
             try
             {
                 //批处理开始
-                ComMessage.GetInstance().ProcessMessage(PageId, "批处理开始", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1801", null, strUserId);
                 //更新数据准备
                 DataTable dtNewItem = this.SearchNewTPackItem(strUserId);
                 if (dtNewItem.Rows.Count == 0)
@@ -31,11 +31,13 @@ namespace BatchProcess
 
                 if (isok)
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行成功", null, strUserId);
+                    //正常结束
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1802", null, strUserId);
                     return true;
                 }
                 else
                 {
+                    //更新失败
                     ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1802", null, strUserId);
                     return false;
                 }
@@ -43,7 +45,7 @@ namespace BatchProcess
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1802", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1803", ex, strUserId);
                 throw ex;
             }
         }

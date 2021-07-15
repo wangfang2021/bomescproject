@@ -1165,10 +1165,10 @@ namespace DataAccess
                                             else
                                             {
                                                 PackFail pack = new PackFail(Year, Month);
-                                                pack.list.Add(new PackItem(Year, Month, vcPart_id+"(MBC)", day, partnum));
+                                                pack.list.Add(new PackItem(Year, Month, vcPart_id + "(MBC)", day, partnum));
                                                 packEmail.addFail(pack);
                                             }
-                                            
+
 
                                         }
                                     }
@@ -1633,7 +1633,8 @@ namespace DataAccess
 
                 sqlTransaction.Commit();
                 sqlConnection.Close();
-
+                sqlTransaction = null;
+                sqlConnection = null;
                 #endregion
 
                 packEmail.getEmail(email, SupplierEmail(), getEmail("C057"), getEmail("C058"));
@@ -1643,8 +1644,11 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                sqlTransaction.Rollback();
-                sqlConnection.Close();
+                if (sqlTransaction != null && sqlConnection!=null)
+                {
+                    sqlTransaction.Rollback();
+                    sqlConnection.Close();
+                }
                 throw ex;
             }
         }
@@ -2028,10 +2032,11 @@ namespace DataAccess
                             hashtable.Add("vcSupplierPacking", dt.Rows[i]["vcSupplierPacking"].ToString());
                             hashtable.Add("vcPartNameCn", dt.Rows[i]["vcPartNameCn"].ToString());
                             hashtable.Add("vcPartENName", dt.Rows[i]["vcPartENName"].ToString());
-
+                            hashtable.Add("vcSupplierPlace", dt.Rows[i]["vcSupplierPlace"].ToString());
                             break;
                         }
                     }
+
                 }
                 return hashtable;
             }
@@ -2741,7 +2746,7 @@ namespace DataAccess
                 bool exist = false;
                 for (int i = 0; i < fail.Count; i++)
                 {
-                    if (success[i].Year == pack.Year && success[i].Month == pack.Month)
+                    if (fail[i].Year == pack.Year && fail[i].Month == pack.Month)
                     {
                         fail[i].AddPack(pack.list[0]);
                         exist = true;
@@ -2764,20 +2769,23 @@ namespace DataAccess
                         DataTable dt = pack.getDt();
                         string path = DataTableToExcel(dt, rootpath, pack.Supplier + "_", "包材构成");
                         DataRow[] rows = this.supplierMail.Select("vcValue1 = '" + pack.Supplier + "'");
-                        DataTable maildt = rows.CopyToDataTable();
-                        StringBuilder subject = new StringBuilder();
-                        subject.Append("包装材紧急订单");
-                        StringBuilder body = new StringBuilder();
-                        body.AppendLine("<p>包材厂家"+pack.Supplier+" 担当</p><p>你好：</p><p><br></p><p>拜托按照附件提示包材及日期进行包材生产准备</p>");
-
-                        bool flag = SendMail(this.Address, subject.ToString(), body.ToString(), path, maildt, this.copyEmail, this.FailEmail, "S");
-                        if (!flag)
+                        if (rows.Length > 0)
                         {
-                            subject.Length = 0;
-                            body.Length = 0;
-                            subject.Append("紧急订单邮件发送失败联络");
-                            body.AppendLine("附件紧急订单邮件发送失败。");
-                            SendMail(this.Address, subject.ToString(), body.ToString(), path, maildt, this.copyEmail, this.FailEmail, "F");
+                            DataTable maildt = rows.CopyToDataTable();
+                            StringBuilder subject = new StringBuilder();
+                            subject.Append("包装材紧急订单");
+                            StringBuilder body = new StringBuilder();
+                            body.AppendLine("<p>包材厂家" + pack.Supplier + " 担当</p><p>你好：</p><p><br></p><p>拜托按照附件提示包材及日期进行包材生产准备</p>");
+
+                            bool flag = SendMail(this.Address, subject.ToString(), body.ToString(), path, maildt, this.copyEmail, this.FailEmail, "S");
+                            if (!flag)
+                            {
+                                subject.Length = 0;
+                                body.Length = 0;
+                                subject.Append("紧急订单邮件发送失败联络");
+                                body.AppendLine("附件紧急订单邮件发送失败。");
+                                SendMail(this.Address, subject.ToString(), body.ToString(), path, maildt, this.copyEmail, this.FailEmail, "F");
+                            }
                         }
                     }
                 }

@@ -309,8 +309,8 @@ namespace Logic
                                             //dY_To = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dRuHeToTime"].ToString());//入荷结束时间
                                             //task.dRuheToDate = dY_To;
                                             //这种往后找的便次，有且只有：当前时间>=后找到的便次对应发注作业起，用户才能看见
-                                            DateTime dX_temp = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dFaZhuFromTime"].ToString());//发注起始时间
-                                            if(DateTime.Now>=dX_temp)
+                                            //DateTime dX_temp = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dFaZhuFromTime"].ToString());//发注起始时间
+                                            //if(DateTime.Now>=dX_temp)
                                                 hasFind = true;
                                             break;
                                         }
@@ -321,8 +321,8 @@ namespace Logic
                                             //dY_To = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dRuHeToTime"].ToString());//入荷结束时间
                                             //task.dRuheToDate = dY_To;
                                             //这种往后找的便次，有且只有：当前时间>=后找到的便次对应发注作业起，用户才能看见
-                                            DateTime dX_temp = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dFaZhuFromTime"].ToString());//发注起始时间
-                                            if (DateTime.Now >= dX_temp)
+                                            //DateTime dX_temp = Convert.ToDateTime(dTimeTemp_NaQi.ToString("yyyy-MM-dd ") + dRow["dFaZhuFromTime"].ToString());//发注起始时间
+                                            //if (DateTime.Now >= dX_temp)
                                                 hasFind = true;
                                             break;
                                         }
@@ -517,7 +517,12 @@ namespace Logic
         #region 生成发注数据的检索计算结果（舍弃订购数量为NULL或者为0的数据）
         public DataTable SCFZDataSearchComputeJG(string strPackSpot)
         {
-            return fs0705_DataAccess.SCFZDataSearchComputeJG(strPackSpot);
+            DataTable dt = fs0705_DataAccess.SCFZDataSearchComputeJG(strPackSpot);
+
+            //如果找到订单号不为空的数据，则说明上次进行过发注了，返回null
+            int count = dt.Select("vcOrderNo is not null").Length;
+            return count <= 0 ? dt : null;
+
         }
         #endregion
 
@@ -714,9 +719,9 @@ namespace Logic
 
 
         #region 调整数据输入-检索
-        public DataTable search_Sub(string strPackNo, string strPackGPSNo, string strFrom, string strTo, string strType)
+        public DataTable search_Sub(string strPackNo, string strPackGPSNo, string strFrom, string strTo, string strType,string strPackSpot)
         {
-            return fs0705_DataAccess.search_Sub(strPackNo, strPackGPSNo, strFrom, strTo, strType);
+            return fs0705_DataAccess.search_Sub(strPackNo, strPackGPSNo, strFrom, strTo, strType,strPackSpot);
         }
         #endregion
 
@@ -728,30 +733,30 @@ namespace Logic
         #endregion
 
         #region 调整数据输入-导入后保存
-        public void importSave_Sub(DataTable dt, string strUserId)
+        public void importSave_Sub(DataTable dt, string strUserId,string strPackSpot)
         {
-            fs0705_DataAccess.importSave_Sub(dt, strUserId);
+            fs0705_DataAccess.importSave_Sub(dt, strUserId,strPackSpot);
         }
         #endregion
 
         #region 获取品番是否满足保存条件
-        public DataTable getIsSave(List<Dictionary<string, Object>> listInfoData) 
+        public DataTable getIsSave(List<Dictionary<string, Object>> listInfoData,string strPackSpot) 
         {
-            return fs0705_DataAccess.getIsSave(listInfoData);
+            return fs0705_DataAccess.getIsSave(listInfoData,strPackSpot);
         }
         #endregion
 
         #region 获取品番是否满足保存条件
-        public DataTable getIsSave(DataTable dt)
+        public DataTable getIsSave(DataTable dt,string strPackSpot)
         {
-            return fs0705_DataAccess.getIsSave(dt);
+            return fs0705_DataAccess.getIsSave(dt,strPackSpot);
         }
         #endregion
 
         #region 计算过程检索
-        public DataTable searchPackCompute(string strPackNo, string strPackGPSNo,string strFaZhuID, string strFrom, string strTo)
+        public DataTable searchPackCompute(string strPackNo, string strPackGPSNo,string strFaZhuID, string strFrom, string strTo,string strPackSpot)
         {
-            return fs0705_DataAccess.searchPackCompute(strPackNo, strPackGPSNo, strFaZhuID, strFrom, strTo);
+            return fs0705_DataAccess.searchPackCompute(strPackNo, strPackGPSNo, strFaZhuID, strFrom, strTo,strPackSpot);
         }
         #endregion
 

@@ -1396,7 +1396,7 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage("P00001", "M03UE0901", ex, "000000");
+                ComMessage.GetInstance().ProcessMessage("P00004", "P04UE0010", ex,strOperId);
                 //回滚事务
                 if (sqlTransaction != null && sqlConnection != null)
                 {

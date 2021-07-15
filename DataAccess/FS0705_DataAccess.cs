@@ -988,13 +988,14 @@ namespace DataAccess
 
 
         #region 调整数据输入-检索
-        public DataTable search_Sub(string strPackNo, string strPackGPSNo, string strFrom, string strTo, string strType)
+        public DataTable search_Sub(string strPackNo, string strPackGPSNo, string strFrom, string strTo, string strType,string strPackSpot)
         {
             StringBuilder strSql = new StringBuilder();
             try
             {
                 strSql.AppendLine("        select *,'0' as selected,'0' as vcModFlag,'0' as AddFlag from  TPackCompute_Ajust         ");
                 strSql.AppendLine("        where 1=1         ");
+                strSql.AppendLine("        and vcPackSpot = '" + strPackSpot + "'         ");
                 if (!string.IsNullOrEmpty(strPackNo))
                 {
                     strSql.AppendLine("        and vcPackNo = '" + strPackNo + "'         ");
@@ -1086,7 +1087,7 @@ namespace DataAccess
         #endregion
 
         #region 调整数据输入-导入后保存
-        public void importSave_Sub(DataTable dt, string strUserId)
+        public void importSave_Sub(DataTable dt, string strUserId,string strPackSpot)
         {
             StringBuilder strSql = new StringBuilder();
 
@@ -1097,14 +1098,14 @@ namespace DataAccess
             strSql.Append("        End  \n");
             strSql.Append("        select * into #TPackCompute_Ajust_temp from       \n");
             strSql.Append("        (      \n");
-            strSql.Append("      	  select vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime from TPackCompute_Ajust where 1=0      \n");
+            strSql.Append("      	  select vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime,vcPackSpot from TPackCompute_Ajust where 1=0      \n");
             strSql.Append("        ) a      ;\n");
             #endregion
 
             #region 将数据插入临时表
             for (int i = 0; i < dt.Rows.Count; i++)
             {
-                strSql.AppendLine("      insert into #TPackCompute_Ajust_temp(vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime)       ");
+                strSql.AppendLine("      insert into #TPackCompute_Ajust_temp(vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime,vcPackSpot)       ");
                 strSql.AppendLine("      values       ");
                 strSql.AppendLine("      (       ");
                 strSql.AppendLine("       " + ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], false) + "       ");
@@ -1126,13 +1127,14 @@ namespace DataAccess
                 strSql.AppendLine("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcReason"], false) + "       ");
                 strSql.AppendLine("      ,'" + strUserId + "'       ");
                 strSql.AppendLine("      ,GETDATE()       ");
+                strSql.AppendLine("      ,'"+strPackSpot+"'       ");
                 strSql.AppendLine("      )       ");
             }
             #endregion
 
             #region 临时表关联包材基础信息表，关联出包材品番，将临时表数据插入调整数据输入表
-            strSql.AppendLine("      insert into  TPackCompute_Ajust(vcPackNo,vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime)       ");
-            strSql.AppendLine("      select b.vcPackNo,a.vcPackGPSNo,a.iNumber,a.vcType,a.dTime,a.vcReason,a.vcOperatorID,a.dOperatorTime from  #TPackCompute_Ajust_temp a       ");
+            strSql.AppendLine("      insert into  TPackCompute_Ajust(vcPackNo,vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime,vcPackSpot)       ");
+            strSql.AppendLine("      select b.vcPackNo,a.vcPackGPSNo,a.iNumber,a.vcType,a.dTime,a.vcReason,a.vcOperatorID,a.dOperatorTime,a.vcPackSpot from  #TPackCompute_Ajust_temp a       ");
             strSql.AppendLine("      left JOIN       ");
             strSql.AppendLine("      (       ");
             strSql.AppendLine("          select vcPackNo,vcPackGPSNo from TPackBase       ");
@@ -1144,7 +1146,7 @@ namespace DataAccess
         #endregion
 
         #region 获取品番能否满足保存条件
-        public DataTable getIsSave(List<Dictionary<string, Object>> listInfoData)
+        public DataTable getIsSave(List<Dictionary<string, Object>> listInfoData,string strPackSpot)
         {
             StringBuilder strSql = new StringBuilder();
             
@@ -1170,7 +1172,7 @@ namespace DataAccess
             strSql.AppendLine("      select a.*,b.vcPackGPSNo  as  'IsGPSNo',b.dPackFrom,b.dPackTo,b.vcReleaseName from #TPackCompute_Ajust_temp a       ");
             strSql.AppendLine("      left join        ");
             strSql.AppendLine("      (       ");
-            strSql.AppendLine("          select vcPackGPSNo,dPackFrom,dPackTo,vcReleaseName from TPackBase       ");
+            strSql.AppendLine("          select vcPackGPSNo,dPackFrom,dPackTo,vcReleaseName from TPackBase where vcPackSpot = '"+strPackSpot+"'       ");
             strSql.AppendLine("      ) b on a.vcPackGPSNo = b.vcPackGPSNo       ");
             #endregion
 
@@ -1179,7 +1181,7 @@ namespace DataAccess
         #endregion
 
         #region 获取品番能否满足保存条件
-        public DataTable getIsSave(DataTable dt)
+        public DataTable getIsSave(DataTable dt,string strPackSpot)
         {
             StringBuilder strSql = new StringBuilder();
 
@@ -1205,7 +1207,7 @@ namespace DataAccess
             strSql.AppendLine("      select a.*,b.vcPackGPSNo  as  'IsGPSNo',b.dPackFrom,b.dPackTo,b.vcReleaseName from #TPackCompute_Ajust_temp a       ");
             strSql.AppendLine("      left join        ");
             strSql.AppendLine("      (       ");
-            strSql.AppendLine("          select vcPackGPSNo,dPackFrom,dPackTo,vcReleaseName from TPackBase       ");
+            strSql.AppendLine("          select vcPackGPSNo,dPackFrom,dPackTo,vcReleaseName from TPackBase where vcPackSpot = '"+strPackSpot+"'       ");
             strSql.AppendLine("      ) b on a.vcPackGPSNo = b.vcPackGPSNo       ");
             #endregion
 
@@ -1214,7 +1216,7 @@ namespace DataAccess
         #endregion
 
         #region 计算过程检索
-        public DataTable searchPackCompute(string strPackNo, string strPackGPSNo, string strFaZhuID, string strFrom, string strTo)
+        public DataTable searchPackCompute(string strPackNo, string strPackGPSNo, string strFaZhuID, string strFrom, string strTo,string strPackSpot)
         {
             StringBuilder strSql = new StringBuilder();
             try
@@ -1223,6 +1225,7 @@ namespace DataAccess
                 strSql.AppendLine("        (         ");
                 strSql.AppendLine("        	select * from TPackCompute         ");
                 strSql.AppendLine("        	where 1=1         ");
+                strSql.AppendLine("        and vcPackSpot = '" + strPackSpot + "'         ");
                 if (!string.IsNullOrEmpty(strPackNo))
                 {
                     strSql.AppendLine("        and vcPackNo = '" + strPackNo + "'         ");

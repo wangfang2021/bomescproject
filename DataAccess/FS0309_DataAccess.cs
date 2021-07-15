@@ -1112,7 +1112,7 @@ namespace DataAccess
                 strSql.Append("      ,a.decPriceTNPWithTax        \n");
                 strSql.Append("      ,b.iPackingQty        \n");
                 strSql.Append("      ,a.vcCarTypeDesign        \n");
-                strSql.Append("      ,''        \n");//备注
+                strSql.Append("      ,'' as vcNote        \n");//备注
                 strSql.Append("      from        \n");
                 strSql.Append("      (        \n");
                 strSql.Append("          select * from TPrice         \n");

@@ -55,7 +55,7 @@ namespace BatchProcess
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE0503", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE0504", null, strUserId);
                 throw ex;
             }
         }

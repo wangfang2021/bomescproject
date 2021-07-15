@@ -20,7 +20,7 @@ namespace BatchProcess
             try
             {
                 //批处理开始
-                ComMessage.GetInstance().ProcessMessage(PageId, "批处理开始", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1501", null, strUserId);
                 //取最后一次更新时间
                 DataTable dtTime = this.GetEndData(strUserId);
                 //取待更新订单号
@@ -46,7 +46,7 @@ namespace BatchProcess
                 bool isokRK = this.InsertDate(strUserId, dtData, dtBase, dtisrkf, dtSave);
                 if (isokRK)
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行成功", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1502", null, strUserId);
                     return true;
                 }
                 else
@@ -58,7 +58,7 @@ namespace BatchProcess
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1501", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1502", ex, strUserId);
                 throw ex;
             }
         }

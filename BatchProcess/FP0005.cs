@@ -20,7 +20,7 @@ namespace BatchProcess
             try
             {
                 //批处理开始
-                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE0500", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI0501", null, strUserId);
                 string strAllGPSNO = "";
                 //获取所有待更新GPS品番
                 DataTable dtPack = this.GetGPSNO();
@@ -41,11 +41,12 @@ namespace BatchProcess
                 bool isSuccess = UPDate(dtPack, dtMAPS, strUserId);
                 if (isSuccess)
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行成功", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PI0502", null, strUserId);
                     return true;
                 }
                 else
                 {
+                    //更新失败
                     ComMessage.GetInstance().ProcessMessage(PageId, "M00PE0503", null, strUserId);
                     return false;
                 }

@@ -2000,7 +2000,7 @@ namespace DataAccess
                 sb.Append("where exists(");
                 sb.Append("             select vcPartsNo, vcCarFamilyCode,dTimeFrom,dTimeTo from tPartInfoMaster t2 ");
                 sb.Append("             where dTimeFrom<='" + mon + "-01" + "' and dTimeTo>='" + mon + "-01" + "' and vcInOutFlag='0'  ");
-                sb.Append("             and t1.vcPart_id=t2.vcPartsNo and t1.vcCarType=t2.vcCarFamilyCode and t2.dTimeFrom<='" + mon + "- 01' and t2.dTimeTo>='" + mon + "- 01') ");
+                sb.Append("             and t1.vcPart_id=t2.vcPartsNo and t1.vcCarType=t2.vcCarFamilyCode and t2.dTimeFrom<='" + mon + "-01' and t2.dTimeTo>='" + mon + "-01') ");
                 sb.Append("and iPartNums<>'0' and vcFZGC='" + plant + "' and vcInOutFlag='0' and vcDXYM='" + vcDXYM + "' and vcCLYM='" + vcCLYM + "'");
                 sb.Append("order by vcPart_id");
                 cmd.CommandText = sb.ToString();

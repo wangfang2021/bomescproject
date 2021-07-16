@@ -1329,7 +1329,7 @@ namespace DataAccess
             {
                 //0613记录日志
 
-                ComMessage.GetInstance().ProcessMessage("P00001", "M03UE0901", ex, "000000");
+                ComMessage.GetInstance().ProcessMessage("P00003", "P03UE0023", ex, "000000");
                 //回滚事务
                 if (sqlTransaction != null && sqlConnection != null)
                 {

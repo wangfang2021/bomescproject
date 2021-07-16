@@ -329,8 +329,14 @@ namespace Logic
             if (dtMessage != null && dtMessage.Rows.Count != 0)
                 return;
             int iPrintNum = Convert.ToInt32(strPrintNum);
+            string formatServerTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString().Substring(0, 10).Replace("-", "");//格式化号口时间
+            string tmpString2 = "SENLB";
             DataTable dtTag = fs1103_DataAccess.getPrintTemp("tag_FS1103");
             DataTable dtTagTemp = dtTag.Clone();
+            #region //6 生成标签后番
+            DataTable dtInvSeq = P00001_Logic.setSeqNo(tmpString2, iPrintNum, formatServerTime);
+            int invSeqNo = Convert.ToInt32(dtInvSeq.Rows[0][0].ToString()) - 1;//.PadLeft(4, '0');
+            #endregion
             for (int i = 1; i <= iPrintNum; i++)
             {
                 DataRow drTagTemp = dtTagTemp.NewRow();
@@ -345,9 +351,9 @@ namespace Logic
                 drTagTemp["iDateprintflg"] = dtPartInfo.Rows[0]["iDateprintflg"].ToString();
                 drTagTemp["vcComputernm"] = dtPartInfo.Rows[0]["vcComputernm"].ToString();
                 drTagTemp["vcPrindate"] = dtPartInfo.Rows[0]["vcPrindate"].ToString();
-                byte[] iCodemage = fS0617_Logic.GenerateQRCode(dtPartInfo.Rows[0]["vcQrcodeString1"].ToString());//二维码信息
+                byte[] iCodemage = fS0617_Logic.GenerateQRCode(dtPartInfo.Rows[0]["vcQrcodeString1"].ToString() + (invSeqNo + i).ToString().PadLeft(4, '0') + "B");//二维码信息
                 drTagTemp["iQrcode"] = iCodemage;
-                drTagTemp["vcPrintcount"] = dtPartInfo.Rows[0]["vcPart_id"].ToString() + dtPartInfo.Rows[0]["vcPrintcount1"].ToString();
+                drTagTemp["vcPrintcount"] = dtPartInfo.Rows[0]["vcPart_id"].ToString() + dtPartInfo.Rows[0]["vcPrintcount1"].ToString() + (invSeqNo + i).ToString().PadLeft(4, '0') + "B";
                 drTagTemp["vcPartnamechineese"] = dtPartInfo.Rows[0]["vcPartnamechineese"].ToString();
                 drTagTemp["vcSuppliername"] = dtPartInfo.Rows[0]["vcSuppliername"].ToString();
                 drTagTemp["vcSupplieraddress"] = dtPartInfo.Rows[0]["vcSupplieraddress"].ToString();

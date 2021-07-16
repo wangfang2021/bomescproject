@@ -791,7 +791,7 @@ namespace SPPSApi.Controllers.P01
                 string trolley = dataForm.Trolley == null ? "" : dataForm.Trolley;//台车号
                 string lotId = dataForm.LotId == null ? "" : dataForm.LotId;//段取指示号
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
-                
+
                 #region 记录日志
                 string path_begin = @"G:\ScanFile\Log\现场作业\入荷_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
                 string log_begin = "作业员:" + opearteId
@@ -800,7 +800,7 @@ namespace SPPSApi.Controllers.P01
                     + "；作业对象：" + trolley + "";
                 new P00003_Logic().WriteLog(log_begin, path_begin);
                 #endregion
-                
+
                 P00001_Logic.delInputInfoQB(iP, "");
                 DataTable getTrolleyInfo = P00001_Logic.GetTrolleyInfo(trolley, iP, lotId);
                 if (getTrolleyInfo.Rows.Count > 0)
@@ -1384,122 +1384,196 @@ namespace SPPSApi.Controllers.P01
                 #region //10 创建订单信息数据结构DataTable
                 //10.1 查询
                 DataTable dtOrder_Temp = dsInPutQBInfo.Tables[5].Clone();
+                DataTable dtORD_INOUT_Temp = dsInPutQBInfo.Tables[12].Clone();
                 DataTable dtOrderInfo = P00001_Logic.getOrderInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
-                for (int i = 0; i < dsInPutQBInfo.Tables[6].Rows.Count; i++)
+                for (int i = 0; i < dsInPutQBInfo.Tables[11].Rows.Count; i++)
                 {
-                    string strPart_id = dsInPutQBInfo.Tables[6].Rows[i]["vcPart_id"].ToString();
-                    string strCpdCompany = dsInPutQBInfo.Tables[6].Rows[i]["vcCpdCompany"].ToString();
-                    string strSR = dsInPutQBInfo.Tables[6].Rows[i]["vcSR"].ToString();
-                    int iSumQuantity = Convert.ToInt32(dsInPutQBInfo.Tables[6].Rows[i]["iSumQuantity"].ToString());
+                    //循环获取待入荷数据列表--品番别--合计统一消解
+                    string strPart_id = dsInPutQBInfo.Tables[11].Rows[i]["vcPart_id"].ToString();
+                    string strKBOrderNo = dsInPutQBInfo.Tables[11].Rows[i]["vcKBOrderNo"].ToString();
+                    string strKBLFNo = dsInPutQBInfo.Tables[11].Rows[i]["vcKBLFNo"].ToString();
+                    string strSR = dsInPutQBInfo.Tables[11].Rows[i]["vcSR"].ToString();
+                    string strCpdCompany = dsInPutQBInfo.Tables[11].Rows[i]["vcCpdCompany"].ToString();
+
+                    int iQuantity = Convert.ToInt32(dsInPutQBInfo.Tables[11].Rows[i]["iQuantity"].ToString());
+                    int iSumQuantity = Convert.ToInt32(dsInPutQBInfo.Tables[11].Rows[i]["iSumQuantity"].ToString());
+                    //根据品番别获取可消解订单列表列表排序为：品番、对象月、订单类型
                     DataRow[] drOrderInfo = dtOrderInfo.Select("vcPartNo='" + strPart_id + "' and vcCpdcompany='" + strCpdCompany + "' and vcDock='" + strSR + "'");
+                    //获取指定品番的对象月列表
+                    //按照对象月内优先级消解
+                    DataTable dtOrderYM = new DataTable();
+                    dtOrderYM.Columns.Add("vcTargetYearMonth");
                     DataTable dtOrderInfo_check = dtOrderInfo.Clone();
                     for (int j = 0; j < drOrderInfo.Length; j++)
                     {
+                        string strTargetYearMonth = drOrderInfo[j]["vcTargetYearMonth"].ToString();
+                        if (dtOrderYM.Select("vcTargetYearMonth='" + strTargetYearMonth + "'").Length == 0)
+                        {
+                            DataRow drOrderYM = dtOrderYM.NewRow();
+                            drOrderYM["vcTargetYearMonth"] = strTargetYearMonth;
+                            dtOrderYM.Rows.Add(drOrderYM);
+                        }
                         dtOrderInfo_check.ImportRow(drOrderInfo[j]);
                     }
-                    for (int j = 0; j < dtOrderInfo_check.Rows.Count; j++)
+                    for (int ym = 0; ym < dtOrderYM.Rows.Count; ym++)
                     {
-                        int inputQtyDailySum = 0;
-                        #region 减订单
-                        string iAutoId = dtOrderInfo_check.Rows[j]["iAutoId"].ToString();
-                        string targetMonth = dtOrderInfo_check.Rows[j]["vcTargetYearMonth"].ToString();
-                        string orderType = dtOrderInfo_check.Rows[j]["vcOrderType"].ToString();
-                        string orderNo = dtOrderInfo_check.Rows[j]["vcOrderNo"].ToString();
-                        string seqNo = dtOrderInfo_check.Rows[j]["vcSeqno"].ToString();
-                        int d1 = int.Parse(dtOrderInfo_check.Rows[j]["day1"].ToString());
-                        int d2 = int.Parse(dtOrderInfo_check.Rows[j]["day2"].ToString());
-                        int d3 = int.Parse(dtOrderInfo_check.Rows[j]["day3"].ToString());
-                        int d4 = int.Parse(dtOrderInfo_check.Rows[j]["day4"].ToString());
-                        int d5 = int.Parse(dtOrderInfo_check.Rows[j]["day5"].ToString());
-                        int d6 = int.Parse(dtOrderInfo_check.Rows[j]["day6"].ToString());
-                        int d7 = int.Parse(dtOrderInfo_check.Rows[j]["day7"].ToString());
-                        int d8 = int.Parse(dtOrderInfo_check.Rows[j]["day8"].ToString());
-                        int d9 = int.Parse(dtOrderInfo_check.Rows[j]["day9"].ToString());
-                        int d10 = int.Parse(dtOrderInfo_check.Rows[j]["day10"].ToString());
-                        int d11 = int.Parse(dtOrderInfo_check.Rows[j]["day11"].ToString());
-                        int d12 = int.Parse(dtOrderInfo_check.Rows[j]["day12"].ToString());
-                        int d13 = int.Parse(dtOrderInfo_check.Rows[j]["day13"].ToString());
-                        int d14 = int.Parse(dtOrderInfo_check.Rows[j]["day14"].ToString());
-                        int d15 = int.Parse(dtOrderInfo_check.Rows[j]["day15"].ToString());
-                        int d16 = int.Parse(dtOrderInfo_check.Rows[j]["day16"].ToString());
-                        int d17 = int.Parse(dtOrderInfo_check.Rows[j]["day17"].ToString());
-                        int d18 = int.Parse(dtOrderInfo_check.Rows[j]["day18"].ToString());
-                        int d19 = int.Parse(dtOrderInfo_check.Rows[j]["day19"].ToString());
-                        int d20 = int.Parse(dtOrderInfo_check.Rows[j]["day20"].ToString());
-                        int d21 = int.Parse(dtOrderInfo_check.Rows[j]["day21"].ToString());
-                        int d22 = int.Parse(dtOrderInfo_check.Rows[j]["day22"].ToString());
-                        int d23 = int.Parse(dtOrderInfo_check.Rows[j]["day23"].ToString());
-                        int d24 = int.Parse(dtOrderInfo_check.Rows[j]["day24"].ToString());
-                        int d25 = int.Parse(dtOrderInfo_check.Rows[j]["day25"].ToString());
-                        int d26 = int.Parse(dtOrderInfo_check.Rows[j]["day26"].ToString());
-                        int d27 = int.Parse(dtOrderInfo_check.Rows[j]["day27"].ToString());
-                        int d28 = int.Parse(dtOrderInfo_check.Rows[j]["day28"].ToString());
-                        int d29 = int.Parse(dtOrderInfo_check.Rows[j]["day29"].ToString());
-                        int d30 = int.Parse(dtOrderInfo_check.Rows[j]["day30"].ToString());
-                        int d31 = int.Parse(dtOrderInfo_check.Rows[j]["day31"].ToString());
-                        int[] array = {d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19, d20, d21,
-              d22,d23,d24,d25,d26,d27,d28,d29,d30,d31 };
-                        int[] newarray = new int[31];
-                        for (int l = 0; l < array.Length; l++)
+                        string strYM_check = dtOrderYM.Rows[ym]["vcTargetYearMonth"].ToString();
+                        DataRow[] drOrderInfo_check = dtOrderInfo_check.Select("vcTargetYearMonth='" + strYM_check + "'");
+                        for (int xj = 1; xj <= 31; xj++)
                         {
-                            if (iSumQuantity - array[l] > 0)
+                            for (int day = 0; day < drOrderInfo_check.Length; day++)
                             {
-                                newarray[l] = array[l];
-                                iSumQuantity = iSumQuantity - array[l];
+                                string cColumns_day = "day" + xj.ToString();
+                                //string cColumns_daily = "vcInputQtyDaily1" + xj.ToString();--laowu修改
+                                string cColumns_daily = "vcInputQtyDaily" + xj.ToString();
+                                int iRows_xj = Convert.ToInt32(drOrderInfo_check[day]["iRows"].ToString());
+                                string iAutoId_xj = drOrderInfo_check[day]["iAutoId"].ToString();
+                                string strOrderNo_xj = drOrderInfo_check[day]["vcOrderNo"].ToString();
+                                string strSeqno_xj = drOrderInfo_check[day]["vcSeqno"].ToString();
+                                int iDayNum_kxj = Convert.ToInt32(drOrderInfo_check[day][cColumns_day].ToString());
+                                if (iSumQuantity - iDayNum_kxj > 0)
+                                {
+                                    //未消解完毕 1.记录待追加的已入荷数-->更新数据库 2.继续下一次消解
+                                    if (iDayNum_kxj != 0)
+                                    {
+                                        #region addrows--插入待影响数据库表的订单信息
+                                        DataRow drOrder_Temp = dtOrder_Temp.NewRow();
+                                        drOrder_Temp["iAutoId"] = iAutoId_xj;
+                                        drOrder_Temp[cColumns_daily] = iDayNum_kxj;
+                                        drOrder_Temp["vcInputQtyDailySum"] = iDayNum_kxj;
+                                        dtOrder_Temp.Rows.Add(drOrder_Temp);
+                                        #endregion
 
-                            }
-                            else
-                            {
-                                newarray[l] = iSumQuantity;
-                                iSumQuantity = 0;
+                                        #region 入荷看板消解订单记录履历
+                                        DataRow drORD_INOUT_Temp = dtORD_INOUT_Temp.NewRow();
+                                        drORD_INOUT_Temp["vcPart_id"] = strPart_id;
+                                        drORD_INOUT_Temp["vcKBOrderNo"] = strKBOrderNo;
+                                        drORD_INOUT_Temp["vcKBLFNo"] = strKBLFNo;
+                                        drORD_INOUT_Temp["vcSR"] = strSR;
+                                        drORD_INOUT_Temp["iQuantity"] = iQuantity;
+                                        drORD_INOUT_Temp["vcOrderNo"] = strOrderNo_xj;
+                                        drORD_INOUT_Temp["vcSeqno"] = strSeqno_xj;
+                                        drORD_INOUT_Temp["iDay"] = xj;
+                                        drORD_INOUT_Temp["iOrderNum_Xj"] = iDayNum_kxj;
+                                        dtORD_INOUT_Temp.Rows.Add(drORD_INOUT_Temp);
+                                        #endregion
 
+                                        #region 对数据源进行可入荷量修改
+                                        dtOrderInfo.Rows[iRows_xj][cColumns_day] = 0;
+                                        #endregion
+                                    }
+                                    iSumQuantity = iSumQuantity - iDayNum_kxj;//剩余待消解入荷数
+                                }
+                                else
+                                {
+                                    //消解完毕 1.记录待追加的已入荷数-->更新数据库 2.结束本次消解
+                                    if (iSumQuantity != 0)
+                                    {
+                                        #region addrows--插入待影响数据库表的订单信息
+                                        DataRow drOrder_Temp = dtOrder_Temp.NewRow();
+                                        drOrder_Temp["iAutoId"] = iAutoId_xj;
+                                        drOrder_Temp[cColumns_daily] = iSumQuantity;
+                                        drOrder_Temp["vcInputQtyDailySum"] = iSumQuantity;
+                                        dtOrder_Temp.Rows.Add(drOrder_Temp);
+                                        #endregion
+
+                                        #region 入荷看板消解订单记录履历
+                                        DataRow drORD_INOUT_Temp = dtORD_INOUT_Temp.NewRow();
+                                        drORD_INOUT_Temp["vcPart_id"] = strPart_id;
+                                        drORD_INOUT_Temp["vcKBOrderNo"] = strKBOrderNo;
+                                        drORD_INOUT_Temp["vcKBLFNo"] = strKBLFNo;
+                                        drORD_INOUT_Temp["vcSR"] = strSR;
+                                        drORD_INOUT_Temp["iQuantity"] = iQuantity;
+                                        drORD_INOUT_Temp["vcOrderNo"] = strOrderNo_xj;
+                                        drORD_INOUT_Temp["vcSeqno"] = strSeqno_xj;
+                                        drORD_INOUT_Temp["iDay"] = xj;
+                                        drORD_INOUT_Temp["iOrderNum_Xj"] = iSumQuantity;
+                                        dtORD_INOUT_Temp.Rows.Add(drORD_INOUT_Temp);
+                                        #endregion
+
+                                        #region 对数据源进行可入荷量修改
+                                        dtOrderInfo.Rows[iRows_xj][cColumns_day] = Convert.ToInt32(dtOrderInfo.Rows[iRows_xj][cColumns_day]) - iSumQuantity;
+                                        #endregion
+                                    }
+                                    iSumQuantity = 0;
+                                }
+
+                                if (iSumQuantity == 0)
+                                    break;
                             }
+                            if (iSumQuantity == 0)
+                                break;
                         }
-                        #endregion
-                        for (int k = 0; k < newarray.Length; k++)
-                        {
-                            inputQtyDailySum += newarray[k];
-                        }
-                        #region addrows
-                        DataRow drOrder_Temp = dtOrder_Temp.NewRow();
-                        drOrder_Temp["iAutoId"] = iAutoId;
-                        drOrder_Temp["vcInputQtyDaily1"] = newarray[0];
-                        drOrder_Temp["vcInputQtyDaily2"] = newarray[1];
-                        drOrder_Temp["vcInputQtyDaily3"] = newarray[2];
-                        drOrder_Temp["vcInputQtyDaily4"] = newarray[3];
-                        drOrder_Temp["vcInputQtyDaily5"] = newarray[4];
-                        drOrder_Temp["vcInputQtyDaily6"] = newarray[5];
-                        drOrder_Temp["vcInputQtyDaily7"] = newarray[6];
-                        drOrder_Temp["vcInputQtyDaily8"] = newarray[7];
-                        drOrder_Temp["vcInputQtyDaily9"] = newarray[8];
-                        drOrder_Temp["vcInputQtyDaily10"] = newarray[9];
-                        drOrder_Temp["vcInputQtyDaily11"] = newarray[10];
-                        drOrder_Temp["vcInputQtyDaily12"] = newarray[11];
-                        drOrder_Temp["vcInputQtyDaily13"] = newarray[12];
-                        drOrder_Temp["vcInputQtyDaily14"] = newarray[13];
-                        drOrder_Temp["vcInputQtyDaily15"] = newarray[14];
-                        drOrder_Temp["vcInputQtyDaily16"] = newarray[15];
-                        drOrder_Temp["vcInputQtyDaily17"] = newarray[16];
-                        drOrder_Temp["vcInputQtyDaily18"] = newarray[17];
-                        drOrder_Temp["vcInputQtyDaily19"] = newarray[18];
-                        drOrder_Temp["vcInputQtyDaily20"] = newarray[19];
-                        drOrder_Temp["vcInputQtyDaily21"] = newarray[20];
-                        drOrder_Temp["vcInputQtyDaily22"] = newarray[21];
-                        drOrder_Temp["vcInputQtyDaily23"] = newarray[22];
-                        drOrder_Temp["vcInputQtyDaily24"] = newarray[23];
-                        drOrder_Temp["vcInputQtyDaily25"] = newarray[24];
-                        drOrder_Temp["vcInputQtyDaily26"] = newarray[25];
-                        drOrder_Temp["vcInputQtyDaily27"] = newarray[26];
-                        drOrder_Temp["vcInputQtyDaily28"] = newarray[27];
-                        drOrder_Temp["vcInputQtyDaily29"] = newarray[28];
-                        drOrder_Temp["vcInputQtyDaily30"] = newarray[29];
-                        drOrder_Temp["vcInputQtyDaily31"] = newarray[30];
-                        drOrder_Temp["vcInputQtyDailySum"] = inputQtyDailySum;
-                        dtOrder_Temp.Rows.Add(drOrder_Temp);
-                        #endregion
                         if (iSumQuantity == 0)
                             break;
                     }
+                }
+                for (int i = 0; i < dtOrder_Temp.Rows.Count; i++)
+                {
+                    #region 设置订单为空的数据
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily1"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily1"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily2"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily2"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily3"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily3"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily4"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily4"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily5"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily5"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily6"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily6"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily7"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily7"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily8"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily8"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily9"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily9"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily10"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily10"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily11"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily11"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily12"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily12"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily13"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily13"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily14"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily14"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily15"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily15"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily16"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily16"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily17"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily17"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily18"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily18"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily19"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily19"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily20"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily20"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily21"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily21"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily22"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily22"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily23"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily23"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily24"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily24"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily25"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily25"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily26"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily26"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily27"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily27"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily28"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily28"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily29"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily29"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily30"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily30"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcInputQtyDaily31"].ToString() == "") 
+                        dtOrder_Temp.Rows[i]["vcInputQtyDaily31"] = "0";
+                    #endregion
                 }
                 #endregion
 
@@ -1578,7 +1652,7 @@ namespace SPPSApi.Controllers.P01
                 //插入打印临时表-断取
                 //插入打印临时表-标签
                 //插入打印临时表-指定书
-                bool bResult = P00001_Logic.setInputInfo(iP, pointType, strPrinterName, dtPackList_Temp, dtLabelList_Temp, dtInv_Temp, dtOrder_Temp, opearteId, strPackPrinterName);
+                bool bResult = P00001_Logic.setInputInfo(iP, pointType, strPrinterName, dtPackList_Temp, dtLabelList_Temp, dtInv_Temp, dtOrder_Temp, dtORD_INOUT_Temp, opearteId, strPackPrinterName);
                 if (!bResult)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -1822,7 +1896,8 @@ namespace SPPSApi.Controllers.P01
                     }
                 }
                 #endregion
-                if (sum - sum1 <= 0)
+                //if (sum - sum1- int.Parse(quantity) <= 0) laowu 0715修改
+                if (sum - sum1 - int.Parse(quantity) < 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "品番" + partId + "在订单基础数据中待入库数小于当前数量,请检查!";

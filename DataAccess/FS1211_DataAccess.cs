@@ -757,7 +757,7 @@ namespace DataAccess
                 {
                     string monfrom = Convert.ToDateTime(mon + "-01").AddMonths(-1).ToString("yyyyMM");
                     string monTo = Convert.ToDateTime(mon + "-01").ToString("yyyyMM");
-                    sbSQL.AppendLine(" and substring(vcKBOrderNo, 0, 6)>='" + monfrom + "' and substring(vcKBOrderNo, 0, 6)<='" + monTo + "' ");
+                    sbSQL.AppendLine(" and substring(vcKBOrderNo, 1, 6)>='" + monfrom + "' and substring(vcKBOrderNo, 1, 6)<='" + monTo + "' ");
                 }
                 if (partNo != null && partNo.Trim() != "")
                 {

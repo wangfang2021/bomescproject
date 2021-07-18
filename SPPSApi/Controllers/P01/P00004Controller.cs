@@ -406,11 +406,16 @@ namespace SPPSApi.Controllers.P01
                     apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataRow[] dataRows = dtDockInfo.Select("vcBoxNo=''");
-                if (dataRows.Length > 0)
+                DataTable dtBoxCheck = dsDockInfo.Tables[2];
+                if (dtBoxCheck.Rows.Count > 0)
                 {
+                    string strBoxCheck = "";
+                    for (int i = 0; i < dtBoxCheck.Rows.Count; i++)
+                    {
+                        strBoxCheck = strBoxCheck + dtBoxCheck.Rows[i]["vcBoxNo"].ToString() + ",";
+                    }
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "箱号：" + dataRows[0]["vcBoxNo"].ToString() + "不存在有效的装箱数据，请处理后再试。";
+                    apiResult.data = "箱号：" + strBoxCheck.Substring(0, strBoxCheck.Length - 1) + "不存在有效的装箱数据，请处理后再试。";
                     apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }

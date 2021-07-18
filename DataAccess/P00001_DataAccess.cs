@@ -1809,7 +1809,7 @@ namespace DataAccess
             stringBuilder.AppendLine("--3查询断取指示书表结构");
             stringBuilder.AppendLine("SELECT TOP (1)*  FROM [TPackList]");
             stringBuilder.AppendLine("--4查询标签表结构");
-            stringBuilder.AppendLine("SELECT TOP (1)*  FROM [TLabelList]");
+            stringBuilder.AppendLine("SELECT TOP (1)*,NULL as [vcLabelCode]  FROM [TLabelList]");
             stringBuilder.AppendLine("--5查询订单表结构");
             stringBuilder.AppendLine("SELECT top(1)* FROM [dbo].[SP_M_ORD]");
             stringBuilder.AppendLine("--6查询档次入库品番合计数量");
@@ -2244,8 +2244,7 @@ namespace DataAccess
                 }
             }
         }
-
-        public bool setInputInfo(string strIP, string strPointName, string strPrinterName, DataTable dtPackList_Temp, DataTable dtLabelList_Temp, DataTable dtInv_Temp, DataTable dtOrder_Temp,DataTable dtORD_INOUT_Temp, string strOperId, string strPackPrinterName)
+        public bool setInputInfo_Temp(string strIP, string uuid, string strPointName, string strPrinterName, string strOperId, string strPackPrinterName)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
             sqlConnection.Open();
@@ -2253,6 +2252,227 @@ namespace DataAccess
             try
             {
                 #region 写入数据库
+                #region 1.插入作业实绩表、插入入出库履历
+                SqlCommand sqlCommand_addinfo = sqlConnection.CreateCommand();
+                sqlCommand_addinfo.Transaction = sqlTransaction;
+                sqlCommand_addinfo.CommandType = CommandType.Text;
+                StringBuilder strSql_addinfo = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_addinfo.AppendLine("INSERT INTO [dbo].[TOperateSJ]");
+                strSql_addinfo.AppendLine("           ([vcZYType]");
+                strSql_addinfo.AppendLine("           ,[vcBZPlant]");
+                strSql_addinfo.AppendLine("           ,[vcInputNo]");
+                strSql_addinfo.AppendLine("           ,[vcKBOrderNo]");
+                strSql_addinfo.AppendLine("           ,[vcKBLFNo]");
+                strSql_addinfo.AppendLine("           ,[vcPart_id]");
+                strSql_addinfo.AppendLine("           ,[vcIOType]");
+                strSql_addinfo.AppendLine("           ,[vcSupplier_id]");
+                strSql_addinfo.AppendLine("           ,[vcSupplierGQ]");
+                strSql_addinfo.AppendLine("           ,[dStart]");
+                strSql_addinfo.AppendLine("           ,[dEnd]");
+                strSql_addinfo.AppendLine("           ,[iQuantity]");
+                strSql_addinfo.AppendLine("           ,[vcBZUnit]");
+                strSql_addinfo.AppendLine("           ,[vcSHF]");
+                strSql_addinfo.AppendLine("           ,[vcSR]");
+                strSql_addinfo.AppendLine("           ,[vcBoxNo]");
+                strSql_addinfo.AppendLine("           ,[vcSheBeiNo]");
+                strSql_addinfo.AppendLine("           ,[vcCheckType]");
+                strSql_addinfo.AppendLine("           ,[iCheckNum]");
+                strSql_addinfo.AppendLine("           ,[vcCheckStatus]");
+                strSql_addinfo.AppendLine("           ,[vcLabelStart]");
+                strSql_addinfo.AppendLine("           ,[vcLabelEnd]");
+                strSql_addinfo.AppendLine("           ,[vcUnlocker]");
+                strSql_addinfo.AppendLine("           ,[dUnlockTime]");
+                strSql_addinfo.AppendLine("           ,[vcSellNo]");
+                strSql_addinfo.AppendLine("           ,[vcOperatorID]");
+                strSql_addinfo.AppendLine("           ,[dOperatorTime]");
+                strSql_addinfo.AppendLine("           ,[vcHostIp]");
+                strSql_addinfo.AppendLine("           ,[packingcondition]");
+                strSql_addinfo.AppendLine("           ,[vcPackingPlant])");
+                strSql_addinfo.AppendLine("select vcZYType,");
+                strSql_addinfo.AppendLine("vcBZPlant,");
+                strSql_addinfo.AppendLine("case when vcInputNo='' then null else vcInputNo end as vcInputNo ,");
+                strSql_addinfo.AppendLine("vcKBOrderNo,");
+                strSql_addinfo.AppendLine("vcKBLFNo,");
+                strSql_addinfo.AppendLine("vcPart_id,");
+                strSql_addinfo.AppendLine("vcIOType,");
+                strSql_addinfo.AppendLine("vcSupplierId,");
+                strSql_addinfo.AppendLine("vcSupplierPlant,");
+                strSql_addinfo.AppendLine("dScanTime,");
+                strSql_addinfo.AppendLine("getdate(),");
+                strSql_addinfo.AppendLine("iQuantity,");
+                strSql_addinfo.AppendLine("iPackingQty,");
+                strSql_addinfo.AppendLine("vcCpdCompany,");
+                strSql_addinfo.AppendLine("vcSR,");
+                strSql_addinfo.AppendLine("vcBoxNo,");
+                strSql_addinfo.AppendLine("@PointName,");
+                strSql_addinfo.AppendLine("null,");
+                strSql_addinfo.AppendLine("null,");
+                strSql_addinfo.AppendLine("null,");
+                strSql_addinfo.AppendLine("vcLabelStart,");
+                strSql_addinfo.AppendLine("vcLabelEnd,");
+                strSql_addinfo.AppendLine("null,");
+                strSql_addinfo.AppendLine("null,");
+                strSql_addinfo.AppendLine("null,");
+                strSql_addinfo.AppendLine("'" + strOperId + "',");
+                strSql_addinfo.AppendLine("getdate(),");
+                strSql_addinfo.AppendLine("'" + strIP + "',");
+                strSql_addinfo.AppendLine("0,");
+                strSql_addinfo.AppendLine("vcPackingPlant from TOperatorQB");
+                strSql_addinfo.AppendLine("where vcReflectFlag='0' and vcZYType='S0' and vcHostIp='" + strIP + "'");
+                strSql_addinfo.AppendLine("INSERT INTO [dbo].[TOperateSJ_InOutput]");
+                strSql_addinfo.AppendLine("           ([vcBZPlant]");
+                strSql_addinfo.AppendLine("           ,[vcSHF]");
+                strSql_addinfo.AppendLine("           ,[vcSR]");
+                strSql_addinfo.AppendLine("           ,[vcInputNo]");
+                strSql_addinfo.AppendLine("           ,[vcKBOrderNo]");
+                strSql_addinfo.AppendLine("           ,[vcKBLFNo]");
+                strSql_addinfo.AppendLine("           ,[vcPart_id]");
+                strSql_addinfo.AppendLine("           ,[iQuantity]");
+                strSql_addinfo.AppendLine("           ,[iDBZ]");
+                strSql_addinfo.AppendLine("           ,[iDZX]");
+                strSql_addinfo.AppendLine("           ,[iDCH]");
+                strSql_addinfo.AppendLine("           ,[dInDate]");
+                strSql_addinfo.AppendLine("           ,[vcOperatorID]");
+                strSql_addinfo.AppendLine("           ,[dOperatorTime])");
+                strSql_addinfo.AppendLine("select vcBZPlant,");
+                strSql_addinfo.AppendLine("vcCpdCompany,");
+                strSql_addinfo.AppendLine("vcSR,");
+                strSql_addinfo.AppendLine("vcInputNo,");
+                strSql_addinfo.AppendLine("vcKBOrderNo,");
+                strSql_addinfo.AppendLine("vcKBLFNo,");
+                strSql_addinfo.AppendLine("vcPart_id,");
+                strSql_addinfo.AppendLine("iQuantity,");
+                strSql_addinfo.AppendLine("iQuantity,");
+                strSql_addinfo.AppendLine("0,");
+                strSql_addinfo.AppendLine("0,");
+                strSql_addinfo.AppendLine("dScanTime,");
+                strSql_addinfo.AppendLine("'" + strOperId + "',");
+                strSql_addinfo.AppendLine("getdate()");
+                strSql_addinfo.AppendLine(" from TOperatorQB");
+                strSql_addinfo.AppendLine(" where vcReflectFlag='0' and vcZYType='S0' and vcHostIp='" + strIP + "'");
+                strSql_addinfo.AppendLine("update TOperatorQB set vcReflectFlag='1' where  vcReflectFlag='0' and vcZYType='S0' and vcHostIp='" + strIP + "'");
+                strSql_addinfo.AppendLine("update TOperateSJ_TrolleyInfo set vcStatus='1' where vcOperatorID='" + strOperId + "' and vcHostIp='" + strIP + "'");
+                sqlCommand_addinfo.CommandText = strSql_addinfo.ToString();
+                sqlCommand_addinfo.Parameters.AddWithValue("@PointName", strPointName);
+                #endregion
+                sqlCommand_addinfo.ExecuteNonQuery();
+                #endregion
+                #endregion
+
+                //提交事务
+                sqlTransaction.Commit();
+                sqlConnection.Close();
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                //0613记录日志
+
+                ComMessage.GetInstance().ProcessMessage("P00001", "P01UE0024", ex, strOperId);
+                //回滚事务
+                if (sqlTransaction != null && sqlConnection != null)
+                {
+                    sqlTransaction.Rollback();
+                    sqlConnection.Close();
+                }
+                return false;
+            }
+        }
+        public bool setInputInfo(string strIP, string strPointName, string strPrinterName, DataTable dtPackList_Temp, DataTable dtLabelList_Temp, DataTable dtInv_Temp, DataTable dtOrder_Temp, DataTable dtORD_INOUT_Temp, string strOperId, string strPackPrinterName)
+        {
+            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+            sqlConnection.Open();
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+            try
+            {
+                #region 写入数据库
+
+                #region 0.主键校验
+                #region 入库指令书号
+                SqlCommand sqlCommand_addinfo_inv_key = sqlConnection.CreateCommand();
+                sqlCommand_addinfo_inv_key.Transaction = sqlTransaction;
+                sqlCommand_addinfo_inv_key.CommandType = CommandType.Text;
+                StringBuilder strSql_addinfo_inv_key = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_addinfo_inv_key.AppendLine("INSERT INTO [dbo].[TInvList_KEY]");
+                strSql_addinfo_inv_key.AppendLine("           ([vcInno]");
+                strSql_addinfo_inv_key.AppendLine("           ,[vcHostIp]");
+                strSql_addinfo_inv_key.AppendLine("           ,[vcOperatorID]");
+                strSql_addinfo_inv_key.AppendLine("           ,[dOperatorTime])");
+                strSql_addinfo_inv_key.AppendLine("     VALUES");
+                strSql_addinfo_inv_key.AppendLine("           (CASE WHEN @vcInno='' THEN NULL ELSE @vcInno END");
+                strSql_addinfo_inv_key.AppendLine("           ,'"+ strIP + "'");
+                strSql_addinfo_inv_key.AppendLine("           ,'"+ strOperId + "'");
+                strSql_addinfo_inv_key.AppendLine("           ,GETDATE())");
+                sqlCommand_addinfo_inv_key.CommandText = strSql_addinfo_inv_key.ToString();
+                sqlCommand_addinfo_inv_key.Parameters.AddWithValue("@vcInno", "");
+                #endregion
+                foreach (DataRow item in dtInv_Temp.Rows)
+                {
+                    #region Value
+                    sqlCommand_addinfo_inv_key.Parameters["@vcInno"].Value = item["vcInno"].ToString();
+                    #endregion
+                    sqlCommand_addinfo_inv_key.ExecuteNonQuery();
+                }
+                #endregion
+
+                #region 标签号
+                SqlCommand sqlCommand_addinfo_lab_key = sqlConnection.CreateCommand();
+                sqlCommand_addinfo_lab_key.Transaction = sqlTransaction;
+                sqlCommand_addinfo_lab_key.CommandType = CommandType.Text;
+                StringBuilder strSql_addinfo_lab_key = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_addinfo_lab_key.AppendLine("INSERT INTO [dbo].[TLabelList_KEY]");
+                strSql_addinfo_lab_key.AppendLine("           ([vcLabelCode]");
+                strSql_addinfo_lab_key.AppendLine("           ,[vcHostIp]");
+                strSql_addinfo_lab_key.AppendLine("           ,[vcOperatorID]");
+                strSql_addinfo_lab_key.AppendLine("           ,[dOperatorTime])");
+                strSql_addinfo_lab_key.AppendLine("     VALUES");
+                strSql_addinfo_lab_key.AppendLine("           (CASE WHEN @vcLabelCode='' THEN NULL ELSE @vcLabelCode END");
+                strSql_addinfo_lab_key.AppendLine("           ,'" + strIP + "'");
+                strSql_addinfo_lab_key.AppendLine("           ,'" + strOperId + "'");
+                strSql_addinfo_lab_key.AppendLine("           ,GETDATE())");
+                sqlCommand_addinfo_lab_key.CommandText = strSql_addinfo_lab_key.ToString();
+                sqlCommand_addinfo_lab_key.Parameters.AddWithValue("@vcLabelCode", "");
+                #endregion
+                foreach (DataRow item in dtLabelList_Temp.Rows)
+                {
+                    #region Value
+                    sqlCommand_addinfo_lab_key.Parameters["@vcLabelCode"].Value = item["vcLabelCode"].ToString();
+                    #endregion
+                    sqlCommand_addinfo_lab_key.ExecuteNonQuery();
+                }
+                #endregion
+
+                #region 断取号
+                SqlCommand sqlCommand_addinfo_pac_key = sqlConnection.CreateCommand();
+                sqlCommand_addinfo_pac_key.Transaction = sqlTransaction;
+                sqlCommand_addinfo_pac_key.CommandType = CommandType.Text;
+                StringBuilder strSql_addinfo_pac_key = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_addinfo_pac_key.AppendLine("INSERT INTO [dbo].[TPackList_KEY]");
+                strSql_addinfo_pac_key.AppendLine("           ([vcLotid]");
+                strSql_addinfo_pac_key.AppendLine("           ,[vcHostIp]");
+                strSql_addinfo_pac_key.AppendLine("           ,[vcOperatorID]");
+                strSql_addinfo_pac_key.AppendLine("           ,[dOperatorTime])");
+                strSql_addinfo_pac_key.AppendLine("select distinct CASE WHEN vcLotid='' THEN NULL ELSE vcLotid END AS vcLotid");
+                strSql_addinfo_pac_key.AppendLine(",@HostIp");
+                strSql_addinfo_pac_key.AppendLine(",'" + strOperId + "'");
+                strSql_addinfo_pac_key.AppendLine(",GETDATE()");
+                strSql_addinfo_pac_key.AppendLine("from TOperatorQB");
+                strSql_addinfo_pac_key.AppendLine("where vcZYType='S0' and vcReflectFlag='0' and  vcHostIp=@HostIp");
+                sqlCommand_addinfo_pac_key.CommandText = strSql_addinfo_pac_key.ToString();
+                sqlCommand_addinfo_pac_key.Parameters.AddWithValue("@HostIp", strIP);
+                #endregion
+                sqlCommand_addinfo_pac_key.ExecuteNonQuery();
+                #endregion
+                #endregion
 
                 #region 1.插入作业实绩表、插入入出库履历
                 SqlCommand sqlCommand_addinfo = sqlConnection.CreateCommand();
@@ -2821,7 +3041,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region 7.更新订单表
+                #region 6.更新订单表
                 SqlCommand sqlCommand_modinfo_pq_mod = sqlConnection.CreateCommand();
                 sqlCommand_modinfo_pq_mod.Transaction = sqlTransaction;
                 sqlCommand_modinfo_pq_mod.CommandType = CommandType.Text;
@@ -2936,7 +3156,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region 8.插入入出库订单履历表SP_M_ORD_INOUT
+                #region 7.插入入出库订单履历表SP_M_ORD_INOUT
                 SqlCommand sqlCommand_addinfo_sp_ord_inout = sqlConnection.CreateCommand();
                 sqlCommand_addinfo_sp_ord_inout.Transaction = sqlTransaction;
                 sqlCommand_addinfo_sp_ord_inout.CommandType = CommandType.Text;
@@ -2967,7 +3187,7 @@ namespace DataAccess
                 strSql_modinfo_sp_ord_inout.AppendLine("           ,@vcSeqno");
                 strSql_modinfo_sp_ord_inout.AppendLine("           ,@iDay");
                 strSql_modinfo_sp_ord_inout.AppendLine("           ,@iOrderNum_Xj");
-                strSql_modinfo_sp_ord_inout.AppendLine("           ,'"+ strOperId + "'");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,'" + strOperId + "'");
                 strSql_modinfo_sp_ord_inout.AppendLine("           ,GETDATE())");
                 sqlCommand_addinfo_sp_ord_inout.CommandText = strSql_modinfo_sp_ord_inout.ToString();
                 sqlCommand_addinfo_sp_ord_inout.Parameters.AddWithValue("@vcPart_id", "");
@@ -2997,7 +3217,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region 11.插入打印表
+                #region 8.插入打印表
                 SqlCommand sqlCommand_printinfo = sqlConnection.CreateCommand();
                 sqlCommand_printinfo.Transaction = sqlTransaction;
                 sqlCommand_printinfo.CommandType = CommandType.Text;
@@ -3083,41 +3303,42 @@ namespace DataAccess
                 strSql_printinfo.AppendLine("		   from TPackList");
                 strSql_printinfo.AppendLine("		   where dFirstPrintTime  is null  and vcHostip=@strIP");
                 strSql_printinfo.AppendLine("		   order by vcLotid");
-               /*
-                strSql_printinfo.AppendLine("INSERT INTO [dbo].[TPrint_Temp]");
-                strSql_printinfo.AppendLine("           ([vcTableName]");
-                strSql_printinfo.AppendLine("           ,[vcReportName]");
-                strSql_printinfo.AppendLine("           ,[vcClientIP]");
-                strSql_printinfo.AppendLine("           ,[vcPrintName]");
-                strSql_printinfo.AppendLine("           ,[vcKind]");
-                strSql_printinfo.AppendLine("           ,[vcOperatorID]");
-                strSql_printinfo.AppendLine("           ,[dOperatorTime]");
-                strSql_printinfo.AppendLine("           ,[vcCaseNo]");
-                strSql_printinfo.AppendLine("           ,[vcSellNo]");
-                strSql_printinfo.AppendLine("           ,[vcLotid]");
-                strSql_printinfo.AppendLine("           ,[vcSupplierId]");
-                strSql_printinfo.AppendLine("           ,[vcInno]");
-                strSql_printinfo.AppendLine("           ,[vcFlag])");
-                strSql_printinfo.AppendLine("		   select distinct 'TLabelList'");
-                strSql_printinfo.AppendLine("		   ,'SPR06LBIP'");
-                strSql_printinfo.AppendLine("		   ,@strIP");
-                strSql_printinfo.AppendLine("		   ,'" + strPrinterName + "'");
-                strSql_printinfo.AppendLine("		   ,'2'");
-                strSql_printinfo.AppendLine("		   ,'" + strOperId + "'");
-                strSql_printinfo.AppendLine("		   ,GETDATE()");
-                strSql_printinfo.AppendLine("		   ,null");
-                strSql_printinfo.AppendLine("		   ,null");
-                strSql_printinfo.AppendLine("		   ,null");
-                strSql_printinfo.AppendLine("		   ,null");
-                strSql_printinfo.AppendLine("		   ,null");
-                strSql_printinfo.AppendLine("		   ,'0'");
-                   laowu修改，成型在包装时打印品番标签              */
-              
+                /*
+                 strSql_printinfo.AppendLine("INSERT INTO [dbo].[TPrint_Temp]");
+                 strSql_printinfo.AppendLine("           ([vcTableName]");
+                 strSql_printinfo.AppendLine("           ,[vcReportName]");
+                 strSql_printinfo.AppendLine("           ,[vcClientIP]");
+                 strSql_printinfo.AppendLine("           ,[vcPrintName]");
+                 strSql_printinfo.AppendLine("           ,[vcKind]");
+                 strSql_printinfo.AppendLine("           ,[vcOperatorID]");
+                 strSql_printinfo.AppendLine("           ,[dOperatorTime]");
+                 strSql_printinfo.AppendLine("           ,[vcCaseNo]");
+                 strSql_printinfo.AppendLine("           ,[vcSellNo]");
+                 strSql_printinfo.AppendLine("           ,[vcLotid]");
+                 strSql_printinfo.AppendLine("           ,[vcSupplierId]");
+                 strSql_printinfo.AppendLine("           ,[vcInno]");
+                 strSql_printinfo.AppendLine("           ,[vcFlag])");
+                 strSql_printinfo.AppendLine("		   select distinct 'TLabelList'");
+                 strSql_printinfo.AppendLine("		   ,'SPR06LBIP'");
+                 strSql_printinfo.AppendLine("		   ,@strIP");
+                 strSql_printinfo.AppendLine("		   ,'" + strPrinterName + "'");
+                 strSql_printinfo.AppendLine("		   ,'2'");
+                 strSql_printinfo.AppendLine("		   ,'" + strOperId + "'");
+                 strSql_printinfo.AppendLine("		   ,GETDATE()");
+                 strSql_printinfo.AppendLine("		   ,null");
+                 strSql_printinfo.AppendLine("		   ,null");
+                 strSql_printinfo.AppendLine("		   ,null");
+                 strSql_printinfo.AppendLine("		   ,null");
+                 strSql_printinfo.AppendLine("		   ,null");
+                 strSql_printinfo.AppendLine("		   ,'0'");
+                    laowu修改，成型在包装时打印品番标签              */
+
                 sqlCommand_printinfo.CommandText = strSql_printinfo.ToString();
                 sqlCommand_printinfo.Parameters.AddWithValue("@strIP", strIP);
                 #endregion
                 sqlCommand_printinfo.ExecuteNonQuery();
                 #endregion
+
                 #endregion
 
                 //提交事务

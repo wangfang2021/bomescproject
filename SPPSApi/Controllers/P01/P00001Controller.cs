@@ -1336,7 +1336,8 @@ namespace SPPSApi.Controllers.P01
                         {
                             string strBarCode = new P00001_Logic().ChangeBarCode(partId);//一维码生成字符
 
-                            string strPrintcount = partId + date + a.ToString().PadLeft(5, '0');
+                            string strLabelCode =  date + a.ToString().PadLeft(5, '0');
+                            string strPrintcount = partId + strLabelCode;
                             //string strLabel = "*" + strPrintcount + "*";
                             string strLabel = strBarCode;
                             string strContent = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=" + strPrintcount;
@@ -1362,6 +1363,7 @@ namespace SPPSApi.Controllers.P01
                             drLabelList_Temp["vcPrindate"] = dtLabelInfo.Rows[j]["vcPrindate"].ToString();
                             drLabelList_Temp["iQrcode"] = Qrcode;
                             drLabelList_Temp["iQrcode1"] = Qrcode1;
+                            drLabelList_Temp["vcLabelCode"] = strLabelCode;
                             drLabelList_Temp["vcPrintcount"] = strPrintcount;
                             drLabelList_Temp["vcPrintcount1"] = strPrintcount1;
                             drLabelList_Temp["vcPartnamechineese"] = dtLabelInfo.Rows[j]["vcPartnamechineese"].ToString();

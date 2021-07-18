@@ -344,6 +344,18 @@ namespace DataAccess
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select * from TBoxMaster where dPrintBoxTime is not null)b");
             stringBuilder.AppendLine("on a.vcBoxNo=b.vcCaseNo");
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("--校验错误箱号");
+            stringBuilder.AppendLine("select a.vcBoxNo  ");
+            stringBuilder.AppendLine("from ");
+            stringBuilder.AppendLine("(select distinct vcBoxNo from TShip_Temp where vcDockSell='" + dock + "' and vcFlag='" + strFlag + "')a");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(select * from TBoxMaster where dPrintBoxTime is not null)b");
+            stringBuilder.AppendLine("on a.vcBoxNo=b.vcCaseNo");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(select * from TOperateSJ where vcZYType='S3' and isnull(vcSellNo,'')='')c");
+            stringBuilder.AppendLine("on b.vcCaseNo=c.vcCaseNo and b.vcPart_id=c.vcPart_id and b.vcOrderNo=c.vcKBOrderNo and b.vcLianFanNo=c.vcKBLFNo and b.vcSR=c.vcSR");
+            stringBuilder.AppendLine("where b.vcCaseNo is null or c.vcCaseNo is null");
 
             DataSet ds = new DataSet();
             try

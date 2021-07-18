@@ -1459,7 +1459,7 @@ namespace SPPSApi.Controllers.P01
                     + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     + "；作业内容:" + "打印装箱单(end)"
                     + "；作业对象：" + caseNo + "";
-                new P00003_Logic().WriteLog(log_begin, path_begin);
+                new P00003_Logic().WriteLog(log_end, path_end);
                 #endregion
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }

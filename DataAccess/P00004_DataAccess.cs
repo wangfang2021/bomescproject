@@ -1531,8 +1531,8 @@ namespace DataAccess
                 StringBuilder strSql_mod_dock = new StringBuilder();
 
                 #region SQL and Parameters
-                strSql_mod_dock.AppendLine("update TShip_Temp set vcFlag='1',vcOperatorID=@vcOperatorID,dOperatorTime=GETDATE() where vcDockSell=@vcDockSell");
-                strSql_mod_dock.AppendLine("update TSell_DockCar set vcFlag='1',vcOperatorID=@vcOperatorID,dOperatorTime=GETDATE() where vcDockSell=@vcDockSell");
+                strSql_mod_dock.AppendLine("update TShip_Temp set vcFlag='1' where vcFlag='0' and vcDockSell=@vcDockSell");
+                strSql_mod_dock.AppendLine("update TSell_DockCar set vcFlag='1',vcOperatorID=@vcOperatorID,dOperatorTime=GETDATE() where vcFlag='0' and vcDockSell=@vcDockSell");
                 strSql_mod_dock.AppendLine("DELETE FROM [dbo].[TOperate_OutPut_Temp] WHERE vcDockSell=@vcDockSell");
                 strSql_mod_dock.AppendLine("update TSeqNo_Sell set COMMID='1' where Linid in (" + iXSNO_Lin + "," + iBSNO_Lin + ")");
 

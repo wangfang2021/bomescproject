@@ -660,5 +660,132 @@ namespace Logic
                 return "*" + strBarCode + "*";
             }
         }
+
+    public static void SaveXmlLocal(P00001_DataEntity.ScanData sData, string serverTime, string name, string formatTime, string strPlant)
+    {
+      #region 写入Y
+      string sFilePathY = "";
+      if (strPlant == "1")
+      {
+        sFilePathY = @"G:\Api\Debug\netcoreapp3.1\Doc\TILSXML\1\" + name + "_Y_" + formatTime + ".xml";
+
+      }
+      if (strPlant == "2")
+      {
+        sFilePathY = @"G:\Api\Debug\netcoreapp3.1\Doc\TILSXML\2\" + name + "_Y_" + formatTime + ".xml";
+      }
+      if (strPlant == "3")
+      {
+        sFilePathY = @"G:\Api\Debug\netcoreapp3.1\Doc\TILSXML\3\" + name + "_Y_" + formatTime + ".xml";
+      }
+      string s = "";
+      if (File.Exists(sFilePathY))
+      {
+        StreamReader sr = File.OpenText(sFilePathY);
+        s = sr.ReadToEnd();
+        s = s.Replace("</Detils>", "");
+        s = s.Replace("<?xml version=\"1.0\"?>\r\n<Detils>\r\n", "");
+        sr.Close();
+      }
+
+      System.Xml.XmlDocument doc = new XmlDocument();
+      XmlElement root = doc.CreateElement("Books");
+      doc.AppendChild(root);
+      XmlElement nodes = doc.CreateElement("Infor");
+
+
+      XmlElement x1 = doc.CreateElement("SUPPLIER_CODE");
+      x1.InnerText = sData.SUPPLIER_CODE.Trim();
+      nodes.AppendChild(x1);
+
+      XmlElement x2 = doc.CreateElement("SUPPLIER_PLANT");
+      x2.InnerText = sData.SUPPLIER_PLANT.Trim();
+      nodes.AppendChild(x2);
+
+      XmlElement x3 = doc.CreateElement("SHIPPING_DOCK");
+      x3.InnerText = sData.SHIPPING_DOCK.Trim();
+      nodes.AppendChild(x3);
+
+      XmlElement x4 = doc.CreateElement("SR_GRP_CODE");
+      x4.InnerText = "";
+      nodes.AppendChild(x4);
+
+      XmlElement x5 = doc.CreateElement("INVOICE_NO");
+      x5.InnerText = sData.INVOICE_NO.Trim();
+      nodes.AppendChild(x5);
+
+      XmlElement x6 = doc.CreateElement("ORDER_NO");
+      x6.InnerText = sData.ORDER_NO.Trim();
+      nodes.AppendChild(x6);
+
+      XmlElement x7 = doc.CreateElement("KNBN_PRN_ADDRESS");
+      x7.InnerText = sData.KNBN_PRN_ADDRESS.Trim();
+      nodes.AppendChild(x7);
+
+      XmlElement x8 = doc.CreateElement("KNBN_NO");
+      x8.InnerText = sData.KNBN_NO.Trim();
+      nodes.AppendChild(x8);
+
+      XmlElement x9 = doc.CreateElement("PART_NO");
+      x9.InnerText = sData.PART_NO.Trim();
+      nodes.AppendChild(x9);
+
+      XmlElement x10 = doc.CreateElement("DOCK_CODE");
+      x10.InnerText = sData.DOCK_CODE.Trim();
+      nodes.AppendChild(x10);
+
+      XmlElement x11 = doc.CreateElement("SERIAL_NO");
+      x11.InnerText = sData.SERIAL_NO.Trim();
+      nodes.AppendChild(x11);
+
+      //XmlElement x12 = doc.CreateElement("DOCK_ARRIALTIME");
+      XmlElement x12 = doc.CreateElement("DOCK_ARRIVAL_DATE");
+      x12.InnerText = "";
+      nodes.AppendChild(x12);
+
+      XmlElement x13 = doc.CreateElement("P_TIME");
+      x13.InnerText = "";
+      nodes.AppendChild(x13);
+
+      XmlElement x14 = doc.CreateElement("SCAN_TIME");
+      x14.InnerText = serverTime;
+      nodes.AppendChild(x14);
+
+      XmlElement x15 = doc.CreateElement("SCAN_FLG");
+      x15.InnerText = "1";
+      nodes.AppendChild(x15);
+
+      XmlElement x16 = doc.CreateElement("SCAN_USER");
+      x16.InnerText = "buji";
+      nodes.AppendChild(x16);
+
+      //2017-04-20 增加扫描点位 李志远 start
+      XmlElement x17 = doc.CreateElement("SCAN_AREA");
+      x17.InnerText = "020";
+      nodes.AppendChild(x17);
+
+      //end
+
+      root.AppendChild(nodes);
+      s += doc.ChildNodes[0].InnerXml;
+
+      s = "<?xml version=\"1.0\"?>\r\n<Detils>\r\n" + s + "</Detils>";
+
+      byte[] b = UTF8Encoding.UTF8.GetBytes(s);
+      FileStream fs = new FileStream(sFilePathY, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+      try
+      {
+        fs.Write(b, 0, b.Length);
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
+      finally
+      {
+        fs.Close();
+      }
+      #endregion
     }
+  }
 }

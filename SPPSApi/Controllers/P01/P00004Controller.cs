@@ -300,6 +300,8 @@ namespace SPPSApi.Controllers.P01
             LoginInfo loginInfo = getLoginByToken(strToken);
             string opearteId = loginInfo.UserId;
             ApiResult apiResult = new ApiResult();
+            int iXSNO_Lin = 0;
+            int iBSNO_Lin = 0;
             try
             {
                 string strRootPath = _webHostEnvironment.ContentRootPath;
@@ -1055,8 +1057,8 @@ namespace SPPSApi.Controllers.P01
                 DataTable dtBSNo = new DataTable();
                 int iXSNO = 0;
                 int iBSNO = 0;
-                int iXSNO_Lin = 0;
-                int iBSNO_Lin = 0;
+                //int iXSNO_Lin = 0;
+                //int iBSNO_Lin = 0;
 
                 #region 顺番号生成
                 dtXSNo = P00004_Logic.setSeqNo_sell(tmpString, formatDate, "白夜");
@@ -1211,6 +1213,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
+                P00004_Logic.upSeqNo_sell(iXSNO_Lin, iBSNO_Lin);
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0007", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "出荷数据上传失败";

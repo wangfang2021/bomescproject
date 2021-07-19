@@ -141,13 +141,13 @@ namespace DataAccess
                 stringBuilder.AppendLine("where vcForkNo='" + fork + "' and vcDockSell='" + dock + "'");
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -229,13 +229,13 @@ namespace DataAccess
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("update TShip_Temp set vcFlag='1' where vcBoxNo='" + caseNo + "'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -516,13 +516,13 @@ namespace DataAccess
             stringBuilder.AppendLine("(select * from TSPMaster where dFromTime<=GETDATE() and dToTime>=GETDATE() and vcPackingPlant='" + strPackingPlant + "')h");
             stringBuilder.AppendLine("on c.vcPart_id=h.vcPartId and c.vcSupplier_id=h.vcSupplierId and c.vcSHF=h.vcReceiver");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -725,13 +725,13 @@ namespace DataAccess
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("update TSeqNo_Sell set EXEQID='0' where Linid in (" + iXSNO_Lin + "," + iBSNO_Lin + ")");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {

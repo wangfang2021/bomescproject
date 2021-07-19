@@ -228,34 +228,6 @@ namespace DataAccess
             }
         }
 
-        public DataTable GetSeqNo(string tmpString, string formatServerTime)
-        {
-            StringBuilder GetSeqNo = new StringBuilder();
-            GetSeqNo.Append("select SEQNO from TSeqNo where FLAG='" + tmpString + "' and DDATE='" + formatServerTime + "'");
-            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
-            try
-            {
-                ConnSql.Open();
-                string strSQL = GetSeqNo.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
-                return ds.Tables[0];
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (ConnectionState.Open == ConnSql.State)
-                {
-                    ConnSql.Close();
-                }
-            }
-        }
-
-
         public void InsertTrolley1(string seqNo, string trolley, string iP, string opearteId, string serverTime)
         {
             StringBuilder InsertTrolleySql = new StringBuilder();
@@ -282,63 +254,6 @@ namespace DataAccess
                 }
             }
         }
-
-        public void UpdateSeqNo(string tmpString, string formatServerTime, int seqNoNew)
-        {
-            StringBuilder UpdateSeqNoSql = new StringBuilder();
-            UpdateSeqNoSql.Append("update TSeqNo set SEQNO='" + seqNoNew + "' where FLAG='" + tmpString + "' and DDATE='" + formatServerTime + "'");
-            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
-            try
-            {
-                ConnSql.Open();
-                string strSQL = UpdateSeqNoSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (ConnectionState.Open == ConnSql.State)
-                {
-                    ConnSql.Close();
-                }
-            }
-        }
-
-        public void InsertSeqNo(string tmpString, string formatServerTime)
-        {
-            StringBuilder InsertSeqNoSql = new StringBuilder();
-            InsertSeqNoSql.Append("INSERT INTO TSeqNo(FLAG ,DDATE ,SEQNO) \n");
-            InsertSeqNoSql.Append("VALUES( '" + tmpString + "','" + formatServerTime + "','1')");
-            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
-            try
-            {
-                ConnSql.Open();
-                string strSQL = InsertSeqNoSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (ConnectionState.Open == ConnSql.State)
-                {
-                    ConnSql.Close();
-                }
-            }
-        }
-
-
-
-
 
         public DataTable GetTrolley(string iP)
         {
@@ -396,8 +311,6 @@ namespace DataAccess
             }
         }
 
-
-
         public DataTable GetQuantity(string partId, string scanTime, string dock)
         {
             StringBuilder GetQuantitySql = new StringBuilder();
@@ -424,62 +337,6 @@ namespace DataAccess
                 }
             }
         }
-
-
-
-        public DataTable GetDetail(string pointNo)
-        {
-            StringBuilder GetDetailSql = new StringBuilder();
-            GetDetailSql.Append("select  UUID from TPointDetails where vcPointNo='" + pointNo + "' and dDestroyTime is null order by dOperateDate desc");
-            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
-            try
-            {
-                ConnSql.Open();
-                string strSQL = GetDetailSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
-                return ds.Tables[0];
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (ConnectionState.Open == ConnSql.State)
-                {
-                    ConnSql.Close();
-                }
-            }
-        }
-
-        public void UpdateDetail(string uuid, string serverTime)
-        {
-            StringBuilder UpdateDetailSql = new StringBuilder();
-            UpdateDetailSql.Append("update TPointDetails set dDestroyTime='" + serverTime + "' where UUID='" + uuid + "'");
-            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
-            try
-            {
-                ConnSql.Open();
-                string strSQL = UpdateDetailSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (ConnectionState.Open == ConnSql.State)
-                {
-                    ConnSql.Close();
-                }
-            }
-        }
-
 
         public DataTable GetBanZhi(string serverTime)
         {
@@ -512,72 +369,19 @@ namespace DataAccess
             }
         }
 
-        public DataTable GetPointType(string pointNo)
-        {
-            StringBuilder GetPointTypeSql = new StringBuilder();
-            GetPointTypeSql.Append("select vcPointType from TPointInfo where vcPointNo='" + pointNo + "' and vcUsed='在用'");
-            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
-            try
-            {
-                ConnSql.Open();
-                string strSQL = GetPointTypeSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
-                return ds.Tables[0];
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (ConnectionState.Open == ConnSql.State)
-                {
-                    ConnSql.Close();
-                }
-            }
-        }
-
-        public void UpdateCase(string iP)
-        {
-            StringBuilder UpdateCaseSql = new StringBuilder();
-            UpdateCaseSql.Append("update TCaseInfo set vcStatus='1' where vcHostIp='" + iP + "'");
-            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
-            try
-            {
-                ConnSql.Open();
-                string strSQL = UpdateCaseSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (ConnectionState.Open == ConnSql.State)
-                {
-                    ConnSql.Close();
-                }
-            }
-        }
-
         public void InsertDetail(string date, string banZhi, string pointNo, string uuid, string serverTime, string opearteId)
         {
             StringBuilder InsertDetailSql = new StringBuilder();
             InsertDetailSql.Append("INSERT INTO TPointDetails(vcPlant,dHosDate,vcBanZhi,vcPointNo,UUID,dEntryTime,dDestroyTime,iStopSS,vcOperater,dOperateDate)\n");
             InsertDetailSql.Append("VALUES('H2','" + date + "','" + banZhi + "','" + pointNo + "','" + uuid + "','" + serverTime + "',NULL,0,'" + opearteId + "','" + serverTime + "')\n");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = InsertDetailSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -597,13 +401,13 @@ namespace DataAccess
             StringBuilder UpdateStatusSql = new StringBuilder();
             UpdateStatusSql.Append("update TPointState set vcState='正常',vcOperater='" + opearteId + "' where vcPointNo='" + pointNo + "' and vcPlant='H2'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = UpdateStatusSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -617,22 +421,19 @@ namespace DataAccess
                 }
             }
         }
-
-
-
 
         public void UpdateStatus3(string pointNo)
         {
             StringBuilder UpdateStatusSql = new StringBuilder();
             UpdateStatusSql.Append("update TPointState set vcState='未用' where vcPointNo='" + pointNo + "' and vcPlant='H2'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = UpdateStatusSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -646,10 +447,6 @@ namespace DataAccess
                 }
             }
         }
-
-
-
-
 
         public DataTable GetPointStatus1(string opearteId, string iP)
         {
@@ -681,17 +478,15 @@ namespace DataAccess
         public void UpdateStatus(string opearteId, string iP, string pointNo)
         {
             StringBuilder UpdateStatusSql = new StringBuilder();
-
-
             UpdateStatusSql.Append("update  TPointState set vcState='正常',vcOperater='" + opearteId + "' where vcPointNo='" + pointNo + "'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = UpdateStatusSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -705,8 +500,6 @@ namespace DataAccess
                 }
             }
         }
-
-
 
         public DataTable GetTrolley(string opearteId, string iP)
         {
@@ -737,8 +530,6 @@ namespace DataAccess
                 }
             }
         }
-
-
 
         public DataTable GetCase(string opearteId, string iP)
         {
@@ -799,13 +590,13 @@ namespace DataAccess
             StringBuilder UpdateCaseSql = new StringBuilder();
             UpdateCaseSql.Append("update TCaseInfo set vcHostIp='" + iP + "',vcPointState='1',dOperatorTime='" + serverTime + "' where vcCaseNo='" + caseNo + "' and vcOperatorID='" + opearteId + "'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = UpdateCaseSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -852,13 +643,13 @@ namespace DataAccess
             StringBuilder UpdatePointSql = new StringBuilder();
             UpdatePointSql.Append("update TPointState set vcState='未登录' where vcPointNo='" + pointNo + "' and vcPlant='H2'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = UpdatePointSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -878,14 +669,13 @@ namespace DataAccess
             StringBuilder InsertPointSql = new StringBuilder();
             InsertPointSql.Append("INSERT INTO TPointState (vcPlant,vcPointNo,vcState,vcOperater,decEfficacy) VALUES ('H2','" + pointNo + "','未登录','',null)");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = InsertPointSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
-                //return ds.Tables[0];
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -960,13 +750,13 @@ namespace DataAccess
             StringBuilder DeleteKanbanSql = new StringBuilder();
             DeleteKanbanSql.Append("update TOperatorQB set vcReflectFlag='4'  where vcPart_id='" + partId + "' and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcSR='" + dock + "' and vcHostIp='" + iP + "' and vcZYType='S0' and vcReflectFlag='0'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = DeleteKanbanSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1013,13 +803,13 @@ namespace DataAccess
             StringBuilder DeleteTrolleySql = new StringBuilder();
             DeleteTrolleySql.Append(" update TOperatorQB set vcReflectFlag='4' where vcHostIp='" + iP + "' and vcTrolleyNo='" + trolley + "' and vcZYType='S0' and vcTrolleySeqNo='" + lotId + "' and vcReflectFlag='0'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = DeleteTrolleySql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1033,8 +823,6 @@ namespace DataAccess
                 }
             }
         }
-
-
 
         public DataTable GetSum(string iP)
         {
@@ -1095,13 +883,13 @@ namespace DataAccess
             StringBuilder UpdateQBSql = new StringBuilder();
             UpdateQBSql.Append(" update TOperatorQB set vcLotid = '" + lotId + "' where vcTrolleyNo = '" + trolley + "' and vcHostIp = '" + iP + "' and vcLotid = ''");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = UpdateQBSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1122,13 +910,13 @@ namespace DataAccess
             InsertSeqNoSql.Append("INSERT INTO TSeqNo(FLAG ,DDATE ,SEQNO) \n");
             InsertSeqNoSql.Append("VALUES( '" + tmpString + "'+'" + packingSpot + "','" + serverTime + "','1')");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = InsertSeqNoSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1229,13 +1017,13 @@ namespace DataAccess
             StringBuilder UpdateTrolleySql = new StringBuilder();
             UpdateTrolleySql.Append("update TOperateSJ_TrolleyInfo set vcStatus='4' where vcTrolleyNo='" + trolley + "' and vcTrolleySeqNo='" + trolleySeqNo + "' and vcHostIp='" + iP + "'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = UpdateTrolleySql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1309,13 +1097,13 @@ namespace DataAccess
             StringBuilder UpdateTrolleySql = new StringBuilder();
             UpdateTrolleySql.Append("update TOperateSJ_TrolleyInfo set vcStatus='4' where vcTrolleySeqNo='" + lotId + "' and vcTrolleyNo='" + trolley + "' and vcStatus='0' and vcOperatorID='" + opearteId + "' and vcHostIp='" + iP + "'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = UpdateTrolleySql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1335,13 +1123,13 @@ namespace DataAccess
             StringBuilder UpdateTrolleySql = new StringBuilder();
             UpdateTrolleySql.Append("update TOperateSJ_TrolleyInfo set vcLotid='" + lotId + "',dOperatorTime='" + serverTime + "',vcHostIp='" + iP + "' where vcTrolleyNo='" + trolley + "' and vcOperatorID='" + opearteId + "' ");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = UpdateTrolleySql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1362,13 +1150,13 @@ namespace DataAccess
             InsertTrolleySql.Append("INSERT INTO  TOperateSJ_TrolleyInfo  (vcSheBeiNo,vcHostIp,vcTrolleyNo,vcStatus,vcOperatorID,dOperatorTime,vcLotid)\n");
             InsertTrolleySql.Append("     VALUES ('','" + iP + "','" + trolley + "','0','" + opearteId + "','" + serverTime + "','" + lotId + "')\n");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = InsertTrolleySql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1416,14 +1204,13 @@ namespace DataAccess
             UpdateSeqNoSql.Append("UPDATE TSeqNo SET SEQNO = " + seqNoNew + "\n");
             UpdateSeqNoSql.Append("  WHERE FLAG = ('" + tmpString + "'+'" + packingSpot + "') and DDATE='" + serverTime + "'\n");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = UpdateSeqNoSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
-                //return ds.Tables[0];
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1504,39 +1291,13 @@ namespace DataAccess
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("update TCaseInfo set vcPointState='1' where vcHostIp='" + strIP + "' and dBoxPrintTime is null");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (ConnectionState.Open == ConnSql.State)
-                {
-                    ConnSql.Close();
-                }
-            }
-        }
-        public DataTable ValidateUser(string opearteId)
-        {
-            StringBuilder ValidateUserSql = new StringBuilder();
-            ValidateUserSql.Append("select vcPointNo from TPointState where vcState='正常' and vcOperater='" + opearteId + "'");
-            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
-            try
-            {
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
                 ConnSql.Open();
-                string strSQL = ValidateUserSql.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
-                return ds.Tables[0];
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1676,13 +1437,13 @@ namespace DataAccess
             stringBuilder.Append(" ,vcSeqNo,vcReflectFlag,dStart,dEnd,vcHostIp,vcKBOrderNo,vcKBLFNo,vcOperatorID ,dOperatorTime,vcBZPlant,iPackingQty,vcLabelStart,vcLabelEnd,vcSupplierId,vcSupplierPlant,vcLotid,vcIOType,vcCheckType,vcKanBan,vcTrolleySeqNo,vcPackingPlant)  \n");
             stringBuilder.Append("    VALUES('S0', '" + scanTime + "', '', '" + trolley + "', '" + inno + "', '" + partId + "', '" + cpdCompany + "', '" + dock + "', '', " + int.Parse(quantity) + ", '', '0', null, null, '" + iP + "', '" + kanbanOrderNo + "', '" + kanbanSerial + "', '" + opearteId + "', '" + serverTime + "','" + packingSpot + "'," + packQuantity + ",'" + lblSart + "','" + lblEnd + "','" + supplierId + "','" + supplierPlant + "','','" + inoutFlag + "','','" + kanBan + "','" + trolleySeqNo + "','" + orderplant + "')");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1761,14 +1522,13 @@ namespace DataAccess
             stringBuilder.AppendLine("FROM TOperatorQB where vcReflectFlag='0' and vcZYType='S0' and vcHostIp='" + strIP + "'");
             stringBuilder.AppendLine(")a where rank>1)");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -1809,7 +1569,7 @@ namespace DataAccess
             stringBuilder.AppendLine("--3查询断取指示书表结构");
             stringBuilder.AppendLine("SELECT TOP (1)*  FROM [TPackList]");
             stringBuilder.AppendLine("--4查询标签表结构");
-            stringBuilder.AppendLine("SELECT TOP (1)*,NULL as [vcLabelCode]  FROM [TLabelList]");
+            stringBuilder.AppendLine("SELECT TOP (1)*,'' as [vcLabelCode]  FROM [TLabelList]");
             stringBuilder.AppendLine("--5查询订单表结构");
             stringBuilder.AppendLine("SELECT top(1)* FROM [dbo].[SP_M_ORD]");
             stringBuilder.AppendLine("--6查询档次入库品番合计数量");
@@ -2130,14 +1890,13 @@ namespace DataAccess
                 stringBuilder.AppendLine("update TOperatorQB set vcLotid='" + strLotId + "' where vcTrolleySeqNo='" + trolleySeqNo + "' and vcHostIp='" + strIP + "' and vcReflectFlag='0'");
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -2173,14 +1932,13 @@ namespace DataAccess
 
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -2220,17 +1978,13 @@ namespace DataAccess
                 }
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                if (strSQL != "")
-                {
-                    SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                    da.Fill(ds);
-                }
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -3478,14 +3232,13 @@ namespace DataAccess
             {
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -3535,13 +3288,13 @@ namespace DataAccess
                 stringBuilder.AppendLine("delete from [TPointState_Site] where [vcIP]='" + strIP + "' ");
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -3577,13 +3330,13 @@ namespace DataAccess
                 stringBuilder.AppendLine("update TPointDetails set dDestroyTime=GETDATE() where UUID=@uuid");
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {

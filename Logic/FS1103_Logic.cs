@@ -134,7 +134,7 @@ namespace Logic
                                         if (drTagList.Length == 0)
                                         {
                                             DataRow dataRow = dtMessage.NewRow();
-                                            dataRow["vcMessage"] = "所选标签ID" + strTagNo + "超出入库指令书" + strInPutOrderNo + "发行范围";
+                                            dataRow["vcMessage"] = "所选标签ID" + strTagNo + "超出入库指令书" + strInPutOrderNo + "发行范围（或者未进行过标签发行）";
                                             dtMessage.Rows.Add(dataRow);
                                         }
                                         else

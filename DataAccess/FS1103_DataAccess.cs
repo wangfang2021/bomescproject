@@ -79,7 +79,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select * from TLabelList where vcInno='" + strInPutOrderNo + "' order by vcPrintcount");
+                strSql.AppendLine("select * from TLabelList where vcInno='" + strInPutOrderNo + "' and dFirstPrintTime is not null  order by vcPrintcount");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

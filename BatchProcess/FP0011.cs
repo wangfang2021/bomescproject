@@ -275,7 +275,21 @@ namespace BatchProcess
                 sql.Append("left join TPackageMaster t2 on t1.vcPackingPlant=t2.vcPackingPlant and t1.vcPart_id=t2.vcPart_id    \n");
                 sql.Append("and t1.vcReceiver=t2.vcReceiver and t1.vcSupplierId=t2.vcSupplierId    \n");
                 sql.Append("where t2.iAutoId is not null and t1.vcOperatorID='" + strUserId + "'      \n");
-
+                //打个小补丁1
+                sql.AppendLine("update t2 set t2.dTimeFrom=t1.dFromTime,t2.dTimeTo=t1.dToTime");
+                sql.AppendLine("from (");
+                sql.AppendLine("	select * from TSPMaster where dFromTime=dToTime");
+                sql.AppendLine(")t1");
+                sql.AppendLine("inner join TPackageMaster t2 on t1.vcPackingPlant=t2.vcPackingPlant and t1.vcPartId=t2.vcPart_id ");
+                sql.AppendLine("and t1.vcReceiver=t2.vcReceiver and t1.vcSupplierId=t2.vcSupplierId");
+                //打个小补丁2
+                sql.AppendLine("delete t2");
+                sql.AppendLine("from (");
+                sql.AppendLine("	select * from TSPMaster where vcDelete='1'");
+                sql.AppendLine(")t1");
+                sql.AppendLine("inner join TPackageMaster t2 on t1.vcPackingPlant=t2.vcPackingPlant and t1.vcPartId=t2.vcPart_id ");
+                sql.AppendLine("and t1.vcReceiver=t2.vcReceiver and t1.vcSupplierId=t2.vcSupplierId");
+                
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)

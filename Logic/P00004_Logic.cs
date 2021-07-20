@@ -156,9 +156,34 @@ namespace Logic
                 throw ex;
             }
         }
-        public bool setCastListInfo(DataTable dtOperateSJ_Temp,
+        public static DataTable setSeqNo_sell(string tmpString, string formatServerTime, string strBanZhi)
+        {
+            try
+            {
+                return P00004_DataAccess.setSeqNo_sell(tmpString, formatServerTime, strBanZhi);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public static void upSeqNo_sell(int iXSNO_Lin, int iBSNO_Lin)
+        {
+            try
+            {
+                P00004_DataAccess.upSeqNo_sell(iXSNO_Lin, iBSNO_Lin);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public bool setCastListInfo(
+            int iXSNO_Lin, int iBSNO_Lin,
+            DataTable dtOperateSJ_Temp,
             DataTable dtOperateSJ_InOutput_Temp,
             DataTable dtOrder_Temp,
+            DataTable dtORD_INOUT_Temp,
             DataTable dtSell_Temp,
             DataTable dtShipList_Temp,
             DataTable dtSell_Sum_Temp,
@@ -167,7 +192,16 @@ namespace Logic
         {
             try
             {
-                return P00004_DataAccess.setCastListInfo(dtOperateSJ_Temp, dtOperateSJ_InOutput_Temp, dtOrder_Temp, dtSell_Temp, dtShipList_Temp, dtSell_Sum_Temp, dtSell_Tool_Temp, strIP, strSellno, strDock, strOperId, strPrinterName);
+                return P00004_DataAccess.setCastListInfo(
+                    iXSNO_Lin, iBSNO_Lin,
+                    dtOperateSJ_Temp,
+                    dtOperateSJ_InOutput_Temp,
+                    dtOrder_Temp,
+                    dtORD_INOUT_Temp,
+                    dtSell_Temp,
+                    dtShipList_Temp,
+                    dtSell_Sum_Temp,
+                    dtSell_Tool_Temp, strIP, strSellno, strDock, strOperId, strPrinterName);
             }
             catch (Exception ex)
             {

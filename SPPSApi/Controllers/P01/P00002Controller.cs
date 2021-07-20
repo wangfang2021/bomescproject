@@ -97,15 +97,15 @@ namespace SPPSApi.Controllers.P01
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
+            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P02UE0009", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "获取入库信息失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -145,15 +145,15 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "入库单号" + inno + "在作业实绩情报表中没有或有多条入库数据,请检查!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P02UE0008", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "获取品番信息失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -177,15 +177,15 @@ namespace SPPSApi.Controllers.P01
                 P00002_DataEntity.userName = userName;
                 P00002_DataEntity.banZhi = banZhi;
                 apiResult.data = P00002_DataEntity;
+            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P02UE0007", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "获取用户信息失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -274,9 +274,9 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P02UE0006", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "获取检查类型失败";
+                apiResult.data = "扫描看板处理失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -324,7 +324,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P02UE0005", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "获取NG信息列表失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -571,7 +571,7 @@ namespace SPPSApi.Controllers.P01
                 }
                 #endregion
                 //5.写入数据库
-                bool bResult = P00002_Logic.setCheckInfo(dtInfo_SJ_Temp, dtInfo_NG_Temp);
+                bool bResult = P00002_Logic.setCheckInfo(dtInfo_SJ_Temp, dtInfo_NG_Temp,opearteId);
                 if (bResult)
                 {
                     P00002_DataEntity.result = "NG操作成功";
@@ -580,14 +580,14 @@ namespace SPPSApi.Controllers.P01
                 else
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "NG操作失败";
+                    apiResult.data = "检查NG处理失败(原因：数据冲突或网络原因)，请重新操作。";
                     apiResult.type = "LS";
                 }
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                //ComMessage.GetInstance().ProcessMessage(FunctionID, "", ex, "system");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P02UE0004", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "NG操作失败";
                 apiResult.type = "LS";
@@ -744,7 +744,7 @@ namespace SPPSApi.Controllers.P01
                 #endregion
 
                 //5.写入数据库
-                bool bResult = P00002_Logic.setCheckInfo(dtInfo_SJ_Temp, dtInfo_NG_Temp);
+                bool bResult = P00002_Logic.setCheckInfo(dtInfo_SJ_Temp, dtInfo_NG_Temp,opearteId);
                 if (bResult)
                 {
                     P00002_DataEntity.result = "OK操作成功";
@@ -753,13 +753,14 @@ namespace SPPSApi.Controllers.P01
                 else
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "检查OK处理失败(原因：数据冲突或网络原因)，请重新操作。";
                     apiResult.type = "LS";
-                    apiResult.data = "OK操作失败";
                 }
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P02UE0003", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "OK操作失败";
                 apiResult.type = "LS";
@@ -785,10 +786,10 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P02UE0002", ex, "sys");
                 ContentResult result = new ContentResult();
                 result.Content = "<script>alert('导出失败,没有找到要导出的图片！')</script>";
                 result.ContentType = "text/html;charset=utf-8";
-                ComMessage.GetInstance().ProcessMessage("getImage", "M00UE0008", ex, "system");
                 return result;
             }
         }

@@ -98,7 +98,7 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "用户在权限表中不存在有效数据!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
@@ -258,7 +258,7 @@ namespace SPPSApi.Controllers.P01
                         apiResult.data = P00003_DataEntity;
                     }
                 }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
@@ -299,7 +299,7 @@ namespace SPPSApi.Controllers.P01
                 string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
                 //更新点位在线履历
                 P00001_Logic.setSysExit(iP, "包装-返回导航");
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
@@ -342,7 +342,7 @@ namespace SPPSApi.Controllers.P01
                 string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
                 //更新点位在线履历
                 P00001_Logic.setSysExit(iP, "包装-重新登录");
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
@@ -396,7 +396,7 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "点位信息异常,请检查!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
@@ -510,7 +510,7 @@ namespace SPPSApi.Controllers.P01
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 P00003_Logic.UpdateCase1(opearteId, iP);
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
@@ -646,7 +646,7 @@ namespace SPPSApi.Controllers.P01
                 string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//箱号
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
-                
+
                 #region 记录日志-begin
                 string path_begin = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
                 string log_begin = "作业员:" + opearteId
@@ -857,6 +857,14 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "包装数量异常，请联系管理员处理异常。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //4.打印标签
+                bool bResult = P00003_Logic.setPrintLable(iP, strInvNo, strPrinterName, opearteId);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "标签打印失败(原因：数据冲突或网络原因)，重新扫描看板。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 //3.向前台返回必要数据
                 P00003_DataEntity.packParts = dtPackList;//包材list
                 P00003_DataEntity.caseQuantity = iQuantity_Fzx.ToString();//待装箱数
@@ -872,8 +880,7 @@ namespace SPPSApi.Controllers.P01
                 P00003_DataEntity.dock = dock;
                 P00003_DataEntity.quantity = strQuantity;
                 apiResult.data = P00003_DataEntity;
-                //4.打印标签
-                P00003_Logic.setPrintLable(iP, strInvNo, strPrinterName, opearteId);
+
                 //5.获取箱号已装箱
                 DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
                 string kanbanQuantity = "0";
@@ -973,8 +980,14 @@ namespace SPPSApi.Controllers.P01
                 #endregion
 
                 DataTable dtPackWork = P00003_Logic.getPackInfo(partId, kanbanOrderNo, kanbanSerial, dock, packQuantity);
-                P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
-                
+                bool bResult = P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "数据处理失败(原因：数据冲突或网络原因)，请重新操作。";
+                    apiResult.type = "LS";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
                 string kanbanQuantity = "0";
                 if (dtCaseNoInfo.Rows.Count > 0)
@@ -1068,8 +1081,14 @@ namespace SPPSApi.Controllers.P01
                 #endregion
 
                 DataTable dtPackWork = P00003_Logic.getPackInfo(partId, kanbanOrderNo, kanbanSerial, dock, packQuantity);
-                P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
-                
+                bool bResult = P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "数据处理失败(原因：数据冲突或网络原因)，请重新操作。";
+                    apiResult.type = "LS";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
                 string kanbanQuantity = "0";
                 if (dtCaseNoInfo.Rows.Count > 0)
@@ -1426,14 +1445,21 @@ namespace SPPSApi.Controllers.P01
                 //插入装箱单打印表
                 string strBoxNo = caseNo.Split('*')[1];
                 string strCaseNo = caseNo;
-                P00003_Logic.setCastListInfo(dtOperateSJ_Temp, dtCaseList_Temp, iP, caseNo, strBoxNo, scanTime, opearteId, strCasePrinterName);
+                bool bResult = P00003_Logic.setCastListInfo(dtOperateSJ_Temp, dtCaseList_Temp, iP, caseNo, strBoxNo, scanTime, opearteId, strCasePrinterName);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "装箱处理失败(原因：数据冲突或网络原因)，请重新操作。";
+                    apiResult.type = "LS";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 #region 记录日志-end
                 string path_end = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
                 string log_end = "作业员:" + opearteId
                     + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     + "；作业内容:" + "打印装箱单(end)"
                     + "；作业对象：" + caseNo + "";
-                new P00003_Logic().WriteLog(log_begin, path_begin);
+                new P00003_Logic().WriteLog(log_end, path_end);
                 #endregion
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }

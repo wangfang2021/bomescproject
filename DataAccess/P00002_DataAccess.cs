@@ -225,7 +225,7 @@ namespace DataAccess
                 }
             }
         }
-        public bool setCheckInfo(DataTable dtInfo_SJ_Temp, DataTable dtInfo_NG_Temp)
+        public bool setCheckInfo(DataTable dtInfo_SJ_Temp, DataTable dtInfo_NG_Temp, string strOperId)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
             sqlConnection.Open();
@@ -429,10 +429,10 @@ namespace DataAccess
                 sqlConnection.Close();
                 return true;
                 #endregion
-
             }
             catch (Exception ex)
             {
+                ComMessage.GetInstance().ProcessMessage("P00002", "P02UE0001", ex, strOperId);
                 //回滚事务
                 if (sqlTransaction != null && sqlConnection != null)
                 {

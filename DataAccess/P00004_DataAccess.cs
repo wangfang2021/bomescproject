@@ -68,38 +68,38 @@ namespace DataAccess
             }
         }
 
-    public DataTable checkPrintName(string iP, string strPointType)
-    {
-      StringBuilder GetPrintSql = new StringBuilder();
-      if ( strPointType == "PAD")
-      {
-        GetPrintSql.Append("select vcUserFlag from TPrint where vcKind ='DOT PRINTER' and vcPrinterIp='" + iP + "'");
-      }
-      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-
-      DataSet ds = new DataSet();
-      try
-      {
-        ConnSql.Open();
-        string strSQL = GetPrintSql.ToString();
-        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-        da.Fill(ds);
-        return ds.Tables[0];
-      }
-      catch (Exception ex)
-      {
-        throw ex;
-      }
-      finally
-      {
-        if (ConnectionState.Open == ConnSql.State)
+        public DataTable checkPrintName(string iP, string strPointType)
         {
-          ConnSql.Close();
-        }
-      }
-    }
+            StringBuilder GetPrintSql = new StringBuilder();
+            if (strPointType == "PAD")
+            {
+                GetPrintSql.Append("select vcUserFlag from TPrint where vcKind ='DOT PRINTER' and vcPrinterIp='" + iP + "'");
+            }
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
 
-    public DataTable getDockAndForkInfo(string dock, string fork, string strFlag)
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = GetPrintSql.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
+
+        public DataTable getDockAndForkInfo(string dock, string fork, string strFlag)
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
@@ -141,13 +141,13 @@ namespace DataAccess
                 stringBuilder.AppendLine("where vcForkNo='" + fork + "' and vcDockSell='" + dock + "'");
             }
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -229,13 +229,13 @@ namespace DataAccess
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("update TShip_Temp set vcFlag='1' where vcBoxNo='" + caseNo + "'");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -254,8 +254,8 @@ namespace DataAccess
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("--本次出荷主数据表");
-            stringBuilder.AppendLine("select a.vcForkNo--叉车号");
-            stringBuilder.AppendLine("		,a.vcDockSell--DOCK号");
+            stringBuilder.AppendLine("select '' as vcForkNo--叉车号");
+            stringBuilder.AppendLine("		,'" + dock + "' as vcDockSell--DOCK号");
             stringBuilder.AppendLine("		,a.vcBoxNo as vcCaseNo--箱号全位");
             stringBuilder.AppendLine("		,c.vcBoxNo--箱号截位");
             stringBuilder.AppendLine("		,b.vcPart_id as vcPart_id--品番");
@@ -290,7 +290,7 @@ namespace DataAccess
             stringBuilder.AppendLine("		,f.vcCaseNo as vcFlag_ck--是否已经出荷过");
             stringBuilder.AppendLine("		,j.vcOrderPlant as vcOrderPlant--发注工厂");
             stringBuilder.AppendLine("from ");
-            stringBuilder.AppendLine("(select * from TShip_Temp where vcDockSell='" + dock + "' and vcFlag='" + strFlag + "')a");
+            stringBuilder.AppendLine("(select distinct vcBoxNo from TShip_Temp where vcDockSell='" + dock + "' and vcFlag='" + strFlag + "')a");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select * from TBoxMaster where dPrintBoxTime is not null)b");
             stringBuilder.AppendLine("on a.vcBoxNo=b.vcCaseNo");
@@ -301,19 +301,19 @@ namespace DataAccess
             stringBuilder.AppendLine("(select * from TOperateSJ_InOutput)d");
             stringBuilder.AppendLine("on b.vcPart_id=d.vcPart_id and b.vcOrderNo=d.vcKBOrderNo and b.vcLianFanNo=d.vcKBLFNo and b.vcSR=d.vcSR");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select * from TPrice where dPricebegin<=GETDATE() and dPriceEnd>=GETDATE())e");
+            stringBuilder.AppendLine("(select * from TPrice where dPricebegin<=GETDATE() and dPriceEnd>=GETDATE() and dPricebegin<>dPriceEnd)e");
             stringBuilder.AppendLine("on c.vcPart_id=e.vcPart_id and c.vcSupplier_id=e.vcSupplier_id");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select distinct vcCaseNo from TOperateSJ where vcZYType='S4')f");
             stringBuilder.AppendLine("on b.vcCaseNo=f.vcCaseNo");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select vcPartNo,vcCpdcompany,(ISNULL(SUM(CAST(vcPlantQtyDailySum as int)),0)-ISNULL(SUM(CAST(vcResultQtyDailySum as int)),0)) as vcKeResultQty");
+            stringBuilder.AppendLine("(select vcPartNo,vcCpdcompany,(ISNULL(SUM(CAST(vcInputQtyDailySum as int)),0)-ISNULL(SUM(CAST(vcResultQtyDailySum as int)),0)) as vcKeResultQty");
             stringBuilder.AppendLine("from SP_M_ORD ");
-            stringBuilder.AppendLine("where ISNULL(vcPlantQtyDailySum,0)!=ISNULL(vcResultQtyDailySum,0) and isnull(vcOrderNo,'')<>'' ");
+            stringBuilder.AppendLine("where cast(isnull(vcInputQtyDailySum,'0') as int)>cast(isnull(vcResultQtyDailySum,'0') as int)");
             stringBuilder.AppendLine("group by vcPartNo,vcCpdcompany)g");
             stringBuilder.AppendLine("on c.vcSHF=g.vcCpdcompany and c.vcPart_id=g.vcPartNo");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select * from TSPMaster where dFromTime<=GETDATE() and dToTime>=GETDATE() and vcPackingPlant='" + strPackingPlant + "')h");
+            stringBuilder.AppendLine("(select * from TSPMaster where dFromTime<=GETDATE() and dToTime>=GETDATE() and dFromTime<>dToTime and vcPackingPlant='" + strPackingPlant + "')h");
             stringBuilder.AppendLine("on c.vcPart_id=h.vcPartId and c.vcSupplier_id=h.vcSupplierId and c.vcSHF=h.vcReceiver");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select a.vcPackingPlant,a.vcPartId,a.vcReceiver,a.vcSupplierId,b.vcSupplierPlant,c.vcOrderPlant from ");
@@ -344,7 +344,19 @@ namespace DataAccess
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select * from TBoxMaster where dPrintBoxTime is not null)b");
             stringBuilder.AppendLine("on a.vcBoxNo=b.vcCaseNo");
-           
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("--校验错误箱号");
+            stringBuilder.AppendLine("select a.vcBoxNo  ");
+            stringBuilder.AppendLine("from ");
+            stringBuilder.AppendLine("(select distinct vcBoxNo from TShip_Temp where vcDockSell='" + dock + "' and vcFlag='" + strFlag + "')a");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(select * from TBoxMaster where dPrintBoxTime is not null)b");
+            stringBuilder.AppendLine("on a.vcBoxNo=b.vcCaseNo");
+            stringBuilder.AppendLine("left join");
+            stringBuilder.AppendLine("(select * from TOperateSJ where vcZYType='S3' and isnull(vcSellNo,'')='')c");
+            stringBuilder.AppendLine("on b.vcCaseNo=c.vcCaseNo and b.vcPart_id=c.vcPart_id and b.vcOrderNo=c.vcKBOrderNo and b.vcLianFanNo=c.vcKBLFNo and b.vcSR=c.vcSR");
+            stringBuilder.AppendLine("where b.vcCaseNo is null or c.vcCaseNo is null");
+
             DataSet ds = new DataSet();
             try
             {
@@ -367,39 +379,39 @@ namespace DataAccess
             }
         }
 
-    public DataTable GetPrintName(string iP, string strKind)
-    {
-      StringBuilder stringBuilder = new StringBuilder();
-      if (strKind == "DOT PRINTER")
-      {
-        stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='DOT PRINTER'");
-      }
-
-      SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-
-      DataSet ds = new DataSet();
-      try
-      {
-        ConnSql.Open();
-        string strSQL = stringBuilder.ToString();
-        SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-        da.Fill(ds);
-        return ds.Tables[0];
-      }
-      catch (Exception ex)
-      {
-        throw ex;
-      }
-      finally
-      {
-        if (ConnectionState.Open == ConnSql.State)
+        public DataTable GetPrintName(string iP, string strKind)
         {
-          ConnSql.Close();
-        }
-      }
-    }
+            StringBuilder stringBuilder = new StringBuilder();
+            if (strKind == "DOT PRINTER")
+            {
+                stringBuilder.Append("select vcPrinterName from TPrint where vcPrinterIp='" + iP + "' and vcKind='DOT PRINTER'");
+            }
 
-    public void setOutPut_Temp(string dock, string fork, string strFlag, string strPackingPlant, string strIP, string strOperater)
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
+
+        public void setOutPut_Temp(string dock, string fork, string strFlag, string strPackingPlant, string strIP, string strOperater)
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("DELETE FROM [dbo].[TOperate_OutPut_Temp] WHERE vcDockSell='" + dock + "' ");
@@ -495,22 +507,22 @@ namespace DataAccess
             stringBuilder.AppendLine("(select distinct vcCaseNo from TOperateSJ where vcZYType='S4')f");
             stringBuilder.AppendLine("on b.vcCaseNo=f.vcCaseNo");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select vcPartNo,vcCpdcompany,(ISNULL(SUM(CAST(vcPlantQtyDailySum as int)),0)-ISNULL(SUM(CAST(vcResultQtyDailySum as int)),0)) as vcKeResultQty");
+            stringBuilder.AppendLine("(select vcPartNo,vcCpdcompany,(ISNULL(SUM(CAST(vcInputQtyDailySum as int)),0)-ISNULL(SUM(CAST(vcResultQtyDailySum as int)),0)) as vcKeResultQty");
             stringBuilder.AppendLine("from SP_M_ORD ");
-            stringBuilder.AppendLine("where ISNULL(vcPlantQtyDailySum,0)!=ISNULL(vcResultQtyDailySum,0) and isnull(vcOrderNo,'')<>'' ");
+            stringBuilder.AppendLine("where ISNULL(vcInputQtyDailySum,0)!=ISNULL(vcResultQtyDailySum,0) and isnull(vcOrderNo,'')<>'' ");
             stringBuilder.AppendLine("group by vcPartNo,vcCpdcompany)g");
             stringBuilder.AppendLine("on c.vcSHF=g.vcCpdcompany and c.vcPart_id=g.vcPartNo");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select * from TSPMaster where dFromTime<=GETDATE() and dToTime>=GETDATE() and vcPackingPlant='" + strPackingPlant + "')h");
             stringBuilder.AppendLine("on c.vcPart_id=h.vcPartId and c.vcSupplier_id=h.vcSupplierId and c.vcSHF=h.vcReceiver");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
-            DataSet ds = new DataSet();
             try
             {
-                ConnSql.Open();
                 string strSQL = stringBuilder.ToString();
-                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
-                da.Fill(ds);
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -536,6 +548,11 @@ namespace DataAccess
             stringBuilder.AppendLine("SELECT top(1)* FROM TSell_Sum");//5
             stringBuilder.AppendLine("SELECT top(1)* FROM [dbo].[SP_M_ORD]");//6;
             stringBuilder.AppendLine("--全品番订单信息表");
+            stringBuilder.AppendLine("SELECT ROW_NUMBER() OVER(ORDER BY [vcPartNo],[vcTargetYearMonth],[iSequence],[vcOrderNo],[vcSeqno],iAutoId)-1 AS iRows,* FROM V_SP01_OUTORD");
+            stringBuilder.AppendLine("--用于出荷消订单");
+            stringBuilder.AppendLine("SELECT top(1)*  FROM [SP_M_ORD_INOUT]");//8;
+            #region 作废
+            /*
             stringBuilder.AppendLine("select  vcTargetYearMonth,vcOrderType,vcOrderNo,vcSeqno,vcPartNo,vcDock,vcCpdcompany,iAutoId,(CAST(ISNULL(vcInputQtyDaily1,0) as int)-CAST(ISNULL(vcResultQtyDaily1,0) as int)) as day1 ,");
             stringBuilder.AppendLine("(CAST(ISNULL(vcInputQtyDaily2,0) as int)-CAST(ISNULL(vcResultQtyDaily2,0) as int)) as day2 ,(CAST(ISNULL(vcInputQtyDaily3,0) as int)-CAST(ISNULL(vcResultQtyDaily3,0) as int)) as day3 ,");
             stringBuilder.AppendLine("(CAST(ISNULL(vcInputQtyDaily4,0) as int)-CAST(ISNULL(vcResultQtyDaily4,0) as int)) as day4 ,(CAST(ISNULL(vcInputQtyDaily5,0) as int)-CAST(ISNULL(vcResultQtyDaily5,0) as int)) as day5 ,");
@@ -553,6 +570,8 @@ namespace DataAccess
             stringBuilder.AppendLine("(CAST(ISNULL(vcInputQtyDaily28,0) as int)-CAST(ISNULL(vcResultQtyDaily28,0) as int)) as day28 ,(CAST(ISNULL(vcInputQtyDaily29,0) as int)-CAST(ISNULL(vcResultQtyDaily29,0) as int)) as day29 ,");
             stringBuilder.AppendLine("(CAST(ISNULL(vcInputQtyDaily30,0) as int)-CAST(ISNULL(vcResultQtyDaily30,0) as int)) as day30 ,(CAST(ISNULL(vcInputQtyDaily31,0) as int)-CAST(ISNULL(vcResultQtyDaily31,0) as int)) as day31 ");
             stringBuilder.AppendLine("from  SP_M_ORD where vcResultQtyDailySum<vcInputQtyDailySum order by vcPartNo,vcTargetYearMonth");
+            */
+            #endregion
             DataSet ds = new DataSet();
             try
             {
@@ -661,9 +680,77 @@ namespace DataAccess
             }
 
         }
-        public bool setCastListInfo(DataTable dtOperateSJ_Temp,
+        public DataTable setSeqNo_sell(string tmpString, string formatServerTime, string strBanZhi)
+        {
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("declare @SEQNO int");
+            stringBuilder.AppendLine("set @SEQNO=(select ISNULL(MIN(SEQNO),0) as SEQNO from TSeqNo_Sell where DDATE='" + formatServerTime + "' and FLAG='" + tmpString + "' and DBZ='" + strBanZhi + "' and ISNULL(EXEQID,'0')='0')");
+            stringBuilder.AppendLine("if(@SEQNO=0)");
+            stringBuilder.AppendLine("BEGIN ");
+            stringBuilder.AppendLine("SELECT 0 as vcSeqNo,0 as Linid");
+            stringBuilder.AppendLine("END");
+            stringBuilder.AppendLine("ELSE");
+            stringBuilder.AppendLine("BEGIN");
+            stringBuilder.AppendLine("select @SEQNO as vcSeqNo,Linid AS Linid from TSeqNo_Sell where DDATE='" + formatServerTime + "' and FLAG='" + tmpString + "' and DBZ='" + strBanZhi + "' and ISNULL(EXEQID,'0')='0' AND SEQNO =@SEQNO");
+            stringBuilder.AppendLine("UPDATE TSeqNo_Sell SET EXEQID='1' where DDATE='" + formatServerTime + "' and FLAG='" + tmpString + "' and DBZ='" + strBanZhi + "' and ISNULL(EXEQID,'0')='0' AND SEQNO =@SEQNO");
+            stringBuilder.AppendLine("END");
+
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+
+            DataSet ds = new DataSet();
+            try
+            {
+                ConnSql.Open();
+                string strSQL = stringBuilder.ToString();
+                SqlDataAdapter da = new SqlDataAdapter(strSQL, ConnSql);
+                da.Fill(ds);
+                return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+
+        }
+        public void upSeqNo_sell(int iXSNO_Lin, int iBSNO_Lin)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("update TSeqNo_Sell set EXEQID='0' where Linid in (" + iXSNO_Lin + "," + iBSNO_Lin + ")");
+            SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
+            try
+            {
+                string strSQL = stringBuilder.ToString();
+                SqlCommand cmd = new SqlCommand(strSQL, ConnSql);
+                ConnSql.Open();
+                cmd.CommandTimeout = 0;
+                int iResult = cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == ConnSql.State)
+                {
+                    ConnSql.Close();
+                }
+            }
+        }
+        public bool setCastListInfo(
+            int iXSNO_Lin, int iBSNO_Lin,
+            DataTable dtOperateSJ_Temp,
             DataTable dtOperateSJ_InOutput_Temp,
             DataTable dtOrder_Temp,
+            DataTable dtORD_INOUT_Temp,
             DataTable dtSell_Temp,
             DataTable dtShipList_Temp,
             DataTable dtSell_Sum_Temp,
@@ -963,6 +1050,67 @@ namespace DataAccess
                 }
                 #endregion
 
+                #region 3.1.插入入出库订单履历表SP_M_ORD_INOUT
+                SqlCommand sqlCommand_addinfo_sp_ord_inout = sqlConnection.CreateCommand();
+                sqlCommand_addinfo_sp_ord_inout.Transaction = sqlTransaction;
+                sqlCommand_addinfo_sp_ord_inout.CommandType = CommandType.Text;
+                StringBuilder strSql_modinfo_sp_ord_inout = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_modinfo_sp_ord_inout.AppendLine("INSERT INTO [dbo].[SP_M_ORD_INOUT]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ([vcPart_id]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,[vcKBOrderNo]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,[vcKBLFNo]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,[vcSR]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,[vcType]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,[iQuantity]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,[vcOrderNo]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,[vcSeqno]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,[iDay]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,[iOrderNum_Xj]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,[vcOperatorID]");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,[dOperatorTime])");
+                strSql_modinfo_sp_ord_inout.AppendLine("     VALUES");
+                strSql_modinfo_sp_ord_inout.AppendLine("           (@vcPart_id");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,@vcKBOrderNo");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,@vcKBLFNo");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,@vcSR");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,'OUT'");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,@iQuantity");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,@vcOrderNo");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,@vcSeqno");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,@iDay");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,@iOrderNum_Xj");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,'" + strOperId + "'");
+                strSql_modinfo_sp_ord_inout.AppendLine("           ,GETDATE())");
+                sqlCommand_addinfo_sp_ord_inout.CommandText = strSql_modinfo_sp_ord_inout.ToString();
+                sqlCommand_addinfo_sp_ord_inout.Parameters.AddWithValue("@vcPart_id", "");
+                sqlCommand_addinfo_sp_ord_inout.Parameters.AddWithValue("@vcKBOrderNo", "");
+                sqlCommand_addinfo_sp_ord_inout.Parameters.AddWithValue("@vcKBLFNo", "");
+                sqlCommand_addinfo_sp_ord_inout.Parameters.AddWithValue("@vcSR", "");
+                sqlCommand_addinfo_sp_ord_inout.Parameters.AddWithValue("@iQuantity", "");
+                sqlCommand_addinfo_sp_ord_inout.Parameters.AddWithValue("@vcOrderNo", "");
+                sqlCommand_addinfo_sp_ord_inout.Parameters.AddWithValue("@vcSeqno", "");
+                sqlCommand_addinfo_sp_ord_inout.Parameters.AddWithValue("@iDay", "");
+                sqlCommand_addinfo_sp_ord_inout.Parameters.AddWithValue("@iOrderNum_Xj", "");
+                #endregion
+                foreach (DataRow item in dtORD_INOUT_Temp.Rows)
+                {
+                    #region Value
+                    sqlCommand_addinfo_sp_ord_inout.Parameters["@vcPart_id"].Value = item["vcPart_id"].ToString();
+                    sqlCommand_addinfo_sp_ord_inout.Parameters["@vcKBOrderNo"].Value = item["vcKBOrderNo"].ToString();
+                    sqlCommand_addinfo_sp_ord_inout.Parameters["@vcKBLFNo"].Value = item["vcKBLFNo"].ToString();
+                    sqlCommand_addinfo_sp_ord_inout.Parameters["@vcSR"].Value = item["vcSR"].ToString();
+                    sqlCommand_addinfo_sp_ord_inout.Parameters["@iQuantity"].Value = item["iQuantity"].ToString();
+                    sqlCommand_addinfo_sp_ord_inout.Parameters["@vcOrderNo"].Value = item["vcOrderNo"].ToString();
+                    sqlCommand_addinfo_sp_ord_inout.Parameters["@vcSeqno"].Value = item["vcSeqno"].ToString();
+                    sqlCommand_addinfo_sp_ord_inout.Parameters["@iDay"].Value = item["iDay"].ToString();
+                    sqlCommand_addinfo_sp_ord_inout.Parameters["@iOrderNum_Xj"].Value = item["iOrderNum_Xj"].ToString();
+                    #endregion
+                    sqlCommand_addinfo_sp_ord_inout.ExecuteNonQuery();
+                }
+                #endregion
+
                 #region 4.Sell  sqlCommand_add_sl
                 SqlCommand sqlCommand_add_sl = sqlConnection.CreateCommand();
                 sqlCommand_add_sl.Transaction = sqlTransaction;
@@ -977,6 +1125,7 @@ namespace DataAccess
                 strSql_add_sl.AppendLine("           ,[vcSellNo]");
                 strSql_add_sl.AppendLine("           ,[vcTruckNo]");
                 strSql_add_sl.AppendLine("           ,[vcSHF]");
+                strSql_add_sl.AppendLine("           ,[vcInputNo]");
                 strSql_add_sl.AppendLine("           ,[vcPart_id]");
                 strSql_add_sl.AppendLine("           ,[vcOrderNo]");
                 strSql_add_sl.AppendLine("           ,[vcLianFanNo]");
@@ -1002,6 +1151,7 @@ namespace DataAccess
                 strSql_add_sl.AppendLine("           ,@vcSellNo");
                 strSql_add_sl.AppendLine("           ,@vcTruckNo");
                 strSql_add_sl.AppendLine("           ,@vcSHF");
+                strSql_add_sl.AppendLine("           ,@vcInputNo");
                 strSql_add_sl.AppendLine("           ,@vcPart_id");
                 strSql_add_sl.AppendLine("           ,@vcOrderNo");
                 strSql_add_sl.AppendLine("           ,@vcLianFanNo");
@@ -1028,6 +1178,7 @@ namespace DataAccess
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcSellNo", "");
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcTruckNo", "");
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcSHF", "");
+                sqlCommand_add_sl.Parameters.AddWithValue("@vcInputNo", "");
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcPart_id", "");
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcOrderNo", "");
                 sqlCommand_add_sl.Parameters.AddWithValue("@vcLianFanNo", "");
@@ -1056,6 +1207,7 @@ namespace DataAccess
                     sqlCommand_add_sl.Parameters["@vcSellNo"].Value = item["vcSellNo"].ToString();
                     sqlCommand_add_sl.Parameters["@vcTruckNo"].Value = item["vcTruckNo"].ToString();
                     sqlCommand_add_sl.Parameters["@vcSHF"].Value = item["vcSHF"].ToString();
+                    sqlCommand_add_sl.Parameters["@vcInputNo"].Value = item["vcInputNo"].ToString();
                     sqlCommand_add_sl.Parameters["@vcPart_id"].Value = item["vcPart_id"].ToString();
                     sqlCommand_add_sl.Parameters["@vcOrderNo"].Value = item["vcOrderNo"].ToString();
                     sqlCommand_add_sl.Parameters["@vcLianFanNo"].Value = item["vcLianFanNo"].ToString();
@@ -1091,6 +1243,7 @@ namespace DataAccess
                 strSql_add_slt.AppendLine("           ,[vcSupplier]");
                 strSql_add_slt.AppendLine("           ,[vcCpdcompany]");
                 strSql_add_slt.AppendLine("           ,[vcControlno]");
+                strSql_add_slt.AppendLine("           ,[vcInputNo]");
                 strSql_add_slt.AppendLine("           ,[vcPart_id]");
                 strSql_add_slt.AppendLine("           ,[vcOrderno]");
                 strSql_add_slt.AppendLine("           ,[vcSeqno]");
@@ -1117,6 +1270,7 @@ namespace DataAccess
                 strSql_add_slt.AppendLine("           ,@vcSupplier");
                 strSql_add_slt.AppendLine("           ,@vcCpdcompany");
                 strSql_add_slt.AppendLine("           ,@vcControlno");
+                strSql_add_slt.AppendLine("           ,@vcInputNo");
                 strSql_add_slt.AppendLine("           ,@vcPart_id");
                 strSql_add_slt.AppendLine("           ,@vcOrderno");
                 strSql_add_slt.AppendLine("           ,@vcSeqno");
@@ -1145,6 +1299,7 @@ namespace DataAccess
                 sqlCommand_add_slt.Parameters.AddWithValue("@vcSupplier", "");
                 sqlCommand_add_slt.Parameters.AddWithValue("@vcCpdcompany", "");
                 sqlCommand_add_slt.Parameters.AddWithValue("@vcControlno", "");
+                sqlCommand_add_slt.Parameters.AddWithValue("@vcInputNo", "");
                 sqlCommand_add_slt.Parameters.AddWithValue("@vcPart_id", "");
                 sqlCommand_add_slt.Parameters.AddWithValue("@vcOrderno", "");
                 sqlCommand_add_slt.Parameters.AddWithValue("@vcSeqno", "");
@@ -1174,6 +1329,7 @@ namespace DataAccess
                     sqlCommand_add_slt.Parameters["@vcSupplier"].Value = item["vcSupplier"].ToString();
                     sqlCommand_add_slt.Parameters["@vcCpdcompany"].Value = item["vcCpdcompany"].ToString();
                     sqlCommand_add_slt.Parameters["@vcControlno"].Value = item["vcControlno"].ToString();
+                    sqlCommand_add_slt.Parameters["@vcInputNo"].Value = item["vcInputNo"].ToString();
                     sqlCommand_add_slt.Parameters["@vcPart_id"].Value = item["vcPart_id"].ToString();
                     sqlCommand_add_slt.Parameters["@vcOrderno"].Value = item["vcOrderno"].ToString();
                     sqlCommand_add_slt.Parameters["@vcSeqno"].Value = item["vcSeqno"].ToString();
@@ -1349,7 +1505,7 @@ namespace DataAccess
                 strSql_mod_pt.AppendLine("           ('TShipList'");
                 strSql_mod_pt.AppendLine("           ,'SPR07SHPP'");
                 strSql_mod_pt.AppendLine("           ,@IP");
-                strSql_mod_pt.AppendLine("           ,'"+strPrinterName+"'");
+                strSql_mod_pt.AppendLine("           ,'" + strPrinterName + "'");
                 strSql_mod_pt.AppendLine("           ,'4'");
                 strSql_mod_pt.AppendLine("           ,@vcOperatorID");
                 strSql_mod_pt.AppendLine("           ,GETDATE()");
@@ -1375,9 +1531,10 @@ namespace DataAccess
                 StringBuilder strSql_mod_dock = new StringBuilder();
 
                 #region SQL and Parameters
-                strSql_mod_dock.AppendLine("update TShip_Temp set vcFlag='1',vcOperatorID=@vcOperatorID,dOperatorTime=GETDATE() where vcDockSell=@vcDockSell");
-                strSql_mod_dock.AppendLine("update TSell_DockCar set vcFlag='1',vcOperatorID=@vcOperatorID,dOperatorTime=GETDATE() where vcDockSell=@vcDockSell");
+                strSql_mod_dock.AppendLine("update TShip_Temp set vcFlag='1' where vcFlag='0' and vcDockSell=@vcDockSell");
+                strSql_mod_dock.AppendLine("update TSell_DockCar set vcFlag='1',vcOperatorID=@vcOperatorID,dOperatorTime=GETDATE() where vcFlag='0' and vcDockSell=@vcDockSell");
                 strSql_mod_dock.AppendLine("DELETE FROM [dbo].[TOperate_OutPut_Temp] WHERE vcDockSell=@vcDockSell");
+                strSql_mod_dock.AppendLine("update TSeqNo_Sell set COMMID='1' where Linid in (" + iXSNO_Lin + "," + iBSNO_Lin + ")");
 
                 sqlCommand_mod_dock.CommandText = strSql_mod_dock.ToString();
                 sqlCommand_mod_dock.Parameters.AddWithValue("@vcOperatorID", strOperId);
@@ -1396,7 +1553,7 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage("P00004", "P04UE0010", ex,strOperId);
+                ComMessage.GetInstance().ProcessMessage("P00004", "P04UE0010", ex, strOperId);
                 //回滚事务
                 if (sqlTransaction != null && sqlConnection != null)
                 {

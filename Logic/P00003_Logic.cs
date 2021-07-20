@@ -426,11 +426,11 @@ namespace Logic
                 throw ex;
             }
         }
-        public void setPrintLable(string strIP, string strInvNo, string strPrinterName, string strOperId)
+        public bool setPrintLable(string strIP, string strInvNo, string strPrinterName, string strOperId)
         {
             try
             {
-                P00003_DataAccess.setPrintLable(strIP, strInvNo, strPrinterName, strOperId);
+                return P00003_DataAccess.setPrintLable(strIP, strInvNo, strPrinterName, strOperId);
             }
             catch (Exception ex)
             {

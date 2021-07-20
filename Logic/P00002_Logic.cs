@@ -60,11 +60,11 @@ namespace Logic
             }
         }
 
-        public bool setCheckInfo(DataTable dtInfo_SJ_Temp, DataTable dtInfo_NG_Temp)
+        public bool setCheckInfo(DataTable dtInfo_SJ_Temp, DataTable dtInfo_NG_Temp,string strOperId)
         {
             try
             {
-                return P00002_DataAccess.setCheckInfo(dtInfo_SJ_Temp, dtInfo_NG_Temp);
+                return P00002_DataAccess.setCheckInfo(dtInfo_SJ_Temp, dtInfo_NG_Temp, strOperId);
             }
             catch (Exception ex)
             {

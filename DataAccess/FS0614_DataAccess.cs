@@ -110,7 +110,7 @@ namespace DataAccess
                 }
 
 
-                string url = "https://wxsite.ftms.com.cn/carowner/part?tabindex=3&tracingcode=";
+                string url = "https://wx-m.ftms.com.cn/carowner/part?tabindex=3&tracingcode=";
 
                 TargetYM = TargetYM.Distinct().ToList();
                 //获取基础信息
@@ -140,8 +140,8 @@ namespace DataAccess
                 //获取包装工厂
                 string vcPackingFactory = uionCode;
 
-                //获取标签号
-                int SeqNo = getNum();
+                ////获取标签号
+                //int SeqNo = getNum();
                 //获取包装单位
                 DataTable PackUnit = getPackUnit();
                 //获取供应商信息
@@ -437,6 +437,16 @@ namespace DataAccess
                                     DataRow[] row = PackUnit.Select("vcPart_id = '" + detail.PartsNo + "' and vcReceiver = '" + detail.CPD + "' and vcSupplierId = '" + vcSupplierId + "' and dTimeFrom<='" + Time + "' and dTimeTo>='" + Time + "' ");
                                     int BZUnit = Convert.ToInt32(row[0]["vcBZUnit"].ToString());
 
+                                    string tmpString1 = "LBLH2";//标签连番、
+                                    string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
+                                    string formatServerTime = serverTime.Substring(0, 10).Replace("-", "");//格式化号口时间
+                                    //5.1 标签顺番更新==锁定顺番占用
+                                    DataTable dtTagSeq = new P00001_DataAccess().setSeqNo(tmpString1, Convert.ToInt32(qty / BZUnit), formatServerTime);
+                                    //5.2 标签号生成并更新TOperatorQB（需要一起更新）
+                                    string strTagSeqNo = dtTagSeq.Rows[0][0].ToString().PadLeft(5, '0');//标签连番
+
+                                    int SeqNo = Convert.ToInt32(strTagSeqNo) - 1;
+
                                     DataRow[] row1 = Supplier.Select("vcPart_Id = '" + detail.PartsNo + "' AND vcCPDCompany = '" + detail.CPD + "' AND vcSupplier_id = '" + vcSupplierId + "' AND dTimeFrom <= '" + Time + "' AND dTimeTo >= '" + Time + "'");
                                     string partNameCN = row1[0]["vcPartNameCN"].ToString();
                                     string vcSCSName = row1[0]["vcSCSName"].ToString();
@@ -445,6 +455,8 @@ namespace DataAccess
 
                                     string partNameEN = ObjToString(hashtable["vcPartENName"]);
 
+                                    string carName = row1[0]["vcCarTypeName"].ToString();
+                                    string vcPart_id1 = detail.PartsNo.Substring(0, 5) + "-" + detail.PartsNo.Substring(5, 5) + "-" + detail.PartsNo.Substring(10, 2);
                                     bool isExist = true;
                                     DownNode node = new DownNode(vcOrderNo, vcSupplierId);
                                     for (int n = 0; n < DownList.Count; n++)
@@ -479,28 +491,30 @@ namespace DataAccess
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(ChangeBarCode(detail.PartsNo), false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue("", false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo + sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
                                         tagsbr.AppendLine("@iQrcode,");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameCN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSName, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSAdress, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcZXBZNo, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(vcCarType, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(carName, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSupplierId, false) + ",");
                                         tagsbr.AppendLine("'" + userId + "',GETDATE())");
 
 
-                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime)VALUES(");
+                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPart_id1,vcPrintcount1,vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime,dFirstPrintTime)VALUES(");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(vcPart_id1, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo + sf + "B", false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf + "B", false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(ChangeBarCode(detail.PartsNo), false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue("", false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo + sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(ChangeBarCode(detail.PartsNo), false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
                                         tagsbr.AppendLine("@iQrcode1,");
                                         tagsbr.AppendLine("@iQrcode2,");
@@ -508,8 +522,10 @@ namespace DataAccess
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSName, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSAdress, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcZXBZNo, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(vcCarType, false) + ",");
-                                        tagsbr.AppendLine("'" + userId + "',GETDATE())");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(carName, false) + ",");
+                                        tagsbr.AppendLine("'" + userId + "',GETDATE(),GETDATE())");
+
+                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList_KEY(vcLabelCode,vcHostIp,vcOperatorID,dOperatorTime) VALUES('" + sf + "','127.0.0.1', '" + userId + "', GETDATE() )");
 
                                         SqlCommand sqlCommandTag = sqlConnection.CreateCommand();
                                         sqlCommandTag.Transaction = sqlTransaction;
@@ -966,6 +982,16 @@ namespace DataAccess
                                     DataRow[] row = PackUnit.Select("vcPart_id = '" + detail.PartsNo + "' and vcReceiver = '" + detail.CPD + "' and vcSupplierId = '" + vcSupplierId + "' and dTimeFrom<='" + Time + "' and dTimeTo>='" + Time + "' ");
                                     int BZUnit = Convert.ToInt32(row[0]["vcBZUnit"].ToString());
 
+                                    string tmpString1 = "LBLH2";//标签连番、
+                                    string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
+                                    string formatServerTime = serverTime.Substring(0, 10).Replace("-", "");//格式化号口时间
+                                    //5.1 标签顺番更新==锁定顺番占用
+                                    DataTable dtTagSeq = new P00001_DataAccess().setSeqNo(tmpString1, Convert.ToInt32(qty / BZUnit), formatServerTime);
+                                    //5.2 标签号生成并更新TOperatorQB（需要一起更新）
+                                    string strTagSeqNo = dtTagSeq.Rows[0][0].ToString().PadLeft(5, '0');//标签连番
+
+                                    int SeqNo = Convert.ToInt32(strTagSeqNo) - 1;
+
                                     DataRow[] row1 = Supplier.Select("vcPart_Id = '" + detail.PartsNo + "' AND vcCPDCompany = '" + detail.CPD + "' AND vcSupplier_id = '" + vcSupplierId + "' AND dTimeFrom <= '" + Time + "' AND dTimeTo >= '" + Time + "'");
                                     string partNameCN = row1[0]["vcPartNameCN"].ToString();
                                     string vcSCSName = row1[0]["vcSCSName"].ToString();
@@ -974,6 +1000,8 @@ namespace DataAccess
 
                                     string partNameEN = ObjToString(hashtable["vcPartENName"]);
 
+                                    string carName = row1[0]["vcCarTypeName"].ToString();
+                                    string vcPart_id1 = detail.PartsNo.Substring(0, 5) + "-" + detail.PartsNo.Substring(5, 5) + "-" + detail.PartsNo.Substring(10, 2);
                                     bool isExist = true;
                                     DownNode node = new DownNode(vcOrderNo, vcSupplierId);
                                     for (int n = 0; n < DownList.Count; n++)
@@ -1008,28 +1036,30 @@ namespace DataAccess
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(ChangeBarCode(detail.PartsNo), false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue("", false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo + sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
                                         tagsbr.AppendLine("@iQrcode,");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameCN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSName, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSAdress, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcZXBZNo, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(vcCarType, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(carName, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSupplierId, false) + ",");
                                         tagsbr.AppendLine("'" + userId + "',GETDATE())");
 
 
-                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime)VALUES(");
+                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPart_id1,vcPrintcount1,vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime,dFirstPrintTime)VALUES(");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(vcPart_id1, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo + sf + "B", false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf + "B", false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(ChangeBarCode(detail.PartsNo), false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue("", false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo + sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(ChangeBarCode(detail.PartsNo), false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
                                         tagsbr.AppendLine("@iQrcode1,");
                                         tagsbr.AppendLine("@iQrcode2,");
@@ -1037,8 +1067,10 @@ namespace DataAccess
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSName, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSAdress, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcZXBZNo, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(vcCarType, false) + ",");
-                                        tagsbr.AppendLine("'" + userId + "',GETDATE())");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(carName, false) + ",");
+                                        tagsbr.AppendLine("'" + userId + "',GETDATE(),GETDATE())");
+
+                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList_KEY(vcLabelCode,vcHostIp,vcOperatorID,dOperatorTime) VALUES('" + sf + "','127.0.0.1', '" + userId + "', GETDATE() )");
 
                                         SqlCommand sqlCommandTag = sqlConnection.CreateCommand();
                                         sqlCommandTag.Transaction = sqlTransaction;
@@ -1488,6 +1520,16 @@ namespace DataAccess
                                     DataRow[] row = PackUnit.Select("vcPart_id = '" + detail.PartsNo + "' and vcReceiver = '" + detail.CPD + "' and vcSupplierId = '" + vcSupplierId + "' and dTimeFrom<='" + Time + "' and dTimeTo>='" + Time + "' ");
                                     int BZUnit = Convert.ToInt32(row[0]["vcBZUnit"].ToString());
 
+                                    string tmpString1 = "LBLH2";//标签连番、
+                                    string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
+                                    string formatServerTime = serverTime.Substring(0, 10).Replace("-", "");//格式化号口时间
+                                    //5.1 标签顺番更新==锁定顺番占用
+                                    DataTable dtTagSeq = new P00001_DataAccess().setSeqNo(tmpString1, Convert.ToInt32(qty / BZUnit), formatServerTime);
+                                    //5.2 标签号生成并更新TOperatorQB（需要一起更新）
+                                    string strTagSeqNo = dtTagSeq.Rows[0][0].ToString().PadLeft(5, '0');//标签连番
+
+                                    int SeqNo = Convert.ToInt32(strTagSeqNo) - 1;
+
                                     DataRow[] row1 = Supplier.Select("vcPart_Id = '" + detail.PartsNo + "' AND vcCPDCompany = '" + detail.CPD + "' AND vcSupplier_id = '" + vcSupplierId + "' AND dTimeFrom <= '" + Time + "' AND dTimeTo >= '" + Time + "'");
                                     string partNameCN = row1[0]["vcPartNameCN"].ToString();
                                     string vcSCSName = row1[0]["vcSCSName"].ToString();
@@ -1496,6 +1538,8 @@ namespace DataAccess
 
                                     string partNameEN = ObjToString(hashtable["vcPartENName"]);
 
+                                    string carName = row1[0]["vcCarTypeName"].ToString();
+                                    string vcPart_id1 = detail.PartsNo.Substring(0, 5) + "-" + detail.PartsNo.Substring(5, 5) + "-" + detail.PartsNo.Substring(10, 2);
                                     bool isExist = true;
                                     DownNode node = new DownNode(vcOrderNo, vcSupplierId);
                                     for (int n = 0; n < DownList.Count; n++)
@@ -1530,28 +1574,30 @@ namespace DataAccess
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(ChangeBarCode(detail.PartsNo), false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue("", false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo + sf, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
                                         tagsbr.AppendLine("@iQrcode,");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameCN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSName, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSAdress, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcZXBZNo, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(vcCarType, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(carName, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSupplierId, false) + ",");
                                         tagsbr.AppendLine("'" + userId + "',GETDATE())");
 
 
-                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime)VALUES(");
+                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList(vcPart_id1,vcPrintcount1,vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcLabel1,vcGetnum,iQrcode,iQrcode1,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcOperatorID,dOperatorTime,dFirstPrintTime)VALUES(");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(vcPart_id1, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo + sf + "B", false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(partNameEN, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(detail.CPD, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(sf + "B", false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(ChangeBarCode(detail.PartsNo), false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue("", false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(detail.PartsNo + sf, false) + ",");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(ChangeBarCode(detail.PartsNo), false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(BZUnit, false) + ",");
                                         tagsbr.AppendLine("@iQrcode1,");
                                         tagsbr.AppendLine("@iQrcode2,");
@@ -1559,8 +1605,10 @@ namespace DataAccess
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSName, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcSCSAdress, false) + ",");
                                         tagsbr.AppendLine(ComFunction.getSqlValue(vcZXBZNo, false) + ",");
-                                        tagsbr.AppendLine(ComFunction.getSqlValue(vcCarType, false) + ",");
-                                        tagsbr.AppendLine("'" + userId + "',GETDATE())");
+                                        tagsbr.AppendLine(ComFunction.getSqlValue(carName, false) + ",");
+                                        tagsbr.AppendLine("'" + userId + "',GETDATE(),GETDATE())");
+
+                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList_KEY(vcLabelCode,vcHostIp,vcOperatorID,dOperatorTime) VALUES('"+ sf + "','127.0.0.1', '"+userId+"', GETDATE() )");
 
                                         SqlCommand sqlCommandTag = sqlConnection.CreateCommand();
                                         sqlCommandTag.Transaction = sqlTransaction;
@@ -1615,17 +1663,17 @@ namespace DataAccess
                     }
                     #endregion
 
-                    #region 记录今日的标签数
-                    SqlCommand sqlCommandSeqNo = sqlConnection.CreateCommand();
-                    sqlCommandSeqNo.Transaction = sqlTransaction;
-                    sqlCommandSeqNo.CommandType = CommandType.Text;
-                    StringBuilder sbrSeqNo = new StringBuilder();
-                    string time = DateTime.Now.ToString("yyyy/MM/dd");
-                    sbrSeqNo.AppendLine("DELETE TSeqNo WHERE DDATE = '" + time + "' AND FLAG = 'OrdH2'");
-                    sbrSeqNo.AppendLine("INSERT INTO dbo.TSeqNo(FLAG,DDATE,SEQNO) VALUES('OrdH2','" + time + "'," + SeqNo + ")");
-                    sqlCommandSeqNo.CommandText = sbrSeqNo.ToString();
-                    sqlCommandSeqNo.ExecuteNonQuery();
-                    #endregion
+                    //#region 记录今日的标签数
+                    //SqlCommand sqlCommandSeqNo = sqlConnection.CreateCommand();
+                    //sqlCommandSeqNo.Transaction = sqlTransaction;
+                    //sqlCommandSeqNo.CommandType = CommandType.Text;
+                    //StringBuilder sbrSeqNo = new StringBuilder();
+                    //string time = DateTime.Now.ToString("yyyy/MM/dd");
+                    //sbrSeqNo.AppendLine("DELETE TSeqNo WHERE DDATE = '" + time + "' AND FLAG = 'OrdH2'");
+                    //sbrSeqNo.AppendLine("INSERT INTO dbo.TSeqNo(FLAG,DDATE,SEQNO) VALUES('OrdH2','" + time + "'," + SeqNo + ")");
+                    //sqlCommandSeqNo.CommandText = sbrSeqNo.ToString();
+                    //sqlCommandSeqNo.ExecuteNonQuery();
+                    //#endregion
 
                 }
 
@@ -2379,7 +2427,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
-                    "SELECT vcPart_Id,vcCPDCompany,vcSupplier_id,vcCarTypeName,vcPartNameCN,vcZXBZNo,vcSCSName,vcSCSAdress,dTimeFrom,dTimeTo,vcSYTCode,vcZXBZNo FROM dbo.TtagMaster");
+                    "SELECT vcPart_Id,vcCPDCompany,vcSupplier_id,vcCarTypeName,vcPartNameCN,vcZXBZNo,vcSCSName,vcSCSAdress,dTimeFrom,dTimeTo,vcSYTCode,vcZXBZNo FROM dbo.TtagMaster WHERE dTimeFrom<>dTimeTo");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
@@ -3256,5 +3304,86 @@ namespace DataAccess
         }
 
         #endregion
+
+        public string ChangeBarCode(string strPartsNo)
+        {
+            string strBarCode = "";
+            try
+            {
+                int lngBarCodeCount = 0;
+                int lngAscCode = 0;
+                if (strPartsNo.Substring(10, 2) == "00")
+                    strPartsNo = strPartsNo.Substring(0, 10) + "  ";
+                int PLen = strPartsNo.Length;
+                for (int i = 0; i < PLen; i++)
+                {
+                    char asc = char.Parse(strPartsNo.Substring(i, 1));
+                    lngAscCode = (int)asc;
+                    if (lngAscCode != 32)
+                    {
+                        if (lngAscCode < 65)
+                        {
+                            lngBarCodeCount = lngBarCodeCount + (lngAscCode - 48);
+                        }
+                        else
+                        {
+                            lngBarCodeCount = lngBarCodeCount + (lngAscCode - 55);
+                        }
+                    }
+                    else
+                    {
+                        lngBarCodeCount = lngBarCodeCount + 38;
+                    }
+                }
+                lngAscCode = lngBarCodeCount % 43;
+                if (lngAscCode < 10)
+                {
+                    strBarCode = Convert.ToChar(lngAscCode + 48).ToString();
+                }
+                else if (lngAscCode > 9 && lngAscCode < 36)
+                {
+                    strBarCode = Convert.ToChar(lngAscCode + 55).ToString();
+                }
+                else
+                {
+                    switch (lngAscCode)
+                    {
+                        case 36:
+                            strBarCode = "-";
+                            break;
+                        case 37:
+                            strBarCode = ".";
+                            break;
+                        case 38:
+                            strBarCode = " ";
+                            break;
+                        case 39:
+                            strBarCode = "$";
+                            break;
+                        case 40:
+                            strBarCode = "/";
+                            break;
+                        case 41:
+                            strBarCode = "+";
+                            break;
+                        case 42:
+                            strBarCode = "%";
+                            break;
+                        default:
+                            break;
+
+                    }
+                }
+                strBarCode = strPartsNo + strBarCode;
+                return "*" + strBarCode + "*";
+            }
+            catch (Exception ex)
+            {
+                strBarCode = strPartsNo + strBarCode;
+                return "*" + strBarCode + "*";
+            }
+        }
+
+
     }
 }

@@ -56,16 +56,15 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "该设备绑定打印机有误，请联系管理员设置。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0001", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "验证包装打印机失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -92,34 +91,22 @@ namespace SPPSApi.Controllers.P01
                 {
                     P00003_DataEntity.active = getUserRole.Rows[0][0].ToString();
                     apiResult.data = P00003_DataEntity;
-
-
-
                 }
                 else
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "用户在权限表中不存在有效数据!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
                 }
-
-
-
-
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0002", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "验证解锁权限失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -139,7 +126,6 @@ namespace SPPSApi.Controllers.P01
             ApiResult apiResult = new ApiResult();
             try
             {
-
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 string inno = dataForm.Inno == null ? "" : dataForm.Inno;//入库指令书号
                 string quantity = dataForm.Quantity == null ? "" : dataForm.Quantity;//数量
@@ -154,27 +140,15 @@ namespace SPPSApi.Controllers.P01
                         packSum += int.Parse(getPackQuantity.Rows[i][0].ToString());
 
                     }
-
                 }
-
-
-
-
-                if (getInputQuantity.Rows.Count == 1 && (int.Parse(getInputQuantity.Rows[0][4].ToString()) - packSum >= int.Parse(quantity))
-
-                  )
+                if (getInputQuantity.Rows.Count == 1 && (int.Parse(getInputQuantity.Rows[0][4].ToString()) - packSum >= int.Parse(quantity)))
                 {
                     //vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR,iQuantity
                     P00003_DataEntity.partId = getInputQuantity.Rows[0][0].ToString();
                     P00003_DataEntity.kanbanOrderNo = getInputQuantity.Rows[0][1].ToString();
                     P00003_DataEntity.kanbanSerial = getInputQuantity.Rows[0][2].ToString();
                     P00003_DataEntity.dock = getInputQuantity.Rows[0][3].ToString();
-
                     apiResult.data = P00003_DataEntity;
-
-
-
-
                 }
                 else if (getInputQuantity.Rows.Count != 1)
                 {
@@ -184,30 +158,19 @@ namespace SPPSApi.Controllers.P01
                 }
                 else
                 {
-
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "入库单号" + inno + "的数量超过待包装个数!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
                 }
-
-
-
-
-
-
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0003", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "获取入库信息失败!";
+                apiResult.data = "验证入库指令书失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -253,9 +216,9 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0004", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "获取用户信息失败!";
+                apiResult.data = "绑定箱号失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -295,18 +258,15 @@ namespace SPPSApi.Controllers.P01
                         apiResult.data = P00003_DataEntity;
                     }
                 }
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0005", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "更改状态失败!";
+                apiResult.data = "能率更新失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -339,15 +299,15 @@ namespace SPPSApi.Controllers.P01
                 string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
                 //更新点位在线履历
                 P00001_Logic.setSysExit(iP, "包装-返回导航");
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0006", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "更改状态失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -382,15 +342,15 @@ namespace SPPSApi.Controllers.P01
                 string pointType = getPoint.Rows[0][0].ToString() + getPoint.Rows[0][1].ToString();
                 //更新点位在线履历
                 P00001_Logic.setSysExit(iP, "包装-重新登录");
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0007", ex, "sys");
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "更改状态失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -423,41 +383,28 @@ namespace SPPSApi.Controllers.P01
                     if ((status == "False" || status == "") && getStatus2.Rows[0][0].ToString() == "正常")//将状态修改为暂停
                     {
                         P00003_Logic.UpdateStatus4(pointNo, opearteId);
-
-
-
-
-
                     }
                     else if (status == "True" && getStatus2.Rows[0][0].ToString() == "暂停" && stopTime != "")//将状态修改为正常
                     {
-
                         P00003_Logic.UpdateStatus5(pointNo, opearteId);
                         P00003_Logic.UpdateEffi(formatDate, opearteId, stopTime);
                     }
-
                 }
                 else
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "点位信息异常,请检查!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
                 }
-
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0008", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "更改状态失败!";
+                apiResult.data = "暂停操作失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -483,18 +430,13 @@ namespace SPPSApi.Controllers.P01
                 DataTable getTime = P00003_Logic.GetTime(formatDate, opearteId);
                 DataTable getCase = P00003_Logic.GetCase(opearteId);
                 DataTable getBanZhi = P00003_Logic.GetBanZhi(serverTime);
-
-
-
                 if (getCase.Rows.Count == 1)
                 {
                     P00003_DataEntity.caseNo = getCase.Rows[0][0].ToString();
-
                 }
                 else
                 {
                     P00003_DataEntity.caseNo = "";
-
                 }
                 string effiEncy = "0";
                 if (getTime.Rows.Count == 0 && getBanZhi.Rows.Count == 1)
@@ -503,14 +445,7 @@ namespace SPPSApi.Controllers.P01
                     string banZhi = getBanZhi.Rows[0][1].ToString();
                     P00003_Logic.InsertFre(time, formatDate, effiEncy, opearteId, serverTime, iP, date, banZhi);
                     getTime = P00003_Logic.GetTime(formatDate, opearteId);
-
                     P00003_Logic.UpdateFre(time, serverTime, formatDate, opearteId);
-
-
-
-
-
-
                     P00003_DataEntity.totalTime = getTime.Rows[0][0].ToString();
                     P00003_DataEntity.freQuency = getTime.Rows[0][1].ToString();
                     P00003_DataEntity.effiEncy = getTime.Rows[0][2].ToString();
@@ -518,27 +453,19 @@ namespace SPPSApi.Controllers.P01
                     P00003_DataEntity.packTotalTime = getTime.Rows[0][4].ToString();
                     P00003_DataEntity.userName = userName;
                     apiResult.data = P00003_DataEntity;
-
                 }
                 else if (getBanZhi.Rows.Count != 1)
                 {
-
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "获取班值失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
                 }
                 else if (getTime.Rows.Count == 1)
                 {
-
                     string totalTime = getTime.Rows[0][0].ToString();
                     string startTime = getTime.Rows[0][3].ToString();
-
-
                     P00003_Logic.UpdateFre(time, serverTime, formatDate, opearteId);
-
                     getTime = P00003_Logic.GetTime(formatDate, opearteId);
-
                     P00003_DataEntity.totalTime = getTime.Rows[0][0].ToString();
                     P00003_DataEntity.startTime = getTime.Rows[0][3].ToString();
                     P00003_DataEntity.freQuency = getTime.Rows[0][1].ToString();
@@ -549,33 +476,19 @@ namespace SPPSApi.Controllers.P01
                 }
                 else
                 {
-
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "当前用户在效率表中存在多条数据,请检查!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
                 }
-
-
-
-
-
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0009", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "验证时间失败!";
+                apiResult.data = "能率信息生成失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-
-
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -597,21 +510,15 @@ namespace SPPSApi.Controllers.P01
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 P00003_Logic.UpdateCase1(opearteId, iP);
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0010", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "更新信息失败";
+                apiResult.data = "更新登出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-
-
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -632,18 +539,15 @@ namespace SPPSApi.Controllers.P01
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//箱号
-
-
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0011", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "获取箱号信息失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
         }
         #endregion
 
@@ -673,23 +577,16 @@ namespace SPPSApi.Controllers.P01
 
                 DataTable getBanZhi = P00001_Logic.GetBanZhi(serverTime);
                 DataTable getPoint = P00001_Logic.GetPoint2(iP);
-
                 if (getPoint.Rows.Count == 1 && getBanZhi.Rows.Count == 1)
                 {
                     string pointNo = getPoint.Rows[0][0].ToString();
                     string date = getBanZhi.Rows[0][0].ToString();
                     string banZhi = getBanZhi.Rows[0][1].ToString();
                     P00001_Logic.InsertDetail(date, banZhi, pointNo, uuid, serverTime, opearteId);
-
-
-
                     DataTable getStatus = P00001_Logic.GetPointStatus4(pointNo);
                     if (getStatus.Rows.Count == 1)
                     {
-
                         P00001_Logic.UpdateStatus4(pointNo, opearteId);
-
-
                         #region 将当前绑定，未打印装箱单的箱号重新绑定
                         DataTable getCase = P00001_Logic.GetCase(opearteId, iP);
                         if (getCase.Rows.Count > 0)
@@ -701,72 +598,33 @@ namespace SPPSApi.Controllers.P01
                                 if (getCase1.Rows.Count == 0)//未打印装箱单
                                 {
                                     P00001_Logic.UpdateCase(iP, serverTime, opearteId, caseNo);
-
-
-
-
-
                                 }
-
-
-
                             }
-
-
-
-
-
-
-
-
                         }
-
-
-
-
-
-
                         #endregion
-
-
-
-
-
                     }
                     else
                     {
-
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "点位信息异常,请检查!";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
                     }
-
-
-
-
-
                 }
                 else
                 {
-
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "当前点位表中不存在有效信息,请检查!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
                 }
-
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0012", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "更改状态失败";
+                apiResult.data = "绑定箱号失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
 
@@ -788,6 +646,16 @@ namespace SPPSApi.Controllers.P01
                 string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//箱号
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
+
+                #region 记录日志-begin
+                string path_begin = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_begin = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:扫描箱号-验证(begin)"
+                    + "；作业对象：" + caseNo + "";
+                new P00003_Logic().WriteLog(log_begin, path_begin);
+                #endregion
+
                 DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
                 //0.检验IP所属点位信息
                 DataTable getPoint = P00001_Logic.GetPointNo(iP);
@@ -846,11 +714,21 @@ namespace SPPSApi.Controllers.P01
                 P00003_DataEntity.caseNo = strCaseNo;
                 P00003_DataEntity.scanTime = serverTime;
                 apiResult.data = P00003_DataEntity;
+
+                #region 记录日志-end
+                string path_end = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_end = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:扫描箱号-验证(end)"
+                    + "；作业对象：" + caseNo + "";
+                new P00003_Logic().WriteLog(log_end, path_end);
+                #endregion
+
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0013", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "箱号验证失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -881,6 +759,15 @@ namespace SPPSApi.Controllers.P01
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//当前箱号
                                                                                //0.检验IP所属点位信息
+                #region 记录日志-begin
+                string path_begin = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_begin = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:扫描看板-验证(begin)"
+                    + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
+                new P00003_Logic().WriteLog(log_begin, path_begin);
+                #endregion
+
                 DataTable getPoint = P00001_Logic.GetPointNo(iP);
                 if (getPoint.Rows.Count != 1)
                 {
@@ -970,6 +857,14 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "包装数量异常，请联系管理员处理异常。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //4.打印标签
+                bool bResult = P00003_Logic.setPrintLable(iP, strInvNo, strPrinterName, opearteId);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "标签打印失败(原因：数据冲突或网络原因)，重新扫描看板。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 //3.向前台返回必要数据
                 P00003_DataEntity.packParts = dtPackList;//包材list
                 P00003_DataEntity.caseQuantity = iQuantity_Fzx.ToString();//待装箱数
@@ -985,8 +880,7 @@ namespace SPPSApi.Controllers.P01
                 P00003_DataEntity.dock = dock;
                 P00003_DataEntity.quantity = strQuantity;
                 apiResult.data = P00003_DataEntity;
-                //4.打印标签
-                P00003_Logic.setPrintLable(iP, strInvNo, strPrinterName, opearteId);
+
                 //5.获取箱号已装箱
                 DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
                 string kanbanQuantity = "0";
@@ -995,11 +889,21 @@ namespace SPPSApi.Controllers.P01
                 P00003_DataEntity.kanbanQuantity = kanbanQuantity;
                 P00003_DataEntity.scanTime = serverTime;
                 apiResult.data = P00003_DataEntity;
+
+                #region 记录日志-end
+                string path_end = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_end = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:扫描看板-验证(end)"
+                    + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
+                new P00003_Logic().WriteLog(log_end, path_end);
+                #endregion
+
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0014", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "验证看板信息失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -1049,12 +953,12 @@ namespace SPPSApi.Controllers.P01
                 string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//箱号
                 string formatDate = serverTime.Substring(0, 10).Replace("-", "");
                 string packQuantity = dataForm.PackQuantity == null ? "" : dataForm.PackQuantity;//本次要包装数量
-                                                                                                 //包装装箱
-                                                                                                 //1.插入作业实绩TOperateSJ
-                                                                                                 //2.插入装箱实绩TBoxMaster
-                                                                                                 //3.更新入出库履历TOperateSJ_InOutput
-                                                                                                 //4.插入包材履历TPackWork
-                                                                                                 //5.更新包材在库TPackZaiKu
+                //包装装箱
+                //1.插入作业实绩TOperateSJ
+                //2.插入装箱实绩TBoxMaster
+                //3.更新入出库履历TOperateSJ_InOutput
+                //4.插入包材履历TPackWork
+                //5.更新包材在库TPackZaiKu
                 string strType = "包装装箱";
                 string boxno = caseNo;
                 if (caseNo.Split('*').Length > 1)
@@ -1074,8 +978,23 @@ namespace SPPSApi.Controllers.P01
                     + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
                 new P00003_Logic().WriteLog(log_begin, path_begin);
                 #endregion
+
                 DataTable dtPackWork = P00003_Logic.getPackInfo(partId, kanbanOrderNo, kanbanSerial, dock, packQuantity);
-                P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
+                bool bResult = P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "数据处理失败(原因：数据冲突或网络原因)，请重新操作。";
+                    apiResult.type = "LS";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
+                string kanbanQuantity = "0";
+                if (dtCaseNoInfo.Rows.Count > 0)
+                    kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                P00003_DataEntity.kanbanQuantity = kanbanQuantity;
+                apiResult.data = P00003_DataEntity;
+
                 #region 记录日志-end
                 string path_end = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
                 string log_end = "作业员:" + opearteId
@@ -1084,17 +1003,11 @@ namespace SPPSApi.Controllers.P01
                     + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
                 new P00003_Logic().WriteLog(log_end, path_end);
                 #endregion
-                DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
-                string kanbanQuantity = "0";
-                if (dtCaseNoInfo.Rows.Count > 0)
-                    kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
-                P00003_DataEntity.kanbanQuantity = kanbanQuantity;
-                apiResult.data = P00003_DataEntity;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0015", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "包装装箱失败";
                 apiResult.type = "LS";
@@ -1166,8 +1079,23 @@ namespace SPPSApi.Controllers.P01
                     + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
                 new P00003_Logic().WriteLog(log_begin, path_begin);
                 #endregion
+
                 DataTable dtPackWork = P00003_Logic.getPackInfo(partId, kanbanOrderNo, kanbanSerial, dock, packQuantity);
-                P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
+                bool bResult = P00003_Logic.setPackAndZxInfo(iP, pointType, strType, partId, kanbanOrderNo, kanbanSerial, dock, packQuantity, caseNo, boxno, scanTime, dtPackWork, opearteId);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "数据处理失败(原因：数据冲突或网络原因)，请重新操作。";
+                    apiResult.type = "LS";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
+                string kanbanQuantity = "0";
+                if (dtCaseNoInfo.Rows.Count > 0)
+                    kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
+                P00003_DataEntity.kanbanQuantity = kanbanQuantity;
+                apiResult.data = P00003_DataEntity;
+
                 #region 记录日志-end
                 string path_end = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
                 string log_end = "作业员:" + opearteId
@@ -1176,17 +1104,12 @@ namespace SPPSApi.Controllers.P01
                     + "；作业对象：" + kanbanOrderNo + "|" + kanbanSerial + "|" + partId + "|" + dock + "";
                 new P00003_Logic().WriteLog(log_end, path_end);
                 #endregion
-                DataTable dtCaseNoInfo = P00003_Logic.GetCaseNoInfo(caseNo);
-                string kanbanQuantity = "0";
-                if (dtCaseNoInfo.Rows.Count > 0)
-                    kanbanQuantity = dtCaseNoInfo.Rows[0]["kanbanQuantity"].ToString();
-                P00003_DataEntity.kanbanQuantity = kanbanQuantity;
-                apiResult.data = P00003_DataEntity;
+
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0016", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "包装不装箱失败";
                 apiResult.type = "LS";
@@ -1255,9 +1178,9 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0017", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "获取箱号信息失败!";
+                apiResult.data = "加载换箱箱号列表失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -1284,6 +1207,16 @@ namespace SPPSApi.Controllers.P01
                 string caseNo = dataForm.Case == null ? "" : dataForm.Case;//箱号
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                                                                                             //0.检验IP所属点位信息
+
+                #region 记录日志-begin
+                string path_begin = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_begin = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:换箱执行(begin)"
+                    + "；作业对象：" + caseNo + "";
+                new P00003_Logic().WriteLog(log_begin, path_begin);
+                #endregion
+
                 DataTable getPoint = P00001_Logic.GetPointNo(iP);
                 if (getPoint.Rows.Count != 1)
                 {
@@ -1308,13 +1241,23 @@ namespace SPPSApi.Controllers.P01
                 P00003_DataEntity.kanbanQuantity = kanbanQuantity;
                 P00003_DataEntity.scanTime = serverTime;
                 apiResult.data = P00003_DataEntity;
+
+                #region 记录日志-end
+                string path_end = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
+                string log_end = "作业员:" + opearteId
+                    + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "；作业内容:换箱执行(end)"
+                    + "；作业对象：" + caseNo + "";
+                new P00003_Logic().WriteLog(log_end, path_end);
+                #endregion
+
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0018", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "箱号操作失败!";
+                apiResult.data = "执行换箱操作失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -1502,20 +1445,27 @@ namespace SPPSApi.Controllers.P01
                 //插入装箱单打印表
                 string strBoxNo = caseNo.Split('*')[1];
                 string strCaseNo = caseNo;
-                P00003_Logic.setCastListInfo(dtOperateSJ_Temp, dtCaseList_Temp, iP, caseNo, strBoxNo, scanTime, opearteId, strCasePrinterName);
+                bool bResult = P00003_Logic.setCastListInfo(dtOperateSJ_Temp, dtCaseList_Temp, iP, caseNo, strBoxNo, scanTime, opearteId, strCasePrinterName);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "装箱处理失败(原因：数据冲突或网络原因)，请重新操作。";
+                    apiResult.type = "LS";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 #region 记录日志-end
                 string path_end = @"G:\ScanFile\Log\现场作业\包装_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
                 string log_end = "作业员:" + opearteId
                     + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     + "；作业内容:" + "打印装箱单(end)"
                     + "；作业对象：" + caseNo + "";
-                new P00003_Logic().WriteLog(log_begin, path_begin);
+                new P00003_Logic().WriteLog(log_end, path_end);
                 #endregion
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0019", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "打印装箱单失败";
                 apiResult.type = "LS";
@@ -1534,9 +1484,6 @@ namespace SPPSApi.Controllers.P01
             }
             LoginInfo loginInfo = getLoginByToken(strToken);
             string opearteId = loginInfo.UserId;
-
-
-
 
             ApiResult apiResult = new ApiResult();
             try
@@ -1601,17 +1548,15 @@ namespace SPPSApi.Controllers.P01
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P03UE0020", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "获取包装数据失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
         }
         #endregion
     }

@@ -574,7 +574,7 @@ namespace SPPSApi.Controllers.G06
                 {
                     foreach (KeyValuePair<string, byte[]> kv in filepathList)
                     { 
-                        apiResult.data = kv.Key +".txt";
+                        apiResult.data = kv.Key;
                     }
                 }
                 

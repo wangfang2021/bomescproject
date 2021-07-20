@@ -93,7 +93,7 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = fs0705_Logic.searchPackCompute(strPackNo, strPackGPSNo, strFaZhuID,strTimeFrom, strTimeTo);
+                DataTable dt = fs0705_Logic.searchPackCompute(strPackNo, strPackGPSNo, strFaZhuID,strTimeFrom, strTimeTo,loginInfo.BaoZhuangPlace);
 
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 int dtCount = 0;
@@ -136,7 +136,7 @@ namespace SPPSApi.Controllers.G07
                 string strTimeFrom = dataForm.dTimeFrom;        //T/C(From)
                 string strTimeTo = dataForm.dTimeTo;            //T/C(To)
 
-                DataTable dt = fs0705_Logic.searchPackCompute(strPackNo,strPackGPSNo,strFaZhuID,strTimeFrom,strTimeTo);
+                DataTable dt = fs0705_Logic.searchPackCompute(strPackNo,strPackGPSNo,strFaZhuID,strTimeFrom,strTimeTo,loginInfo.BaoZhuangPlace);
 
                 if (dt==null || dt.Rows.Count<=0)
                 {

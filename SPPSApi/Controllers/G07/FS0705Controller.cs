@@ -137,6 +137,16 @@ namespace SPPSApi.Controllers.G07
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
 
+                BatchProcess.FP0015 fp0015 = new BatchProcess.FP0015();
+
+                if (!fp0015.main(loginInfo.UserId))
+                {
+
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "同步更新失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 string strRuHeToTime = listInfoData[listInfoData.Count - 1]["dRuheToDate"].ToString();
                 string strFaZhuID = listInfoData[listInfoData.Count - 1]["strFaZhuID"].ToString();
                 string strBianCi = listInfoData[listInfoData.Count - 1]["strBCName"].ToString();

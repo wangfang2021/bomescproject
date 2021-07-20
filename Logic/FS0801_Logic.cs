@@ -18,6 +18,11 @@ namespace Logic
             fs0801_DataAccess = new FS0801_DataAccess();
         }
 
+        public DataTable getTCode(string strCode)
+        {
+            return fs0801_DataAccess.getTCode(strCode);
+        }
+
         #region 检索
         public DataTable Search(string vcBZPlant, string vcPart_id, string vcBigPM, string vcSmallPM)
         {

@@ -108,8 +108,8 @@ namespace SPPSApi.Controllers.G05
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
-                string strLinId = listMultipleData[i]["LinId"] == null ? "" : listMultipleData[i]["LinId"].ToString();
-                string strTagZIP = listMultipleData[i]["vcTagZIP"] == null ? "" : listMultipleData[i]["vcTagZIP"].ToString();
+                string strLinId = listMultipleData[0]["LinId"] == null ? "" : listMultipleData[0]["LinId"].ToString();
+                string strTagZIP = listMultipleData[0]["vcTagZIP"] == null ? "" : listMultipleData[0]["vcTagZIP"].ToString();
                 fs0504_Logic.setDataInfo(strLinId, loginInfo.UserId, ref dtMessage);
                 string filepath = strTagZIP;
                 if (filepath == "")

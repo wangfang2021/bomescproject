@@ -108,16 +108,20 @@ namespace SPPSApi.Controllers.G05
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
-                string strLinId = listMultipleData[0]["LinId"] == null ? "" : listMultipleData[0]["LinId"].ToString();
-                string strTagZIP = listMultipleData[0]["vcTagZIP"] == null ? "" : listMultipleData[0]["vcTagZIP"].ToString();
+                string strLinId = listMultipleData[i]["LinId"] == null ? "" : listMultipleData[i]["LinId"].ToString();
+                string strTagZIP = listMultipleData[i]["vcTagZIP"] == null ? "" : listMultipleData[i]["vcTagZIP"].ToString();
                 fs0504_Logic.setDataInfo(strLinId, loginInfo.UserId, ref dtMessage);
                 string filepath = strTagZIP;
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导出生成文件失败";
+                    apiResult.data = "导出" + strTagZIP + "标签文件失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //for (int i = 0; i < listMultipleData.Count; i++)
+                //{
+
+                //}               
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

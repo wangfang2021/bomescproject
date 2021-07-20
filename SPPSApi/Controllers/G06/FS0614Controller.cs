@@ -245,7 +245,7 @@ namespace SPPSApi.Controllers.G06
                         var callClient = factory.CreateChannel();
                         setCRVToPDFRequestBody Body = new setCRVToPDFRequestBody();
                         Body.strScrpit = printsql;
-                        Body.strDiskFileName = strPath_pdf + node.orderNo + "_" + node.supplier + ".pdf";
+                        Body.strDiskFileName = strPath_pdf + node.orderNo + "_" + node.supplier+node.supplierPlant + ".pdf";
                         Body.strCRVName = file_crv + dtPrinterInfo.Rows[0]["vcReports"].ToString();
                         Body.sqlUserID = dtPrinterInfo.Rows[0]["vcSqlUserID"].ToString();
                         Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();

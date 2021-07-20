@@ -266,8 +266,8 @@ namespace SPPSApi.Controllers.G06
 
                         labelBuilder.AppendLine("INSERT INTO dbo.TTagDownLoadList(vcOrderNo,vcSupplierId,vcTagZIP,vcCreaterId,dCreateTime) VALUES (");
                         labelBuilder.AppendLine(ComFunction.getSqlValue(node.orderNo, false) + ",");
-                        labelBuilder.AppendLine(ComFunction.getSqlValue(node.supplier, false) + ",");
-                        labelBuilder.AppendLine("'" + node.orderNo + "_" + node.supplier + ".pdf" + "',");
+                        labelBuilder.AppendLine(ComFunction.getSqlValue(node.supplier+node.supplierPlant, false) + ",");
+                        labelBuilder.AppendLine("'" + node.orderNo + "_" + node.supplier+node.supplierPlant + ".pdf" + "',");
                         labelBuilder.AppendLine("    '" + loginInfo.UserId + "',");
                         labelBuilder.AppendLine("	GETDATE())");
                     }

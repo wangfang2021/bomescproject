@@ -458,7 +458,7 @@ namespace DataAccess
                                     string carName = row1[0]["vcCarTypeName"].ToString();
                                     string vcPart_id1 = detail.PartsNo.Substring(0, 5) + "-" + detail.PartsNo.Substring(5, 5) + "-" + detail.PartsNo.Substring(10, 2);
                                     bool isExist = true;
-                                    DownNode node = new DownNode(vcOrderNo, vcSupplierId);
+                                    DownNode node = new DownNode(vcOrderNo, vcSupplierId, vcSupplierPlant);
                                     for (int n = 0; n < DownList.Count; n++)
                                     {
                                         if (DownList[n].isExist(node))
@@ -1003,7 +1003,7 @@ namespace DataAccess
                                     string carName = row1[0]["vcCarTypeName"].ToString();
                                     string vcPart_id1 = detail.PartsNo.Substring(0, 5) + "-" + detail.PartsNo.Substring(5, 5) + "-" + detail.PartsNo.Substring(10, 2);
                                     bool isExist = true;
-                                    DownNode node = new DownNode(vcOrderNo, vcSupplierId);
+                                    DownNode node = new DownNode(vcOrderNo, vcSupplierId,vcSupplierPlant);
                                     for (int n = 0; n < DownList.Count; n++)
                                     {
                                         if (DownList[n].isExist(node))
@@ -1541,7 +1541,7 @@ namespace DataAccess
                                     string carName = row1[0]["vcCarTypeName"].ToString();
                                     string vcPart_id1 = detail.PartsNo.Substring(0, 5) + "-" + detail.PartsNo.Substring(5, 5) + "-" + detail.PartsNo.Substring(10, 2);
                                     bool isExist = true;
-                                    DownNode node = new DownNode(vcOrderNo, vcSupplierId);
+                                    DownNode node = new DownNode(vcOrderNo, vcSupplierId, vcSupplierPlant);
                                     for (int n = 0; n < DownList.Count; n++)
                                     {
                                         if (DownList[n].isExist(node))
@@ -1608,7 +1608,7 @@ namespace DataAccess
                                         tagsbr.AppendLine(ComFunction.getSqlValue(carName, false) + ",");
                                         tagsbr.AppendLine("'" + userId + "',GETDATE(),GETDATE())");
 
-                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList_KEY(vcLabelCode,vcHostIp,vcOperatorID,dOperatorTime) VALUES('"+ sf + "','127.0.0.1', '"+userId+"', GETDATE() )");
+                                        tagsbr.AppendLine("INSERT INTO dbo.TLabelList_KEY(vcLabelCode,vcHostIp,vcOperatorID,dOperatorTime) VALUES('" + sf + "','127.0.0.1', '" + userId + "', GETDATE() )");
 
                                         SqlCommand sqlCommandTag = sqlConnection.CreateCommand();
                                         sqlCommandTag.Transaction = sqlTransaction;
@@ -2707,11 +2707,13 @@ namespace DataAccess
         {
             public string orderNo;
             public string supplier;
+            public string supplierPlant;
 
-            public DownNode(string orderNo, string supplier)
+            public DownNode(string orderNo, string supplier,string supplierPlant)
             {
                 this.orderNo = orderNo;
                 this.supplier = supplier;
+                this.supplierPlant = supplierPlant;
             }
 
             public bool isExist(DownNode node)
@@ -2719,6 +2721,8 @@ namespace DataAccess
                 if (node.orderNo != this.orderNo)
                     return false;
                 if (node.supplier != this.supplier)
+                    return false;
+                if (node.supplierPlant != this.supplierPlant)
                     return false;
                 return true;
             }

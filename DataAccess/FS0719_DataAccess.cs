@@ -298,7 +298,7 @@ namespace DataAccess
                 strSql.AppendLine("  from (      ");
 
                 //d.iRelease为新加项
-                strSql.AppendLine(" select b.vcPackGPSNo,sum(a.iPartNums) as iPartNums,c.vcBZPlant,d.iRelease from (   ");
+                strSql.AppendLine(" select b.vcPackGPSNo,sum(a.iPartNums)*b.iBiYao as iPartNums,c.vcBZPlant,d.iRelease from (   ");
 
                 strSql.AppendLine(" select vcPart_id,vcDXYM,iPartNums from TSoqReply where vcCLYM='" + strN_CL + "'and vcDXYM='" + strN + "'   ");
                 strSql.AppendLine(" union all    ");
@@ -322,7 +322,7 @@ namespace DataAccess
                 strSql.AppendLine(" (   ");
                 strSql.AppendLine(" select * from TPackageMaster where GETDATE() between dTimeFrom and dTimeTo    ");
                 strSql.AppendLine(" )c on a.vcPart_id=c.vcPart_id   ");
-                strSql.AppendLine(" group by b.vcPackGPSNo,c.vcBZPlant,d.iRelease    ");
+                strSql.AppendLine(" group by b.vcPackGPSNo,c.vcBZPlant,d.iRelease,b.iBiYao     ");
                 strSql.AppendLine(" )t1 left join   ");
                 strSql.AppendLine(" (   ");
                 strSql.AppendLine(" select vcPackGPSNo,sum(iNumber)as iNumber from TPackWork where vcZuoYeQuFen='1'   ");
@@ -1036,8 +1036,8 @@ namespace DataAccess
             {
                 string dtime = DateTime.Now.ToString("yyyyMMdd");
                 string dtime1 = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                DataTable dtamps = this.Search_MAPSPartID();
                 DataTable dtpm = this.Search_PassMoonoth();
+                DataTable dtamps = this.Search_MAPSPartID();
                 //查找维护无内饰需订购品番
                 DataTable dtC062 = this.SearchC062();
                 StringBuilder sql = new StringBuilder();

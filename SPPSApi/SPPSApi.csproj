@@ -287,7 +287,9 @@
     <Folder Include="Doc\Image\Checking\" />
     <Folder Include="Doc\Import\" />
     <Folder Include="Doc\Export\" />
+    <Folder Include="Doc\INVINTERFACE\" />
     <Folder Include="Doc\upload\" />
+    <Folder Include="Doc\TILSXML\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -568,6 +570,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Doc\INVINTERFACE\预留.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Doc\PDF\Order\SL719002_4470.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Doc\PDF\Order\预留.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Doc\Template\DailyPaper.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -671,6 +682,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Doc\Template\MonthPaper.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Doc\TILSXML\预留.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="SPPS.pfx">

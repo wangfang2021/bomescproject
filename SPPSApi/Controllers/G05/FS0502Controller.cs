@@ -313,7 +313,7 @@ namespace SPPSApi.Controllers.G05
                         {FieldCheck.Num,FieldCheck.Date},//数据类型校验
                         {"0","0"},//最大长度设定,不校验最大长度用0
                         {"1","1"},//最小长度设定,可以为空用0
-                        {"9","11"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"10","12"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0502");
                     if (checkRes != null)
@@ -363,7 +363,7 @@ namespace SPPSApi.Controllers.G05
                 }
                 string strErrorPartId = "";
                 string infopart = "";
-                fs0502_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId, "", "", "", vcSupplier_id, ref infopart,"");
+                fs0502_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId, "", "", "", vcSupplier_id, ref infopart,"","main");
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -500,7 +500,7 @@ namespace SPPSApi.Controllers.G05
 
                 string strErrorPartId = "";
                 string infopart = "";
-                fs0502_Logic.Save(listSubInfo, loginInfo.UserId, ref strErrorPartId, iAutoId, vcPart_id, vcOrderNo, vcSupplier_id, ref infopart,iPackingQty);
+                fs0502_Logic.Save(listSubInfo, loginInfo.UserId, ref strErrorPartId, iAutoId, vcPart_id, vcOrderNo, vcSupplier_id, ref infopart,iPackingQty,"sub");
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

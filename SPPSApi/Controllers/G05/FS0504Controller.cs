@@ -115,9 +115,13 @@ namespace SPPSApi.Controllers.G05
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导出生成文件失败";
+                    apiResult.data = "导出" + strTagZIP + "标签文件失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //for (int i = 0; i < listMultipleData.Count; i++)
+                //{
+
+                //}               
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

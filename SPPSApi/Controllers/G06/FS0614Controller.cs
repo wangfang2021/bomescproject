@@ -225,7 +225,7 @@ namespace SPPSApi.Controllers.G06
                     string strPath_pdf = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "PDF" + Path.DirectorySeparatorChar + "Order" + Path.DirectorySeparatorChar;
                     string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
                     FS0603_Logic fS0603_Logic = new FS0603_Logic();
-                    DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("标签", "");
+                    DataTable dtPrinterInfo = fS0603_Logic.getPrinterInfo("标签", loginInfo.UserId);
 
                     //标签生成
 

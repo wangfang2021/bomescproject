@@ -298,6 +298,9 @@ namespace DataAccess
                 strSql.AppendLine("  from (      ");
 
                 //d.iRelease为新加项
+
+                strSql.AppendLine("  select table1.vcPackGPSNo,sum(table1.iPartNums)as iPartNums,table1.iRelease,table1.vcBZPlant from ( ");
+
                 strSql.AppendLine(" select b.vcPackGPSNo,sum(a.iPartNums)*b.iBiYao as iPartNums,c.vcBZPlant,d.iRelease from (   ");
 
                 strSql.AppendLine(" select vcPart_id,vcDXYM,iPartNums from TSoqReply where vcCLYM='" + strN_CL + "'and vcDXYM='" + strN + "'   ");
@@ -323,6 +326,11 @@ namespace DataAccess
                 strSql.AppendLine(" select * from TPackageMaster where GETDATE() between dTimeFrom and dTimeTo    ");
                 strSql.AppendLine(" )c on a.vcPart_id=c.vcPart_id   ");
                 strSql.AppendLine(" group by b.vcPackGPSNo,c.vcBZPlant,d.iRelease,b.iBiYao     ");
+
+                strSql.AppendLine("  )table1  ");
+                strSql.AppendLine("  group by table1.vcPackGPSNo,table1.vcBZPlant,table1.iRelease  ");
+                strSql.AppendLine("   ");
+
                 strSql.AppendLine(" )t1 left join   ");
                 strSql.AppendLine(" (   ");
                 strSql.AppendLine(" select vcPackGPSNo,sum(iNumber)as iNumber from TPackWork where vcZuoYeQuFen='1'   ");

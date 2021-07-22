@@ -1205,7 +1205,7 @@ namespace SPPSApi.Controllers.P01
                 string log_end = "作业员:" + opearteId
                     + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     + "；作业内容:" + "出荷上传(end)";
-                new P00003_Logic().WriteLog(log_begin, path_begin);
+                new P00003_Logic().WriteLog(log_end, path_end);
                 #endregion
                 P00004_DataEntity.shipResult = "发货成功";
                 apiResult.data = P00004_DataEntity;

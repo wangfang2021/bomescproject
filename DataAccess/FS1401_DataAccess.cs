@@ -32,9 +32,10 @@ namespace DataAccess
                 strSql.AppendLine("		,T5.vcName AS vcPackType");
                 strSql.AppendLine("		,T6.vcCheckP AS vcCheckType");
                 strSql.AppendLine("		,T7.vcName AS vcSPISStatus");
-                strSql.AppendLine("		,T1.vcOESP AS vcOESP");
+                strSql.AppendLine("		,T8.vcName AS vcOESP");
                 strSql.AppendLine("		,T1.vcStateFX AS vcStateFX");
                 strSql.AppendLine("		,T1.vcFXNO AS vcFXNO");
+                strSql.AppendLine("		,T1.vcPart_id_HK AS vcPart_id_HK");
                 strSql.AppendLine("		,'0' as bModFlag,'0' as bAddFlag,'1' as bSelectFlag");
                 strSql.AppendLine("		from ");
                 strSql.AppendLine("(select * from tCheckMethod_Master");
@@ -126,6 +127,9 @@ namespace DataAccess
                 strSql.AppendLine("(SELECT [vcPartId],[vcTimeFrom],[vcTimeTo],[vcCarfamilyCode],[vcSupplierCode],[vcSupplierPlant],[vcCheckP] ");
                 strSql.AppendLine("FROM [tCheckQf] where [vcTimeFrom]<=convert(varchar(10),GETDATE(),23) and [vcTimeTo]>=convert(varchar(10),GETDATE(),23))T6");
                 strSql.AppendLine("ON T1.vcPartId=T6.vcPartId AND T1.vcSupplierId=T6.[vcSupplierCode]");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C012')T8");
+                strSql.AppendLine("on T1.vcOESP=T8.vcValue");
                 strSql.AppendLine("where 1=1");
                 if (strCheckType != "")
                 {

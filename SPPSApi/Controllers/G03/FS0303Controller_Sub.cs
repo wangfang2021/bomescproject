@@ -52,10 +52,10 @@ namespace SPPSApi.Controllers.G03
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strPart_id = dataForm.vcPart_id;
+            string strAutoId = dataForm.data.iAutoId;
             try
             {
-                DataTable dt = fs0303_Logic.SearchTeji(strPart_id);
+                DataTable dt = fs0303_Logic.SearchTeji(strAutoId);
                 DataTable dtResult = dt.Clone();
                 if (dt.Rows.Count > 0)
                 {
@@ -111,16 +111,19 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                string strPartId = dataForm.vcPart_id;
+                string strAutoId = dataForm.iAutoId;
 
-                if (strPartId.Trim() == "")
+                if (strAutoId==null || strAutoId.Trim() == "")
                 {
+                    //apiResult.code = ComConstant.ERROR_CODE;
+                    //apiResult.data = "品番不能为空！";
+                    //return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "品番不能为空！";
+                    apiResult.data = "请先保存品番数据再修改特记！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                fs0303_Logic.SaveTeJi(listInfoData, loginInfo.UserId, strPartId);
+                fs0303_Logic.SaveTeJi(listInfoData, loginInfo.UserId, strAutoId);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

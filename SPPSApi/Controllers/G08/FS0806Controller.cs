@@ -381,11 +381,11 @@ namespace SPPSApi.Controllers.G08
                 for(int i=0;i<checkedInfoData.Count;i++)
                 {
                     string vcZYType = checkedInfoData[i]["vcZYType"].ToString();
-                    //校验 出荷的不能删除
-                    if (vcZYType == "S4")
+                    //校验 出荷/入荷的不能删除
+                    if (vcZYType == "S4" || vcZYType=="S0")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "出荷的不能删除！";
+                        apiResult.data = "出荷/入荷的不能删除！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

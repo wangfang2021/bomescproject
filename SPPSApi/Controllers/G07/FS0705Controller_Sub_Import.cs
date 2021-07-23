@@ -103,7 +103,7 @@ namespace SPPSApi.Controllers.G07
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 #region 验证数据是否满足保存条件
-                DataTable checkDT = fs0705_Logic.getIsSave(importDt);
+                DataTable checkDT = fs0705_Logic.getIsSave(importDt,loginInfo.BaoZhuangPlace);
                 string str1 = "";       //记录哪些GPS品番在包材基础数据表中不存在
                 string str2 = "";       //记录哪些GPS品番在包材基础数据表中已废止
                 string str3 = "";       //记录哪些GPS品番在包材基础数据表中不属于自动发注品番
@@ -150,7 +150,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 #endregion
 
-                fs0705_Logic.importSave_Sub(importDt, loginInfo.UserId);
+                fs0705_Logic.importSave_Sub(importDt, loginInfo.UserId,loginInfo.BaoZhuangPlace);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "导入成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

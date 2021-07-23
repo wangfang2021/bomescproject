@@ -70,7 +70,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 //sbr.AppendLine("SELECT DISTINCT vcOrderNo FROM TUrgentOrder WHERE vcStatus = '3'");
-                sbr.AppendLine("SELECT vcOrderNo FROM (SELECT vcOrderNo,MAX(iAutoId) AS id FROM dbo.TUrgentOrder WHERE vcStatus = '3' and isnull([vcDelete],'0')='0' GROUP BY vcOrderNo ) a ORDER BY id desc");
+                sbr.AppendLine("SELECT vcOrderNo FROM (SELECT vcOrderNo,MAX(iAutoId) AS id FROM dbo.TUrgentOrder WHERE vcStatus = '3'  GROUP BY vcOrderNo ) a ORDER BY id desc");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

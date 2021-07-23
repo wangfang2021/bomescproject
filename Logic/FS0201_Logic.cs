@@ -1622,12 +1622,19 @@ namespace Logic
                     //    temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
                     //}
                     temp[index].vcOldProj = "";
-                    if (!row.GetCell(15 + flag).ToString().Contains("("))
+
+                    //TODO:不用删除括号
+                    //if (!row.GetCell(15 + flag).ToString().Contains("("))
+                    //{
+                    //    if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF") || row.GetCell(15 + flag).ToString().Contains("WV"))
+                    //    {
+                    //        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                    //    }
+                    //}
+
+                    if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF") || row.GetCell(15 + flag).ToString().Contains("WV"))
                     {
-                        if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF") || row.GetCell(15 + flag).ToString().Contains("WV"))
-                        {
-                            temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
-                        }
+                        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
                     }
 
 

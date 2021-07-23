@@ -110,7 +110,7 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = fs0705_Logic.search_Sub(strPackNo, strPackGPSNo, strTimeFrom, strTimeTo, strType);
+                DataTable dt = fs0705_Logic.search_Sub(strPackNo, strPackGPSNo, strTimeFrom, strTimeTo, strType,loginInfo.BaoZhuangPlace);
 
                 DtConverter dtConverter = new DtConverter();
 
@@ -158,7 +158,7 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = fs0705_Logic.search_Sub(strPackNo,strPackGPSNo,strTimeFrom,strTimeTo,strType);
+                DataTable dt = fs0705_Logic.search_Sub(strPackNo,strPackGPSNo,strTimeFrom,strTimeTo,strType,loginInfo.BaoZhuangPlace);
                 #region 根据调整类型的Value生成调整类型的Name列，导出使用调整类型Name列
                 dt.Columns.Add("vcType_Name");
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -256,7 +256,7 @@ namespace SPPSApi.Controllers.G07
                 #endregion
 
                 #region 验证数据是否满足保存条件
-                DataTable dt = fs0705_Logic.getIsSave(listInfoData);
+                DataTable dt = fs0705_Logic.getIsSave(listInfoData,loginInfo.BaoZhuangPlace);
                 string str1 = "";       //记录哪些GPS品番在包材基础数据表中不存在
                 string str2 = "";       //记录哪些GPS品番在包材基础数据表中已废止
                 string str3 = "";       //记录哪些GPS品番在包材基础数据表中不属于自动发注品番

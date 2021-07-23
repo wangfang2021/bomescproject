@@ -224,7 +224,78 @@ namespace DataAccess
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-                    sql.Append("delete from TOperateSJ where iAutoId=" + iAutoId + "   \n");
+                    #region 先插入历史表
+                    sql.AppendLine("INSERT INTO [TOperateSJ_History]");
+                    sql.AppendLine("           ([vcZYType]");
+                    sql.AppendLine("           ,[vcBZPlant]");
+                    sql.AppendLine("           ,[vcInputNo]");
+                    sql.AppendLine("           ,[vcKBOrderNo]");
+                    sql.AppendLine("           ,[vcKBLFNo]");
+                    sql.AppendLine("           ,[vcPart_id]");
+                    sql.AppendLine("           ,[vcIOType]");
+                    sql.AppendLine("           ,[vcSupplier_id]");
+                    sql.AppendLine("           ,[vcSupplierGQ]");
+                    sql.AppendLine("           ,[dStart]");
+                    sql.AppendLine("           ,[dEnd]");
+                    sql.AppendLine("           ,[iQuantity]");
+                    sql.AppendLine("           ,[vcBZUnit]");
+                    sql.AppendLine("           ,[vcSHF]");
+                    sql.AppendLine("           ,[vcSR]");
+                    sql.AppendLine("           ,[vcCaseNo]");
+                    sql.AppendLine("           ,[vcBoxNo]");
+                    sql.AppendLine("           ,[vcSheBeiNo]");
+                    sql.AppendLine("           ,[vcCheckType]");
+                    sql.AppendLine("           ,[iCheckNum]");
+                    sql.AppendLine("           ,[vcCheckStatus]");
+                    sql.AppendLine("           ,[vcLabelStart]");
+                    sql.AppendLine("           ,[vcLabelEnd]");
+                    sql.AppendLine("           ,[vcUnlocker]");
+                    sql.AppendLine("           ,[dUnlockTime]");
+                    sql.AppendLine("           ,[vcSellNo]");
+                    sql.AppendLine("           ,[vcOperatorID]");
+                    sql.AppendLine("           ,[dOperatorTime]");
+                    sql.AppendLine("           ,[vcHostIp]");
+                    sql.AppendLine("           ,[packingcondition]");
+                    sql.AppendLine("           ,[vcPackingPlant]");
+                    sql.AppendLine("		   ,[vcDeleter]");
+                    sql.AppendLine("		   ,[dDeleteTime])");
+                    sql.AppendLine("select ");
+                    sql.AppendLine("			[vcZYType]");
+                    sql.AppendLine("           ,[vcBZPlant]");
+                    sql.AppendLine("           ,[vcInputNo]");
+                    sql.AppendLine("           ,[vcKBOrderNo]");
+                    sql.AppendLine("           ,[vcKBLFNo]");
+                    sql.AppendLine("           ,[vcPart_id]");
+                    sql.AppendLine("           ,[vcIOType]");
+                    sql.AppendLine("           ,[vcSupplier_id]");
+                    sql.AppendLine("           ,[vcSupplierGQ]");
+                    sql.AppendLine("           ,[dStart]");
+                    sql.AppendLine("           ,[dEnd]");
+                    sql.AppendLine("           ,[iQuantity]");
+                    sql.AppendLine("           ,[vcBZUnit]");
+                    sql.AppendLine("           ,[vcSHF]");
+                    sql.AppendLine("           ,[vcSR]");
+                    sql.AppendLine("           ,[vcCaseNo]");
+                    sql.AppendLine("           ,[vcBoxNo]");
+                    sql.AppendLine("           ,[vcSheBeiNo]");
+                    sql.AppendLine("           ,[vcCheckType]");
+                    sql.AppendLine("           ,[iCheckNum]");
+                    sql.AppendLine("           ,[vcCheckStatus]");
+                    sql.AppendLine("           ,[vcLabelStart]");
+                    sql.AppendLine("           ,[vcLabelEnd]");
+                    sql.AppendLine("           ,[vcUnlocker]");
+                    sql.AppendLine("           ,[dUnlockTime]");
+                    sql.AppendLine("           ,[vcSellNo]");
+                    sql.AppendLine("           ,[vcOperatorID]");
+                    sql.AppendLine("           ,[dOperatorTime]");
+                    sql.AppendLine("           ,[vcHostIp]");
+                    sql.AppendLine("           ,[packingcondition]");
+                    sql.AppendLine("           ,[vcPackingPlant]");
+                    sql.AppendLine("		   ,'"+strUserId+"'");
+                    sql.AppendLine("		   ,GETDATE()");
+                    sql.AppendLine("from TOperateSJ where iAutoId="+iAutoId+"");
+                    #endregion
+                    sql.AppendLine("delete from TOperateSJ where iAutoId=" + iAutoId + "  ");
                 }
                 if (sql.Length > 0)
                 {

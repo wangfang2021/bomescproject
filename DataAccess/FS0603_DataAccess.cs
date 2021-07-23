@@ -54,7 +54,10 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
+                //补丁
                 strSql.AppendLine("UPDATE [TSPMaster] SET vcMandOrder='0' WHERE vcMandOrder IS NULL");
+                strSql.AppendLine("UPDATE [TSPMaster] SET vcSupplierPacking='0' WHERE vcSupplierPacking IS NULL OR vcSupplierPacking=''");
+                //正文
                 strSql.AppendLine("SELECT distinct ISNULL(T1.vcChanges,'--') AS vcChanges_Value,");
                 strSql.AppendLine("		ISNULL(T6.vcName,'--') AS vcChanges_Name,");
                 strSql.AppendLine("		ISNULL(T1.vcPackingPlant,'--') AS vcPackingPlant_Value,");

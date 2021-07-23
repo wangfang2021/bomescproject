@@ -79,6 +79,7 @@ namespace BatchProcess
                 sql.AppendLine("		,vcOESP");
                 sql.AppendLine("		,vcStateFX");
                 sql.AppendLine("		,vcFXNO");
+                sql.AppendLine("		,vcPart_id_HK");
                 sql.AppendLine("		,vcOperatorID");
                 sql.AppendLine("		,dOperatorTime");
                 sql.AppendLine("		,vcSPISStatus)    ");
@@ -96,6 +97,7 @@ namespace BatchProcess
                 sql.AppendLine(",vcOESP");
                 sql.AppendLine(",vcStateFX");
                 sql.AppendLine(",vcFXNO ");
+                sql.AppendLine(",vcPart_id_HK ");
                 sql.AppendLine(",'" + strUserId+"'");
                 sql.AppendLine(",GETDATE()");
                 sql.AppendLine(",'0'    ");
@@ -115,6 +117,7 @@ namespace BatchProcess
                 sql.AppendLine("	,a2.vcOESP");
                 sql.AppendLine("	,a2.vcStateFX");
                 sql.AppendLine("	,a2.vcFXNO ");
+                sql.AppendLine("	,a2.vcPart_id_HK ");
                 sql.AppendLine("	from");
                 sql.AppendLine("(");
                 sql.AppendLine("	select vcPartId,vcSupplierId,MIN(dFromTime) as dFromTime,MAX(dToTime) as  dToTime");
@@ -123,7 +126,7 @@ namespace BatchProcess
                 sql.AppendLine("left join");
                 sql.AppendLine("(    ");
                 sql.AppendLine("	select t1.vcPartId,t1.dFromTime,t1.dToTime,t1.vcCarfamilyCode,t1.vcInOut,t1.vcHaoJiu,fzgc.发注工厂,    ");
-                sql.AppendLine("	t1.vcSupplierPacking,t1.vcSupplierId,t4.vcSupplierPlant,t1.vcPartENName,t1.vcOESP,t5.vcStateFX,t5.vcFXNO ");
+                sql.AppendLine("	t1.vcSupplierPacking,t1.vcSupplierId,t4.vcSupplierPlant,t1.vcPartENName,t1.vcOESP,t5.vcStateFX,t5.vcFXNO,t5.vcPart_id_HK ");
                 sql.AppendLine("	from ");
                 sql.AppendLine("	(select * from TSPMaster)t1    ");
                 sql.AppendLine("	left join ");
@@ -138,7 +141,7 @@ namespace BatchProcess
                 sql.AppendLine("	from TOutCode where vcCodeId='C010' and vcIsColum='0' and GETDATE() between vcValue3 and vcValue4        ");
                 sql.AppendLine("	)fzgc on t1.vcSupplierId=fzgc.供应商编号 and t4.vcSupplierPlant=fzgc.工区  ");
                 sql.AppendLine("	LEFT JOIN");
-                sql.AppendLine("	(SELECT vcPart_id,vcSupplier_id,vcFXNO,vcStateFX FROM TPrice where dPricebegin<>dPriceEnd)t5");
+                sql.AppendLine("	(SELECT vcPart_id,vcSupplier_id,vcPart_id_HK,vcFXNO,vcStateFX FROM TPrice where dPricebegin<>dPriceEnd)t5");
                 sql.AppendLine("	on t1.vcPartId=t5.vcPart_id and t1.vcSupplierId=t5.vcSupplier_id");
                 sql.AppendLine("");
                 sql.AppendLine(")a2 on a1.vcPartId=a2.vcPartId and a1.vcSupplierId=a2.vcSupplierId");
@@ -187,6 +190,7 @@ namespace BatchProcess
                 sql.AppendLine("	,vcOESP");
                 sql.AppendLine("	,vcStateFX");
                 sql.AppendLine("	,vcFXNO");
+                sql.AppendLine("	,vcPart_id_HK");
                 sql.AppendLine("	,vcOperatorID");
                 sql.AppendLine("	,dOperatorTime");
                 sql.AppendLine("	,vcSPISStatus)    ");
@@ -204,6 +208,7 @@ namespace BatchProcess
                 sql.AppendLine("		,t1.vcOESP");
                 sql.AppendLine("		,t1.vcStateFX");
                 sql.AppendLine("		,t1.vcFXNO");
+                sql.AppendLine("		,t1.vcPart_id_HK");
                 sql.AppendLine("		,t1.vcOperatorID");
                 sql.AppendLine("		,t1.dOperatorTime");
                 sql.AppendLine("		,t1.vcSPISStatus     ");
@@ -225,11 +230,20 @@ namespace BatchProcess
                 sql.AppendLine("	,t2.vcOESP=t1.vcOESP");
                 sql.AppendLine("	,t2.vcStateFX=t1.vcStateFX");
                 sql.AppendLine("	,t2.vcFXNO=t1.vcFXNO");
+                sql.AppendLine("	,t2.vcPart_id_HK=t1.vcPart_id_HK");
                 sql.AppendLine("	,t2.vcOperatorID=t1.vcOperatorID");
                 sql.AppendLine("	,t2.dOperatorTime=t1.dOperatorTime");
                 sql.AppendLine("from(select * from tCheckMethod_Master_temp)t1    ");
                 sql.AppendLine("inner join tCheckMethod_Master t2 on t1.vcPartId=t2.vcPartId and t1.vcSupplierId=t2.vcSupplierId    ");
                 sql.AppendLine("where t1.vcOperatorID='"+strUserId+"' ");
+                sql.AppendLine("");
+                sql.AppendLine("");
+                sql.AppendLine("update a set a.vcSPISStatus='3' from ");
+                sql.AppendLine("(select * from tCheckMethod_Master)a");
+                sql.AppendLine("left join");
+                sql.AppendLine("(select * from TSPISQf where vcTimeFrom<=CONVERT(varchar(10),GETDATE(),23) and vcTimeTo>=CONVERT(varchar(10),GETDATE(),23))b");
+                sql.AppendLine("on a.vcPartId=b.vcPartId and a.vcSupplierId=b.vcSupplierCode ");
+                sql.AppendLine("where b.LinId is not null");
 
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
@@ -275,7 +289,21 @@ namespace BatchProcess
                 sql.Append("left join TPackageMaster t2 on t1.vcPackingPlant=t2.vcPackingPlant and t1.vcPart_id=t2.vcPart_id    \n");
                 sql.Append("and t1.vcReceiver=t2.vcReceiver and t1.vcSupplierId=t2.vcSupplierId    \n");
                 sql.Append("where t2.iAutoId is not null and t1.vcOperatorID='" + strUserId + "'      \n");
-
+                //打个小补丁1
+                sql.AppendLine("update t2 set t2.dTimeFrom=t1.dFromTime,t2.dTimeTo=t1.dToTime");
+                sql.AppendLine("from (");
+                sql.AppendLine("	select * from TSPMaster where dFromTime=dToTime");
+                sql.AppendLine(")t1");
+                sql.AppendLine("inner join TPackageMaster t2 on t1.vcPackingPlant=t2.vcPackingPlant and t1.vcPartId=t2.vcPart_id ");
+                sql.AppendLine("and t1.vcReceiver=t2.vcReceiver and t1.vcSupplierId=t2.vcSupplierId");
+                //打个小补丁2
+                sql.AppendLine("delete t2");
+                sql.AppendLine("from (");
+                sql.AppendLine("	select * from TSPMaster where vcDelete='1'");
+                sql.AppendLine(")t1");
+                sql.AppendLine("inner join TPackageMaster t2 on t1.vcPackingPlant=t2.vcPackingPlant and t1.vcPartId=t2.vcPart_id ");
+                sql.AppendLine("and t1.vcReceiver=t2.vcReceiver and t1.vcSupplierId=t2.vcSupplierId");
+                
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)

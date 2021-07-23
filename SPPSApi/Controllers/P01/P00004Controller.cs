@@ -57,20 +57,17 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "该设备绑定打印机有误，请联系管理员设置。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0001", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "验证出荷打印机失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
-
-
 
         #region 出荷-初始化-尝试绑定Dock与叉车
         public string ValidateUserApi([FromBody] dynamic data)
@@ -108,18 +105,15 @@ namespace SPPSApi.Controllers.P01
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0002", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "获取信息失败!";
+                apiResult.data = "初始化绑定叉车与DOCK失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
-
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
         }
         #endregion
 
@@ -175,7 +169,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, "system");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0003", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "叉车与DOCK绑定失败";
                 apiResult.type = "LS";
@@ -225,7 +219,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0004", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "叉车与DOCK解绑失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -257,9 +251,9 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0005", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "获取出货数据失败";
+                apiResult.data = "查询出荷履历失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -285,7 +279,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "", ex, "system");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0006", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除箱号失败";
                 apiResult.type = "LS";
@@ -306,6 +300,8 @@ namespace SPPSApi.Controllers.P01
             LoginInfo loginInfo = getLoginByToken(strToken);
             string opearteId = loginInfo.UserId;
             ApiResult apiResult = new ApiResult();
+            int iXSNO_Lin = 0;
+            int iBSNO_Lin = 0;
             try
             {
                 string strRootPath = _webHostEnvironment.ContentRootPath;
@@ -329,7 +325,7 @@ namespace SPPSApi.Controllers.P01
                 string log_begin = "作业员:" + opearteId
                     + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     + "；作业内容:" + "出荷上传(begin)";
-                    //+ "；作业对象：" + caseNo + "";
+                //+ "；作业对象：" + caseNo + "";
                 new P00003_Logic().WriteLog(log_begin, path_begin);
                 #endregion
                 if (bian == "1")
@@ -409,6 +405,19 @@ namespace SPPSApi.Controllers.P01
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "装箱数据异常，确保出荷数据准确，请联系管理员处理后再试[B]。";
+                    apiResult.type = "LS";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable dtBoxCheck = dsDockInfo.Tables[2];
+                if (dtBoxCheck.Rows.Count > 0)
+                {
+                    string strBoxCheck = "";
+                    for (int i = 0; i < dtBoxCheck.Rows.Count; i++)
+                    {
+                        strBoxCheck = strBoxCheck + dtBoxCheck.Rows[i]["vcBoxNo"].ToString() + ",";
+                    }
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "箱号：" + strBoxCheck.Substring(0, strBoxCheck.Length - 1) + "不存在有效的装箱数据，请处理后再试。";
                     apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
@@ -562,328 +571,461 @@ namespace SPPSApi.Controllers.P01
                 DataTable dtSell_Tool_Temp = dsTableFromDB.Tables[4].Clone();
                 DataTable dtSell_Sum_Temp = dsTableFromDB.Tables[5].Clone();
                 DataTable dtOrder_Temp = dsTableFromDB.Tables[6].Clone();
-                //获取订单信息表
+                DataTable dtORD_INOUT_Temp = dsTableFromDB.Tables[8].Clone();
+
+                #region  订单信息消解 addrow-dtOperateSJ、dtOperateSJ_InOutput、dtOrder_Temp、dtORD_INOUT_Temp、dtSell、dtShipList
                 DataTable dtOrderInfo = dsTableFromDB.Tables[7];
-                foreach (DataRow drQuery in dtQuery.Rows)
+                for (int i = 0; i < dtDockInfo.Rows.Count; i++)
                 {
-                    DataTable dtDockInfo_clone = dtDockInfo.Clone();
-                    string strPart_id = drQuery["vcPart_id"].ToString();
-                    string strSHF = drQuery["vcSHF"].ToString();
-                    DataRow[] drDockInfo = dtDockInfo.Select("vcPart_id='" + strPart_id + "' and vcSHF='" + strSHF + "'");
-                    for (int i = 0; i < drDockInfo.Length; i++)
-                    {
-                        dtDockInfo_clone.ImportRow(drDockInfo[i]);
-                    }
-                    DataRow[] drOrderInfo = dtOrderInfo.Select("vcPartNo='" + strPart_id + "' and vcCpdcompany='" + strSHF + "'");
+                    //循环获取待入荷数据列表--品番别--合计统一消解
+                    string strPart_id = dtDockInfo.Rows[i]["vcPart_id"].ToString();
+                    string strKBOrderNo = dtDockInfo.Rows[i]["vcKBOrderNo"].ToString();
+                    string strKBLFNo = dtDockInfo.Rows[i]["vcKBLFNo"].ToString();
+                    string strSR = dtDockInfo.Rows[i]["vcSR"].ToString();
+                    string strInputNo = dtDockInfo.Rows[i]["vcInputNo"].ToString();
+                    string strCpdCompany = dtDockInfo.Rows[i]["vcSHF"].ToString();
+                    string strLabelStart = dtDockInfo.Rows[i]["vcLabelStart"].ToString();
+                    string strLabelEnd = dtDockInfo.Rows[i]["vcLabelEnd"].ToString();
+                    string strPriceTNPWithTax = dtDockInfo.Rows[i]["decPriceTNPWithTax"].ToString();
+                    //--入库量
+                    int iQuantity_rk = Convert.ToInt32(dtDockInfo.Rows[i]["iQuantity_rk"].ToString());
+                    //--本次出库量
+                    int iQuantity_bcck = Convert.ToInt32(dtDockInfo.Rows[i]["iQuantity_bcck"].ToString());
+                    int iSumQuantity = Convert.ToInt32(dtDockInfo.Rows[i]["iQuantity_bcck"].ToString());
+                    //根据品番别获取可消解订单列表列表排序为：品番、对象月、订单类型
+                    DataRow[] drOrderInfo = dtOrderInfo.Select("vcPartNo='" + strPart_id + "' and vcCpdcompany='" + strCpdCompany + "' and vcDock='" + strSR + "'");
+                    //获取指定品番的对象月列表
+                    //按照对象月内优先级消解
+                    DataTable dtOrderYM = new DataTable();
+                    dtOrderYM.Columns.Add("vcTargetYearMonth");
                     DataTable dtOrderInfo_check = dtOrderInfo.Clone();
                     for (int j = 0; j < drOrderInfo.Length; j++)
                     {
+                        string strTargetYearMonth = drOrderInfo[j]["vcTargetYearMonth"].ToString();
+                        if (dtOrderYM.Select("vcTargetYearMonth='" + strTargetYearMonth + "'").Length == 0)
+                        {
+                            DataRow drOrderYM = dtOrderYM.NewRow();
+                            drOrderYM["vcTargetYearMonth"] = strTargetYearMonth;
+                            dtOrderYM.Rows.Add(drOrderYM);
+                        }
                         dtOrderInfo_check.ImportRow(drOrderInfo[j]);
                     }
-                    for (int i = 0; i < dtDockInfo_clone.Rows.Count; i++)
+
+                    #region addrow-dtOperateSJ
+                    DataRow drOperateSJ_Temp = dtOperateSJ_Temp.NewRow();
+                    drOperateSJ_Temp["vcZYType"] = "S4";
+                    drOperateSJ_Temp["vcBZPlant"] = dtDockInfo.Rows[i]["vcBZPlant"].ToString();
+                    drOperateSJ_Temp["vcInputNo"] = strInputNo;
+                    drOperateSJ_Temp["vcKBOrderNo"] = strKBOrderNo;
+                    drOperateSJ_Temp["vcKBLFNo"] = strKBLFNo;
+                    drOperateSJ_Temp["vcPart_id"] = strPart_id;
+                    drOperateSJ_Temp["vcIOType"] = dtDockInfo.Rows[i]["vcIOType"].ToString();
+                    drOperateSJ_Temp["vcSupplier_id"] = dtDockInfo.Rows[i]["vcSupplier_id"].ToString();
+                    drOperateSJ_Temp["vcSupplierGQ"] = dtDockInfo.Rows[i]["vcSupplierGQ"].ToString();
+                    drOperateSJ_Temp["dStart"] = scanTime;
+                    //drOperateSJ_Temp["dEnd"] = string.Empty;
+                    drOperateSJ_Temp["iQuantity"] = iQuantity_bcck;
+                    drOperateSJ_Temp["vcBZUnit"] = dtDockInfo.Rows[i]["vcBZUnit"].ToString();
+                    drOperateSJ_Temp["vcSHF"] = dtDockInfo.Rows[i]["vcSHF"].ToString();
+                    drOperateSJ_Temp["vcSR"] = strSR;
+                    drOperateSJ_Temp["vcCaseNo"] = dtDockInfo.Rows[i]["vcCaseNo"].ToString();
+                    drOperateSJ_Temp["vcBoxNo"] = dtDockInfo.Rows[i]["vcBoxNo"].ToString();
+                    drOperateSJ_Temp["vcSheBeiNo"] = pointType;
+                    drOperateSJ_Temp["vcCheckType"] = dtDockInfo.Rows[i]["vcCheckType"].ToString();
+                    drOperateSJ_Temp["iCheckNum"] = dtDockInfo.Rows[i]["iCheckNum"].ToString();
+                    drOperateSJ_Temp["vcCheckStatus"] = dtDockInfo.Rows[i]["vcCheckStatus"].ToString();
+                    drOperateSJ_Temp["vcLabelStart"] = strLabelStart;
+                    drOperateSJ_Temp["vcLabelEnd"] = strLabelEnd;
+                    //drOperateSJ_Temp["vcUnlocker"] = string.Empty;
+                    //drOperateSJ_Temp["dUnlockTime"] = string.Empty;
+                    drOperateSJ_Temp["vcSellNo"] = string.Empty;
+                    drOperateSJ_Temp["vcOperatorID"] = opearteId;
+                    //drOperateSJ_Temp["dOperatorTime"] =string.Empty;
+                    drOperateSJ_Temp["vcHostIp"] = iP;
+                    drOperateSJ_Temp["packingcondition"] = dtDockInfo.Rows[i]["packingcondition"].ToString();
+                    //drOperateSJ_Temp["vcPackingPlant"] = dtDockInfo.Rows[i]["vcOrderPlant"].ToString();
+                    drOperateSJ_Temp["vcPackingPlant"] = dtDockInfo.Rows[i]["vcPackingPlant"].ToString();
+                    dtOperateSJ_Temp.Rows.Add(drOperateSJ_Temp);
+                    #endregion
+
+                    #region addrow-dtOperateSJ_InOutput
+                    DataRow drOperateSJ_InOutput_Temp = dtOperateSJ_InOutput_Temp.NewRow();
+                    drOperateSJ_InOutput_Temp["vcBZPlant"] = dtDockInfo.Rows[i]["vcBZPlant"].ToString();
+                    drOperateSJ_InOutput_Temp["vcSHF"] = strCpdCompany;
+                    drOperateSJ_InOutput_Temp["vcInputNo"] = strInputNo;
+                    drOperateSJ_InOutput_Temp["vcKBOrderNo"] = strKBOrderNo;
+                    drOperateSJ_InOutput_Temp["vcKBLFNo"] = strKBLFNo;
+                    drOperateSJ_InOutput_Temp["vcPart_id"] = strPart_id;
+                    drOperateSJ_InOutput_Temp["vcSR"] = strSR;
+                    //drOperateSJ_InOutput_Temp["iQuantity"] = string.Empty;
+                    //drOperateSJ_InOutput_Temp["iDBZ"] = string.Empty;
+                    //drOperateSJ_InOutput_Temp["iDZX"] = string.Empty;
+                    drOperateSJ_InOutput_Temp["iDCH"] = iQuantity_bcck;
+                    //drOperateSJ_InOutput_Temp["dInDate"] =  string.Empty;
+                    drOperateSJ_InOutput_Temp["vcOperatorID"] = opearteId;
+                    //drOperateSJ_InOutput_Temp["dOperatorTime"] = string.Empty;
+                    dtOperateSJ_InOutput_Temp.Rows.Add(drOperateSJ_InOutput_Temp);
+                    #endregion
+
+                    for (int ym = 0; ym < dtOrderYM.Rows.Count; ym++)
                     {
-                        #region addrow-dtOperateSJ
-                        DataRow drOperateSJ_Temp = dtOperateSJ_Temp.NewRow();
-                        drOperateSJ_Temp["vcZYType"] = "S4";
-                        drOperateSJ_Temp["vcBZPlant"] = dtDockInfo_clone.Rows[i]["vcBZPlant"].ToString();
-                        drOperateSJ_Temp["vcInputNo"] = dtDockInfo_clone.Rows[i]["vcInputNo"].ToString();
-                        drOperateSJ_Temp["vcKBOrderNo"] = dtDockInfo_clone.Rows[i]["vcKBOrderNo"].ToString();
-                        drOperateSJ_Temp["vcKBLFNo"] = dtDockInfo_clone.Rows[i]["vcKBLFNo"].ToString();
-                        drOperateSJ_Temp["vcPart_id"] = dtDockInfo_clone.Rows[i]["vcPart_id"].ToString();
-                        drOperateSJ_Temp["vcIOType"] = dtDockInfo_clone.Rows[i]["vcIOType"].ToString();
-                        drOperateSJ_Temp["vcSupplier_id"] = dtDockInfo_clone.Rows[i]["vcSupplier_id"].ToString();
-                        drOperateSJ_Temp["vcSupplierGQ"] = dtDockInfo_clone.Rows[i]["vcSupplierGQ"].ToString();
-                        drOperateSJ_Temp["dStart"] = scanTime;
-                        //drOperateSJ_Temp["dEnd"] = dtBoxMasterInfo.Rows[i]["vcLotid"].ToString();
-                        drOperateSJ_Temp["iQuantity"] = dtDockInfo_clone.Rows[i]["iQuantity_bcck"].ToString();
-                        drOperateSJ_Temp["vcBZUnit"] = dtDockInfo_clone.Rows[i]["vcBZUnit"].ToString();
-                        drOperateSJ_Temp["vcSHF"] = dtDockInfo_clone.Rows[i]["vcSHF"].ToString();
-                        drOperateSJ_Temp["vcSR"] = dtDockInfo_clone.Rows[i]["vcSR"].ToString();
-                        drOperateSJ_Temp["vcCaseNo"] = dtDockInfo_clone.Rows[i]["vcCaseNo"].ToString();
-                        drOperateSJ_Temp["vcBoxNo"] = dtDockInfo_clone.Rows[i]["vcBoxNo"].ToString();
-                        drOperateSJ_Temp["vcSheBeiNo"] = pointType;
-                        drOperateSJ_Temp["vcCheckType"] = dtDockInfo_clone.Rows[i]["vcCheckType"].ToString();
-                        drOperateSJ_Temp["iCheckNum"] = dtDockInfo_clone.Rows[i]["iCheckNum"].ToString();
-                        drOperateSJ_Temp["vcCheckStatus"] = dtDockInfo_clone.Rows[i]["vcCheckStatus"].ToString();
-                        drOperateSJ_Temp["vcLabelStart"] = dtDockInfo_clone.Rows[i]["vcLabelStart"].ToString();
-                        drOperateSJ_Temp["vcLabelEnd"] = dtDockInfo_clone.Rows[i]["vcLabelEnd"].ToString();
-                        //drOperateSJ_Temp["vcUnlocker"] = dtBoxMasterInfo.Rows[i]["vcLotid"].ToString();
-                        //drOperateSJ_Temp["dUnlockTime"] = dtBoxMasterInfo.Rows[i]["vcLotid"].ToString();
-                        //drOperateSJ_Temp["vcSellNo"] = dtBoxMasterInfo.Rows[i]["vcLotid"].ToString();
-                        drOperateSJ_Temp["vcOperatorID"] = opearteId;
-                        //drOperateSJ_Temp["dOperatorTime"] = dtBoxMasterInfo.Rows[i]["vcLotid"].ToString();
-                        drOperateSJ_Temp["vcHostIp"] = iP;
-                        drOperateSJ_Temp["packingcondition"] = dtDockInfo_clone.Rows[i]["packingcondition"].ToString();
-                        drOperateSJ_Temp["vcPackingPlant"] = dtDockInfo_clone.Rows[i]["vcOrderPlant"].ToString();
-                        //drOperateSJ_Temp["vcPackingPlant"] = dtDockInfo_clone.Rows[i]["vcPackingPlant"].ToString();
-                        dtOperateSJ_Temp.Rows.Add(drOperateSJ_Temp);
-                        #endregion
-
-                        #region addrow-dtOperateSJ_InOutput
-                        DataRow drOperateSJ_InOutput_Temp = dtOperateSJ_InOutput_Temp.NewRow();
-                        drOperateSJ_InOutput_Temp["vcBZPlant"] = dtDockInfo_clone.Rows[i]["vcBZPlant"].ToString();
-                        drOperateSJ_InOutput_Temp["vcSHF"] = dtDockInfo_clone.Rows[i]["vcSHF"].ToString();
-                        drOperateSJ_InOutput_Temp["vcInputNo"] = dtDockInfo_clone.Rows[i]["vcInputNo"].ToString();
-                        drOperateSJ_InOutput_Temp["vcKBOrderNo"] = dtDockInfo_clone.Rows[i]["vcKBOrderNo"].ToString();
-                        drOperateSJ_InOutput_Temp["vcKBLFNo"] = dtDockInfo_clone.Rows[i]["vcKBLFNo"].ToString();
-                        drOperateSJ_InOutput_Temp["vcPart_id"] = dtDockInfo_clone.Rows[i]["vcPart_id"].ToString();
-                        drOperateSJ_InOutput_Temp["vcSR"] = dtDockInfo_clone.Rows[i]["vcSR"].ToString();
-                        //drOperateSJ_InOutput_Temp["iQuantity"] = dtDockInfo_clone.Rows[i][""].ToString();
-                        //drOperateSJ_InOutput_Temp["iDBZ"] = dtDockInfo_clone.Rows[i][""].ToString();
-                        //drOperateSJ_InOutput_Temp["iDZX"] = dtDockInfo_clone.Rows[i][""].ToString();
-                        drOperateSJ_InOutput_Temp["iDCH"] = dtDockInfo_clone.Rows[i]["iQuantity_bcck"].ToString();
-                        //drOperateSJ_InOutput_Temp["dInDate"] = dtDockInfo_clone.Rows[i][""].ToString();
-                        drOperateSJ_InOutput_Temp["vcOperatorID"] = opearteId;
-                        //drOperateSJ_InOutput_Temp["dOperatorTime"] = dtDockInfo_clone.Rows[i][""].ToString();
-                        dtOperateSJ_InOutput_Temp.Rows.Add(drOperateSJ_InOutput_Temp);
-                        #endregion
-
-                        int iSumQuantity = Convert.ToInt32(dtDockInfo_clone.Rows[i]["iQuantity_bcck"].ToString());
-                        for (int j = 0; j < dtOrderInfo_check.Rows.Count; j++)
+                        string strYM_check = dtOrderYM.Rows[ym]["vcTargetYearMonth"].ToString();
+                        DataRow[] drOrderInfo_check = dtOrderInfo_check.Select("vcTargetYearMonth='" + strYM_check + "'");
+                        for (int xj = 1; xj <= 31; xj++)
                         {
-                            int iResultQtyDailySum = 0;
-                            string iAutoId = dtOrderInfo_check.Rows[j]["iAutoId"].ToString();
-                            string targetMonth = dtOrderInfo_check.Rows[j]["vcTargetYearMonth"].ToString();
-                            string orderType = dtOrderInfo_check.Rows[j]["vcOrderType"].ToString();
-                            string orderNo = dtOrderInfo_check.Rows[j]["vcOrderNo"].ToString();
-                            string seqNo = dtOrderInfo_check.Rows[j]["vcSeqno"].ToString();
-                            #region 减订单
-                            #region getorder
-                            int d1 = int.Parse(dtOrderInfo_check.Rows[j]["day1"].ToString());
-                            int d2 = int.Parse(dtOrderInfo_check.Rows[j]["day2"].ToString());
-                            int d3 = int.Parse(dtOrderInfo_check.Rows[j]["day3"].ToString());
-                            int d4 = int.Parse(dtOrderInfo_check.Rows[j]["day4"].ToString());
-                            int d5 = int.Parse(dtOrderInfo_check.Rows[j]["day5"].ToString());
-                            int d6 = int.Parse(dtOrderInfo_check.Rows[j]["day6"].ToString());
-                            int d7 = int.Parse(dtOrderInfo_check.Rows[j]["day7"].ToString());
-                            int d8 = int.Parse(dtOrderInfo_check.Rows[j]["day8"].ToString());
-                            int d9 = int.Parse(dtOrderInfo_check.Rows[j]["day9"].ToString());
-                            int d10 = int.Parse(dtOrderInfo_check.Rows[j]["day10"].ToString());
-                            int d11 = int.Parse(dtOrderInfo_check.Rows[j]["day11"].ToString());
-                            int d12 = int.Parse(dtOrderInfo_check.Rows[j]["day12"].ToString());
-                            int d13 = int.Parse(dtOrderInfo_check.Rows[j]["day13"].ToString());
-                            int d14 = int.Parse(dtOrderInfo_check.Rows[j]["day14"].ToString());
-                            int d15 = int.Parse(dtOrderInfo_check.Rows[j]["day15"].ToString());
-                            int d16 = int.Parse(dtOrderInfo_check.Rows[j]["day16"].ToString());
-                            int d17 = int.Parse(dtOrderInfo_check.Rows[j]["day17"].ToString());
-                            int d18 = int.Parse(dtOrderInfo_check.Rows[j]["day18"].ToString());
-                            int d19 = int.Parse(dtOrderInfo_check.Rows[j]["day19"].ToString());
-                            int d20 = int.Parse(dtOrderInfo_check.Rows[j]["day20"].ToString());
-                            int d21 = int.Parse(dtOrderInfo_check.Rows[j]["day21"].ToString());
-                            int d22 = int.Parse(dtOrderInfo_check.Rows[j]["day22"].ToString());
-                            int d23 = int.Parse(dtOrderInfo_check.Rows[j]["day23"].ToString());
-                            int d24 = int.Parse(dtOrderInfo_check.Rows[j]["day24"].ToString());
-                            int d25 = int.Parse(dtOrderInfo_check.Rows[j]["day25"].ToString());
-                            int d26 = int.Parse(dtOrderInfo_check.Rows[j]["day26"].ToString());
-                            int d27 = int.Parse(dtOrderInfo_check.Rows[j]["day27"].ToString());
-                            int d28 = int.Parse(dtOrderInfo_check.Rows[j]["day28"].ToString());
-                            int d29 = int.Parse(dtOrderInfo_check.Rows[j]["day29"].ToString());
-                            int d30 = int.Parse(dtOrderInfo_check.Rows[j]["day30"].ToString());
-                            int d31 = int.Parse(dtOrderInfo_check.Rows[j]["day31"].ToString());
-                            int[] array = { d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19, d20, d21, d22, d23, d24, d25, d26, d27, d28, d29, d30, d31 };
-                            int[] newarray = new int[31];
-                            #endregion
-                            for (int l = 0; l < array.Length; l++)
+                            for (int day = 0; day < drOrderInfo_check.Length; day++)
                             {
-                                int iJDayNum = 0;
-                                if (iSumQuantity - array[l] > 0)
+                                string cColumns_day = "day" + xj.ToString();
+                                string cColumns_daily = "vcResultQtyDaily" + xj.ToString();
+                                int iRows_xj = Convert.ToInt32(drOrderInfo_check[day]["iRows"].ToString());
+                                string iAutoId_xj = drOrderInfo_check[day]["iAutoId"].ToString();
+                                string strOrderNo_xj = drOrderInfo_check[day]["vcOrderNo"].ToString();
+                                string strSeqno_xj = drOrderInfo_check[day]["vcSeqno"].ToString();
+                                int iDayNum_kxj = Convert.ToInt32(drOrderInfo_check[day][cColumns_day].ToString());
+
+                                if (iSumQuantity - iDayNum_kxj > 0)
                                 {
-                                    newarray[l] = array[l];
-                                    iJDayNum = iSumQuantity - array[l];
-                                    iSumQuantity = iJDayNum;
-                                    dtOrderInfo_check.Rows[j][l + 7 + 1] = 0;
+                                    //未消解完毕 1.记录待追加的已入荷数-->更新数据库 2.继续下一次消解
+                                    if (iDayNum_kxj != 0)
+                                    {
+                                        #region addrows--插入待影响数据库表的订单信息
+                                        DataRow drOrder_Temp = dtOrder_Temp.NewRow();
+                                        drOrder_Temp["iAutoId"] = iAutoId_xj;
+                                        drOrder_Temp[cColumns_daily] = iDayNum_kxj;
+                                        drOrder_Temp["vcResultQtyDailySum"] = iDayNum_kxj;
+                                        dtOrder_Temp.Rows.Add(drOrder_Temp);
+                                        #endregion
+
+                                        #region 出荷看板消解订单记录履历
+                                        DataRow drORD_INOUT_Temp = dtORD_INOUT_Temp.NewRow();
+                                        drORD_INOUT_Temp["vcPart_id"] = strPart_id;
+                                        drORD_INOUT_Temp["vcKBOrderNo"] = strKBOrderNo;
+                                        drORD_INOUT_Temp["vcKBLFNo"] = strKBLFNo;
+                                        drORD_INOUT_Temp["vcSR"] = strSR;
+                                        drORD_INOUT_Temp["vcType"] = "OUT";
+                                        drORD_INOUT_Temp["iQuantity"] = iQuantity_bcck;
+                                        drORD_INOUT_Temp["vcOrderNo"] = strOrderNo_xj;
+                                        drORD_INOUT_Temp["vcSeqno"] = strSeqno_xj;
+                                        drORD_INOUT_Temp["iDay"] = xj;
+                                        drORD_INOUT_Temp["iOrderNum_Xj"] = iDayNum_kxj;
+                                        dtORD_INOUT_Temp.Rows.Add(drORD_INOUT_Temp);
+                                        #endregion
+
+                                        #region addrow-dtSell销售表
+                                        DataRow drSell_Temp = dtSell_Temp.NewRow();
+                                        //drSell_Temp["dHosDate"] = string.Empty;
+                                        //drSell_Temp["vcBanZhi"] = string.Empty;
+                                        //drSell_Temp["vcBianCi"] = string.Empty;
+                                        //drSell_Temp["vcSellNo"] = string.Empty;
+                                        drSell_Temp["vcTruckNo"] = truckNo;
+                                        drSell_Temp["vcSHF"] = strCpdCompany;
+                                        drSell_Temp["vcInputNo"] = strInputNo;
+                                        drSell_Temp["vcPart_id"] = strPart_id;
+                                        drSell_Temp["vcOrderNo"] = strOrderNo_xj;
+                                        drSell_Temp["vcLianFanNo"] = strSeqno_xj;
+                                        //drSell_Temp["vcInvoiceNo"] = string.Empty;//截位销售号
+                                        drSell_Temp["vcCaseNo"] = dtDockInfo.Rows[i]["vcCaseNo"].ToString();
+                                        drSell_Temp["vcBoxNo"] = dtDockInfo.Rows[i]["vcBoxNo"].ToString();
+                                        drSell_Temp["vcPartsNameEN"] = dtDockInfo.Rows[i]["vcPartENName"].ToString();
+                                        drSell_Temp["iQuantity"] = iDayNum_kxj;
+                                        drSell_Temp["decPriceWithTax"] = strPriceTNPWithTax;
+                                        drSell_Temp["decMoney"] = (iDayNum_kxj * Convert.ToDecimal(strPriceTNPWithTax)).ToString("#0.00");
+                                        drSell_Temp["vcOperatorID"] = opearteId;
+                                        //drSell_Temp["dOperatorTime"] = string.Empty;
+                                        drSell_Temp["vcYinQuType"] = strYinQuType;
+                                        //drSell_Temp["vcSender"] = string.Empty;
+                                        drSell_Temp["vcLabelStart"] = strLabelStart;
+                                        drSell_Temp["vcLabelEnd"] = strLabelEnd;
+                                        drSell_Temp["vcSupplier_id"] = dtDockInfo.Rows[i]["vcSupplier_id"].ToString();
+                                        //drSell_Temp["vcFzgc"] = dtDockInfo.Rows[i]["vcOrderPlant"].ToString();
+                                        drSell_Temp["vcFzgc"] = dtDockInfo.Rows[i]["vcPackingPlant"].ToString();
+                                        dtSell_Temp.Rows.Add(drSell_Temp);
+                                        #endregion
+
+                                        #region addrow-dtShipList发货明细
+                                        DataRow drShipList_Temp = dtShipList_Temp.NewRow();
+                                        drShipList_Temp["vcPackingspot"] = dtDockInfo.Rows[i]["vcBZPlant"].ToString();
+                                        drShipList_Temp["vcSupplier"] = dtDockInfo.Rows[i]["vcSupplier_id"].ToString();
+                                        drShipList_Temp["vcCpdcompany"] = strCpdCompany;
+                                        //drShipList_Temp["vcControlno"] = string.Empty;//销售单号
+                                        drShipList_Temp["vcInputNo"] = strInputNo;
+                                        drShipList_Temp["vcPart_id"] = strPart_id;
+                                        drShipList_Temp["vcOrderno"] = strOrderNo_xj;
+                                        drShipList_Temp["vcSeqno"] = strSeqno_xj;
+                                        //drShipList_Temp["vcInvoiceno"] = string.Empty;
+                                        drShipList_Temp["vcPartsnamechn"] = dtDockInfo.Rows[i]["vcPartNameCn"].ToString();
+                                        drShipList_Temp["vcPartsnameen"] = dtDockInfo.Rows[i]["vcPartENName"].ToString();
+                                        drShipList_Temp["vcShippingqty"] = iDayNum_kxj;
+                                        drShipList_Temp["vcCostwithtaxes"] = strPriceTNPWithTax;
+                                        drShipList_Temp["vcPrice"] = (iDayNum_kxj * Convert.ToDecimal(strPriceTNPWithTax)).ToString("#0.00");
+                                        drShipList_Temp["iNocount"] = 0;
+                                        drShipList_Temp["vcCaseNo"] = dtDockInfo.Rows[i]["vcCaseNo"].ToString();
+                                        drShipList_Temp["vcBoxNo"] = dtDockInfo.Rows[i]["vcBoxNo"].ToString();
+                                        //drShipList_Temp["vcProgramfrom"] = string.Empty;
+                                        //drShipList_Temp["vcComputernm"] = string.Empty;
+                                        //drShipList_Temp["vcPackcode"] = string.Empty;
+                                        //drShipList_Temp["vcCompany"] = string.Empty;
+                                        drShipList_Temp["vcHostip"] = iP;
+                                        drShipList_Temp["vcOperatorID"] = opearteId;
+                                        //drShipList_Temp["dOperatorTime"] = string.Empty;
+                                        //drShipList_Temp["dFirstPrintTime"] = string.Empty;
+                                        //drShipList_Temp["dLatelyPrintTime"] = string.Empty;
+                                        dtShipList_Temp.Rows.Add(drShipList_Temp);
+                                        #endregion
+
+                                        #region 对数据源进行可出荷量修改
+                                        dtOrderInfo.Rows[iRows_xj][cColumns_day] = 0;
+                                        #endregion
+                                    }
+                                    iSumQuantity = iSumQuantity - iDayNum_kxj;//剩余待消解出荷数
                                 }
                                 else
                                 {
-                                    dtOrderInfo_check.Rows[j][l + 7 + 1] = array[l] - iSumQuantity;
-                                    newarray[l] = iSumQuantity;
+                                    //消解完毕 1.记录待追加的已出荷数-->更新数据库 2.结束本次消解
+                                    if (iSumQuantity != 0)
+                                    {
+                                        #region addrows--插入待影响数据库表的订单信息
+                                        DataRow drOrder_Temp = dtOrder_Temp.NewRow();
+                                        drOrder_Temp["iAutoId"] = iAutoId_xj;
+                                        drOrder_Temp[cColumns_daily] = iSumQuantity;
+                                        drOrder_Temp["vcResultQtyDailySum"] = iSumQuantity;
+                                        dtOrder_Temp.Rows.Add(drOrder_Temp);
+                                        #endregion
+
+                                        #region 出荷看板消解订单记录履历
+                                        DataRow drORD_INOUT_Temp = dtORD_INOUT_Temp.NewRow();
+                                        drORD_INOUT_Temp["vcPart_id"] = strPart_id;
+                                        drORD_INOUT_Temp["vcKBOrderNo"] = strKBOrderNo;
+                                        drORD_INOUT_Temp["vcKBLFNo"] = strKBLFNo;
+                                        drORD_INOUT_Temp["vcSR"] = strSR;
+                                        drORD_INOUT_Temp["vcType"] = "OUT";
+                                        drORD_INOUT_Temp["iQuantity"] = iQuantity_bcck;
+                                        drORD_INOUT_Temp["vcOrderNo"] = strOrderNo_xj;
+                                        drORD_INOUT_Temp["vcSeqno"] = strSeqno_xj;
+                                        drORD_INOUT_Temp["iDay"] = xj;
+                                        drORD_INOUT_Temp["iOrderNum_Xj"] = iSumQuantity;
+                                        dtORD_INOUT_Temp.Rows.Add(drORD_INOUT_Temp);
+                                        #endregion
+
+                                        #region addrow-dtSell销售表
+                                        DataRow drSell_Temp = dtSell_Temp.NewRow();
+                                        //drSell_Temp["dHosDate"] = string.Empty;
+                                        //drSell_Temp["vcBanZhi"] = string.Empty;
+                                        //drSell_Temp["vcBianCi"] = string.Empty;
+                                        //drSell_Temp["vcSellNo"] = string.Empty;
+                                        drSell_Temp["vcTruckNo"] = truckNo;
+                                        drSell_Temp["vcSHF"] = strCpdCompany;
+                                        drSell_Temp["vcInputNo"] = strInputNo;
+                                        drSell_Temp["vcPart_id"] = strPart_id;
+                                        drSell_Temp["vcOrderNo"] = strOrderNo_xj;
+                                        drSell_Temp["vcLianFanNo"] = strSeqno_xj;
+                                        //drSell_Temp["vcInvoiceNo"] = string.Empty;//截位销售号
+                                        drSell_Temp["vcCaseNo"] = dtDockInfo.Rows[i]["vcCaseNo"].ToString();
+                                        drSell_Temp["vcBoxNo"] = dtDockInfo.Rows[i]["vcBoxNo"].ToString();
+                                        drSell_Temp["vcPartsNameEN"] = dtDockInfo.Rows[i]["vcPartENName"].ToString();
+                                        drSell_Temp["iQuantity"] = iSumQuantity;
+                                        drSell_Temp["decPriceWithTax"] = strPriceTNPWithTax;
+                                        drSell_Temp["decMoney"] = (iSumQuantity * Convert.ToDecimal(strPriceTNPWithTax)).ToString("#0.00");
+                                        drSell_Temp["vcOperatorID"] = opearteId;
+                                        //drSell_Temp["dOperatorTime"] = string.Empty;
+                                        drSell_Temp["vcYinQuType"] = strYinQuType;
+                                        //drSell_Temp["vcSender"] = string.Empty;
+                                        drSell_Temp["vcLabelStart"] = strLabelStart;
+                                        drSell_Temp["vcLabelEnd"] = strLabelEnd;
+                                        drSell_Temp["vcSupplier_id"] = dtDockInfo.Rows[i]["vcSupplier_id"].ToString();
+                                        //drSell_Temp["vcFzgc"] = string.Empty;
+                                        drSell_Temp["vcFzgc"] = dtDockInfo.Rows[i]["vcPackingPlant"].ToString();
+                                        dtSell_Temp.Rows.Add(drSell_Temp);
+                                        #endregion
+
+                                        #region addrow-dtShipList发货明细
+                                        DataRow drShipList_Temp = dtShipList_Temp.NewRow();
+                                        drShipList_Temp["vcPackingspot"] = dtDockInfo.Rows[i]["vcBZPlant"].ToString();
+                                        drShipList_Temp["vcSupplier"] = dtDockInfo.Rows[i]["vcSupplier_id"].ToString();
+                                        drShipList_Temp["vcCpdcompany"] = strCpdCompany;
+                                        //drShipList_Temp["vcControlno"] = string.Empty;//销售单号
+                                        drShipList_Temp["vcInputNo"] = strInputNo;
+                                        drShipList_Temp["vcPart_id"] = strPart_id;
+                                        drShipList_Temp["vcOrderno"] = strOrderNo_xj;
+                                        drShipList_Temp["vcSeqno"] = strSeqno_xj;
+                                        //drShipList_Temp["vcInvoiceno"] = string.Empty;
+                                        drShipList_Temp["vcPartsnamechn"] = dtDockInfo.Rows[i]["vcPartNameCn"].ToString();
+                                        drShipList_Temp["vcPartsnameen"] = dtDockInfo.Rows[i]["vcPartENName"].ToString();
+                                        drShipList_Temp["vcShippingqty"] = iSumQuantity;
+                                        drShipList_Temp["vcCostwithtaxes"] = strPriceTNPWithTax;
+                                        drShipList_Temp["vcPrice"] = (iSumQuantity * Convert.ToDecimal(strPriceTNPWithTax)).ToString("#0.00");
+                                        drShipList_Temp["iNocount"] = 0;
+                                        drShipList_Temp["vcCaseNo"] = dtDockInfo.Rows[i]["vcCaseNo"].ToString();
+                                        drShipList_Temp["vcBoxNo"] = dtDockInfo.Rows[i]["vcBoxNo"].ToString();
+                                        //drShipList_Temp["vcProgramfrom"] = string.Empty;
+                                        //drShipList_Temp["vcComputernm"] = string.Empty;
+                                        //drShipList_Temp["vcPackcode"] = string.Empty;
+                                        //drShipList_Temp["vcCompany"] = string.Empty;
+                                        drShipList_Temp["vcHostip"] = iP;
+                                        drShipList_Temp["vcOperatorID"] = opearteId;
+                                        //drShipList_Temp["dOperatorTime"] = string.Empty;
+                                        //drShipList_Temp["dFirstPrintTime"] = string.Empty;
+                                        //drShipList_Temp["dLatelyPrintTime"] = string.Empty;
+                                        dtShipList_Temp.Rows.Add(drShipList_Temp);
+                                        #endregion
+
+                                        #region 对数据源进行可出荷量修改
+                                        dtOrderInfo.Rows[iRows_xj][cColumns_day] = Convert.ToInt32(dtOrderInfo.Rows[iRows_xj][cColumns_day]) - iSumQuantity;
+                                        #endregion
+                                    }
                                     iSumQuantity = 0;
-                                    break;
                                 }
+                                if (iSumQuantity == 0)
+                                    break;
                             }
-                            #endregion
-                            for (int k = 0; k < newarray.Length; k++)
-                            {
-                                iResultQtyDailySum += newarray[k];
-                            }
-
-                            #region addrows-dtOrder
-                            DataRow drOrder_Temp = dtOrder_Temp.NewRow();
-                            drOrder_Temp["iAutoId"] = iAutoId;
-                            drOrder_Temp["vcResultQtyDaily1"] = newarray[0];
-                            drOrder_Temp["vcResultQtyDaily2"] = newarray[1];
-                            drOrder_Temp["vcResultQtyDaily3"] = newarray[2];
-                            drOrder_Temp["vcResultQtyDaily4"] = newarray[3];
-                            drOrder_Temp["vcResultQtyDaily5"] = newarray[4];
-                            drOrder_Temp["vcResultQtyDaily6"] = newarray[5];
-                            drOrder_Temp["vcResultQtyDaily7"] = newarray[6];
-                            drOrder_Temp["vcResultQtyDaily8"] = newarray[7];
-                            drOrder_Temp["vcResultQtyDaily9"] = newarray[8];
-                            drOrder_Temp["vcResultQtyDaily10"] = newarray[9];
-                            drOrder_Temp["vcResultQtyDaily11"] = newarray[10];
-                            drOrder_Temp["vcResultQtyDaily12"] = newarray[11];
-                            drOrder_Temp["vcResultQtyDaily13"] = newarray[12];
-                            drOrder_Temp["vcResultQtyDaily14"] = newarray[13];
-                            drOrder_Temp["vcResultQtyDaily15"] = newarray[14];
-                            drOrder_Temp["vcResultQtyDaily16"] = newarray[15];
-                            drOrder_Temp["vcResultQtyDaily17"] = newarray[16];
-                            drOrder_Temp["vcResultQtyDaily18"] = newarray[17];
-                            drOrder_Temp["vcResultQtyDaily19"] = newarray[18];
-                            drOrder_Temp["vcResultQtyDaily20"] = newarray[19];
-                            drOrder_Temp["vcResultQtyDaily21"] = newarray[20];
-                            drOrder_Temp["vcResultQtyDaily22"] = newarray[21];
-                            drOrder_Temp["vcResultQtyDaily23"] = newarray[22];
-                            drOrder_Temp["vcResultQtyDaily24"] = newarray[23];
-                            drOrder_Temp["vcResultQtyDaily25"] = newarray[24];
-                            drOrder_Temp["vcResultQtyDaily26"] = newarray[25];
-                            drOrder_Temp["vcResultQtyDaily27"] = newarray[26];
-                            drOrder_Temp["vcResultQtyDaily28"] = newarray[27];
-                            drOrder_Temp["vcResultQtyDaily29"] = newarray[28];
-                            drOrder_Temp["vcResultQtyDaily30"] = newarray[29];
-                            drOrder_Temp["vcResultQtyDaily31"] = newarray[30];
-                            drOrder_Temp["vcResultQtyDailySum"] = iResultQtyDailySum;
-                            dtOrder_Temp.Rows.Add(drOrder_Temp);
-                            #endregion
-
-                            if (iResultQtyDailySum > 0)
-                            {
-                                #region addrow-dtSell
-                                DataRow drSell_Temp = dtSell_Temp.NewRow();
-                            //drSell_Temp["dHosDate"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            //drSell_Temp["vcBanZhi"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            //drSell_Temp["vcBianCi"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            //drSell_Temp["vcSellNo"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            drSell_Temp["vcTruckNo"] = truckNo;
-                            drSell_Temp["vcSHF"] = dtDockInfo_clone.Rows[i]["vcSHF"].ToString();
-                            drSell_Temp["vcPart_id"] = dtDockInfo_clone.Rows[i]["vcPart_id"].ToString();
-                            drSell_Temp["vcOrderNo"] = orderNo;
-                            drSell_Temp["vcLianFanNo"] = seqNo;
-                            //drSell_Temp["vcInvoiceNo"] = dtDockInfo_clone.Rows[i][""].ToString();//截位销售号
-                            drSell_Temp["vcCaseNo"] = dtDockInfo_clone.Rows[i]["vcCaseNo"].ToString();
-                            drSell_Temp["vcBoxNo"] = dtDockInfo_clone.Rows[i]["vcBoxNo"].ToString();
-                            drSell_Temp["vcPartsNameEN"] = dtDockInfo_clone.Rows[i]["vcPartENName"].ToString();
-                            drSell_Temp["iQuantity"] = iResultQtyDailySum;
-                            drSell_Temp["decPriceWithTax"] = dtDockInfo_clone.Rows[i]["decPriceTNPWithTax"].ToString();
-                            drSell_Temp["decMoney"] = (iResultQtyDailySum * Convert.ToDecimal(dtDockInfo_clone.Rows[i]["decPriceTNPWithTax"].ToString())).ToString("#0.00");
-                            drSell_Temp["vcOperatorID"] = opearteId;
-                            //drSell_Temp["dOperatorTime"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            drSell_Temp["vcYinQuType"] = strYinQuType;
-                            //drSell_Temp["vcSender"] = dtDockInfo_clone.Rows[i][""].ToString();
-                            drSell_Temp["vcLabelStart"] = dtDockInfo_clone.Rows[i]["vcLabelStart"].ToString();
-                            drSell_Temp["vcLabelEnd"] = dtDockInfo_clone.Rows[i]["vcLabelEnd"].ToString();
-                            drSell_Temp["vcSupplier_id"] = dtDockInfo_clone.Rows[i]["vcSupplier_id"].ToString();
-                            drSell_Temp["vcFzgc"] = dtDockInfo_clone.Rows[i]["vcOrderPlant"].ToString();
-                            dtSell_Temp.Rows.Add(drSell_Temp);
-                            #endregion
-                            
-                                #region addrow-dtShipList
-                                DataRow drShipList_Temp = dtShipList_Temp.NewRow();
-                                drShipList_Temp["vcPackingspot"] = dtDockInfo_clone.Rows[i]["vcBZPlant"].ToString();
-                                drShipList_Temp["vcSupplier"] = dtDockInfo_clone.Rows[i]["vcSupplier_id"].ToString();
-                                drShipList_Temp["vcCpdcompany"] = dtDockInfo_clone.Rows[i]["vcSHF"].ToString();
-                                //drShipList_Temp["vcControlno"] = dtDockInfo_clone.Rows[i][""].ToString();//销售单号
-                                drShipList_Temp["vcPart_id"] = dtDockInfo_clone.Rows[i]["vcPart_id"].ToString();
-                                drShipList_Temp["vcOrderno"] = orderNo;
-                                drShipList_Temp["vcSeqno"] = seqNo;
-                                //drShipList_Temp["vcInvoiceno"] = dtDockInfo_clone.Rows[i][""].ToString();
-                                drShipList_Temp["vcPartsnamechn"] = dtDockInfo_clone.Rows[i]["vcPartNameCn"].ToString();
-                                drShipList_Temp["vcPartsnameen"] = dtDockInfo_clone.Rows[i]["vcPartENName"].ToString();
-                                drShipList_Temp["vcShippingqty"] = iResultQtyDailySum;
-                                drShipList_Temp["vcCostwithtaxes"] = dtDockInfo_clone.Rows[i]["decPriceTNPWithTax"].ToString();
-                                drShipList_Temp["vcPrice"] = (iResultQtyDailySum * Convert.ToDecimal(dtDockInfo_clone.Rows[i]["decPriceTNPWithTax"].ToString())).ToString("#0.00");
-                                drShipList_Temp["iNocount"] = 0;
-                                drShipList_Temp["vcCaseNo"] = dtDockInfo_clone.Rows[i]["vcCaseNo"].ToString();
-                                drShipList_Temp["vcBoxNo"] = dtDockInfo_clone.Rows[i]["vcBoxNo"].ToString();
-                                //drShipList_Temp["vcProgramfrom"] = dtDockInfo_clone.Rows[i][""].ToString();
-                                //drShipList_Temp["vcComputernm"] = dtDockInfo_clone.Rows[i][""].ToString();
-                                //drShipList_Temp["vcPackcode"] = dtDockInfo_clone.Rows[i][""].ToString();
-                                //drShipList_Temp["vcCompany"] = dtDockInfo_clone.Rows[i][""].ToString();
-                                drShipList_Temp["vcHostip"] = iP;
-                                drShipList_Temp["vcOperatorID"] = opearteId;
-                                //drShipList_Temp["dOperatorTime"] = dtDockInfo_clone.Rows[i][""].ToString();
-                                //drShipList_Temp["dFirstPrintTime"] = dtDockInfo_clone.Rows[i][""].ToString();
-                                //drShipList_Temp["dLatelyPrintTime"] = dtDockInfo_clone.Rows[i][""].ToString();
-                                dtShipList_Temp.Rows.Add(drShipList_Temp);
-                                #endregion
-                            }
-
                             if (iSumQuantity == 0)
                                 break;
                         }
+                        if (iSumQuantity == 0)
+                            break;
                     }
+                }
+                #endregion
+
+                for (int i = 0; i < dtOrder_Temp.Rows.Count; i++)
+                {
+                    #region 设置订单为空的数据
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily1"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily1"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily2"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily2"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily3"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily3"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily4"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily4"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily5"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily5"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily6"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily6"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily7"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily7"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily8"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily8"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily9"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily9"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily10"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily10"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily11"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily11"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily12"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily12"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily13"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily13"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily14"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily14"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily15"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily15"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily16"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily16"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily17"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily17"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily18"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily18"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily19"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily19"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily20"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily20"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily21"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily21"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily22"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily22"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily23"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily23"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily24"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily24"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily25"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily25"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily26"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily26"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily27"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily27"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily28"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily28"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily29"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily29"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily30"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily30"] = "0";
+                    if (dtOrder_Temp.Rows[i]["vcResultQtyDaily31"].ToString() == "")
+                        dtOrder_Temp.Rows[i]["vcResultQtyDaily31"] = "0";
+                    #endregion
                 }
 
                 #region addrow-dtSell_Sum
                 DataRow drSell_Sum_Temp = dtSell_Sum_Temp.NewRow();
-                //drSell_Sum_Temp["vcDate"] = dtDockInfo_clone.Rows[i][""].ToString();
-                //drSell_Sum_Temp["vcBanZhi"] = dtDockInfo_clone.Rows[i][""].ToString();
-                //drSell_Sum_Temp["vcBianCi"] = dtDockInfo_clone.Rows[i][""].ToString();
-                //drSell_Sum_Temp["vcSellNo"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Sum_Temp["vcDate"] = string.Empty;
+                //drSell_Sum_Temp["vcBanZhi"] = string.Empty;
+                //drSell_Sum_Temp["vcBianCi"] = string.Empty;
+                //drSell_Sum_Temp["vcSellNo"] = string.Empty;
                 drSell_Sum_Temp["vcTruckNo"] = truckNo;
                 drSell_Sum_Temp["iToolQuantity"] = caseSum;
                 drSell_Sum_Temp["vcYinQuType"] = strYinQuType;
                 drSell_Sum_Temp["vcOperatorID"] = opearteId;
-                //drSell_Sum_Temp["dOperatorTime"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Sum_Temp["dOperatorTime"] = string.Empty;
                 drSell_Sum_Temp["vcQianFen"] = qianFen;
-                //drSell_Sum_Temp["vcLabelStart"] = dtDockInfo_clone.Rows[i][""].ToString();
-                //drSell_Sum_Temp["vcLabelEnd"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Sum_Temp["vcLabelStart"] = string.Empty;
+                //drSell_Sum_Temp["vcLabelEnd"] = string.Empty;
                 drSell_Sum_Temp["vcSender"] = opearteId;
                 dtSell_Sum_Temp.Rows.Add(drSell_Sum_Temp);
                 #endregion
 
                 #region addrow-dtSell_Tool
                 DataRow drSell_Tool_Temp_PC = dtSell_Tool_Temp.NewRow();
-                //drSell_Tool_Temp_PC["vcSellNo"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Tool_Temp_PC["vcSellNo"] = string.Empty;
                 drSell_Tool_Temp_PC["vcToolName"] = "金属支柱";
                 drSell_Tool_Temp_PC["vcToolCode"] = "PC";
                 drSell_Tool_Temp_PC["vcToolColor"] = "红";
                 drSell_Tool_Temp_PC["iToolQuantity"] = int.Parse(pCQuantity);
                 drSell_Tool_Temp_PC["vcOperatorID"] = opearteId;
-                //drSell_Tool_Temp_PC["dOperatorTime"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Tool_Temp_PC["dOperatorTime"] = string.Empty;
                 drSell_Tool_Temp_PC["vcYinQuType"] = strYinQuType;
                 dtSell_Tool_Temp.Rows.Add(drSell_Tool_Temp_PC);
 
                 DataRow drSell_Tool_Temp_BP = dtSell_Tool_Temp.NewRow();
-                //drSell_Tool_Temp_BP["vcSellNo"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Tool_Temp_BP["vcSellNo"] = string.Empty;
                 drSell_Tool_Temp_BP["vcToolName"] = "木托盘";
                 drSell_Tool_Temp_BP["vcToolCode"] = "BP";
                 drSell_Tool_Temp_BP["vcToolColor"] = "灰白";
                 drSell_Tool_Temp_BP["iToolQuantity"] = int.Parse(bPQuantity);
                 drSell_Tool_Temp_BP["vcOperatorID"] = opearteId;
-                //drSell_Tool_Temp_BP["dOperatorTime"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Tool_Temp_BP["dOperatorTime"] = string.Empty;
                 drSell_Tool_Temp_BP["vcYinQuType"] = strYinQuType;
                 dtSell_Tool_Temp.Rows.Add(drSell_Tool_Temp_BP);
 
                 DataRow drSell_Tool_Temp_HU = dtSell_Tool_Temp.NewRow();
-                //drSell_Tool_Temp_HU["vcSellNo"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Tool_Temp_HU["vcSellNo"] = string.Empty;
                 drSell_Tool_Temp_HU["vcToolName"] = "金属绿筐";
                 drSell_Tool_Temp_HU["vcToolCode"] = "HU";
                 drSell_Tool_Temp_HU["vcToolColor"] = "绿";
                 drSell_Tool_Temp_HU["iToolQuantity"] = int.Parse(hUQuantity1);
                 drSell_Tool_Temp_HU["vcOperatorID"] = opearteId;
-                //drSell_Tool_Temp_HU["dOperatorTime"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Tool_Temp_HU["dOperatorTime"] = string.Empty;
                 drSell_Tool_Temp_HU["vcYinQuType"] = strYinQuType;
                 dtSell_Tool_Temp.Rows.Add(drSell_Tool_Temp_HU);
 
                 DataRow drSell_Tool_Temp_CB = dtSell_Tool_Temp.NewRow();
-                //drSell_Tool_Temp_CB["vcSellNo"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Tool_Temp_CB["vcSellNo"] = string.Empty;
                 drSell_Tool_Temp_CB["vcToolName"] = "金属支柱";
                 drSell_Tool_Temp_CB["vcToolCode"] = "CB";
                 drSell_Tool_Temp_CB["vcToolColor"] = "蓝";
                 drSell_Tool_Temp_CB["iToolQuantity"] = int.Parse(cBQuantity);
                 drSell_Tool_Temp_CB["vcOperatorID"] = opearteId;
-                //drSell_Tool_Temp_CB["dOperatorTime"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Tool_Temp_CB["dOperatorTime"] = string.Empty;
                 drSell_Tool_Temp_CB["vcYinQuType"] = strYinQuType;
                 dtSell_Tool_Temp.Rows.Add(drSell_Tool_Temp_CB);
 
                 DataRow drSell_Tool_Temp_2HU = dtSell_Tool_Temp.NewRow();
-                //drSell_Tool_Temp_2HU["vcSellNo"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Tool_Temp_2HU["vcSellNo"] = string.Empty;
                 drSell_Tool_Temp_2HU["vcToolName"] = "金属2HU箱";
                 drSell_Tool_Temp_2HU["vcToolCode"] = "2HU";
                 drSell_Tool_Temp_2HU["vcToolColor"] = "";
                 drSell_Tool_Temp_2HU["iToolQuantity"] = int.Parse(hUQuantity);
                 drSell_Tool_Temp_2HU["vcOperatorID"] = opearteId;
-                //drSell_Tool_Temp_2HU["dOperatorTime"] = dtDockInfo_clone.Rows[i][""].ToString();
+                //drSell_Tool_Temp_2HU["dOperatorTime"] = string.Empty;
                 drSell_Tool_Temp_2HU["vcYinQuType"] = strYinQuType;
                 dtSell_Tool_Temp.Rows.Add(drSell_Tool_Temp_2HU);
                 #endregion
@@ -911,10 +1053,40 @@ namespace SPPSApi.Controllers.P01
                 {
                     tmpString1 = "SHPWZ";
                 }
-                DataTable dtXSNo = P00004_Logic.setSeqNo(tmpString, 1, formatDate, strHosDate, strBanZhi, "销售单号");
-                DataTable dtBSNo = P00004_Logic.setSeqNo(tmpString1, 1, formatDate, strHosDate, strBanZhi, "便次号");
-                string strXSNo = "XS" + formatDate1 + "0" + dtXSNo.Rows[0]["vcSeqNo"].ToString().PadLeft(3, '0');
-                string strBSNo = dtBSNo.Rows[0]["vcSeqNo"].ToString();
+                DataTable dtXSNo = new DataTable();
+                DataTable dtBSNo = new DataTable();
+                int iXSNO = 0;
+                int iBSNO = 0;
+                //int iXSNO_Lin = 0;
+                //int iBSNO_Lin = 0;
+
+                #region 顺番号生成
+                dtXSNo = P00004_Logic.setSeqNo_sell(tmpString, formatDate, "白夜");
+                dtBSNo = P00004_Logic.setSeqNo_sell(tmpString1, strHosDate, strBanZhi);
+                if (dtXSNo.Rows.Count == 0 || dtXSNo.Rows[0]["vcSeqNo"].ToString() == "0")
+                {
+                    dtXSNo = P00004_Logic.setSeqNo(tmpString, 1, formatDate, strHosDate, strBanZhi, "销售单号");
+                    iXSNO = Convert.ToInt32(dtXSNo.Rows[0]["vcSeqNo"].ToString());
+                }
+                else
+                {
+                    iXSNO = Convert.ToInt32(dtXSNo.Rows[0]["vcSeqNo"].ToString());
+                    iXSNO_Lin = Convert.ToInt32(dtXSNo.Rows[0]["Linid"].ToString());
+                }
+                if (dtBSNo.Rows.Count == 0 || dtBSNo.Rows[0]["vcSeqNo"].ToString() == "0")
+                {
+                    dtBSNo = P00004_Logic.setSeqNo(tmpString1, 1, formatDate, strHosDate, strBanZhi, "便次号");
+                    iBSNO = Convert.ToInt32(dtBSNo.Rows[0]["vcSeqNo"].ToString());
+                }
+                else
+                {
+                    iBSNO = Convert.ToInt32(dtBSNo.Rows[0]["vcSeqNo"].ToString());
+                    iBSNO_Lin = Convert.ToInt32(dtBSNo.Rows[0]["Linid"].ToString());
+                }
+                #endregion
+
+                string strXSNo = "XS" + formatDate1 + "0" + iXSNO.ToString().PadLeft(3, '0');
+                string strBSNo = iBSNO.ToString();
                 #region 销售单+便次赋值
                 for (int i = 0; i < dtSell_Tool_Temp.Rows.Count; i++)
                 {
@@ -947,75 +1119,6 @@ namespace SPPSApi.Controllers.P01
                 #endregion
                 #endregion
 
-                #region //7.处理groupby
-                /*
-                #region //1.7 dtShipList_Temp
-                DataTable dtShipList_Temp_T = dtShipList_Temp.Clone();
-                var query_ship = from t in dtShipList_Temp.AsEnumerable()
-                            group t by new
-                            {
-                                t1 = t.Field<string>("vcPackingspot"),
-                                t2 = t.Field<string>("vcSupplier"),
-                                t3 = t.Field<string>("vcCpdcompany"),
-                                t4 = t.Field<string>("vcPart_id"),
-                                t5 = t.Field<string>("vcOrderno"),
-                                t6 = t.Field<string>("vcSeqno"),
-                                t7 = t.Field<string>("vcPartsnamechn"),
-                                t8 = t.Field<string>("vcPartsnameen"),
-                                t9 = t.Field<int>("iNocount"),
-                                t10 = t.Field<string>("vcCaseNo"),
-                                t11 = t.Field<string>("vcBoxNo"),
-                                t12 = t.Field<string>("vcHostip"),
-                                t13 = t.Field<string>("vcOperatorID")
-                            } into m
-                            select new
-                            {
-                                vcPackingspot = m.Key.t1,
-                                vcSupplier = m.Key.t2,
-                                vcCpdcompany = m.Key.t3,
-                                vcPart_id = m.Key.t4,
-                                vcOrderno = m.Key.t4,
-                                vcSeqno = m.Key.t4,
-                                vcPartsnamechn = m.Key.t4,
-                                vcPartsnameen = m.Key.t4,
-                                iNocount = m.Key.t4,
-                                vcCaseNo = m.Key.t4,
-                                vcBoxNo = m.Key.t4,
-                                vcHostip = m.Key.t4,
-                                vcOperatorID = m.Key.t4,
-                                rowSum = m.Sum(m => m.Field<int>("iQuantity_bcck"))
-                            };
-                if (query.ToList().Count > 0)
-                {
-                    query.ToList().ForEach(q =>
-                    {
-                        DataRow drQuery = dtQuery.NewRow();
-                        drQuery["vcDockSell"] = q.DockSell;
-                        drQuery["vcSHF"] = q.SHF;
-                        drQuery["vcPart_id"] = q.Part_id;
-                        drQuery["iQuantity_kck"] = q.Quantity_kck;
-                        drQuery["iQuantity_bcck_sum"] = q.rowSum;
-                        dtQuery.Rows.Add(drQuery);
-                    });
-                }
-                for (int i = 0; i < dtQuery.Rows.Count; i++)
-                {
-                    string strDockSell = dtQuery.Rows[i]["vcDockSell"].ToString();
-                    string strPart_id = dtQuery.Rows[i]["vcPart_id"].ToString();
-                    string strSHF = dtQuery.Rows[i]["vcSHF"].ToString();
-                    int iQuantity_kck = Convert.ToInt32(dtQuery.Rows[i]["iQuantity_kck"].ToString());
-                    int iQuantity_bcck_sum = Convert.ToInt32(dtQuery.Rows[i]["iQuantity_bcck_sum"].ToString());
-                    if (iQuantity_bcck_sum > iQuantity_kck)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "收货方：" + strSHF + "；DOCK：" + strDockSell + "中的品番：" + strPart_id + "出荷总量大于订单余量，请联系管理员后再试。";
-                        apiResult.type = "LS";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
-                #endregion
-    */
-                #endregion
                 //7.影响数据库后台
                 #region 后台处理
                 //插入更新5.6.
@@ -1023,11 +1126,21 @@ namespace SPPSApi.Controllers.P01
                 //按照DOCK解绑TSell_DockCar
                 //插入TPrint_Temp
                 //删除出荷临时表
-                bool bRet = P00004_Logic.setCastListInfo(dtOperateSJ_Temp, dtOperateSJ_InOutput_Temp, dtOrder_Temp, dtSell_Temp, dtShipList_Temp, dtSell_Sum_Temp, dtSell_Tool_Temp, iP, strXSNo, dockSell, opearteId, strPrinterName);
+                bool bRet = P00004_Logic.setCastListInfo(
+                    iXSNO_Lin, iBSNO_Lin,
+                    dtOperateSJ_Temp,
+                    dtOperateSJ_InOutput_Temp,
+                    dtOrder_Temp,
+                    dtORD_INOUT_Temp,
+                    dtSell_Temp,
+                    dtShipList_Temp,
+                    dtSell_Sum_Temp,
+                    dtSell_Tool_Temp, iP, strXSNo, dockSell, opearteId, strPrinterName);
                 if (!bRet)
                 {
+                    P00004_Logic.upSeqNo_sell(iXSNO_Lin, iBSNO_Lin);
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "数据写入数据库失败，请联系管理员后再试。";
+                    apiResult.data = "出荷处理失败(原因：数据冲突或网络原因)，请重新操作。";
                     apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
@@ -1092,7 +1205,7 @@ namespace SPPSApi.Controllers.P01
                 string log_end = "作业员:" + opearteId
                     + "；作业时间:" + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     + "；作业内容:" + "出荷上传(end)";
-                new P00003_Logic().WriteLog(log_begin, path_begin);
+                new P00003_Logic().WriteLog(log_end, path_end);
                 #endregion
                 P00004_DataEntity.shipResult = "发货成功";
                 apiResult.data = P00004_DataEntity;
@@ -1100,9 +1213,10 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                P00004_Logic.upSeqNo_sell(iXSNO_Lin, iBSNO_Lin);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0007", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "发货失败";
+                apiResult.data = "出荷数据上传失败";
                 apiResult.type = "LS";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
@@ -1153,7 +1267,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0008", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "获取出货便次明细失败";
                 apiResult.type = "LS";
@@ -1199,7 +1313,7 @@ namespace SPPSApi.Controllers.P01
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, opearteId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "P04UE0009", ex, opearteId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "获取器具信息失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

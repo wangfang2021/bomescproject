@@ -45,7 +45,7 @@ namespace DataAccess
                 StringBuilder strSql_modinfo = new StringBuilder();
                 strSql_modinfo.AppendLine("UPDATE [TTagDownLoadList] SET vcDownLoaderId='"+ strOperId + "',dDownLoadTime=GETDATE() WHERE LinId=@LinId");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
-                sqlCommand_modinfo.Parameters.AddWithValue("@vcYearMonth", "");
+                sqlCommand_modinfo.Parameters.AddWithValue("@LinId", "");
                 sqlCommand_modinfo.Parameters["@LinId"].Value = strLinId.ToString();
                 sqlCommand_modinfo.ExecuteNonQuery();
                 //提交事务

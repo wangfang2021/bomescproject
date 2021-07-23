@@ -46,7 +46,8 @@ namespace DataAccess
                     strSql.Append("and isnull(t1.vcQianFen,'') = '" + vcQianFen + "' \n");
                 if (vcBianCi != "" && vcBianCi != null)
                     strSql.Append("and isnull(t1.vcBianCi,'') = '" + vcBianCi + "' \n");
-                strSql.Append("order by t1.vcDate,t2.vcName,cast(t1.vcBianCi as int)   \n");
+                //strSql.Append("order by t1.vcDate,t2.vcName,cast(t1.vcBianCi as int)   \n");
+                strSql.Append("order by t1.vcDate,t1.vcBanZhi,t1.vcYinQuType desc,cast(t1.vcBianCi as int) \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

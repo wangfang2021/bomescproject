@@ -762,7 +762,7 @@ namespace SPPSApi.Controllers.G07
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
-                        if (string.IsNullOrEmpty(listInfoData[i]["vcPackSpot"].ToString())) {
+                        if (listInfoData[i]["vcPackSpot"] == null||string.IsNullOrEmpty(listInfoData[i]["vcPackSpot"].ToString())) {
 
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "上游数据未匹配到包装厂，请检查！";

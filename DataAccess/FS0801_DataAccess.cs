@@ -13,6 +13,24 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
+        public DataTable getTCode(string strCodeId)
+        {
+            try
+            {
+                MultiExcute excute = new MultiExcute();
+                System.Data.DataTable dt = new System.Data.DataTable();
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
+                strSql.Append("union all         \n");
+                strSql.Append("select '空','空'         \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #region 检索
         public DataTable Search(string vcBZPlant, string vcPart_id, string vcBigPM, string vcSmallPM)
         {
@@ -33,8 +51,10 @@ namespace DataAccess
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C063') t8 on t1.vcRHQF=t8.vcValue  \n");
                 strSql.Append("where t1.dTimeTo>GETDATE() and t1.dTimeFrom<>t1.dTimeTo   \n");
                 //strSql.Append("and GETDATE() between dTimeFrom and dTimeTo  \n");
-                if (vcBZPlant != "" && vcBZPlant != null)
+                if (vcBZPlant != "" && vcBZPlant != null && vcBZPlant!="空")
                     strSql.Append("and isnull(t1.vcBZPlant,'') like '" + vcBZPlant + "%'  \n");
+                if (vcBZPlant == "空")
+                    strSql.Append("and ISNULL(t1.vcBZPlant,'')='' \n");
                 if (vcPart_id != "" && vcPart_id != null)
                     strSql.Append("and isnull(t1.vcPart_id,'') like '%" + vcPart_id + "%'  \n");
                 if (vcBigPM != "" && vcBigPM != null)

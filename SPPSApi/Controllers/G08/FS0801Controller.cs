@@ -54,7 +54,7 @@ namespace SPPSApi.Controllers.G08
                 //else
                 //    res.Add("caiWuBtnVisible", true);
 
-                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装厂
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(fs0801_Logic.getTCode("C023"));//包装场
                 List<Object> dataList_C062 = ComFunction.convertAllToResult(ComFunction.getTCode("C062"));//包装区分
                 List<Object> dataList_C063 = ComFunction.convertAllToResult(ComFunction.getTCode("C063"));//入荷区分
                 res.Add("C023", dataList_C023);

@@ -298,12 +298,15 @@ namespace DataAccess
                 strSql.AppendLine("  from (      ");
 
                 //d.iRelease为新加项
-                strSql.AppendLine(" select b.vcPackGPSNo,sum(a.iPartNums) as iPartNums,c.vcBZPlant,d.iRelease from (   ");
+
+                strSql.AppendLine("  select table1.vcPackGPSNo,sum(table1.iPartNums)as iPartNums,table1.iRelease,table1.vcBZPlant from ( ");
+
+                strSql.AppendLine(" select b.vcPackGPSNo,sum(a.iPartNums)*b.iBiYao as iPartNums,c.vcBZPlant,d.iRelease from (   ");
 
                 strSql.AppendLine(" select vcPart_id,vcDXYM,iPartNums from TSoqReply where vcCLYM='" + strN_CL + "'and vcDXYM='" + strN + "'   ");
                 strSql.AppendLine(" union all    ");
                 strSql.AppendLine(" --紧急，大客户，三包订单    ");
-                strSql.AppendLine(" select vcPartNo,SUM(vcPlantQtyDailySum) as vcPlantQtyDailySum ,vcTargetYearMonth from SP_M_ORD    ");
+                strSql.AppendLine(" select vcPartNo,vcTargetYearMonth,SUM(vcPlantQtyDailySum) as vcPlantQtyDailySum  from SP_M_ORD    ");
                 strSql.AppendLine(" where vcOrderType in ('H','F','C') AND vcTargetYearMonth='" + strN + "' and isnull(vcOrderNo,'')<>''    ");
                 strSql.AppendLine(" and SUBSTRING(vcOrderNo,7,2)<>'ED'    ");
                 strSql.AppendLine(" group  by vcPartNo,vcPackingSpot,vcTargetYearMonth    ");
@@ -322,7 +325,12 @@ namespace DataAccess
                 strSql.AppendLine(" (   ");
                 strSql.AppendLine(" select * from TPackageMaster where GETDATE() between dTimeFrom and dTimeTo    ");
                 strSql.AppendLine(" )c on a.vcPart_id=c.vcPart_id   ");
-                strSql.AppendLine(" group by b.vcPackGPSNo,c.vcBZPlant,d.iRelease    ");
+                strSql.AppendLine(" group by b.vcPackGPSNo,c.vcBZPlant,d.iRelease,b.iBiYao     ");
+
+                strSql.AppendLine("  )table1  ");
+                strSql.AppendLine("  group by table1.vcPackGPSNo,table1.vcBZPlant,table1.iRelease  ");
+                strSql.AppendLine("   ");
+
                 strSql.AppendLine(" )t1 left join   ");
                 strSql.AppendLine(" (   ");
                 strSql.AppendLine(" select vcPackGPSNo,sum(iNumber)as iNumber from TPackWork where vcZuoYeQuFen='1'   ");
@@ -1036,8 +1044,8 @@ namespace DataAccess
             {
                 string dtime = DateTime.Now.ToString("yyyyMMdd");
                 string dtime1 = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                DataTable dtamps = this.Search_MAPSPartID();
                 DataTable dtpm = this.Search_PassMoonoth();
+                DataTable dtamps = this.Search_MAPSPartID();
                 //查找维护无内饰需订购品番
                 DataTable dtC062 = this.SearchC062();
                 StringBuilder sql = new StringBuilder();

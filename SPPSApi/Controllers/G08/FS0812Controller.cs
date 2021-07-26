@@ -300,5 +300,86 @@ namespace SPPSApi.Controllers.G08
             }
         }
         #endregion
+
+        #region 检索_子页面
+        [HttpPost]
+        [EnableCors("any")]
+        public string searchApi_sub([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcBox_id = dataForm.vcBoxNo;
+            string iQuantity = dataForm.iQuantity;
+
+            try
+            {
+                DataTable dt = fs0812_Logic.Search_sub(vcBox_id, iQuantity);
+
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1202", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 删除_子页面
+        [HttpPost]
+        [EnableCors("any")]
+        public string delApi_sub([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (checkedInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选择一行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fs0812_Logic.Del_sub(checkedInfoData, loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1205", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

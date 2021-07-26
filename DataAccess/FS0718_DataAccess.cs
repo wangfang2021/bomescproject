@@ -110,7 +110,7 @@ namespace DataAccess
                 strSql.Append("   ,vcD27bTShow,vcD27yTShow,vcD28bTShow,vcD28yTShow,vcD29bTShow,vcD29yTShow,vcD30bTShow,vcD30yTShow,vcD31bTShow,  vcD31yTShow,          \n");
                 strSql.Append("             \n");
 
-                strSql.Append("  sum(iRelease) as iRelease ,            \n");
+                strSql.Append("  iRelease ,            \n");
                 strSql.Append("  sum(vcD1yF) as vcD1yF,sum(vcD2yF) as vcD2yF,            \n");
                 strSql.Append("  sum(vcD3yF) as vcD3yF,sum(vcD4yF) as vcD4yF,            \n");
                 strSql.Append("  sum(vcD5yF) as vcD5yF,sum(vcD6yF) as vcD6yF,            \n");
@@ -188,7 +188,7 @@ namespace DataAccess
                 {
                     strSql.Append("   and dSendTime = '"+strDFaBuTime+"'             \n");
                 }
-                strSql.Append("   group by vcPackNo,vcPackGPSNo,vcSupplierName,            \n");
+                strSql.Append("   group by vcPackNo,vcPackGPSNo,vcSupplierName,  iRelease,          \n");
 
                 strSql.Append("   vcD1yFShow,vcD2yFShow,vcD3yFShow,vcD4yFShow,vcD5yFShow,vcD6yFShow                  \n");
                 strSql.Append("    ,vcD7yFShow,vcD8yFShow,vcD9yFShow,vcD10yFShow,                    \n");

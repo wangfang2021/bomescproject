@@ -23,6 +23,10 @@ namespace Logic
         {
             return fs0812_DataAccess.Search(vcBox_id, vcLabelId,strFHF, vcPart_id, vcLianFanNo, vcOrderNo);
         }
+        public DataTable Search_sub(string vcBox_id, string iQuantity)
+        {
+            return fs0812_DataAccess.Search_sub(vcBox_id, iQuantity);
+        }
         #endregion
 
         #region 保存
@@ -36,6 +40,10 @@ namespace Logic
         public void Del(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
             fs0812_DataAccess.Del(checkedInfoData, strUserId);
+        }
+        public void Del_sub(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            fs0812_DataAccess.Del_sub(checkedInfoData, strUserId);
         }
         #endregion
 

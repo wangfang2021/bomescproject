@@ -43,6 +43,44 @@ namespace DataAccess
                 throw ex;
             }
         }
+        public DataTable Search_sub(string vcBox_id, string iQuantity)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select t1.vcBoxNo,t1.vcCaseNo,t1.vcSheBeiNo,isnull(t2.iQuantity,0) as iQuantity,'0' as vcModFlag,'0' as vcAddFlag from ");
+                strSql.AppendLine("(");
+                strSql.AppendLine("	select * from TCaseInfo ");
+                strSql.AppendLine(")t1");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(");
+                strSql.AppendLine("	select vcCaseNo,vcBoxNo,COUNT(vcInstructionNo) as iQuantity,sum(iPrint) as iPrint ");
+                strSql.AppendLine("	from ");
+                strSql.AppendLine("	(");
+                strSql.AppendLine("		select vcCaseNo,vcBoxNo,vcInstructionNo,case when dPrintBoxTime is null then 0 else 1 end as iPrint ");
+                strSql.AppendLine("		from TBoxMaster ");
+                strSql.AppendLine("	)a");
+                strSql.AppendLine("	group by vcCaseNo,vcBoxNo");
+                strSql.AppendLine(")t2");
+                strSql.AppendLine("on t1.vcCaseNo=t2.vcCaseNo");
+                strSql.AppendLine("where ISNULL(t2.iPrint,0)=0 ");
+
+                if (vcBox_id != "" && vcBox_id != null)
+                    strSql.AppendLine("and isnull(t1.vcBoxNo,'') = '" + vcBox_id + "' ");
+                if (iQuantity == "0")//=0个
+                    strSql.AppendLine("and isnull(t2.iQuantity,0)=0 ");
+                if(iQuantity=="1")//>=1个
+                    strSql.AppendLine("and isnull(t2.iQuantity,0)>=1 ");
+
+                strSql.AppendLine("ORDER BY t1.iAutoId");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
 
         #region 保存
@@ -97,6 +135,34 @@ namespace DataAccess
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
                     sql.Append("update TBoxMaster set vcDelete='1' where iAutoId=" + iAutoId + " and isnull(vcDelete,'')!='1' and dPrintBoxTime is null  \n");
                     //sql.Append("delete from TBoxMaster where iAutoId=" + iAutoId + "   \n");
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void Del_sub(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < checkedInfoData.Count; i++)
+                {
+                    string vcCaseNo = checkedInfoData[i]["vcCaseNo"].ToString();
+                    int iQuantity =Convert.ToInt32(checkedInfoData[i]["iQuantity"].ToString());
+
+                    if (iQuantity == 0)
+                        sql.AppendLine("delete from TCaseInfo where vcCaseNo='"+vcCaseNo+"'");
+                    if(iQuantity>=1)
+                    {
+                        sql.AppendLine("delete from TCaseInfo where vcCaseNo='" + vcCaseNo + "'");
+                        sql.AppendLine("update TBoxMaster set vcDelete='1' where vcCaseNo='" + vcCaseNo + "'");
+                    }
                 }
                 if (sql.Length > 0)
                 {

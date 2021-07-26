@@ -306,7 +306,7 @@ namespace DataAccess
                 strSql.AppendLine(" select vcPart_id,vcDXYM,iPartNums from TSoqReply where vcCLYM='" + strN_CL + "'and vcDXYM='" + strN + "'   ");
                 strSql.AppendLine(" union all    ");
                 strSql.AppendLine(" --紧急，大客户，三包订单    ");
-                strSql.AppendLine(" select vcPartNo,SUM(vcPlantQtyDailySum) as vcPlantQtyDailySum ,vcTargetYearMonth from SP_M_ORD    ");
+                strSql.AppendLine(" select vcPartNo,vcTargetYearMonth,SUM(vcPlantQtyDailySum) as vcPlantQtyDailySum  from SP_M_ORD    ");
                 strSql.AppendLine(" where vcOrderType in ('H','F','C') AND vcTargetYearMonth='" + strN + "' and isnull(vcOrderNo,'')<>''    ");
                 strSql.AppendLine(" and SUBSTRING(vcOrderNo,7,2)<>'ED'    ");
                 strSql.AppendLine(" group  by vcPartNo,vcPackingSpot,vcTargetYearMonth    ");

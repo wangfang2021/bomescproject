@@ -226,7 +226,7 @@ namespace SPPSApi.Controllers.G07
                     else
                     {
                         DateTime dt1 = Convert.ToDateTime(strBegin).AddDays(1 - Convert.ToDateTime(strBegin).Day).AddMonths(1).AddDays(-1);
-                        int ss = Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("/")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) - 1;
+                        int ss = Convert.ToInt32(dt1.Day) - Convert.ToInt32(strBegin.Split("-")[2]) - 1;
                         for (int z = 0; z <= ss + 1; z++)
                         {
                             if (strFromBeginBZ == "1" && z == 0)

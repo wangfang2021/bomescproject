@@ -1096,12 +1096,12 @@ namespace SPPSApi.Controllers.G06
                         nextRowHSSFRow.Height = 34 * 20;
                         if (heBingStartRow == nextRow)
                         {
-                            nextRowHSSFRow.CreateCell(0).SetCellValue("");
+                            nextRowHSSFRow.CreateCell(0).SetCellValue("外注");
                             nextRowHSSFRow.GetCell(0).CellStyle = style5;//将CellStyle应用于具体单元格 
                         }
                         else
                         {
-                            nextRowHSSFRow.CreateCell(0).SetCellValue("");
+                            nextRowHSSFRow.CreateCell(0).SetCellValue("外注");
                             nextRowHSSFRow.GetCell(0).CellStyle = style5;
                         }
                         int colNum = 1;//用于计数

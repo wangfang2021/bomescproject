@@ -333,8 +333,8 @@ namespace DataAccess
                     da.InsertCommand = new SqlCommand();
                     da.InsertCommand.Connection = conn;
                     da.InsertCommand.CommandType = CommandType.Text;
-                    da.InsertCommand.CommandText += "insert into TOutsidePurchaseManage(vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcOrderNumber, vcNoReceiveNumber, dOperatorTime, vcOperatorID) ";
-                    da.InsertCommand.CommandText += "values (@vcSupplier_id, @vcWorkArea, @vcDock, @vcOrderNo, @vcPartNo, @vcOrderNumber, @vcOrderNumber, getdate(), '" + strUserId + "') ";
+                    da.InsertCommand.CommandText += "insert into TOutsidePurchaseManage(vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcOrderNumber, vcNoReceiveNumber, dOperatorTime, vcOperatorID) ";
+                    da.InsertCommand.CommandText += "values (SUBSTRING(@vcOrderNo,1,6), @vcSupplier_id, @vcWorkArea, @vcDock, @vcOrderNo, @vcPartNo, @vcOrderNumber, @vcOrderNumber, getdate(), '" + strUserId + "') ";
                     da.InsertCommand.Parameters.Add("@vcSupplier_id", SqlDbType.VarChar, 4, "vcSupplier_id"); //供应商代码
                     da.InsertCommand.Parameters.Add("@vcWorkArea", SqlDbType.VarChar, 2, "vcWorkArea");//工区
                     da.InsertCommand.Parameters.Add("@vcDock", SqlDbType.VarChar, 6, "vcDock");//受入
@@ -346,8 +346,8 @@ namespace DataAccess
 
                     SqlCommand cmdUpdate = new SqlCommand();
                     cmdUpdate.Connection = conn;
-                    cmdUpdate.CommandText += "update TOutsidePurchaseManage "; 
-                    cmdUpdate.CommandText += "set TOutsidePurchaseManage.vcNoReceiveNumber=TOutsidePurchaseManage.vcOrderNumber-b.iQuantity,TOutsidePurchaseManage.vcTargetMonth=SUBSTRING(TOutsidePurchaseManage.vcOrderNo,1,6) ";
+                    cmdUpdate.CommandText += "update TOutsidePurchaseManage ";
+                    cmdUpdate.CommandText += "set TOutsidePurchaseManage.vcNoReceiveNumber=TOutsidePurchaseManage.vcOrderNumber-b.iQuantity ";
                     cmdUpdate.CommandText += "from (select sum(iQuantity) as iQuantity,vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant ";
                     cmdUpdate.CommandText += "      from TOperateSJ where vcZYType='S0' ";
                     cmdUpdate.CommandText += "      group by vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant) b ";

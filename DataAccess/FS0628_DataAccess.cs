@@ -526,6 +526,7 @@ namespace DataAccess
                         }
                     }
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    string vcTargetMonth = listInfoData[i]["vcInjectionOrderNo"] == null ? null : listInfoData[i]["vcInjectionOrderNo"].ToString().Trim().Substring(0,6);
                     sql.AppendLine("   insert into TOutsidePurchaseManage    ");
                     sql.AppendLine("   ([vcPackPlant], [vcInjectionFactory], [vcTargetMonth], [vcSupplier_id], [vcWorkArea],    ");
                     sql.AppendLine("   [vcDock], [vcOrderNo], [vcPartNo], [vcNewOldFlag], [vcOrderNumber],  [vcReceiveFlag],    ");
@@ -533,7 +534,8 @@ namespace DataAccess
                     sql.AppendLine(" values (   ");
                     sql.AppendLine("  '"+ strUnitCode + "',  ");
                     sql.AppendLine(getSqlValue(vcInjectionFactory, false) +" ,    ");
-                    sql.AppendLine("   convert(varchar(6), getdate(),112),    ");
+                    //sql.AppendLine("   convert(varchar(6), getdate(),112),    ");
+                    sql.AppendLine("  '" + vcTargetMonth + "',  ");
                     sql.Append(getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcWorkArea"], false) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcDock"], false) + ",  \r\n");

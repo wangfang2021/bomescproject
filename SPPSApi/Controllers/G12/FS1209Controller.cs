@@ -1937,7 +1937,7 @@ namespace SPPSApi.Controllers.G12
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage("FS1209", "M00UE0006", ex, "");
-                msg = ex.ToString();
+                msg = "系统正忙，请稍等再进行打印！";
             }
             finally
             {

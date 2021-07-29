@@ -79,7 +79,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("select iAutoId,vcPackNo,vcPackSpot, CONVERT(varchar(100),dPackFrom,23)as dPackFrom, CONVERT(varchar(100),dPackTo,23)as dPackTo, ");
                 strSql.AppendLine("vcPackGPSNo,vcSupplierCode,vcSupplierName,vcSupplierPlant,vcCycle,vcParstName,vcPackLocation,vcDistinguish,vcFormat,vcReleaseID               ");
-                strSql.AppendLine(",vcReleaseName,iRelease,iZCRelease,isYZC              ");
+                strSql.AppendLine(",RTRIM(vcReleaseName) as vcReleaseName,iRelease,iZCRelease,isYZC              ");
                 strSql.AppendLine("   ,'0' as vcModFlag,'0' as vcAddFlag,'' as vcIsorNo  ");
                 strSql.AppendLine("      FROM");
                 strSql.AppendLine("      	TPackBase");

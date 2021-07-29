@@ -1901,7 +1901,7 @@ namespace DataAccess
                 strSql.AppendLine("      select * from TPackItem where dFrom<='" + dFromEnd + "'and dTo>='" + dFromBegin + "'        ");
                 strSql.AppendLine("       )t left join                                                                                 ");
                 strSql.AppendLine("       (                                                                                             ");
-                strSql.AppendLine("       select * from TPackBase                                                                       ");
+                strSql.AppendLine("       select * from TPackBase where  GETDATE() between  dPackFrom and dPackTo                                                                     ");
 
                 strSql.AppendLine("       )y on t.vcPackNo=y.vcPackNo                                                                   ");
                 strSql.AppendLine("       )temp2 on temp1.vcPartsNo=temp2.vcPartsNo              ");

@@ -201,7 +201,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("   select b.dNaQiFromTime,b.dNaQiToTime,a.vcPackGPSNo,b.vcPackSpot,b.vcFaZhuID,b.vcBianCi from(     ");
-                strSql.AppendLine("   select * from TPackBase     ");
+                strSql.AppendLine("   select * from TPackBase  where GETDATE() between  dPackFrom and dPackTo    ");
                 strSql.AppendLine("   )a left join     ");
                 strSql.AppendLine("   (     ");
                 strSql.AppendLine("   select * from TPackFaZhuTime     ");
@@ -238,7 +238,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select * from TPackBase  ");
+                strSql.AppendLine("       select * from TPackBase  where GETDATE() between  dPackFrom and dPackTo  ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -297,11 +297,11 @@ namespace DataAccess
                 strSql.AppendLine("  select t1.vcPackGPSNo,t1.vcBZPlant,t1.iPartNums,t1.iRelease,isnull(t2.iNumber,0) as iNumber   ");
                 strSql.AppendLine("  from (      ");
 
-                //d.iRelease为新加项
+         
 
                 strSql.AppendLine("  select table1.vcPackGPSNo,sum(table1.iPartNums)as iPartNums,table1.iRelease,table1.vcBZPlant from ( ");
 
-                strSql.AppendLine(" select b.vcPackGPSNo,sum(a.iPartNums)*b.iBiYao as iPartNums,c.vcBZPlant,d.iRelease from (   ");
+                strSql.AppendLine(" select b.vcPackGPSNo,ceiling(sum(a.iPartNums)*b.iBiYao/d.iRelease)*d.iRelease as iPartNums,c.vcBZPlant,d.iRelease from (   ");
 
                 strSql.AppendLine(" select vcPart_id,vcDXYM,iPartNums from TSoqReply where vcCLYM='" + strN_CL + "'and vcDXYM='" + strN + "'   ");
                 strSql.AppendLine(" union all    ");

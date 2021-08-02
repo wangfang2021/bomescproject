@@ -333,7 +333,7 @@ namespace DataAccess
 
                 strSql.AppendLine(" )t1 left join   ");
                 strSql.AppendLine(" (   ");
-                strSql.AppendLine(" select vcPackGPSNo,sum(iNumber)as iNumber from TPackWork where vcZuoYeQuFen='1'   ");
+                strSql.AppendLine(" select vcPackGPSNo,sum(iNumber)as iNumber from TPackWork where vcZuoYeQuFen='1'  and dBuJiTime between '"+ NowDF + "'and '"+ NowDE + "'    ");
                 strSql.AppendLine(" group by vcPackGPSNo   ");
                 strSql.AppendLine(" )t2 on t1.vcPackGPSNo=t2.vcPackGPSNo   ");
                 strSql.AppendLine(" )Table1    ");

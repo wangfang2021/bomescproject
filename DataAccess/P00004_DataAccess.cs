@@ -301,7 +301,7 @@ namespace DataAccess
             stringBuilder.AppendLine("(select * from TOperateSJ_InOutput)d");
             stringBuilder.AppendLine("on b.vcPart_id=d.vcPart_id and b.vcOrderNo=d.vcKBOrderNo and b.vcLianFanNo=d.vcKBLFNo and b.vcSR=d.vcSR");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select * from TPrice where dPricebegin<=GETDATE() and dPriceEnd>=GETDATE() and dPricebegin<>dPriceEnd)e");
+            stringBuilder.AppendLine("(select * from TPrice where dPricebegin<=convert(varchar(10),GETDATE(),23)  and dPriceEnd>=convert(varchar(10),GETDATE(),23)  and dPricebegin<>dPriceEnd)e");
             stringBuilder.AppendLine("on c.vcPart_id=e.vcPart_id and c.vcSupplier_id=e.vcSupplier_id");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select distinct vcCaseNo from TOperateSJ where vcZYType='S4')f");
@@ -313,7 +313,7 @@ namespace DataAccess
             stringBuilder.AppendLine("group by vcPartNo,vcCpdcompany)g");
             stringBuilder.AppendLine("on c.vcSHF=g.vcCpdcompany and c.vcPart_id=g.vcPartNo");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select * from TSPMaster where dFromTime<=GETDATE() and dToTime>=GETDATE() and dFromTime<>dToTime and vcPackingPlant='" + strPackingPlant + "')h");
+            stringBuilder.AppendLine("(select * from TSPMaster where dFromTime<=convert(varchar(10),GETDATE(),23)  and dToTime>=convert(varchar(10),GETDATE(),23)  and dFromTime<>dToTime and vcPackingPlant='" + strPackingPlant + "')h");
             stringBuilder.AppendLine("on c.vcPart_id=h.vcPartId and c.vcSupplier_id=h.vcSupplierId and c.vcSHF=h.vcReceiver");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select a.vcPackingPlant,a.vcPartId,a.vcReceiver,a.vcSupplierId,b.vcSupplierPlant,c.vcOrderPlant from ");
@@ -501,7 +501,7 @@ namespace DataAccess
             stringBuilder.AppendLine("(select * from TOperateSJ_InOutput)d");
             stringBuilder.AppendLine("on b.vcPart_id=d.vcPart_id and b.vcOrderNo=d.vcKBOrderNo and b.vcLianFanNo=d.vcKBLFNo and b.vcSR=d.vcSR");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select * from TPrice where dPricebegin<=GETDATE() and dPriceEnd>=GETDATE())e");
+            stringBuilder.AppendLine("(select * from TPrice where dPricebegin<=convert(varchar(10),GETDATE(),23) and dPriceEnd>=convert(varchar(10),GETDATE(),23) and dPricebegin<>dPriceEnd )e");
             stringBuilder.AppendLine("on c.vcPart_id=e.vcPart_id and c.vcSupplier_id=e.vcSupplier_id");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(select distinct vcCaseNo from TOperateSJ where vcZYType='S4')f");
@@ -513,7 +513,7 @@ namespace DataAccess
             stringBuilder.AppendLine("group by vcPartNo,vcCpdcompany)g");
             stringBuilder.AppendLine("on c.vcSHF=g.vcCpdcompany and c.vcPart_id=g.vcPartNo");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select * from TSPMaster where dFromTime<=GETDATE() and dToTime>=GETDATE() and vcPackingPlant='" + strPackingPlant + "')h");
+            stringBuilder.AppendLine("(select * from TSPMaster where dFromTime<=convert(varchar(10),GETDATE(),23)  and dToTime>=convert(varchar(10),GETDATE(),23) and vcPackingPlant='" + strPackingPlant + "')h");
             stringBuilder.AppendLine("on c.vcPart_id=h.vcPartId and c.vcSupplier_id=h.vcSupplierId and c.vcSHF=h.vcReceiver");
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             try
@@ -1686,7 +1686,7 @@ namespace DataAccess
         {
             SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("select vcBanZhi,FORMAT(vcDate,'yyyy-MM-dd') as vcDate,vcBianCi,vcSellNo,iToolQuantity,vcTruckNo,vcQianFen,vcOperatorID,FORMAT(dOperatorTime,'yyyy-MM-dd hh:mm:ss') as dOperatorTime from TSell_Sum where vcYinQuType='" + type + "' and vcBanZhi='" + banZhi + "' and vcDate='" + date + "'");
+            stringBuilder.AppendLine("select vcBanZhi,FORMAT(vcDate,'yyyy-MM-dd') as vcDate,vcBianCi,vcSellNo,iToolQuantity,vcTruckNo,vcQianFen,vcOperatorID,FORMAT(dOperatorTime,'yyyy-MM-dd HH:mm:ss') as dOperatorTime from TSell_Sum where vcYinQuType='" + type + "' and vcBanZhi='" + banZhi + "' and vcDate='" + date + "'");
             DataSet ds = new DataSet();
             try
             {

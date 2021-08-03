@@ -531,6 +531,18 @@ namespace SPPSApi.Controllers.G12
                             #endregion
                         }
                     }
+
+                    #region 2021-7-27 王立伟追加 每次打印前强制清除上版数据
+                    DataTable dtPorType1 = QueryGroup(dtPrint);
+                    if (dtPorType1 != null)
+                    {
+                        for (int i = 0; i < dtPorType1.Rows.Count; i++)
+                        {
+                            DeleteprinterCREX(dtPorType1.Rows[i]["vcPorType"].ToString(), dtPorType1.Rows[i]["vcorderno"].ToString(), dtPorType1.Rows[i]["vcComDate01"].ToString(), dtPorType1.Rows[i]["vcBanZhi01"].ToString());
+                        }
+                    }
+                    #endregion
+
                     int qqqq = dtPrint.Rows.Count;
                     dtPrint = print.orderDataTable(dtPrint);//排序
                     exdt = print.orderDataTable(exdt);//排序
@@ -1937,7 +1949,7 @@ namespace SPPSApi.Controllers.G12
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage("FS1209", "M00UE0006", ex, "");
-                msg = ex.ToString();
+                msg = "系统正忙，请稍等再进行打印！";
             }
             finally
             {

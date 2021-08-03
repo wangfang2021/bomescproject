@@ -362,7 +362,8 @@ namespace DataAccess
                     cmdUpdate1.CommandText += "update TOutsidePurchaseManage ";
                     cmdUpdate1.CommandText += "set TOutsidePurchaseManage.vcPackPlant=c.vcPackingPlant, TOutsidePurchaseManage.vcNewOldFlag=c.vcHaoJiu ";
                     cmdUpdate1.CommandText += "from (select vcPackingPlant,vcHaoJiu,vcPartId,vcSupplierId from TSPMaster ";
-                    cmdUpdate1.CommandText += "      where vcInOut='1' and dFromTime<=GETDATE() and dToTime>=GETDATE()) c ";
+                    //cmdUpdate1.CommandText += "      where vcInOut='1' and dFromTime<=GETDATE() and dToTime>=GETDATE()) c ";
+                    cmdUpdate1.CommandText += "      where vcInOut='1') c ";
                     cmdUpdate1.CommandText += "where TOutsidePurchaseManage.vcPartNo=c.vcPartId;";
                     //cmdUpdate1.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcDateFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcDateTo + "' ";
                     cmdUpdate1.Transaction = trans;

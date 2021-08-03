@@ -655,7 +655,7 @@ namespace BatchProcess
                 strSql.AppendLine("      FROM");
                 strSql.AppendLine("      	TPackBase");
                 strSql.AppendLine("      WHERE");
-                strSql.AppendLine("      	1 = 1");
+                strSql.AppendLine("      	1 = 1 and  GETDATE() between  dPackFrom and dPackTo");
                 if (strSupplierCode.Count != 0)
                 {
                     strSql.AppendLine($"      AND vcSupplierCode in( ");

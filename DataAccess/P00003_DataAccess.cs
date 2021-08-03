@@ -742,10 +742,10 @@ namespace DataAccess
             stringBuilder.AppendLine("where vcPart_id='" + partId + "' and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcSR='" + dock + "' and vcZYType='S0')a");
             stringBuilder.AppendLine("left join");
             stringBuilder.AppendLine("(	select t1.vcPartId,t1.vcSupplierId,t2.vcCheckP from ");
-            stringBuilder.AppendLine("	(select * from tCheckMethod_Master where vcPartId='" + partId + "' and dFromTime<=GETDATE() and dToTime>=GETDATE())t1");
+            stringBuilder.AppendLine("	(select * from tCheckMethod_Master where vcPartId='" + partId + "' and dFromTime<=convert(varchar(10),GETDATE(),23)  and dToTime>=convert(varchar(10),GETDATE(),23) )t1");
             stringBuilder.AppendLine("	left join");
             stringBuilder.AppendLine("	(SELECT * FROM [tCheckQf] ");
-            stringBuilder.AppendLine("	where [vcTimeFrom]<=GETDATE()  and [vcTimeTo]>=GETDATE())t2");
+            stringBuilder.AppendLine("	where [vcTimeFrom]<=convert(varchar(10),GETDATE(),23)   and [vcTimeTo]>=convert(varchar(10),GETDATE(),23) )t2");
             stringBuilder.AppendLine("	ON t1.vcPartId=t2.vcPartId AND t1.vcSupplierId=t2.[vcSupplierCode])b");
             stringBuilder.AppendLine("on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId");
             stringBuilder.AppendLine("left join");
@@ -770,7 +770,7 @@ namespace DataAccess
             stringBuilder.AppendLine("(select * from TPackOperImage)g");
             stringBuilder.AppendLine("on a.vcBZPlant=g.vcPlant and a.vcPart_id=g.vcPartId");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select * from TPackageMaster where vcPart_id='" + partId + "' and  dTimeFrom<=GETDATE()  and dTimeTo>=GETDATE() )h");
+            stringBuilder.AppendLine("(select * from TPackageMaster where vcPart_id='" + partId + "' and  dTimeFrom<=convert(varchar(10),GETDATE(),23)   and dTimeTo>=convert(varchar(10),GETDATE(),23)  )h");
             stringBuilder.AppendLine("on a.vcPart_id=h.vcPart_id and a.vcSHF=h.vcReceiver and a.vcSupplier_id=h.vcSupplierId and a.vcSR=h.vcSR and a.vcBZPlant=h.vcBZPlant");
             stringBuilder.AppendLine("");
             stringBuilder.AppendLine("");
@@ -1368,7 +1368,7 @@ namespace DataAccess
             stringBuilder.AppendLine("(select * from TOperateSJ_InOutput)c");
             stringBuilder.AppendLine("on a.vcPart_id=c.vcPart_id and a.vcOrderNo=c.vcKBOrderNo and a.vcLianFanNo=c.vcKBLFNo and a.vcSR=c.vcSR");
             stringBuilder.AppendLine("left join");
-            stringBuilder.AppendLine("(select vcPackingPlant,vcPartId,vcSupplierId,vcReceiver,vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace from TSPMaster WHERE dFromTime<=GETDATE() and dToTime>=GETDATE())d");
+            stringBuilder.AppendLine("(select vcPackingPlant,vcPartId,vcSupplierId,vcReceiver,vcInOut,vcPartENName,vcCarfamilyCode,vcSupplierName,vcSupplierPlace from TSPMaster WHERE dFromTime<=convert(varchar(10),GETDATE(),23) and dToTime>=convert(varchar(10),GETDATE(),23) )d");
             stringBuilder.AppendLine("on b.vcPart_id = d.vcPartId and b.[vcSHF]=d.vcReceiver and b.[vcSupplier_id]=d.vcSupplierId");
             stringBuilder.AppendLine("");
             DataSet ds = new DataSet();

@@ -269,7 +269,7 @@ namespace BatchProcess
                 sql.Append("t1.dFromTime,t1.dToTime,t2.vcSufferIn,'" + strUserId + "',GETDATE()    \n");
                 sql.Append("from (select * from TSPMaster where dFromTime<>dToTime and ISNULL(vcDelete,'')<>'1' ) t1     \n");
                 sql.Append("left join (    \n");
-                sql.Append("	select * from TSPMaster_SufferIn where vcOperatorType='1' and dToTime>GETDATE() and dFromTime<>dToTime  \n");
+                sql.Append("	select * from TSPMaster_SufferIn where vcOperatorType='1' and dToTime>=CONVERT(varchar(10),GETDATE(),120) and dFromTime<>dToTime  \n");
                 //sql.Append("	and GETDATE() between dFromTime and dToTime    \n");
                 sql.Append(") t2     \n");
                 sql.Append("on t1.vcPackingPlant=t2.vcPackingPlant and t1.vcPartId=t2.vcPartId    \n");

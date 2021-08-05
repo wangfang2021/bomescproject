@@ -124,7 +124,9 @@ namespace Logic
                 sbr.AppendLine("<p class=\"ql-align-justify\"><strong style=\"color: black;\">TFTM相关各位殿</strong></p>");
                 sbr.AppendLine("<p class=\"ql-align-justify\"><span style=\"color: black;\">FTMS财务&nbsp;" + strUserName + "</span></p><p class=\"ql-align-justify\"><strong>&nbsp;</strong></p>");
                 //sbr.AppendLine("<p><strong style=\"color: black;\">金额一致</strong></p>");
-                sbr.AppendLine("<p><strong style=\"color: black;\">FTMS " + range + "对帐数据</strong><strong style=\"color: blue;\">&nbsp;<u>对帐数</u></strong><strong style=\"color: rgb(0, 51, 204);\"><u>据</u></strong><strong style=\"color: black;\"><u>" + total + "</u></strong><strong style=\"color: blue;\"><u>元</u></strong><strong><u>，</u></strong><strong style=\"color: black;\"><u>确认无误</u></strong><strong><u>。</u></strong></p><p class=\"ql-align-justify\"><strong>&nbsp;</strong></p>");
+                //sbr.AppendLine("<p><strong style=\"color: black;\">FTMS " + range + "对帐数据</strong><strong style=\"color: blue;\">&nbsp;<u>对帐数</u></strong><strong style=\"color: rgb(0, 51, 204);\"><u>据</u></strong><strong style=\"color: black;\"><u>" + total + "</u></strong><strong style=\"color: blue;\"><u>元</u></strong><strong><u>，</u></strong><strong style=\"color: black;\"><u>确认无误</u></strong><strong><u>。</u></strong></p><p class=\"ql-align-justify\"><strong>&nbsp;</strong></p>");
+                sbr.AppendLine("<p><strong style=\"color: black;\">FTMS " + range + "对帐数据</strong><strong style=\"color: blue;\">&nbsp;</strong><strong style=\"color: blue;\"><u>" + total + "</u></strong><strong style=\"color: blue;\"><u>元</u></strong><strong><u>，</u></strong><strong style=\"color: black;\"><u>确认无误</u></strong><strong><u>。</u></strong></p><p class=\"ql-align-justify\"><strong>&nbsp;</strong></p>");
+
                 sbr.AppendLine("<p class=\"ql-align-justify\"><strong>以</strong><strong style=\"color: black;\">上</strong></p><p><br></p>");
                 string EmailBody = sbr.ToString();
 

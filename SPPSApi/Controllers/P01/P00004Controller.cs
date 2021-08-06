@@ -1149,7 +1149,7 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
-        /*
+        
         //8.生成csv文件到指定目录
         #region 做成CSV文件
         DataTable dtSellInfo = P00004_Logic.getSellInfo(strXSNo);
@@ -1203,7 +1203,7 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
-        */
+        
         #region 记录日志-end
         string path_end = @"G:\ScanFile\Log\现场作业\出荷_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
         string log_end = "作业员:" + opearteId

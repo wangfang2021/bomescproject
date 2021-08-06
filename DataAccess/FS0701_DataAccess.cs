@@ -223,7 +223,7 @@ namespace DataAccess
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false).Replace(" ","") + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackFrom"].ToString().Split(' ')[0], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackTo"].ToString().Split(' ')[0], true) + ",");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackTo"].ToString().Split(' ')[0]+" 23:59:59", true) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierPlant"], false) + ",");
@@ -252,7 +252,7 @@ namespace DataAccess
                         sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false).Replace(" ", "")},");
                         sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)},");
                         sql.AppendLine($"   dPackFrom = {ComFunction.getSqlValue(listInfoData[i]["dPackFrom"].ToString().Split(' ')[0], true)},");
-                        sql.AppendLine($"   dPackTo = {ComFunction.getSqlValue(listInfoData[i]["dPackTo"].ToString().Split(' ')[0], true)},");
+                        sql.AppendLine($"   dPackTo = {ComFunction.getSqlValue(listInfoData[i]["dPackTo"].ToString().Split(' ')[0] + " 23:59:59", true)},");
                         sql.AppendLine($"   vcPackGPSNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false)},");
                         sql.AppendLine($"   vcSupplierCode = {ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], false)},");
                         sql.AppendLine($"   vcSupplierPlant = {ComFunction.getSqlValue(listInfoData[i]["vcSupplierPlant"], false)},");
@@ -367,7 +367,7 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false).Replace(" ", "") + ", \r\n");
                         sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + ", \r\n");
                         sql.Append(ComFunction.getSqlValue(dt.Rows[i]["dPackFrom"], false) + ", \r\n");
-                        sql.Append(ComFunction.getSqlValue(dt.Rows[i]["dPackTo"], false) + ", \r\n");
+                        sql.Append(ComFunction.getSqlValue(dt.Rows[i]["dPackTo"].ToString().Split(' ')[0] + " 23:59:59", false) + ", \r\n");
                         sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], true) + ", \r\n");
                         sql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSupplierCode"], true) + ", \r\n");
                         sql.Append("   null,  \r\n");
@@ -396,7 +396,7 @@ namespace DataAccess
                         sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false).Replace(" ", "")},");
                         sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false)},");
                         sql.AppendLine($"   dPackFrom = {ComFunction.getSqlValue(dt.Rows[i]["dPackFrom"].ToString().Split(' ')[0], true)},");
-                        sql.AppendLine($"   dPackTo = {ComFunction.getSqlValue(dt.Rows[i]["dPackTo"].ToString().Split(' ')[0], true)},");
+                        sql.AppendLine($"   dPackTo = {ComFunction.getSqlValue(dt.Rows[i]["dPackTo"].ToString().Split(' ')[0] + " 23:59:59", true)},");
                         sql.AppendLine($"   vcPackGPSNo = {ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], false)},");
                         sql.AppendLine($"   vcSupplierCode = {ComFunction.getSqlValue(dt.Rows[i]["vcSupplierCode"], false)},");
                         sql.AppendLine($"   vcSupplierPlant = NULL,");

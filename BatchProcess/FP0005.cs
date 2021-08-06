@@ -272,8 +272,8 @@ namespace BatchProcess
                 sql.Append(" 	SELECT  * FROM TPackBaseMAPS        \n");
                 sql.Append("   )b on a.vcPackGPSNo=b.PART_NO       \n");
                 sql.Append("   )T where         \n");
-                sql.Append("   ((T.DEL_FLAG=1 and UPDATE_TIME=dPackTo)       \n");
-                sql.Append("   or (T.DEL_FLAG=0 and  UPDATE_TIME<>DATEADD(DAY,1,case when dPackTo='9999-12-31 00:00:00.000' then DATEADD(DAY,-1,dPackTo)else dPackTo end))    \n");
+                sql.Append("   ((T.DEL_FLAG=1 and CONVERT(varchar(50), UPDATE_TIME,23)=CONVERT(varchar(50),dPackTo,23))       \n");
+                sql.Append("   or (T.DEL_FLAG=0 and CONVERT(varchar(50), UPDATE_TIME,23)<>DATEADD(DAY,1,case when CONVERT(varchar(50), dPackTo,23)='9999-12-31' then DATEADD(DAY,-1,dPackTo)else CONVERT(varchar(50),dPackTo,23) end))    \n");
                 sql.Append("   or isnull(T.DEL_FLAG,'')='')     \n");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 StringBuilder sql1 = new StringBuilder();

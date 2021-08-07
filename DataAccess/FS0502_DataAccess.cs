@@ -98,11 +98,11 @@ namespace DataAccess
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C056')t2 on t1.vcStatus=t2.vcValue        \n");
                 strSql.Append("left join (        \n");
                 strSql.Append("    select * from VI_UrgentOrder_OperHistory_s    \n");
-                strSql.Append("    where vcInputType='supplier' and cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0    \n");
+                strSql.Append("    where vcInputType='supplier' --and cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0    \n");
                 strSql.Append(")t3 on t1.vcOrderNo=t3.vcOrderNo and t1.vcPart_id=t3.vcPart_id and t1.vcSupplier_id=t3.vcSupplier_id    \n");
                 strSql.Append("left join (        \n");
                 strSql.Append("    select vcOrderNo,vcPart_id,vcSupplier_id,sum(iDuiYingQuantity) as iDuiYingQuantity  from VI_UrgentOrder_OperHistory_s     \n");
-                strSql.Append("    where vcInputType='supplier' and cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0    \n");
+                strSql.Append("    where vcInputType='supplier' --and cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0    \n");
                 strSql.Append("    group by vcOrderNo,vcPart_id,vcSupplier_id      \n");
                 strSql.Append(")t4 on t1.vcOrderNo=t4.vcOrderNo and t1.vcPart_id=t4.vcPart_id and t1.vcSupplier_id=t4.vcSupplier_id     \n");
                 strSql.Append("order by t2.vcName,t1.vcOrderNo,t1.vcPart_id,t3.dDeliveryDate    \n");
@@ -181,7 +181,7 @@ namespace DataAccess
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strautoid_main,
-            string vcPart_id, string vcOrderNo, string strSupplier_GQ, ref string infopart, string iPackingQty)
+            string vcPart_id, string vcOrderNo, string strSupplier_GQ, ref string infopart, string iPackingQty,string strFunType)
         {
             try
             {
@@ -239,7 +239,9 @@ namespace DataAccess
                             lsOrderNo.Add(listInfoData[i]["vcOrderNo"].ToString());
                         if (lsPart_id.Contains(listInfoData[i]["vcPart_id"].ToString()) == false)
                             lsPart_id.Add(listInfoData[i]["vcPart_id"].ToString());
-                        if (listInfoData[i]["iDuiYingQuantity"].ToString() != "0")
+                        if (listInfoData[i]["iDuiYingQuantity"].ToString() != "0" || 
+                            (listInfoData[i]["iDuiYingQuantity"].ToString() == "0" && strFunType=="main")
+                            )
                         {
                             //插历史
                             sql.Append("INSERT INTO [TUrgentOrder_OperHistory]    \n");
@@ -256,7 +258,7 @@ namespace DataAccess
                             sql.Append("           ('" + listInfoData[i]["vcOrderNo"] + "'    \n");
                             sql.Append("           ,'" + listInfoData[i]["vcPart_id"] + "'    \n");
                             sql.Append("           ,'" + listInfoData[i]["vcSupplier_id"] + "'   \n");
-                            sql.Append("           ,nullif(" + listInfoData[i]["iDuiYingQuantity"] + ",'')   \n");
+                            sql.Append("           ,nullif('" + listInfoData[i]["iDuiYingQuantity"] + "','')   \n");
                             sql.Append("           ,nullif('" + listInfoData[i]["dDeliveryDate"] + "','')    \n");
                             sql.Append("           ,'supplier'    \n");
                             sql.Append("           ,'" + strUserId + "'    \n");
@@ -579,8 +581,8 @@ namespace DataAccess
                 strSql.Append(" set @day=(select vcValue1 from TOutCode where vcIsColum=0 and vcCodeId='C013') ");
                 strSql.Append(" UPDATE a SET ");
                 strSql.Append("      a.dOutPutDate=DATEADD(DAY,@day,dDeliveryDate), ");
-                strSql.Append("      a.vcOperatorID='" + strUserId + "', ");
-                strSql.Append("      a.dOperatorTime='" + now + "' ");
+                strSql.Append("      a.vcOperatorID='" + strUserId + "' ");
+                //strSql.Append("      a.dOperatorTime='" + now + "' ");
                 strSql.Append(" from (select * from TUrgentOrder_OperHistory where vcInputType='supplier' and dDeliveryDate is not null and dOutPutDate is null) a  \n ");
                 strSql.Append(" inner join  \n ");
                 strSql.Append(" (  \n ");
@@ -591,7 +593,7 @@ namespace DataAccess
                 strSql.AppendLine("insert into TUrgentOrder_OperHistory (vcOrderNo,vcPart_id,vcSupplier_id,iDuiYingQuantity,dDeliveryDate,dOutPutDate,");
                 strSql.AppendLine("vcInputType,vcOperatorID,dOperatorTime,decBoxQuantity)");
                 strSql.AppendLine("select t1.vcOrderNo,t1.vcPart_id,t1.vcSupplier_id,t1.iDuiYingQuantity,t1.dDeliveryDate,t1.dOutPutDate,");
-                strSql.AppendLine("'company','" + strUserId + "','" + now + "',t1.decBoxQuantity ");
+                strSql.AppendLine("'company',t1.vcOperatorID,t1.dOperatorTime,t1.decBoxQuantity ");
                 strSql.AppendLine("from (");
                 strSql.AppendLine("	select * from TUrgentOrder_OperHistory where vcInputType='supplier'");
                 strSql.AppendLine(")t1");
@@ -658,8 +660,8 @@ namespace DataAccess
                 strSql.Append(" set @day=(select vcValue1 from TOutCode where vcIsColum=0 and vcCodeId='C013') ");
                 strSql.AppendLine("update b set ");
                 strSql.AppendLine(" b.dOutPutDate=DATEADD(DAY,@day,dDeliveryDate), ");
-                strSql.AppendLine(" b.vcOperatorID='" + strUserId + "', ");
-                strSql.AppendLine(" b.dOperatorTime='" + now + "' ");
+                strSql.AppendLine(" b.vcOperatorID='" + strUserId + "' ");
+                //strSql.AppendLine(" b.dOperatorTime='" + now + "' ");
                 strSql.AppendLine(" from ");
                 strSql.AppendLine(" (select * from TUrgentOrder");
                 strSql.Append(" WHERE (isnull(vcStatus,'')='2' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1') ");//这几个状态(1)是可操作的状态
@@ -690,7 +692,7 @@ namespace DataAccess
                 strSql.AppendLine("insert into TUrgentOrder_OperHistory (vcOrderNo,vcPart_id,vcSupplier_id,iDuiYingQuantity,dDeliveryDate,dOutPutDate,");
                 strSql.AppendLine("vcInputType,vcOperatorID,dOperatorTime,decBoxQuantity)");
                 strSql.AppendLine("select t1.vcOrderNo,t1.vcPart_id,t1.vcSupplier_id,t1.iDuiYingQuantity,t1.dDeliveryDate,t1.dOutPutDate,");
-                strSql.AppendLine("'company','" + strUserId + "','" + now + "',t1.decBoxQuantity ");
+                strSql.AppendLine("'company',t1.vcOperatorID,t1.dOperatorTime,t1.decBoxQuantity ");
                 strSql.AppendLine("from (");
                 strSql.AppendLine("	select * from TUrgentOrder_OperHistory where vcInputType='supplier'");
                 strSql.AppendLine(")t1");

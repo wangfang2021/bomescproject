@@ -167,7 +167,7 @@ namespace SPPSApi.Controllers.G14
             {
                 DataTable dataTable = fS1401_Logic.getSearchInfo(strPartId, strSupplierId, strSupplierPlant, strHaoJiu, strInOut, strOrderPlant, strFrom, strTo, strCarModel, strCheckType, strSPISStatus, listTime);
 
-                string[] fields = { "vcPartId", "vcPartENName", "dFromTime", "dToTime", "vcCarfamilyCode", "vcOrderPlant", "vcSupplierId", "vcSupplierPlant", "vcInOut", "vcHaoJiu", "vcOESP", "vcStateFX", "vcFXNO", "vcPackType", "vcCheckType", "vcSPISStatus" };
+                string[] fields = { "vcPartId", "vcPartENName", "dFromTime", "dToTime", "vcCarfamilyCode", "vcOrderPlant", "vcSupplierId", "vcSupplierPlant", "vcInOut", "vcHaoJiu", "vcPart_id_HK", "vcOESP", "vcStateFX", "vcFXNO", "vcPackType", "vcCheckType", "vcSPISStatus" };
 
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS1401_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")

@@ -204,7 +204,7 @@ namespace SPPSApi.Controllers.G07
             }
             string OrderFrom = dataForm.OrderFrom;
             string OrderTo = dataForm.OrderTo;
-            string PackNo = dataForm.PackNo;
+            string PackNo = dataForm.PackNO;
             string PackGPSNo = dataForm.PackGPSNo;
             List<Object> Type = new List<object>();
             if (dataForm.Type.ToObject<List<Object>>() == null)
@@ -237,6 +237,8 @@ namespace SPPSApi.Controllers.G07
             {
                 strSupplierCode = dataForm.SupplierName.ToObject<List<Object>>();
             }
+            
+
             string ZuCode = dataForm.ZuCode;
             string dFaZhuFrom = dataForm.dFaZhuFrom;
             string dFaZhuTo = dataForm.dFaZhuTo;
@@ -244,6 +246,8 @@ namespace SPPSApi.Controllers.G07
             string dNaQiTo = dataForm.dNaQiTo;
             string dNaRuFrom = dataForm.dNaRuFrom;
             string dNaRuTo = dataForm.dNaRuTo;
+
+
 
             try
             {

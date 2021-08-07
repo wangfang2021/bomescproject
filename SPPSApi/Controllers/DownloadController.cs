@@ -121,14 +121,15 @@ namespace SPPSApi.Controllers
                 //Console.WriteLine(environment);
                 if (!environment.Contains("windows"))
                 {
-                    //Console.WriteLine("读取linux");
-                    string realPath = ComFunction.HttpDownload(@"Doc\pdf\Order\", path, _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "pdf" + Path.DirectorySeparatorChar + "Order");
-                    //Console.WriteLine("读取成功后的地址");
+                    Console.WriteLine("读取linux");
+                    string realPath = ComFunction.HttpDownload(@"Doc\PDF\Order\", path, _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "PDF" + Path.DirectorySeparatorChar + "Order");
+                    Console.WriteLine(realPath);
+                    Console.WriteLine("读取成功后的地址");
                     string filepath = System.IO.Path.GetFileName(realPath);
-                    //Console.WriteLine(realPath);
+                    Console.WriteLine(realPath);
                     var provider = new FileExtensionContentTypeProvider();
                     FileInfo fileInfo = new FileInfo(realPath);
-                    //Console.WriteLine(filepath);
+                    Console.WriteLine(filepath);
                     var ext = fileInfo.Extension;
                     new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
                     byte[] bt = System.IO.File.ReadAllBytes(realPath);

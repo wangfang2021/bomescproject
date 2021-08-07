@@ -77,9 +77,9 @@ namespace Logic
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strautoid_main, 
-            string vcPart_id, string vcOrderNo, string vcSupplier_id,ref string infopart,string iPackingQty)
+            string vcPart_id, string vcOrderNo, string vcSupplier_id,ref string infopart,string iPackingQty,string strFunType)
         {
-            fs0502_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId,strautoid_main,  vcPart_id, vcOrderNo, vcSupplier_id,ref infopart, iPackingQty);
+            fs0502_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId,strautoid_main,  vcPart_id, vcOrderNo, vcSupplier_id,ref infopart, iPackingQty,strFunType);
         }
         #endregion
 

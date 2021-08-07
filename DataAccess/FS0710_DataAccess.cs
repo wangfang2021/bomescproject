@@ -39,13 +39,13 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dFrom))
                 {
-                    dFrom = "1900-01-01 0:00:00";
+                    dFrom = "1900-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dTo))
                 {
-                    dTo = "9999-12-31 0:00:00";
+                    dTo = "9999-12-31 00:00:00";
 
                 }
 
@@ -55,7 +55,7 @@ namespace DataAccess
                 strSql.AppendLine("   from      ");
                 strSql.AppendLine("  (     ");
                 strSql.AppendLine("  select * from TPackRuKuInFo where vcSJTime is not null      ");
-                strSql.AppendLine("  and vcSJTime between '" + dFrom + "' and '" + dTo + "'     ");
+                strSql.AppendLine("  and  CONVERT(datetime,vcSJTime,120)  between '" + dFrom + "' and '" + dTo + "'     ");
                 if (PackSpot.Count != 0)
                 {
                     strSql.AppendLine($"      AND vcPackSpot in( ");
@@ -88,8 +88,8 @@ namespace DataAccess
                 strSql.AppendLine("   )a left join    ");
                 strSql.AppendLine("   (    ");
                 strSql.AppendLine("   select vcSupplierCode,vcSupplierName,vcParstName,vcFormat,vcPackNo,vcPackGPSNo from TPackBase    ");
-                strSql.AppendLine("      where getdate() between dPackFrom and dPackTo      ");
-                strSql.AppendLine("   )b on a.vcPackNo=b.vcPackNo     ");
+               // strSql.AppendLine("      where getdate() between dPackFrom and dPackTo      ");
+                strSql.AppendLine("   )b on a.vcPackNo=b.vcPackNo and a.vcSupplieCode=b.vcSupplierCode     ");
                 strSql.AppendLine("   group by  a.vcSupplieCode,b.vcSupplierName,a.vcPackGPSNo,b.vcParstName,b.vcFormat    ");
                 strSql.AppendLine("   ,a.vcUnit,a.vcCostID ,a.vcPackSpot      ");
 
@@ -352,7 +352,7 @@ namespace DataAccess
                 strSql.AppendLine("     select vcSupplieCode,vcOrderNo,vcPackGPSNo,vcPackNo from TPackRuKuInFo    "); 
                 strSql.AppendLine("     --已验收时段为判断条件    ");
                 strSql.AppendLine("      where  isnull(vcSJTime,'')<>''     ");
-                strSql.AppendLine("  and dYanshouTime between '" + dFrom + "' and '" + dTo + "'     ");
+                strSql.AppendLine("  and  CONVERT(datetime,dYanshouTime,120) between '" + dFrom + "' and '" + dTo + "'     ");
                 if (strSupplierCode.Count != 0)
                 {
                     strSql.AppendLine($"      AND  vcSupplieCode in( ");
@@ -386,7 +386,7 @@ namespace DataAccess
                 strSql.AppendLine("     (     ");
                 strSql.AppendLine("     select * from TPackBase     ");
                 strSql.AppendLine("     where GETDATE() between dPackFrom and dPackTo   ");
-                strSql.AppendLine("     )d on c.vcPackNo=d.vcPackNo     ");
+                strSql.AppendLine("     )d on c.vcPackNo=d.vcPackNo and c.vcSupplieCode=d.vcSupplierCode      ");
                 strSql.AppendLine("        ");
                 strSql.AppendLine("  )a left join     ");
                 strSql.AppendLine("  (     ");

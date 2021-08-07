@@ -530,7 +530,8 @@ namespace Logic
                         dr["vcCSVCpdCompany"] = dtPercentage.Rows[i]["vcCSVCpdCompany"];
                         dr["vcSupplier_id"] = dtRow.Rows[0]["vcSupplier_id"];
                         dr["vcDock"] = dtRow.Rows[0]["vcDock"];
-                        dtCSV.Rows.Add(dr);
+                        dr["vcSupplierPlant"] = dtRow.Rows[0]["vcSupplierPlant"]; //2021-8-3 wlw 工区
+                        dtCSV.Rows.Add(dr); 
                         #endregion
                     }
                     //按vcCSVItemNo排序
@@ -595,6 +596,7 @@ namespace Logic
             dt.Columns.Add("vcD31");
             dt.Columns.Add("vcSupplier_id");
             dt.Columns.Add("vcDock");
+            dt.Columns.Add("vcSupplierPlant");
         }
         #endregion
 

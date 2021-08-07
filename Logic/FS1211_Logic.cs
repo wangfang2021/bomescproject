@@ -193,10 +193,10 @@ namespace Logic
                 }
                 for (int i = 0; i < dtED.Rows.Count; i++)
                 {
-                    string partsno = dtED.Rows[i]["partsno"].ToString();
-                    string dock = dtED.Rows[i]["dock"].ToString();
-                    string order = dtED.Rows[i]["kanbanorderno"].ToString().Trim();
-                    string serial = dtED.Rows[i]["kanbanserial"].ToString();
+                    string partsno = dtED.Rows[i]["vcPart_id"].ToString();
+                    string dock = dtED.Rows[i]["vcSR"].ToString();
+                    string order = dtED.Rows[i]["vcKBOrderNo"].ToString().Trim();
+                    string serial = dtED.Rows[i]["vcKBLFNo"].ToString();
                     string ED = "E";
                     DataTable dttmp = new DataTable();
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -225,7 +225,7 @@ namespace Logic
                             tmpMon = "TD";
                         }
                         string colname = tmpMon + day + zhi + "A";
-                        DataRow[] dr = dtNZ.Select("vcPartsNo ='" + dtED.Rows[i]["partsno"].ToString() + "' and vcDock='" + dtED.Rows[i]["dock"].ToString() + "' and EDflag ='" + ED + "' ");
+                        DataRow[] dr = dtNZ.Select("vcPartsNo ='" + dtED.Rows[i]["vcPart_id"].ToString() + "' and vcDock='" + dtED.Rows[i]["vcSR"].ToString() + "' and EDflag ='" + ED + "' ");
                         if (dr.Length == 1)
                         {
                             dr[0][colname] = Convert.ToInt32(dr[0][colname].ToString().Length == 0 ? "0" : dr[0][colname].ToString()) + Convert.ToInt32(dtED.Rows[i]["num"]);
@@ -517,7 +517,7 @@ namespace Logic
             string tmpslt = " 1=1 ";
             if (vcPartsno.Length > 0)
             {
-                tmpslt += " and  vcPartsNo like '%" + vcPartsno + "%'";
+                tmpslt += " and vcPartsNo like '%" + vcPartsno + "%'";
             }
             if (vcDock.Length > 0)
             {

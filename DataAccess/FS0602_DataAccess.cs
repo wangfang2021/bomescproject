@@ -1056,7 +1056,7 @@ namespace DataAccess
                 strSql.AppendLine("--插历史");
                 strSql.AppendLine("insert into TSoq_OperHistory (vcYearMonth,vcPart_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,vcInputType,vcOperator,dOperatorTime)");
                 strSql.AppendLine("select vcYearMonth,vcPart_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,'company',vcOperator,GETDATE() from TSoq_temp where vcYearMonth='" + strYearMonth + "' and vcOperator='" + strOperId + "'");
-                strSql.AppendLine("--更新调整后字段");
+                //strSql.AppendLine("--更新调整后字段");
                 //strSql.AppendLine("update t2 set t2.iTzhSOQN=t1.iTzhSOQN,t2.iTzhSOQN1=t1.iTzhSOQN1,t2.iTzhSOQN2=t1.iTzhSOQN2,vcOperator='" + strOperId + "',dOperatorTime=GETDATE(),vcLastTimeFlag='" + strLastTimeFlag + "'");
                 //strSql.AppendLine("from");
                 //strSql.AppendLine("(select * from TSoq_temp where vcYearMonth='" + strYearMonth + "' and vcOperator='" + strOperId + "')t1 ");
@@ -1064,6 +1064,16 @@ namespace DataAccess
                 //strSql.AppendLine("(select * from  TSoq where vcYearMonth='" + strYearMonth + "')t2 ");
                 //strSql.AppendLine("on t1.vcYearMonth=t2.vcYearMonth and t1.vcPart_id=t2.vcPart_id");
                 //strSql.AppendLine("where isnull(t1.iTzhSOQN,'')<>isnull(t2.iTzhSOQN,'') or isnull(t1.iTzhSOQN1,'')<>isnull(t2.iTzhSOQN1,'') or isnull(t1.iTzhSOQN2,'')<>isnull(t2.iTzhSOQN2,'')");
+                //======20210721    根据孟铭需求调整    begin
+                strSql.AppendLine("--更新状态");
+                strSql.AppendLine("update b set b.vcDyState=case when a.iTzhSOQN<>b.iCbSOQN or a.iTzhSOQN1<>b.iCbSOQN1 or a.iTzhSOQN2<>b.iCbSOQN2 then '2' else '3' end");
+                strSql.AppendLine("from");
+                strSql.AppendLine("(select vcYearMonth,vcPart_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,'company' as vcInputType,vcOperator,GETDATE() as dOperatorTime");
+                strSql.AppendLine("from TSoq_temp where vcYearMonth='" + strYearMonth + "' and vcOperator='" + strOperId + "')a");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(select * from TSoq  where vcYearMonth='" + strYearMonth + "')b");
+                strSql.AppendLine("on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id");
+                //======end
                 strSql.AppendLine("--走到保存，则异常信息肯定没有了，删除TSoqInputErrDetail_Save");
                 strSql.AppendLine("delete TSoqInputErrDetail_Save where vcOperator='" + strOperId + "' and vcYearMonth='" + strYearMonth + "'");
                 strSql.AppendLine("--记录日志");

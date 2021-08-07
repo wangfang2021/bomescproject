@@ -226,6 +226,7 @@ namespace DataAccess
         public DataTable getWeekPackPlan_Sum(string strMonth, string strPlant) //wlw
         {
             StringBuilder sb = new StringBuilder();
+            sb.Append("select a.*, b.vcSupplierPlant from ( \r\n"); //2021-8-3 wlw
             sb.Append("select vcMonth, vcPartsno, vcDock, vcCarType, vcProject1, vcProjectName, vcMonTotal, \r\n");
             sb.Append("isnull(vcD1b,0)+isnull(vcD1y,0) as vcD1,isnull(vcD2b,0)+isnull(vcD2y,0) as vcD2,isnull(vcD3b,0)+isnull(vcD3y,0) as vcD3, \r\n");
             sb.Append("isnull(vcD4b,0)+isnull(vcD4y,0) as vcD4,isnull(vcD5b,0)+isnull(vcD5y,0) as vcD5,isnull(vcD6b,0)+isnull(vcD6y,0) as vcD6, \r\n");
@@ -255,6 +256,8 @@ namespace DataAccess
             sb.Append("isnull(vcD31b,0)+isnull(vcD31y,0) as vcD31,montouch,DADDTIME,DUPDTIME,CUPDUSER,vcSupplier_id from WeekPackPlanTbl  \r\n");
             sb.Append("where montouch='" + strMonth + "' and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant='" + strPlant + "'  \r\n");
             sb.Append("and vcPartsNo=WeekPackPlanTbl.vcPartsno  and dTimeFrom<='" + strMonth + "' and dTimeTo>='" + strMonth + "')  \r\n");
+            sb.Append(") a left join TPartInfoMaster b on a.vcPartsno=b.vcPartsNo and a.vcDock=b.vcDock ");//2021-8-3 wlw
+
             DataTable dt;
             try
             {
@@ -390,7 +393,7 @@ namespace DataAccess
                     sb.Append("vcTargetMonthFlag, vcTargetMonthLast,  \r\n");
                     sb.Append("vcPlantQtyDailySum, vcInputQtyDailySum, vcResultQtyDailySum, vcOperatorID, dOperatorTime) \r\n");
                     sb.Append("values('" + vcPackPlant + "','" + dt.Rows[i]["vcMonth"].ToString().Replace("-", "") + "','" + dt.Rows[i]["vcDock"].ToString() + "','" + dt.Rows[i]["vcCSVCpdCompany"].ToString() + "','W','" + dt.Rows[i]["vcOrderNo"].ToString() + "','" + dt.Rows[i]["vcCSVItemNo"].ToString() + "', \r\n");
-                    sb.Append("'" + dt.Rows[i]["vcCSVOrderDate"].ToString() + "',getdate(),'" + dt.Rows[i]["vcPartsno"].ToString() + "','0','" + dt.Rows[i]["vcCSVCarFamilyCode"].ToString() + "','','" + getPackSpot(dt.Rows[i]["vcPartsno"].ToString(), dt.Rows[i]["vcCSVCpdCompany"].ToString(), dt.Rows[i]["vcSupplier_id"].ToString(), vcPackPlant) + "','" + dt.Rows[i]["vcSupplier_id"].ToString() + "','', \r\n");
+                    sb.Append("'" + dt.Rows[i]["vcCSVOrderDate"].ToString() + "',getdate(),'" + dt.Rows[i]["vcPartsno"].ToString() + "','0','" + dt.Rows[i]["vcCSVCarFamilyCode"].ToString() + "','','" + getPackSpot(dt.Rows[i]["vcPartsno"].ToString(), dt.Rows[i]["vcCSVCpdCompany"].ToString(), dt.Rows[i]["vcSupplier_id"].ToString(), vcPackPlant) + "','" + dt.Rows[i]["vcSupplier_id"].ToString() + "','" + dt.Rows[i]["vcSupplierPlant"].ToString() + "', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD1"] + "','" + dt.Rows[i]["vcD2"] + "','" + dt.Rows[i]["vcD3"] + "','" + dt.Rows[i]["vcD4"] + "','" + dt.Rows[i]["vcD5"] + "','" + dt.Rows[i]["vcD6"] + "','" + dt.Rows[i]["vcD7"] + "', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD8"] + "','" + dt.Rows[i]["vcD9"] + "','" + dt.Rows[i]["vcD10"] + "','" + dt.Rows[i]["vcD11"] + "','" + dt.Rows[i]["vcD12"] + "','" + dt.Rows[i]["vcD13"] + "', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD14"] + "','" + dt.Rows[i]["vcD15"] + "','" + dt.Rows[i]["vcD16"] + "','" + dt.Rows[i]["vcD17"] + "','" + dt.Rows[i]["vcD18"] + "','" + dt.Rows[i]["vcD19"] + "', \r\n");

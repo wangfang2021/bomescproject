@@ -64,7 +64,8 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcOrderState"] != null && listInfoData[i]["vcOrderState"].ToString() == "待处理")
+                    string vcState = getState(ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], true));
+                    if (vcState == "待处理") //待处理状态，可以纳期确认
                     {
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                         sql.Append("  update TOrderUploadManage set \r\n");
@@ -103,7 +104,8 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcOrderState"].ToString() != "待处理" && listInfoData[i]["vcOrderState"].ToString() != "处理中")
+                    string vcState = getState(ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], true));
+                    if (vcState != "待处理" && vcState != "处理中")
                     {
                         msg = "订单“" + listInfoData[i]["vcOrderNo"] + "”状态不能做成！";
                         break;
@@ -185,6 +187,17 @@ namespace DataAccess
             {
                 throw ex;
             }
+        }
+        #endregion
+
+        #region 获取订单状态 2021-8-9 wlw
+        public string getState(string vcOrderNo)
+        {
+            string sql = "select b.vcName vcOrderState from TOrderUploadManage a left join (select * from TCode where vcCodeId='C044') b on a.vcOrderState=b.vcValue where vcOrderNo=" + vcOrderNo + "";
+            DataTable tb = excute.ExcuteSqlWithSelectToDT(sql);
+            if (tb != null && tb.Rows.Count > 0)
+                return tb.Rows[0][0].ToString();
+            return "";
         }
         #endregion
     }

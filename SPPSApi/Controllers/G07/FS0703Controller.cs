@@ -32,7 +32,7 @@ namespace SPPSApi.Controllers.G07
 
         FS0703_Logic FS0703_Logic = new FS0703_Logic();
         private readonly string FunctionID = "FS0703";
-        
+
         public FS0703Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
@@ -58,7 +58,7 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_C023 = ComFunction.convertAllToResult(FS0701_Logic.SearchPackSpot(loginInfo.UserId));//包装场
 
                 res.Add("C023", dataList_C023);
-                
+
 
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0701_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
@@ -127,42 +127,47 @@ namespace SPPSApi.Controllers.G07
                     FS0703_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorPartId, SupplierCodeList);
                 }
 
-                //DataTable dtcheck = FS0703_Logic.SearchCheck();
+                DataTable dtcheck = FS0703_Logic.SearchCheck();
 
                 DataTable dtcope = dt.Copy();
                 DataTable dtException = new DataTable();
                 dtException.Columns.Add("vcpart_id", Type.GetType("System.String"));
                 dtException.Columns.Add("vcException", Type.GetType("System.String"));
-            
+
                 dtcope.TableName = "123";
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if (string.IsNullOrEmpty(dt.Rows[i]["vcPackNo"].ToString()))
+                    if (dtcheck.Select("vcPackNo='" + dt.Rows[i]["vcPackNo"].ToString() + "' and vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'").Length == 0)
                     {
-                        dtcope = new DataTable();
-                        DataRow drImport = dtException.NewRow();
-                        drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
-                        drImport["vcException"] = "没有维护包材品番信息！";
-                        dtException.Rows.Add(drImport);
+
+                        if (string.IsNullOrEmpty(dt.Rows[i]["vcPackNo"].ToString()))
+                        {
+                            dtcope = new DataTable();
+                            DataRow drImport = dtException.NewRow();
+                            drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
+                            drImport["vcException"] = "没有维护包材品番信息！";
+                            dtException.Rows.Add(drImport);
+                        }
+                        if (string.IsNullOrEmpty(dt.Rows[i]["dUsedFrom"].ToString()) || string.IsNullOrEmpty(dt.Rows[i]["dUsedTo"].ToString()))
+                        {
+                            dtcope = new DataTable();
+                            DataRow drImport = dtException.NewRow();
+                            drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
+                            drImport["vcException"] = "没有维护包材有效周期！";
+                            dtException.Rows.Add(drImport);
+                        }
+                        else if (!(Convert.ToDateTime(dt.Rows[i]["dUsedFrom"]) < DateTime.Now) && !(DateTime.Now < Convert.ToDateTime(dt.Rows[i]["dUsedTo"])))
+                        {
+                            dtcope = new DataTable();
+                            DataRow drImport = dtException.NewRow();
+                            drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
+                            drImport["vcException"] = "此包材失效！";
+                            dtException.Rows.Add(drImport);
+                        }
                     }
-                    if (string.IsNullOrEmpty(dt.Rows[i]["dUsedFrom"].ToString()) || string.IsNullOrEmpty(dt.Rows[i]["dUsedTo"].ToString()))
-                    {
-                        dtcope = new DataTable();
-                        DataRow drImport = dtException.NewRow();
-                        drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
-                        drImport["vcException"] = "没有维护包材有效周期！";
-                        dtException.Rows.Add(drImport);
-                    }
-                    else if (!(Convert.ToDateTime(dt.Rows[i]["dUsedFrom"]) < DateTime.Now) && !(DateTime.Now < Convert.ToDateTime(dt.Rows[i]["dUsedTo"])))
-                    {
-                        dtcope = new DataTable();
-                        DataRow drImport = dtException.NewRow();
-                        drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
-                        drImport["vcException"] = "此包材失效！";
-                        dtException.Rows.Add(drImport);
-                    }
+
                 }
-                
+
                 if (dtException.Rows.Count > 0)
                 {
                     FS0703_Logic.InsertCheck(dtException, loginInfo.UserId);
@@ -262,7 +267,7 @@ namespace SPPSApi.Controllers.G07
                     "iDay31","dZYTime"
                 };
 
-            
+
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "月度内示书导出", ref resMsg);
                 if (filepath == "")
                 {
@@ -392,7 +397,7 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "没有可发送数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                
+
                 if (dt.Rows.Count == 0)
                 {
 
@@ -401,7 +406,8 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-                if (dt.Rows[0]["vcIsorNoPrint"].ToString()!="1") {
+                if (dt.Rows[0]["vcIsorNoPrint"].ToString() != "1")
+                {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "请导出再发送！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

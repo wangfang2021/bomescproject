@@ -93,7 +93,7 @@ namespace DataAccess
                 strSQL.AppendLine(" ) T1");
                 strSQL.AppendLine("  left join (select vcPartsNo,vcPartFrequence,dTimeFrom,dTimeTo from tPartInfoMaster) T2");//给看板打印数据left join品番频度 - 20190104李兴旺
                 strSQL.AppendLine("  on T1.vcPartsNo=T2.vcPartsNo and T2.dTimeFrom<=T1.vcPlanMonth and T2.dTimeTo>=T1.vcPlanMonth ");
-                //strSQL.AppendLine("  order by T1.vcPorType,T1.vcKBorderno,T2.vcPartFrequence,T1.vcKBSerial");
+                strSQL.AppendLine("  order by T1.vcPorType,T1.vcKBorderno,T2.vcPartFrequence,T1.vcKBSerial");
             }
             else
             {

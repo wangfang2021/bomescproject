@@ -974,7 +974,7 @@ namespace SPPSApi.Controllers.G12
             {
                 strSQL.AppendLine(" and B.vcPlant = '" + vcPlant + "'");
             }
-            strSQL.AppendLine("order by vcProType,vcKBorderno,A.vcPartFrequence,A.vcKBSerial");//添加按品番排序（取消），添加品番频度排序
+            strSQL.AppendLine("order by A.vcPartFrequence,vcProType,vcKBorderno,A.vcKBSerial");//添加按品番排序（取消），添加品番频度排序
             dt = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
             dt.Columns.Remove("vcQFflag");
             dt.Columns.Remove("vcPartFrequence");

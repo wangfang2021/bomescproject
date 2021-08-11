@@ -1395,7 +1395,7 @@ namespace SPPSApi.Controllers.P01
                 #endregion
 
                 #region //10 创建订单信息数据结构DataTable
-                //10.1 查询
+                //10.1 查询 
                 DataTable dtOrder_Temp = dsInPutQBInfo.Tables[5].Clone();
                 DataTable dtORD_INOUT_Temp = dsInPutQBInfo.Tables[12].Clone();
                 for (int i = 0; i < dsInPutQBInfo.Tables[11].Rows.Count; i++)

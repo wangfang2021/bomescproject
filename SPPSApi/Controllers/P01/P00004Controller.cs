@@ -399,7 +399,7 @@ namespace SPPSApi.Controllers.P01
                     apiResult.data = "装箱数据异常，确保出荷数据准确，请联系管理员处理后再试[A]。";
                     apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                } 
                 if (dsDockInfo.Tables[0].Rows.Count == 0 || dsDockInfo.Tables[1].Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

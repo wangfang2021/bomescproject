@@ -630,24 +630,24 @@ namespace BatchProcess
 
                 if (string.IsNullOrEmpty(dFromB))
                 {
-                    dFromB = "1990-01-01 0:00:00";
+                    dFromB = "1990-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dFromE))
                 {
-                    dFromE = "9999-12-31 0:00:00";
+                    dFromE = "9999-12-31 23:59:59";
 
                 }
                 if (string.IsNullOrEmpty(dToB))
                 {
-                    dToB = "1990-01-01 0:00:00";
+                    dToB = "1990-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dToE))
                 {
-                    dToE = "9999-12-31 0:00:00";
+                    dToE = "9999-12-31 23:59:59";
 
                 }
                 StringBuilder strSql = new StringBuilder();
@@ -676,8 +676,8 @@ namespace BatchProcess
                     strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
                 if (!string.IsNullOrEmpty(PackGPSNo))
                     strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
-                strSql.AppendLine($"      AND dPackFrom BETWEEN '{dFromB}' and '{dFromE}'");
-                strSql.AppendLine($"      AND dPackTo BETWEEN '{dToB}' and '{dToE}'");
+                //strSql.AppendLine($"      AND dPackFrom BETWEEN '{dFromB}' and '{dFromE}'");
+                //strSql.AppendLine($"      AND dPackTo BETWEEN '{dToB}' and '{dToE}'");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

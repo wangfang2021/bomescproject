@@ -289,10 +289,10 @@ namespace DataAccess
                 //strSql.AppendLine(" from (   ");
 
                 strSql.AppendLine("  select Table1.vcPackGPSNo,Table1.vcBZPlant,   ");
-                strSql.AppendLine("  case when Table1.iRelease>=Table1.iPartNums-Table1.iNumber then Table1.iRelease    ");
-                strSql.AppendLine("  when Table1.iRelease<Table1.iPartNums-Table1.iNumber then Table1.iPartNums-Table1.iNumber   ");
-                strSql.AppendLine("  else Table1.iPartNums end   ");
-                strSql.AppendLine("  as iNum   ");
+                //strSql.AppendLine("  case when Table1.iRelease>=Table1.iPartNums-Table1.iNumber then Table1.iRelease    ");
+                //strSql.AppendLine("  when Table1.iRelease<Table1.iPartNums-Table1.iNumber then Table1.iPartNums-Table1.iNumber   ");
+                //strSql.AppendLine("  else Table1.iPartNums end   ");
+                strSql.AppendLine("  Table1.iPartNums-Table1.iNumber as iNum   ");
                 strSql.AppendLine("  from (   ");
                 strSql.AppendLine("  select t1.vcPackGPSNo,t1.vcBZPlant,t1.iPartNums,t1.iRelease,isnull(t2.iNumber,0) as iNumber   ");
                 strSql.AppendLine("  from (      ");

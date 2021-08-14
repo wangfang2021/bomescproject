@@ -225,8 +225,11 @@ namespace BatchProcess
                 sql.Append("          ,temp.[iBiYao]                    \n");
                 sql.Append("          ,'' as vcPackSpot                    \n");
                 sql.Append("          ,Temp2.vcChanges as varChangedItem            \n");
-                sql.Append("          ,temp.[vcReTime]   \n");
-                sql.Append("           \n");
+
+                //sql.Append("          ,temp.[vcReTime]   \n");
+
+                sql.Append("          ,temp2. dInSPMasterTime  as vcReTime \n");
+
                 sql.Append("   from         \n");
                 sql.Append("  (         \n");
                 sql.Append("   select ss.[vcPartsNo],ss.[vcPackNo],ss.[vcPackGPSNo],sss.dPackFrom    \n");
@@ -295,7 +298,7 @@ namespace BatchProcess
                 sql.Append("     	 )Temp1 on temp.vcPartsNo=Temp1.vcPartId      \n");
                 sql.Append("     	 left join      \n");
                 sql.Append("     (      \n");
-                sql.Append("     select vcChanges,vcPartId,vcReceiver,dFromTime,dToTime,vcCarModel,vcSupplierId from TSPMaster where isnull(vcDelete,'')<>'1'     \n");
+                sql.Append("     select vcChanges,vcPartId,vcReceiver,dFromTime,dToTime,vcCarModel,vcSupplierId,CONVERT(varchar(100),dInSPMasterTime,23)as dInSPMasterTime from TSPMaster where isnull(vcDelete,'')<>'1'     \n");
                 sql.Append("      and dFromTime<>dToTime       \n");
                 sql.Append("     )Temp2 on Temp1.vcpartid=Temp2.vcpartid and Temp2.dFromTime=Temp1.dTime       \n");
                 sql.Append("     left join      \n");
@@ -333,7 +336,8 @@ namespace BatchProcess
                 sql.Append("      '' as vcPackSpot ,         \n");
                 sql.Append("      Temp2.vcChanges as [varChangedItem]           \n");
                 ///todo
-                sql.Append("     ,'" + dtimenow + "' as  vcReTime       \n");
+                sql.Append("      ,Temp2.dInSPMasterTime as  vcReTime       \n");
+                //sql.Append("     ,'" + dtimenow + "' as  vcReTime       \n");
 
                 sql.Append("   from         \n");
                 sql.Append("   (         \n");
@@ -388,7 +392,7 @@ namespace BatchProcess
                 sql.Append("       )Temp1     \n");
                 sql.Append("       left join    \n");
                 sql.Append("       (    \n");
-                sql.Append("       select vcChanges,vcPartId,vcReceiver,dFromTime,dToTime,vcCarModel,vcSupplierId from TSPMaster where isnull(vcDelete,'')<>'1'   \n");
+                sql.Append("       select vcChanges,vcPartId,vcReceiver,dFromTime,dToTime,vcCarModel,vcSupplierId ,CONVERT(varchar(100),dInSPMasterTime,23)as dInSPMasterTime from TSPMaster where isnull(vcDelete,'')<>'1'   \n");
                 sql.Append("        and dFromTime<>dToTime   \n");
                 sql.Append("       )Temp2 on Temp1.vcpartid=Temp2.vcpartid and Temp2.dFromTime=Temp1.dTime     \n");
                 sql.Append("       left join    \n");

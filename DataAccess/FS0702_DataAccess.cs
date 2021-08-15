@@ -158,7 +158,7 @@ namespace DataAccess
                 strSql.AppendLine("   )c on a.vcCar=c.vcValue   	   ");
                 strSql.AppendLine("   left join  ");
                 strSql.AppendLine("   (  ");
-                strSql.AppendLine("   select * from TPackageMaster  ");
+                strSql.AppendLine("   select * from TPackageMaster where dTimeFrom<>dTimeTo ");
                 strSql.AppendLine("   )d on a.vcPartsNo= d.vcPart_id  ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C002') m  ");
                 strSql.AppendLine("  on a.varChangedItem = m.vcValue  ");

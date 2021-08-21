@@ -117,7 +117,7 @@ namespace DataAccess
 
                 }
                 for (int j=1;j<=31- MonthDayNum;j++) {
-                    strSql.AppendLine("  '0' as iD'"+(j+ MonthDayNum).ToString() +"'  ,     ");
+                    strSql.AppendLine("  '0' as iD"+(j+ MonthDayNum).ToString() +"  ,     ");
                 }
                 strSql.AppendLine("  GETDATE() as dZCTime       ");
                 strSql.AppendLine("  from(       ");

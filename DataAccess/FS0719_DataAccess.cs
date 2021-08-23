@@ -1050,7 +1050,7 @@ namespace DataAccess
                 DataTable dtC062 = this.SearchC062();
                 StringBuilder sql = new StringBuilder();
                 StringBuilder sql1 = new StringBuilder();
-
+                //
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     DataRow[] drpm = dtpm.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "' and  vcBZPlant='" + dt.Rows[i]["vcPackSpot"] + "'");

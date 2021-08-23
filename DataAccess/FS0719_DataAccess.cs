@@ -1053,7 +1053,7 @@ namespace DataAccess
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    DataRow[] drpm = dtpm.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "' and  vcBZPlant='" + dt.Rows[i]["vcPackSpot"] + "'");
+                    DataRow[] drpm = dtpm.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "' and  vcBZPlant='" + dt.Rows[i]["vcPackSpot"] + "'");
                     //没有内饰
                     if (drpm.Length == 0 && (string.IsNullOrEmpty(dt.Rows[i]["vcRecover"].ToString()) || dt.Rows[i]["vcRecover"].ToString() == "0") && dtC062.Select("vcValue1='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "'").Length == 0)
                     {
@@ -1090,7 +1090,7 @@ namespace DataAccess
                         sql.AppendLine("            ) VALUES   \r\n");
                         //if (i != 0)
                         //    sql.AppendLine("       ,   \r\n");
-                        DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'");
+                        DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "'");
                         sql.AppendLine("       (   \r\n");
                         sql.AppendLine("     '" + dt.Rows[i]["vcOrderNo"].ToString() + "' ,\r\n");
                         sql.AppendLine("     '" + dt.Rows[i]["vcCangKuCode"].ToString() + "' ,\r\n");//一级仓库代码
@@ -1183,7 +1183,7 @@ namespace DataAccess
                         sql.AppendLine("            ) VALUES   \r\n");
                         //if (i != 0)
                         //    sql.AppendLine("       ,   \r\n");
-                        DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'");
+                        DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "'");
                         sql.AppendLine("       (   \r\n");
                         sql.AppendLine("     '" + dt.Rows[i]["vcOrderNo"].ToString() + "' ,\r\n");
                         sql.AppendLine("     '" + dt.Rows[i]["vcCangKuCode"].ToString() + "' ,\r\n");//一级仓库代码
@@ -1272,7 +1272,7 @@ namespace DataAccess
                             sql.AppendLine("            ) VALUES   \r\n");
                             //if (i != 0)
                             //    sql.AppendLine("       ,   \r\n");
-                            DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'");
+                            DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "'");
                             sql.AppendLine("       (   \r\n");
                             sql.AppendLine("     '" + dt.Rows[i]["vcOrderNo"].ToString() + "' ,\r\n");
                             sql.AppendLine("     '" + dt.Rows[i]["vcCangKuCode"].ToString() + "' ,\r\n");//一级仓库代码

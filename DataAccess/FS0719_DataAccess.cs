@@ -289,10 +289,10 @@ namespace DataAccess
                 //strSql.AppendLine(" from (   ");
 
                 strSql.AppendLine("  select Table1.vcPackGPSNo,Table1.vcBZPlant,   ");
-                strSql.AppendLine("  case when Table1.iRelease>=Table1.iPartNums-Table1.iNumber then Table1.iRelease    ");
-                strSql.AppendLine("  when Table1.iRelease<Table1.iPartNums-Table1.iNumber then Table1.iPartNums-Table1.iNumber   ");
-                strSql.AppendLine("  else Table1.iPartNums end   ");
-                strSql.AppendLine("  as iNum   ");
+                //strSql.AppendLine("  case when Table1.iRelease>=Table1.iPartNums-Table1.iNumber then Table1.iRelease    ");
+                //strSql.AppendLine("  when Table1.iRelease<Table1.iPartNums-Table1.iNumber then Table1.iPartNums-Table1.iNumber   ");
+                //strSql.AppendLine("  else Table1.iPartNums end   ");
+                strSql.AppendLine("  Table1.iPartNums-Table1.iNumber as iNum   ");
                 strSql.AppendLine("  from (   ");
                 strSql.AppendLine("  select t1.vcPackGPSNo,t1.vcBZPlant,t1.iPartNums,t1.iRelease,isnull(t2.iNumber,0) as iNumber   ");
                 strSql.AppendLine("  from (      ");
@@ -1050,10 +1050,10 @@ namespace DataAccess
                 DataTable dtC062 = this.SearchC062();
                 StringBuilder sql = new StringBuilder();
                 StringBuilder sql1 = new StringBuilder();
-
+                //
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    DataRow[] drpm = dtpm.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "' and  vcBZPlant='" + dt.Rows[i]["vcPackSpot"] + "'");
+                    DataRow[] drpm = dtpm.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "' and  vcBZPlant='" + dt.Rows[i]["vcPackSpot"] + "'");
                     //没有内饰
                     if (drpm.Length == 0 && (string.IsNullOrEmpty(dt.Rows[i]["vcRecover"].ToString()) || dt.Rows[i]["vcRecover"].ToString() == "0") && dtC062.Select("vcValue1='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "'").Length == 0)
                     {
@@ -1090,7 +1090,7 @@ namespace DataAccess
                         sql.AppendLine("            ) VALUES   \r\n");
                         //if (i != 0)
                         //    sql.AppendLine("       ,   \r\n");
-                        DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'");
+                        DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "'");
                         sql.AppendLine("       (   \r\n");
                         sql.AppendLine("     '" + dt.Rows[i]["vcOrderNo"].ToString() + "' ,\r\n");
                         sql.AppendLine("     '" + dt.Rows[i]["vcCangKuCode"].ToString() + "' ,\r\n");//一级仓库代码
@@ -1183,7 +1183,7 @@ namespace DataAccess
                         sql.AppendLine("            ) VALUES   \r\n");
                         //if (i != 0)
                         //    sql.AppendLine("       ,   \r\n");
-                        DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'");
+                        DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "'");
                         sql.AppendLine("       (   \r\n");
                         sql.AppendLine("     '" + dt.Rows[i]["vcOrderNo"].ToString() + "' ,\r\n");
                         sql.AppendLine("     '" + dt.Rows[i]["vcCangKuCode"].ToString() + "' ,\r\n");//一级仓库代码
@@ -1272,7 +1272,7 @@ namespace DataAccess
                             sql.AppendLine("            ) VALUES   \r\n");
                             //if (i != 0)
                             //    sql.AppendLine("       ,   \r\n");
-                            DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'");
+                            DataRow[] dr = dtamps.Select("PART_NO='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "'");
                             sql.AppendLine("       (   \r\n");
                             sql.AppendLine("     '" + dt.Rows[i]["vcOrderNo"].ToString() + "' ,\r\n");
                             sql.AppendLine("     '" + dt.Rows[i]["vcCangKuCode"].ToString() + "' ,\r\n");//一级仓库代码

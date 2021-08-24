@@ -506,7 +506,7 @@ namespace Logic
                     string strHosDate = strMonth + "/" + (100 + iNum).ToString().Substring(1, 2);
 
                     DataTable dtDailyPaper = getDailyPaper(strPackPlant, strHosDate, ref dtMessage);
-                    if(dtDailyPaper_M.Rows.Count== dtDailyPaper.Rows.Count)
+                    if (dtDailyPaper_M.Rows.Count == dtDailyPaper.Rows.Count)
                     {
                         for (int i = 0; i < dtDailyPaper_M.Rows.Count; i++)
                         {
@@ -609,7 +609,8 @@ namespace Logic
                                     {
                                         drDailyPaper_A["K"] = (Convert.ToDecimal(drDailyPaper_A["I"].ToString()) * 100 / Convert.ToDecimal(drDailyPaper_A["H"].ToString())).ToString("#0.00") + "%";
                                     }
-                                    drDailyPaper_A["L"] = Convert.ToDecimal(drDailyPaper_A["G"].ToString()) - Convert.ToDecimal(drDailyPaper_A["I"].ToString());//作业工时差
+                                    //drDailyPaper_A["L"] = Convert.ToDecimal(drDailyPaper_A["G"].ToString()) - Convert.ToDecimal(drDailyPaper_A["I"].ToString());//作业工时差
+                                    drDailyPaper_A["L"] = Convert.ToDecimal(drDailyPaper_A["I"].ToString()) - Convert.ToDecimal(drDailyPaper_A["G"].ToString());//作业工时差
 
                                     break;
                                 }

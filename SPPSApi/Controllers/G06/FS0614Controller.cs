@@ -144,9 +144,30 @@ namespace SPPSApi.Controllers.G06
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
+                List<string> orderListtmp = new List<string>();
                 if (listInfoData.Count > 0)
                 {
                     hasFind = true;
+                    for (int i = 0; i < listInfoData.Count; i++)
+                    {
+                        orderListtmp.Add(listInfoData[i]["vcOrderNo"].ToString());
+                    }
+
+                    List<string> ll = fs0614_logic.getUsingOrderList(orderListtmp);
+                    if (ll.Count > 0)
+                    {
+                        StringBuilder ss = new StringBuilder();
+                        for (int i = 0; i < ll.Count; i++)
+                        {
+                            if (ss.Length > 0)
+                                ss.Append(",");
+                            ss.Append(ll[i]);
+                        }
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "订单" + ss.ToString() + "正在制作，请稍后查询结果。";
+                                         
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 if (!hasFind)
                 {
@@ -245,7 +266,7 @@ namespace SPPSApi.Controllers.G06
                         var callClient = factory.CreateChannel();
                         setCRVToPDFRequestBody Body = new setCRVToPDFRequestBody();
                         Body.strScrpit = printsql;
-                        Body.strDiskFileName = strPath_pdf + node.orderNo + "_" + node.supplier+node.supplierPlant + ".pdf";
+                        Body.strDiskFileName = strPath_pdf + node.orderNo + "_" + node.supplier + node.supplierPlant + ".pdf";
                         Body.strCRVName = file_crv + dtPrinterInfo.Rows[0]["vcReports"].ToString();
                         Body.sqlUserID = dtPrinterInfo.Rows[0]["vcSqlUserID"].ToString();
                         Body.sqlPassword = dtPrinterInfo.Rows[0]["vcSqlPassword"].ToString();
@@ -266,8 +287,8 @@ namespace SPPSApi.Controllers.G06
 
                         labelBuilder.AppendLine("INSERT INTO dbo.TTagDownLoadList(vcOrderNo,vcSupplierId,vcTagZIP,vcCreaterId,dCreateTime) VALUES (");
                         labelBuilder.AppendLine(ComFunction.getSqlValue(node.orderNo, false) + ",");
-                        labelBuilder.AppendLine(ComFunction.getSqlValue(node.supplier+node.supplierPlant, false) + ",");
-                        labelBuilder.AppendLine("'" + node.orderNo + "_" + node.supplier+node.supplierPlant + ".pdf" + "',");
+                        labelBuilder.AppendLine(ComFunction.getSqlValue(node.supplier + node.supplierPlant, false) + ",");
+                        labelBuilder.AppendLine("'" + node.orderNo + "_" + node.supplier + node.supplierPlant + ".pdf" + "',");
                         labelBuilder.AppendLine("    '" + loginInfo.UserId + "',");
                         labelBuilder.AppendLine("	GETDATE())");
                     }

@@ -26,6 +26,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 检索
+
         public DataTable searchApi(string orderState, string targetYM, string orderNo, string vcOrderType, string dUpload, string memo)
         {
             try
@@ -85,16 +86,30 @@ namespace DataAccess
                 throw ex;
             }
         }
+
         #endregion
 
         #region 生成
+
         public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage, ref List<DownNode> DownList, string rootPath, string email)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
             sqlConnection.Open();
             SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+            //做成订单列表
+            List<string> orderListtmp = new List<string>();
+            for (int i = 0; i < listInfoData.Count; i++)
+            {
+                orderListtmp.Add(listInfoData[i]["vcOrderNo"].ToString());
+            }
+            //
             try
             {
+                //锁定订单
+                insertUsingOrder(orderListtmp);
+
+
+
                 FS0403_DataAccess fs0403_dataAccess = new FS0403_DataAccess();
                 List<string> TargetYM = new List<string>();
 
@@ -120,6 +135,7 @@ namespace DataAccess
                     DataTable dt = getDockTable(TargetYM[i]);
                     dockTmp.Add(TargetYM[i].ToString(), dt);
                 }
+
                 //获取soq验收数量
                 DataTable SoqDt = new DataTable();
                 DataRow[] drArrayN = null; //0 內制 1外制
@@ -189,6 +205,7 @@ namespace DataAccess
                         #endregion
 
                         #region 月度校验
+
                         int No = 1;
                         string strInOutflag = string.Empty;
                         Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
@@ -225,10 +242,12 @@ namespace DataAccess
                                     {
                                         drArrayTmp = drArrayN;
                                     }
+
                                     if (inout == "1")
                                     {
                                         drArrayTmp = drArrayW;
                                     }
+
                                     No++;
                                 }
                                 else
@@ -243,6 +262,7 @@ namespace DataAccess
                                         bReault = false;
                                     }
                                 }
+
                                 // 判定品番是否在临时品番里面
                                 bool isExist = false;
                                 for (int m = 0; m < drArrayTmp.Length; m++)
@@ -253,6 +273,7 @@ namespace DataAccess
                                         break;
                                     }
                                 }
+
                                 if (!isExist)
                                 {
                                     DataRow dataRow = dtMessage.NewRow();
@@ -324,6 +345,7 @@ namespace DataAccess
                                 bReault = false;
                             }
                         }
+
                         #endregion
 
                         #region 生成订单
@@ -339,7 +361,7 @@ namespace DataAccess
                                 string vcSeqno = detail.ItemNo.Trim();
                                 string vcDock = "";
                                 string vcSupplierId = "";
-                                string vcSupplierPlant = "";//工区
+                                string vcSupplierPlant = ""; //工区
 
                                 string vcCarType = "";
                                 string vcPartId_Replace = "";
@@ -371,6 +393,7 @@ namespace DataAccess
                                 #endregion
 
                                 #region 插入正常订单
+
                                 sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory, vcTargetYearMonth, vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id,vcPlantQtyDaily1,vcPlantQtyDaily2,vcPlantQtyDaily3,vcPlantQtyDaily4,vcPlantQtyDaily5,vcPlantQtyDaily6,vcPlantQtyDaily7,vcPlantQtyDaily8,vcPlantQtyDaily9,vcPlantQtyDaily10,vcPlantQtyDaily11,vcPlantQtyDaily12,vcPlantQtyDaily13,vcPlantQtyDaily14,vcPlantQtyDaily15,vcPlantQtyDaily16,vcPlantQtyDaily17,vcPlantQtyDaily18,vcPlantQtyDaily19,vcPlantQtyDaily20,vcPlantQtyDaily21,vcPlantQtyDaily22,vcPlantQtyDaily23,vcPlantQtyDaily24,vcPlantQtyDaily25,vcPlantQtyDaily26,vcPlantQtyDaily27,vcPlantQtyDaily28,vcPlantQtyDaily29,vcPlantQtyDaily30,vcPlantQtyDaily31,  vcTargetMonthFlag, vcTargetMonthLast, vcOperatorID, dOperatorTime,vcPlantQtyDailySum,vcWorkArea,vcInputQtyDailySum,vcResultQtyDailySum)");
                                 sbr.Append(" VALUES( ");
                                 sbr.Append(ComFunction.getSqlValue(vcPackingFactory, false) + ",");
@@ -430,6 +453,7 @@ namespace DataAccess
                                 #endregion
 
                                 #region 插入标签打印
+
                                 if (isTag.Equals("1"))
                                 {
                                     int qty = Convert.ToInt32(detail.QTY);
@@ -437,13 +461,13 @@ namespace DataAccess
                                     DataRow[] row = PackUnit.Select("vcPart_id = '" + detail.PartsNo + "' and vcReceiver = '" + detail.CPD + "' and vcSupplierId = '" + vcSupplierId + "' and dTimeFrom<='" + Time + "' and dTimeTo>='" + Time + "' ");
                                     int BZUnit = Convert.ToInt32(row[0]["vcBZUnit"].ToString());
 
-                                    string tmpString1 = "LBLH2";//标签连番、
-                                    string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
-                                    string formatServerTime = serverTime.Substring(0, 10).Replace("-", "");//格式化号口时间
+                                    string tmpString1 = "LBLH2"; //标签连番、
+                                    string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString(); //服务端时间
+                                    string formatServerTime = serverTime.Substring(0, 10).Replace("-", ""); //格式化号口时间
                                     //5.1 标签顺番更新==锁定顺番占用
                                     DataTable dtTagSeq = new P00001_DataAccess().setSeqNo(tmpString1, Convert.ToInt32(qty / BZUnit), formatServerTime);
                                     //5.2 标签号生成并更新TOperatorQB（需要一起更新）
-                                    string strTagSeqNo = dtTagSeq.Rows[0][0].ToString().PadLeft(5, '0');//标签连番
+                                    string strTagSeqNo = dtTagSeq.Rows[0][0].ToString().PadLeft(5, '0'); //标签连番
 
                                     int SeqNo = Convert.ToInt32(strTagSeqNo) - 1;
 
@@ -483,8 +507,8 @@ namespace DataAccess
                                         string qr1 = url + detail.PartsNo + sf + "B";
 
 
-                                        byte[] iCodemage = GenerateQRCode(qr);//二维码信息
-                                        byte[] iCodemage1 = GenerateQRCode(qr1);//二维码信息
+                                        byte[] iCodemage = GenerateQRCode(qr); //二维码信息
+                                        byte[] iCodemage1 = GenerateQRCode(qr1); //二维码信息
 
                                         StringBuilder tagsbr = new StringBuilder();
                                         tagsbr.AppendLine("INSERT INTO dbo.tPrintTemp_tag_FS1103(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcGetnum,iQrcode,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcSupplierId,vcOperatorID,dOperatorTime) VALUES (");
@@ -543,6 +567,7 @@ namespace DataAccess
                                     }
 
                                 }
+
                                 #endregion
 
                                 #region 插入ED订单
@@ -560,7 +585,7 @@ namespace DataAccess
                                     CPD = "";
                                     vcDock = "";
                                     vcSupplierId = "";
-                                    vcSupplierPlant = "";//工区
+                                    vcSupplierPlant = ""; //工区
                                     vcCarType = "";
                                     vcPartId_Replace = "";
                                     inout = "";
@@ -641,6 +666,7 @@ namespace DataAccess
                                             break;
                                         }
                                     }
+
                                     if (flag)
                                         EDList.Add(node);
                                 }
@@ -649,14 +675,17 @@ namespace DataAccess
                             }
 
                             #region 月度内示
+
                             SqlCommand sqlCommandNeiShi = sqlConnection.CreateCommand();
                             sqlCommandNeiShi.Transaction = sqlTransaction;
                             sqlCommandNeiShi.CommandType = CommandType.Text;
                             sqlCommandNeiShi.CommandText = MonthToNeishi(Time, userId);
                             sqlCommandNeiShi.ExecuteNonQuery();
+
                             #endregion
 
                             #region ED订单
+
                             SqlCommand sqlCommandED = sqlConnection.CreateCommand();
                             sqlCommandED.Transaction = sqlTransaction;
                             sqlCommandED.CommandType = CommandType.Text;
@@ -726,6 +755,7 @@ namespace DataAccess
                             #endregion
 
                             #region 修改订单状态
+
                             SqlCommand sqlCommandState = sqlConnection.CreateCommand();
                             sqlCommandState.Transaction = sqlTransaction;
                             sqlCommandState.CommandType = CommandType.Text;
@@ -734,6 +764,7 @@ namespace DataAccess
                             sbrState.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1' ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE(),dCreateDate = GETDATE() WHERE iAutoId =" + iAutoId + " ");
                             sqlCommandState.CommandText = sbrState.ToString();
                             sqlCommandState.ExecuteNonQuery();
+
                             #endregion
 
                         }
@@ -747,6 +778,7 @@ namespace DataAccess
 
 
                         #region 紧急检测
+
                         string vcOrderNoOld = getOrderNo(OrderNo, vcOrderNo);
                         string TargetTmp = ObjToString(listInfoData[i]["vcTargetYM"]);
                         DateTime Timet = DateTime.Parse(TargetTmp.Substring(0, 4) + "-" + TargetTmp.Substring(4, 2) + "-01");
@@ -917,6 +949,7 @@ namespace DataAccess
                                 #endregion
 
                                 #region 新增订单
+
                                 sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory,vcTargetYearMonth,vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id," + name + " vcTargetMonthLast, vcOperatorID, dOperatorTime,vcPlantQtyDailySum,vcWorkArea,vcInputQtyDailySum,vcResultQtyDailySum)");
                                 sbr.Append(" VALUES( ");
                                 sbr.Append(ComFunction.getSqlValue(vcPackingFactory, false) + ",");
@@ -975,6 +1008,7 @@ namespace DataAccess
                                 #endregion
 
                                 #region 插入标签打印
+
                                 if (isTag.Equals("1"))
                                 {
                                     int qty = Convert.ToInt32(detail.QTY);
@@ -982,13 +1016,13 @@ namespace DataAccess
                                     DataRow[] row = PackUnit.Select("vcPart_id = '" + detail.PartsNo + "' and vcReceiver = '" + detail.CPD + "' and vcSupplierId = '" + vcSupplierId + "' and dTimeFrom<='" + Time + "' and dTimeTo>='" + Time + "' ");
                                     int BZUnit = Convert.ToInt32(row[0]["vcBZUnit"].ToString());
 
-                                    string tmpString1 = "LBLH2";//标签连番、
-                                    string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
-                                    string formatServerTime = serverTime.Substring(0, 10).Replace("-", "");//格式化号口时间
+                                    string tmpString1 = "LBLH2"; //标签连番、
+                                    string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString(); //服务端时间
+                                    string formatServerTime = serverTime.Substring(0, 10).Replace("-", ""); //格式化号口时间
                                     //5.1 标签顺番更新==锁定顺番占用
                                     DataTable dtTagSeq = new P00001_DataAccess().setSeqNo(tmpString1, Convert.ToInt32(qty / BZUnit), formatServerTime);
                                     //5.2 标签号生成并更新TOperatorQB（需要一起更新）
-                                    string strTagSeqNo = dtTagSeq.Rows[0][0].ToString().PadLeft(5, '0');//标签连番
+                                    string strTagSeqNo = dtTagSeq.Rows[0][0].ToString().PadLeft(5, '0'); //标签连番
 
                                     int SeqNo = Convert.ToInt32(strTagSeqNo) - 1;
 
@@ -1003,7 +1037,7 @@ namespace DataAccess
                                     string carName = row1[0]["vcCarTypeName"].ToString();
                                     string vcPart_id1 = detail.PartsNo.Substring(0, 5) + "-" + detail.PartsNo.Substring(5, 5) + "-" + detail.PartsNo.Substring(10, 2);
                                     bool isExist = true;
-                                    DownNode node = new DownNode(vcOrderNo, vcSupplierId,vcSupplierPlant);
+                                    DownNode node = new DownNode(vcOrderNo, vcSupplierId, vcSupplierPlant);
                                     for (int n = 0; n < DownList.Count; n++)
                                     {
                                         if (DownList[n].isExist(node))
@@ -1028,8 +1062,8 @@ namespace DataAccess
                                         string qr1 = url + detail.PartsNo + sf + "B";
 
 
-                                        byte[] iCodemage = GenerateQRCode(qr);//二维码信息
-                                        byte[] iCodemage1 = GenerateQRCode(qr1);//二维码信息
+                                        byte[] iCodemage = GenerateQRCode(qr); //二维码信息
+                                        byte[] iCodemage1 = GenerateQRCode(qr1); //二维码信息
 
                                         StringBuilder tagsbr = new StringBuilder();
                                         tagsbr.AppendLine("INSERT INTO dbo.tPrintTemp_tag_FS1103(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcGetnum,iQrcode,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcSupplierId,vcOperatorID,dOperatorTime) VALUES (");
@@ -1088,6 +1122,7 @@ namespace DataAccess
                                     }
 
                                 }
+
                                 #endregion
 
                                 #region 插入ED订单
@@ -1105,7 +1140,7 @@ namespace DataAccess
                                     CPD = "";
                                     vcDock = "";
                                     vcSupplierId = "";
-                                    vcSupplierPlant = "";//工区
+                                    vcSupplierPlant = ""; //工区
                                     vcCarType = "";
                                     vcPartId_Replace = "";
                                     inout = "";
@@ -1164,6 +1199,7 @@ namespace DataAccess
                                             break;
                                         }
                                     }
+
                                     if (flag)
                                         EDList.Add(node);
                                 }
@@ -1172,6 +1208,7 @@ namespace DataAccess
 
 
                                 #region 计算包材
+
                                 foreach (string key in NQ.Keys)
                                 {
                                     DataRow[] packrows = PackInfo.Select("dFrom<='" + key + "' AND dTo>='" + key + "' AND dPackFrom<='" + key + "' AND dPackTo>='" + key + "' AND vcPartsNo = '" + vcPart_id + "'");
@@ -1217,6 +1254,7 @@ namespace DataAccess
                             }
 
                             #region ED订单
+
                             SqlCommand sqlCommandED = sqlConnection.CreateCommand();
                             sqlCommandED.Transaction = sqlTransaction;
                             sqlCommandED.CommandType = CommandType.Text;
@@ -1303,6 +1341,7 @@ namespace DataAccess
                     else if (Type.Equals("D"))
                     {
                         #region 日度订单校验
+
                         FS0403_DataAccess fs0403DataAccess = new FS0403_DataAccess();
                         string tm = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 4) + "-" + listInfoData[i]["vcTargetYM"].ToString().Substring(4, 2) + "-" + listInfoData[i]["vcTargetYM"].ToString().Substring(6, 2);
                         DataTable dtRiDuCheck = fs0403DataAccess.getModify(Convert.ToDateTime(tm));
@@ -1400,9 +1439,11 @@ namespace DataAccess
                                 }
                             }
                         }
+
                         #endregion
 
                         #region 生成
+
                         if (bReault)
                         {
                             #region 获取基础数据
@@ -1439,7 +1480,7 @@ namespace DataAccess
                                 string vcPartId_Replace = "";
                                 string inout = "";
                                 string packingSpot = "";
-                                string vcSupplierPlant = "";//工区
+                                string vcSupplierPlant = ""; //工区
                                 string vcHaoJiu = "";
                                 string vcOrderPlant = "";
                                 string vcSupplierPacking = "";
@@ -1513,6 +1554,7 @@ namespace DataAccess
                                 #endregion
 
                                 #region 插入标签打印
+
                                 if (isTag.Equals("1"))
                                 {
                                     int qty = Convert.ToInt32(detail.QTY);
@@ -1520,13 +1562,13 @@ namespace DataAccess
                                     DataRow[] row = PackUnit.Select("vcPart_id = '" + detail.PartsNo + "' and vcReceiver = '" + detail.CPD + "' and vcSupplierId = '" + vcSupplierId + "' and dTimeFrom<='" + Time + "' and dTimeTo>='" + Time + "' ");
                                     int BZUnit = Convert.ToInt32(row[0]["vcBZUnit"].ToString());
 
-                                    string tmpString1 = "LBLH2";//标签连番、
-                                    string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
-                                    string formatServerTime = serverTime.Substring(0, 10).Replace("-", "");//格式化号口时间
+                                    string tmpString1 = "LBLH2"; //标签连番、
+                                    string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString(); //服务端时间
+                                    string formatServerTime = serverTime.Substring(0, 10).Replace("-", ""); //格式化号口时间
                                     //5.1 标签顺番更新==锁定顺番占用
                                     DataTable dtTagSeq = new P00001_DataAccess().setSeqNo(tmpString1, Convert.ToInt32(qty / BZUnit), formatServerTime);
                                     //5.2 标签号生成并更新TOperatorQB（需要一起更新）
-                                    string strTagSeqNo = dtTagSeq.Rows[0][0].ToString().PadLeft(5, '0');//标签连番
+                                    string strTagSeqNo = dtTagSeq.Rows[0][0].ToString().PadLeft(5, '0'); //标签连番
 
                                     int SeqNo = Convert.ToInt32(strTagSeqNo) - 1;
 
@@ -1566,8 +1608,8 @@ namespace DataAccess
                                         string qr1 = url + detail.PartsNo + sf + "B";
 
 
-                                        byte[] iCodemage = GenerateQRCode(qr);//二维码信息
-                                        byte[] iCodemage1 = GenerateQRCode(qr1);//二维码信息
+                                        byte[] iCodemage = GenerateQRCode(qr); //二维码信息
+                                        byte[] iCodemage1 = GenerateQRCode(qr1); //二维码信息
 
                                         StringBuilder tagsbr = new StringBuilder();
                                         tagsbr.AppendLine("INSERT INTO dbo.tPrintTemp_tag_FS1103(vcPartsnameen,vcPart_id,vcCpdcompany,vcLabel,vcInno,vcPrintcount,vcGetnum,iQrcode,vcPartnamechineese,vcSuppliername,vcSupplieraddress,vcExecutestandard,vcCartype,vcSupplierId,vcOperatorID,dOperatorTime) VALUES (");
@@ -1626,10 +1668,12 @@ namespace DataAccess
                                     }
 
                                 }
+
                                 #endregion
                             }
 
                             #region 修改订单状态
+
                             SqlCommand sqlCommandState = sqlConnection.CreateCommand();
                             sqlCommandState.Transaction = sqlTransaction;
                             sqlCommandState.CommandType = CommandType.Text;
@@ -1638,6 +1682,7 @@ namespace DataAccess
                             sbrState.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1' ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE(),dCreateDate = GETDATE() WHERE iAutoId =" + iAutoId + " ");
                             sqlCommandState.CommandText = sbrState.ToString();
                             sqlCommandState.ExecuteNonQuery();
+
                             #endregion
 
                         }
@@ -1653,6 +1698,7 @@ namespace DataAccess
 
 
                     #region 订单做成
+
                     if (sbr.Length > 0)
                     {
                         SqlCommand sqlCommandOrder = sqlConnection.CreateCommand();
@@ -1661,6 +1707,7 @@ namespace DataAccess
                         sqlCommandOrder.CommandText = sbr.ToString();
                         sqlCommandOrder.ExecuteNonQuery();
                     }
+
                     #endregion
 
                     //#region 记录今日的标签数
@@ -1683,6 +1730,7 @@ namespace DataAccess
                 sqlConnection.Close();
                 sqlTransaction = null;
                 sqlConnection = null;
+
                 #endregion
 
                 packEmail.getEmail(email, SupplierEmail(), getEmail("C057"), getEmail("C058"));
@@ -1692,14 +1740,20 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                if (sqlTransaction != null && sqlConnection!=null)
+                if (sqlTransaction != null && sqlConnection != null)
                 {
                     sqlTransaction.Rollback();
                     sqlConnection.Close();
                 }
+
                 throw ex;
             }
+            finally
+            {
+                deleteUsingOrder(orderListtmp);
+            }
         }
+
         #endregion
 
         #region 月度订单传入内示
@@ -1846,6 +1900,7 @@ namespace DataAccess
                 {
                     continue;
                 }
+
                 //获取Head
                 if (temp[0] == 'D')
                 {
@@ -1949,6 +2004,7 @@ namespace DataAccess
         #endregion
 
         #region 获取soq数量
+
         public DataTable getSoqDt(List<string> TargetYM)
         {
             try
@@ -1964,6 +2020,7 @@ namespace DataAccess
                     {
                         sql.Append(" OR ");
                     }
+
                     sql.Append("(vcDXYM = '" + s + "' AND vcCLYM = '" + CLYM + "')");
                 }
 
@@ -2023,6 +2080,7 @@ namespace DataAccess
                     break;
                 }
             }
+
             return hashtable;
 
         }
@@ -2049,6 +2107,7 @@ namespace DataAccess
                 return false;
             }
         }
+
         #endregion
 
         #region 获取Dock
@@ -2086,6 +2145,7 @@ namespace DataAccess
                     }
 
                 }
+
                 return hashtable;
             }
             catch (Exception ex)
@@ -2126,6 +2186,7 @@ namespace DataAccess
                         }
                     }
                 }
+
                 return hashtable;
             }
             catch (Exception ex)
@@ -2175,6 +2236,7 @@ namespace DataAccess
         #endregion
 
         #region 获取路径
+
         public string getPath(string orderNo)
         {
             try
@@ -2194,6 +2256,7 @@ namespace DataAccess
                 throw ex;
             }
         }
+
         #endregion
 
         #region 获取包装厂
@@ -2215,6 +2278,7 @@ namespace DataAccess
         #endregion
 
         #region 获取订单类型
+
         public DataTable getType()
         {
             try
@@ -2324,6 +2388,7 @@ namespace DataAccess
                         {
                             res += ",";
                         }
+
                         res += "'" + dt.Rows[i]["vcValue"].ToString() + "'";
                     }
                 }
@@ -2345,6 +2410,7 @@ namespace DataAccess
                 {
                     sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '2',vcOperatorID = '" + userId + "',dOperatorTime = GETDATE() WHERE iAutoId = " + list[i]["iAutoId"].ToString() + " AND vcOrderState <> 1");
                 }
+
                 excute.ExcuteSqlWithStringOper(sbr.ToString());
             }
             catch (Exception ex)
@@ -2451,6 +2517,7 @@ namespace DataAccess
         }
 
         #region 生成QRCODE二维码
+
         public byte[] GenerateQRCode(string content)
         {
             var generator = new QRCodeGenerator();
@@ -2464,6 +2531,7 @@ namespace DataAccess
             bitmapImg.Save(stream, ImageFormat.Jpeg);
             return stream.GetBuffer();
         }
+
         #endregion
 
         class EDNode
@@ -2703,13 +2771,14 @@ namespace DataAccess
             }
 
         }
+
         public class DownNode
         {
             public string orderNo;
             public string supplier;
             public string supplierPlant;
 
-            public DownNode(string orderNo, string supplier,string supplierPlant)
+            public DownNode(string orderNo, string supplier, string supplierPlant)
             {
                 this.orderNo = orderNo;
                 this.supplier = supplier;
@@ -2759,6 +2828,7 @@ namespace DataAccess
             public DataTable supplierMail;
             public List<mailClass> copyEmail;
             public List<mailClass> FailEmail;
+
             public PackEmail(string rootPath)
             {
                 this.success = new List<PackSuccess>();
@@ -2793,6 +2863,7 @@ namespace DataAccess
                     this.success.Add(pack);
                 }
             }
+
             public void addFail(PackFail pack)
             {
                 bool exist = false;
@@ -2841,6 +2912,7 @@ namespace DataAccess
                         }
                     }
                 }
+
                 if (fail.Count > 0)
                 {
                     foreach (PackFail pack in fail)
@@ -3081,6 +3153,7 @@ namespace DataAccess
                 throw ex;
             }
         }
+
         #endregion
 
         public class mailClass
@@ -3104,7 +3177,7 @@ namespace DataAccess
             int size = 1048576 - 1;
 
             string strFileName = supplierId + strFunctionName + "导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
-            string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+            string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar; //文件临时目录，导入完成后 删除
 
             string path = fileSavePath + strFileName;
 
@@ -3112,6 +3185,7 @@ namespace DataAccess
             {
                 System.IO.File.Delete(path);
             }
+
             try
             {
                 if (dt != null && dt.Rows.Count > 0)
@@ -3122,8 +3196,8 @@ namespace DataAccess
                     {
                         string sheetname = "Sheet" + (i + 1).ToString();
                         ISheet sheet = workbook.CreateSheet(sheetname);
-                        int rowCount = dt.Rows.Count - i * size > size ? size : dt.Rows.Count - i * size;//行数  
-                        int columnCount = dt.Columns.Count;//列数  
+                        int rowCount = dt.Rows.Count - i * size > size ? size : dt.Rows.Count - i * size; //行数  
+                        int columnCount = dt.Columns.Count; //列数  
                         List<ICellStyle> styles = new List<ICellStyle>();
                         IRow row = sheet.CreateRow(0);
                         ICell cell;
@@ -3136,6 +3210,7 @@ namespace DataAccess
                             dateStyle.DataFormat = dataFormat.GetFormat("General");
                             styles.Add(dateStyle);
                         }
+
                         //设置每行每列的单元格,  
                         for (int j = 0; j < rowCount; j++)
                         {
@@ -3171,11 +3246,13 @@ namespace DataAccess
                                 }
                             }
                         }
+
                         using (fs = File.OpenWrite(path))
                         {
-                            workbook.Write(fs);//向打开的这个xls文件中写入数据  
+                            workbook.Write(fs); //向打开的这个xls文件中写入数据  
                         }
                     }
+
                     result = true;
                 }
 
@@ -3188,6 +3265,7 @@ namespace DataAccess
                 {
                     fs.Close();
                 }
+
                 ComFunction.ConsoleWriteLine(ex.Message);
                 return "";
             }
@@ -3233,6 +3311,7 @@ namespace DataAccess
                             receiverDt.Rows.Add(dr);
                         }
                     }
+
                     if (copy.Count > 0)
                     {
                         foreach (mailClass mail in copy)
@@ -3339,6 +3418,7 @@ namespace DataAccess
                         lngBarCodeCount = lngBarCodeCount + 38;
                     }
                 }
+
                 lngAscCode = lngBarCodeCount % 43;
                 if (lngAscCode < 10)
                 {
@@ -3378,6 +3458,7 @@ namespace DataAccess
 
                     }
                 }
+
                 strBarCode = strPartsNo + strBarCode;
                 return "*" + strBarCode + "*";
             }
@@ -3389,5 +3470,94 @@ namespace DataAccess
         }
 
 
+        #region 获取正在做成的订单
+        public List<string> getUsingOrderList(List<string> orderlist)
+        {
+            try
+            {
+                List<string> list = new List<string>();
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcValue1 FROM TOutCode WHERE vcCodeId = 'C063' AND vcIsColum = '0' AND vcValue1 in (");
+                for (int i = 0; i < orderlist.Count; i++)
+                {
+                    if (i != 0)
+                    {
+                        sbr.Append(",");
+                    }
+
+                    sbr.Append("'" + orderlist[i] + "'");
+                }
+
+                sbr.Append(")");
+
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        list.Add(dt.Rows[i]["vcValue1"].ToString());
+                    }
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 新增做成中订单
+        public void insertUsingOrder(List<string> list)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    sbr.AppendLine("INSERT INTO dbo.TOutCode(vcCodeId,vcCodeName,vcIsColum,vcValue1,vcOperatorID,dOperatorTime)VALUES('C063','订单正在做成','0','" + list[i] + "','000000', GETDATE());");
+                }
+
+                if (sbr.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        #endregion
+
+        #region 删除已做成订单
+        public void deleteUsingOrder(List<string> list)
+        {
+            try
+            {
+                StringBuilder listsbr = new StringBuilder();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (listsbr.Length > 0)
+                    {
+                        listsbr.Append(",");
+                    }
+                    listsbr.Append("'" + list[i] + "'");
+                }
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("DELETE TOutCode WHERE vcCodeId = 'C063' AND vcIsColum = '0' AND vcValue1 IN ("+ listsbr.ToString()+ ")");
+                if (sbr.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

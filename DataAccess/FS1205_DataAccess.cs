@@ -256,7 +256,7 @@ namespace DataAccess
             sb.Append("isnull(vcD31b,0)+isnull(vcD31y,0) as vcD31,montouch,DADDTIME,DUPDTIME,CUPDUSER,vcSupplier_id from WeekPackPlanTbl  \r\n");
             sb.Append("where montouch='" + strMonth + "' and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant='" + strPlant + "'  \r\n");
             sb.Append("and vcPartsNo=WeekPackPlanTbl.vcPartsno  and dTimeFrom<='" + strMonth + "' and dTimeTo>='" + strMonth + "')  \r\n");
-            sb.Append(") a left join TPartInfoMaster b on a.vcPartsno=b.vcPartsNo and a.vcDock=b.vcDock ");//2021-8-3 wlw
+            sb.Append(") a left join (select * from TPartInfoMaster where vcPartPlant='" + strPlant + "' and dTimeFrom<='" + strMonth + "' and dTimeTo>='" + strMonth + "') b on a.vcPartsno=b.vcPartsNo and a.vcDock=b.vcDock ");//2021-8-3 wlw
 
             DataTable dt;
             try

@@ -1288,7 +1288,7 @@ namespace SPPSApi.Controllers.P01
         DataTable dtPackInfo = P00001_Logic.getPackInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
         DataTable dtLabelInfo = P00001_Logic.getLabelInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
         DataTable dtOrderInfo = P00001_Logic.getOrderInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
-        if (dtInvInfo.Rows.Count == 0 || dtPackInfo.Rows.Count == 0 || dtLabelInfo.Rows.Count == 0 || dtOrderInfo.Rows.Count == 0)
+        if (dtInvInfo.Rows.Count == 0 || dtLabelInfo.Rows.Count == 0 || dtOrderInfo.Rows.Count == 0)
         {
           apiResult.code = ComConstant.ERROR_CODE;
           apiResult.data = "由于数据缺失导致上传失败(原因：数据冲突或网络原因)，请重新上传。";
@@ -1300,11 +1300,11 @@ namespace SPPSApi.Controllers.P01
         //8.1 查询
         DataTable dtPackList_Temp = dsInPutQBInfo.Tables[3].Clone();
         //8.2 往dtPackList_Temp中插入
-        for (int j = 0; j < dtPackInfo.Rows.Count; j++)
+        if (dtPackInfo.Rows.Count > 0)
         {
-          string strBZQF = dtLabelInfo.Rows[j]["vcBZQF"].ToString();
-          if (strBZQF != "1")
+          for (int j = 0; j < dtPackInfo.Rows.Count; j++)
           {
+
             #region addrows
             DataRow drPackList_Temp = dtPackList_Temp.NewRow();
             drPackList_Temp["vcLotid"] = dtPackInfo.Rows[j]["vcLotid"].ToString();
@@ -1329,7 +1329,8 @@ namespace SPPSApi.Controllers.P01
             dtPackList_Temp.Rows.Add(drPackList_Temp);
             #endregion
           }
-          }
+        }
+
         #endregion
 
         #region //9 创建标签信息数据结构DataTable
@@ -1676,51 +1677,51 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         //13.以上12全部OK 构内XML发送
-      
-        #region 生成构内XML文件
-        if (dsInPutQBInfo.Tables[8].Rows.Count > 0)
-        {
-          for (int i = 0; i < dsInPutQBInfo.Tables[8].Rows.Count; i++)
+     
+          #region 生成构内XML文件
+          if (dsInPutQBInfo.Tables[8].Rows.Count > 0)
           {
-            string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
-            string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
-            string kanBan = dsInPutQBInfo.Tables[8].Rows[i]["vcKanBan"].ToString();
-            DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
-            string strPlant = "1";
-            P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
-            P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
-          }
+            for (int i = 0; i < dsInPutQBInfo.Tables[8].Rows.Count; i++)
+            {
+              string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
+              string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
+              string kanBan = dsInPutQBInfo.Tables[8].Rows[i]["vcKanBan"].ToString();
+              DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
+              string strPlant = "1";
+              P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
+              P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
+            }
 
 
-        }
-        if (dsInPutQBInfo.Tables[9].Rows.Count > 0)
-        {
-          for (int i = 0; i < dsInPutQBInfo.Tables[9].Rows.Count; i++)
-          {
-            string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
-            string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
-            string kanBan = dsInPutQBInfo.Tables[9].Rows[i]["vcKanBan"].ToString();
-            DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
-            string strPlant = "2";
-            P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
-            P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
           }
-        }
-        if (dsInPutQBInfo.Tables[10].Rows.Count > 0)
-        {
-          for (int i = 0; i < dsInPutQBInfo.Tables[10].Rows.Count; i++)
+          if (dsInPutQBInfo.Tables[9].Rows.Count > 0)
           {
-            string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
-            string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
-            string kanBan = dsInPutQBInfo.Tables[10].Rows[i]["vcKanBan"].ToString();
-            DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
-            string strPlant = "3";
-            P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
-            P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
+            for (int i = 0; i < dsInPutQBInfo.Tables[9].Rows.Count; i++)
+            {
+              string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
+              string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
+              string kanBan = dsInPutQBInfo.Tables[9].Rows[i]["vcKanBan"].ToString();
+              DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
+              string strPlant = "2";
+              P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
+              P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
+            }
           }
-        }
-        #endregion
-    
+          if (dsInPutQBInfo.Tables[10].Rows.Count > 0)
+          {
+            for (int i = 0; i < dsInPutQBInfo.Tables[10].Rows.Count; i++)
+            {
+              string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
+              string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
+              string kanBan = dsInPutQBInfo.Tables[10].Rows[i]["vcKanBan"].ToString();
+              DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
+              string strPlant = "3";
+              P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
+              P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
+            }
+          }
+          #endregion
+   
         #region 记录日志
         string path_end = @"G:\ScanFile\Log\现场作业\入荷_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
         string log_end = "作业员:" + opearteId

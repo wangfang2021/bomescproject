@@ -1654,6 +1654,10 @@ namespace DataAccess
       stringBuilder.AppendLine("where t2.vcBZQF<>'1'");
       stringBuilder.AppendLine("group by vcLotid)e");
       stringBuilder.AppendLine("on a.vcLotid=e.vcLotid");
+      stringBuilder.AppendLine("left join");
+      stringBuilder.AppendLine("(select * from TPackageMaster where dTimeFrom<=convert(varchar(10),GETDATE(),23) and dTimeTo>=convert(varchar(10),GETDATE(),23)) f");
+      stringBuilder.AppendLine("on a.vcPart_id=f.vcPart_id");
+      stringBuilder.AppendLine("where f.vcBZQF<>'1'");
       stringBuilder.AppendLine("order by a.dScanTime");
       DataSet ds = new DataSet();
       try

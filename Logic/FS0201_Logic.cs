@@ -1746,33 +1746,54 @@ namespace Logic
                         //    }
                         //}
 
+                        //if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WV") || row.GetCell(15 + flag).ToString().Contains("WL"))
+                        //{
+                        //    //Boolean flaga = row.GetCell(15 + flag).ToString().Contains("(");
+                        //    if (temp[index].vcOldProj != "")
+                        //    {
+                        //        if (!row.GetCell(15 + flag).ToString().Contains("(WV") && !row.GetCell(15 + flag).ToString().Contains("(WL"))
+                        //        {
+                        //            if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
+                        //            {
+                        //                temp[index].vcOldProj += ",";
+                        //                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                        //                if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()) && !temp[index].vcOldProjTime.Contains(row.GetCell(61 + flag).ToString()))
+                        //                {
+                        //                    if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
+                        //                    {
+                        //                        temp[index].vcOldProjTime += ",";
+                        //                    }
+                        //                    temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
+                        //                }
+                        //            }
+                        //            else
+                        //            {
+                        //                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                        //            }
+                        //        }
+                        //    }
+                        //}
                         if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WV") || row.GetCell(15 + flag).ToString().Contains("WL"))
                         {
-                            //Boolean flaga = row.GetCell(15 + flag).ToString().Contains("(");
-                            if (temp[index].vcOldProj != "")
+                            if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
                             {
-                                if (!row.GetCell(15 + flag).ToString().Contains("(WV") && !row.GetCell(15 + flag).ToString().Contains("(WL"))
+                                temp[index].vcOldProj += ",";
+                                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                                if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()) && !temp[index].vcOldProjTime.Contains(row.GetCell(61 + flag).ToString()))
                                 {
-                                    if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
+                                    if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
                                     {
-                                        temp[index].vcOldProj += ",";
-                                        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
-                                        if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()) && !temp[index].vcOldProjTime.Contains(row.GetCell(61 + flag).ToString()))
-                                        {
-                                            if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
-                                            {
-                                                temp[index].vcOldProjTime += ",";
-                                            }
-                                            temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
-                                        }
+                                        temp[index].vcOldProjTime += ",";
                                     }
-                                    else
-                                    {
-                                        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
-                                    }
+                                    temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
                                 }
                             }
+                            else
+                            {
+                                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                            }
                         }
+
 
                     }
 

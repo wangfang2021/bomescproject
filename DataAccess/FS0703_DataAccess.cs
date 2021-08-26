@@ -117,7 +117,7 @@ namespace DataAccess
 
                 }
                 for (int j=1;j<=31- MonthDayNum;j++) {
-                    strSql.AppendLine("  '0' as iD'"+(j+ MonthDayNum).ToString() +"'  ,     ");
+                    strSql.AppendLine("  '0' as iD"+(j+ MonthDayNum).ToString() +"  ,     ");
                 }
                 strSql.AppendLine("  GETDATE() as dZCTime       ");
                 strSql.AppendLine("  from(       ");
@@ -265,12 +265,8 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("     select a.*,b.dUsedFrom,b.dUsedTo from (        \n");
-                strSql.Append("     select * from TPackNSCalculation        \n");
-                strSql.Append("     )a left join        \n");
-                strSql.Append("     (        \n");
-                strSql.Append("     select * from TPackItem        \n");
-                strSql.Append("     )b on a.vcpart_id=b.vcPartsNo        \n");
+                strSql.Append("      select * from TPackItemDelete       \n");
+        
                 strSql.Append("             \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

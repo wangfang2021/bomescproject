@@ -77,5 +77,13 @@ namespace Logic
         {
             return fs0614_DataAccess.getFinish();
         }
+
+        #region 获取正在做成的订单
+        public List<string> getUsingOrderList(List<string> orderlist)
+        {
+            return fs0614_DataAccess.getUsingOrderList(orderlist);
+        }
+        #endregion
+
     }
 }

@@ -1283,43 +1283,59 @@ namespace SPPSApi.Controllers.P01
         P00001_Logic.setInvToOperatorQB(dsInPutQBInfo.Tables[0], iP, serverTime, invSeqNo);
         #endregion
 
+        #region 获取标签断取指令书订单数据结构
+        DataTable dtInvInfo = P00001_Logic.getInvInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
+        DataTable dtPackInfo = P00001_Logic.getPackInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
+        DataTable dtLabelInfo = P00001_Logic.getLabelInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
+        DataTable dtOrderInfo = P00001_Logic.getOrderInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
+        if (dtInvInfo.Rows.Count == 0 || dtLabelInfo.Rows.Count == 0 || dtOrderInfo.Rows.Count == 0)
+        {
+          apiResult.code = ComConstant.ERROR_CODE;
+          apiResult.data = "由于数据缺失导致上传失败(原因：数据冲突或网络原因)，请重新上传。";
+          apiResult.type = "LS";
+          return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        }
+        #endregion
         #region //8.创建断取信息数据结构DataTable
         //8.1 查询
         DataTable dtPackList_Temp = dsInPutQBInfo.Tables[3].Clone();
-        DataTable dtPackInfo = P00001_Logic.getPackInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
         //8.2 往dtPackList_Temp中插入
-        for (int j = 0; j < dtPackInfo.Rows.Count; j++)
+        if (dtPackInfo.Rows.Count > 0)
         {
-          #region addrows
-          DataRow drPackList_Temp = dtPackList_Temp.NewRow();
-          drPackList_Temp["vcLotid"] = dtPackInfo.Rows[j]["vcLotid"].ToString();
-          //drPackList_Temp["iNo"] = dtPackInfo.Rows[j][""].ToString();
-          drPackList_Temp["vcPackingpartsno"] = dtPackInfo.Rows[j]["vcPackNo"].ToString();
-          //0613修改包材品番获取
-          drPackList_Temp["vcPackinggroup"] = dtPackInfo.Rows[j]["vcPackinggroup"].ToString();
-          drPackList_Temp["vcDistinguish"] = dtPackInfo.Rows[j]["vcDistinguish"].ToString();
-          drPackList_Temp["vcInno"] = dtPackInfo.Rows[j]["vcInno"].ToString();
-          drPackList_Temp["dQty"] = dtPackInfo.Rows[j]["dQty"].ToString();
-          drPackList_Temp["vcPackingpartslocation"] = dtPackInfo.Rows[j]["vcPackingpartslocation"].ToString();
-          //drPackList_Temp["dDaddtime"] = dtPackInfo.Rows[j]["dDaddtime"].ToString();
-          drPackList_Temp["vcPcname"] = dtPackInfo.Rows[j]["vcPcname"].ToString();
-          drPackList_Temp["vcHostip"] = iP;
-          drPackList_Temp["vcOperatorID"] = opearteId;
-          drPackList_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
-          drPackList_Temp["vcTrolleyNo"] = dtPackInfo.Rows[j]["vcTrolleyNo"].ToString();
-          //drPackList_Temp["dFirstPrintTime"] = dtPackInfo.Rows[j][""].ToString();
-          //drPackList_Temp["dLatelyPrintTime"] = dtPackInfo.Rows[j][""].ToString();
-          drPackList_Temp["vcLabelStart"] = dtPackInfo.Rows[j]["vcLabelStart"].ToString();
-          drPackList_Temp["vcLabelEnd"] = dtPackInfo.Rows[j]["vcLabelEnd"].ToString();
-          dtPackList_Temp.Rows.Add(drPackList_Temp);
-          #endregion
+          for (int j = 0; j < dtPackInfo.Rows.Count; j++)
+          {
+
+            #region addrows
+            DataRow drPackList_Temp = dtPackList_Temp.NewRow();
+            drPackList_Temp["vcLotid"] = dtPackInfo.Rows[j]["vcLotid"].ToString();
+            //drPackList_Temp["iNo"] = dtPackInfo.Rows[j][""].ToString();
+            drPackList_Temp["vcPackingpartsno"] = dtPackInfo.Rows[j]["vcPackNo"].ToString();
+            //0613修改包材品番获取
+            drPackList_Temp["vcPackinggroup"] = dtPackInfo.Rows[j]["vcPackinggroup"].ToString();
+            drPackList_Temp["vcDistinguish"] = dtPackInfo.Rows[j]["vcDistinguish"].ToString();
+            drPackList_Temp["vcInno"] = dtPackInfo.Rows[j]["vcInno"].ToString();
+            drPackList_Temp["dQty"] = dtPackInfo.Rows[j]["dQty"].ToString();
+            drPackList_Temp["vcPackingpartslocation"] = dtPackInfo.Rows[j]["vcPackingpartslocation"].ToString();
+            //drPackList_Temp["dDaddtime"] = dtPackInfo.Rows[j]["dDaddtime"].ToString();
+            drPackList_Temp["vcPcname"] = dtPackInfo.Rows[j]["vcPcname"].ToString();
+            drPackList_Temp["vcHostip"] = iP;
+            drPackList_Temp["vcOperatorID"] = opearteId;
+            drPackList_Temp["dOperatorTime"] = System.DateTime.Now.ToString("yyyy-MM-dd");
+            drPackList_Temp["vcTrolleyNo"] = dtPackInfo.Rows[j]["vcTrolleyNo"].ToString();
+            //drPackList_Temp["dFirstPrintTime"] = dtPackInfo.Rows[j][""].ToString();
+            //drPackList_Temp["dLatelyPrintTime"] = dtPackInfo.Rows[j][""].ToString();
+            drPackList_Temp["vcLabelStart"] = dtPackInfo.Rows[j]["vcLabelStart"].ToString();
+            drPackList_Temp["vcLabelEnd"] = dtPackInfo.Rows[j]["vcLabelEnd"].ToString();
+            dtPackList_Temp.Rows.Add(drPackList_Temp);
+            #endregion
+          }
         }
+
         #endregion
 
         #region //9 创建标签信息数据结构DataTable
         //9.1 查询
         DataTable dtLabelList_Temp = dsInPutQBInfo.Tables[4].Clone();
-        DataTable dtLabelInfo = P00001_Logic.getLabelInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
         //9.2 往dtLabelList_Temp中插入
         for (int j = 0; j < dtLabelInfo.Rows.Count; j++)
         {
@@ -1384,10 +1400,9 @@ namespace SPPSApi.Controllers.P01
         #endregion
 
         #region //10 创建订单信息数据结构DataTable
-        //10.1 查询
+        //10.1 查询 
         DataTable dtOrder_Temp = dsInPutQBInfo.Tables[5].Clone();
         DataTable dtORD_INOUT_Temp = dsInPutQBInfo.Tables[12].Clone();
-        DataTable dtOrderInfo = P00001_Logic.getOrderInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
         for (int i = 0; i < dsInPutQBInfo.Tables[11].Rows.Count; i++)
         {
           //循环获取待入荷数据列表--品番别--合计统一消解
@@ -1581,7 +1596,6 @@ namespace SPPSApi.Controllers.P01
 
         #region //11 创建入库指令书数据结构DataTable
         DataTable dtInv_Temp = dsInPutQBInfo.Tables[7].Clone();
-        DataTable dtInvInfo = P00001_Logic.getInvInfo(iP, Convert.ToDateTime(serverTime).ToString("yyyy-MM-dd"));
         for (int i = 0; i < dsInPutQBInfo.Tables[0].Rows.Count; i++)
         {
           string strPart_Id = dtInvInfo.Rows[i]["vcPart_id"].ToString();
@@ -1663,51 +1677,51 @@ namespace SPPSApi.Controllers.P01
           return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         //13.以上12全部OK 构内XML发送
-
-        #region 生成构内XML文件
-        if (dsInPutQBInfo.Tables[8].Rows.Count > 0)
-        {
-          for (int i = 0; i < dsInPutQBInfo.Tables[8].Rows.Count; i++)
+     
+          #region 生成构内XML文件
+          if (dsInPutQBInfo.Tables[8].Rows.Count > 0)
           {
-            string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
-            string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
-            string kanBan = dsInPutQBInfo.Tables[8].Rows[i]["vcKanBan"].ToString();
-            DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
-            string strPlant = "1";
-            P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
-            P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
+            for (int i = 0; i < dsInPutQBInfo.Tables[8].Rows.Count; i++)
+            {
+              string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
+              string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
+              string kanBan = dsInPutQBInfo.Tables[8].Rows[i]["vcKanBan"].ToString();
+              DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
+              string strPlant = "1";
+              P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
+              P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
+            }
+
+
           }
-
-
-        }
-        if (dsInPutQBInfo.Tables[9].Rows.Count > 0)
-        {
-          for (int i = 0; i < dsInPutQBInfo.Tables[9].Rows.Count; i++)
+          if (dsInPutQBInfo.Tables[9].Rows.Count > 0)
           {
-            string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
-            string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
-            string kanBan = dsInPutQBInfo.Tables[9].Rows[i]["vcKanBan"].ToString();
-            DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
-            string strPlant = "2";
-            P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
-            P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
+            for (int i = 0; i < dsInPutQBInfo.Tables[9].Rows.Count; i++)
+            {
+              string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
+              string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
+              string kanBan = dsInPutQBInfo.Tables[9].Rows[i]["vcKanBan"].ToString();
+              DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
+              string strPlant = "2";
+              P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
+              P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
+            }
           }
-        }
-        if (dsInPutQBInfo.Tables[10].Rows.Count > 0)
-        {
-          for (int i = 0; i < dsInPutQBInfo.Tables[10].Rows.Count; i++)
+          if (dsInPutQBInfo.Tables[10].Rows.Count > 0)
           {
-            string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
-            string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
-            string kanBan = dsInPutQBInfo.Tables[10].Rows[i]["vcKanBan"].ToString();
-            DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
-            string strPlant = "3";
-            P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
-            P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
+            for (int i = 0; i < dsInPutQBInfo.Tables[10].Rows.Count; i++)
+            {
+              string name = getPoint.Rows[0]["vcPointNo"].ToString().PadLeft(5, '0'); ;
+              string formatTime = serverTime.Replace("-", "").Replace(":", "").Replace(" ", "");
+              string kanBan = dsInPutQBInfo.Tables[10].Rows[i]["vcKanBan"].ToString();
+              DataEntity.P00001_DataEntity.ScanData data2 = P00001_Logic.CutScanData(kanBan);
+              string strPlant = "3";
+              P00001_Logic.SaveXml(data2, serverTime, name, formatTime, strPlant);
+              P00001_Logic.SaveXmlLocal(data2, serverTime, name, formatTime, strPlant);
+            }
           }
-        }
-        #endregion
-
+          #endregion
+   
         #region 记录日志
         string path_end = @"G:\ScanFile\Log\现场作业\入荷_" + System.DateTime.Now.ToString("yyyyMMdd") + "_" + iP + ".txt";
         string log_end = "作业员:" + opearteId
@@ -1889,15 +1903,18 @@ namespace SPPSApi.Controllers.P01
         string formatServerTime = serverTime.Substring(0, 10).Replace("-", "");//格式化号口时间
 
         #region 验证包材基础数据
-        for (int j = 0; j < dsCheckDb.Tables[5].Rows.Count; j++)
+        if (bzQf != "1")
         {
-          string packNo = dsCheckDb.Tables[5].Rows[j]["vcPackNo"].ToString();//包材品番
-          string nessNo = dsCheckDb.Tables[5].Rows[j]["iBiYao"].ToString();//必要数     
-          if (dsCheckDb.Tables[5].Rows[j]["vcPackLocation"].ToString() == "")
+          for (int j = 0; j < dsCheckDb.Tables[5].Rows.Count; j++)
           {
-            apiResult.code = ComConstant.ERROR_CODE;
-            apiResult.data = "包材品番" + packNo + "在包材基础数据中没有有效数据,请检查!";
-            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            string packNo = dsCheckDb.Tables[5].Rows[j]["vcPackNo"].ToString();//包材品番
+            string nessNo = dsCheckDb.Tables[5].Rows[j]["iBiYao"].ToString();//必要数     
+            if (dsCheckDb.Tables[5].Rows[j]["vcPackLocation"].ToString() == "")
+            {
+              apiResult.code = ComConstant.ERROR_CODE;
+              apiResult.data = "包材品番" + packNo + "在包材基础数据中没有有效数据,请检查!";
+              return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
           }
         }
         #endregion

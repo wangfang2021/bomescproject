@@ -28,6 +28,10 @@ namespace Logic
         {
             fs1101_DataAccess = new FS1101_DataAccess();
         }
+        public DataTable getBatInfo(string strFlag)
+        {
+            return fs1101_DataAccess.getBatInfo(strFlag);
+        }
         public DataTable getSearchInfo(string strPackMaterNo, string strTrolleyNo, string strPartId, string strOrderNo, string strLianFan)
         {
             return fs1101_DataAccess.getSearchInfo(strPackMaterNo, strTrolleyNo, strPartId, strOrderNo, strLianFan);

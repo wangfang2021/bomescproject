@@ -342,6 +342,7 @@ namespace SPPSApi.Controllers
             }
         }
         [HttpPost]
+        [RequestSizeLimit(1_074_790_400)]//破处限制文件大小
         public string uploadsharpcompressApi(IFormFile file)
         {
             ApiResult apiResult = new ApiResult();

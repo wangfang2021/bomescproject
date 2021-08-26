@@ -12,6 +12,20 @@ namespace DataAccess
     public class FS1101_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
+        public DataTable getBatInfo(string strFlag)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select top(1)* from [TPrintSetting] where vcFlag='" + strFlag + "'");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public DataTable getSearchInfo(string strPackMaterNo, string strTrolleyNo, string strPartId, string strOrderNo, string strLianFan)
         {
             try

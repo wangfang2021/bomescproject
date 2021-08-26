@@ -35,6 +35,99 @@ namespace SPPSApi.Controllers.G11
             _webHostEnvironment = webHostEnvironment;
         }
         /// <summary>
+        /// 重启bat
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string restartLWApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            DataTable dtMessage = fS0603_Logic.createTable("MES");
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dataTable = fS1101_Logic.getBatInfo("1");
+                if (dataTable.Rows.Count == 0|| dataTable.Rows[0]["vcBatPath"].ToString()=="")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "未维护打印服务地址";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                System.Diagnostics.Process.Start(dataTable.Rows[0]["vcBatPath"].ToString());
+                //System.Diagnostics.Process.Start(@"C:\Users\Administrator\Desktop\laowu\打印程序\close.bat");
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06PE0200", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        [HttpPost]
+        [EnableCors("any")]
+        public string restartIISApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            DataTable dtMessage = fS0603_Logic.createTable("MES");
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dataTable = fS1101_Logic.getBatInfo("2");
+                if (dataTable.Rows.Count == 0 || dataTable.Rows[0]["vcBatPath"].ToString() == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "未维护打印服务地址";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                System.Diagnostics.Process.Start(dataTable.Rows[0]["vcBatPath"].ToString());
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06PE0200", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
         /// 页面初始化
         /// </summary>
         /// <returns></returns>

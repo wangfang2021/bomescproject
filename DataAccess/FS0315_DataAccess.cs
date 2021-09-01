@@ -139,7 +139,7 @@ namespace DataAccess
                 sbr.AppendLine("(SELECT Year,Month,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange like '%废止%' OR vcChange like '%廃止%' GROUP BY Year,Month) d ON a.Year = d.Year AND a.Month = d.Month");
                 sbr.AppendLine("LEFT JOIN");
                 sbr.AppendLine("(SELECT Year,Month,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange like '%旧型%' GROUP BY Year,Month) e ON a.Year = e.Year AND a.Month = e.Month");
-
+                sbr.AppendLine("order by Date desc");  //增加时间排序2021.9.1
                 if (sbr.Length > 0)
                 {
                     list.Add(excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK"));

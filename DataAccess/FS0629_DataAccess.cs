@@ -184,7 +184,8 @@ namespace DataAccess
                 strSql.AppendLine("   ) t group by t.vcReceiver,t.vcOrderPlant,t.vcClassType,t.vcSupplierId ");
                 strSql.AppendLine("   ) ru2 on ru1.vcReceiver = ru2.vcReceiver and ru1.vcOrderPlant = ru2.vcOrderPlant ");
                 strSql.AppendLine("   and ru1.vcClassType = ru2.vcClassType and ru1.vcSupplierId = ru2.vcSupplierId ");
-                strSql.AppendLine("   ) huiZong order by huiZong.vcReceiver,huiZong.vcOrderPlant,huiZong.vcClassType desc ");
+                //strSql.AppendLine("   ) huiZong order by huiZong.vcReceiver,huiZong.vcOrderPlant,huiZong.vcClassType desc ");
+                strSql.AppendLine("   ) huiZong order by huiZong.vcReceiver,huiZong.vcOrderPlant,huiZong.vcClassType ,vcSupplierId desc  ");
                 strSql.AppendLine("   ");
                 strSql.AppendLine("   ");
                 strSql.AppendLine("   select huiZong.vcReceiver,huiZong.vcOrderPlant,'合计' as vcClassType, ");

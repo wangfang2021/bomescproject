@@ -716,7 +716,7 @@ namespace DataAccess
                             strErrorPartId = "此订单号:" + drorder[i]["vcOrderNo"].ToString() + "，超月的不可修改！";
                             return;
                         }
-                        DataRow[] dr = dtbase.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "'");
+                        DataRow[] dr = dtbase.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "'");
 
                         if (Convert.ToInt32(dt.Rows[i]["iOrderNumber"]) % Convert.ToInt32(dr[0]["iRelease"].ToString()) != 0)
                         {
@@ -748,10 +748,10 @@ namespace DataAccess
                     {
 
                         //插入
-                        DataRow[] dr = dtbase.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "'");
+                        DataRow[] dr = dtbase.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "'");
                         // DateTime time = Convert.ToDateTime(dt.Rows[i]["dNaRuTime"].ToString());
                         DateTime time = Convert.ToDateTime(dt.Rows[i]["dNaRuTime"].ToString().Split(' ')[1]);
-                        DataRow[] dr1 = dtFaZhuTime.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"] + "'and vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "'");
+                        DataRow[] dr1 = dtFaZhuTime.Select("vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString().Trim() + "'and vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "'");
 
                         string bianci = "";
                         for (int y = 0; y < dr1.Length; y++)

@@ -1199,8 +1199,9 @@ namespace DataAccess
                     //{
                     //    vcInOutFlag = fileOrderNo.Substring(fileOrderNo.Length - 1, 1);
                     //}
-                    //获取基础信息
-                    DataTable dockTmp = getJinJiDockTable(DateTime.Now.ToString("yyyyMM"));
+                    //获取基础信息 dTargetDate.Replace("-", "").Replace("/", "").Substring(0, 6).ToString()
+                    //DataTable dockTmp = getJinJiDockTable(DateTime.Now.ToString("yyyyMM"));
+                    DataTable dockTmp = getJinJiDockTable(dTargetDate.Replace("-", "").Replace("/", "").Substring(0, 6).ToString());
                     //读取文件
                     string vcPackingFactory = uionCode;
                     string vcOrderNo = fileName;
@@ -1673,9 +1674,10 @@ namespace DataAccess
                     strSql.AppendLine("  		   '" + userId + "',GETDATE())   ");
                     strSql.AppendLine("   ;  ");
                     strSql.AppendLine("   insert into TUploadOrderRelation (vcLastOrderNo,vcNewOrderNo) values ('"+ chushiLastOrderNo + "','"+ fileNameOrder + "');   ");
-                   
-                    //获取基础信息
-                    DataTable dockTmp = getJinJiDockTable(DateTime.Now.ToString("yyyyMM"));
+
+                    //获取基础信息dTargetDate.Replace("-", "").Replace("/", "").Substring(0, 6).ToString()
+                    //DataTable dockTmp = getJinJiDockTable(DateTime.Now.ToString("yyyyMM"));
+                    DataTable dockTmp = getJinJiDockTable(dTargetDate.Replace("-", "").Replace("/", "").Substring(0, 6).ToString());
                     //读取文件
 
                     string vcPackingFactory = uionCode;

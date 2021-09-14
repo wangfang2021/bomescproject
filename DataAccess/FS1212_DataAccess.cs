@@ -191,6 +191,7 @@ namespace DataAccess
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     if (bAddFlag == false && bModFlag == true)//修改
                     {
+                        string iAutoId = getSqlValue(listInfoData[i]["iAutoId"], false);
                         string vcPartsNo = getSqlValue(listInfoData[i]["vcPartsNo"], false).Replace("-", "");
                         string vcCpdCompany = getSqlValue(listInfoData[i]["vcCpdCompany"], false);
                         string vcTimeFrom = getSqlValue(listInfoData[i]["dTimeFrom"], false);
@@ -208,20 +209,21 @@ namespace DataAccess
                         {
                             sql.Append("  update TPartInfoMaster set  \r\n");
                             sql.Append("  vcPartPlant='" + vcPartPlant + "'   \r\n");
-                            sql.Append("  ,dTimeFrom='" + vcTimeFrom + "'   \r\n");
-                            sql.Append("  ,dTimeTo='" + vcTimeTo + "'   \r\n");
-                            sql.Append("  ,vcCarFamilyCode='" + vcCarFamilyCode + "'   \r\n");
+                            //sql.Append("  ,dTimeFrom='" + vcTimeFrom + "'   \r\n");
+                            //sql.Append("  ,dTimeTo='" + vcTimeTo + "'   \r\n");
+                            //sql.Append("  ,vcCarFamilyCode='" + vcCarFamilyCode + "'   \r\n");
                             sql.Append("  ,vcQFflag='" + vcQFflag + "'   \r\n");
                             sql.Append("  ,vcQJcontainer='" + vcQJcontainer + "'   \r\n");
                             sql.Append("  ,vcPorType='" + vcPorType + "'   \r\n");
                             sql.Append("  ,vcZB='" + vcZB + "'   \r\n");
                             sql.Append("  ,vcUpdataUser='" + strUserId + "'   \r\n");
                             sql.Append("  ,dUpdataTime=getdate()   \r\n");
-                            sql.Append("  where vcPartsNo='" + vcPartsNo + "'  \r\n");
-                            sql.Append("  and vcCpdCompany='" + vcCpdCompany + "' \r\n");
-                            sql.Append("  and vcSupplierCode='" + vcSupplierCode + "' \r\n");
+                            sql.Append("  where iAutoId=" + iAutoId + "  \r\n");
+                            //sql.Append("  where vcPartsNo='" + vcPartsNo + "'  \r\n");
+                            //sql.Append("  and vcCpdCompany='" + vcCpdCompany + "' \r\n");
+                            //sql.Append("  and vcSupplierCode='" + vcSupplierCode + "' \r\n");
                         }
-                        else//如果品番表存在，则插入
+                        else//如果品番表不存在，则插入
                         {
                             sql.Append("insert into TPartInfoMaster(vcPartsNo, dTimeFrom, dTimeTo, vcCpdCompany, vcSupplierCode, vcInOutFlag, ");
                             sql.Append("vcPartPlant, vcCarFamilyCode, vcQFflag, vcQJcontainer, vcPorType, vcZB, vcUpdataUser, dUpdataTime) ");

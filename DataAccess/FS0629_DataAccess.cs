@@ -100,6 +100,12 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("  select * from ( ");
                 strSql.AppendLine("  select chu1.vcReceiver,chu1.vcOrderPlant,chu1.vcClassType,chu1.vcSupplierId, ");
+                //增加排序start 20210902
+                strSql.AppendLine("case when chu1.vcSupplierId ='A' then 'A'");
+                strSql.AppendLine("when chu1.vcSupplierId ='R' then 'R'");
+                strSql.AppendLine("when chu1.vcSupplierId ='W' then 'W'");
+                strSql.AppendLine("else 'Z' end as vccode,");
+                //增加排序end 20200902
                 strSql.AppendLine("  chu2.partNum,chu1.qianPinSum from ( ");
                 strSql.AppendLine("  select a.vcReceiver,a.vcOrderPlant,a.vcClassType,a.vcSupplierId,sum(chaZhiNaRu) as qianPinSum from  ");
                 strSql.AppendLine("  ( ");
@@ -143,7 +149,16 @@ namespace DataAccess
                 strSql.AppendLine("   and chu1.vcClassType = chu2.vcClassType and chu1.vcSupplierId = chu2.vcSupplierId ");
                 strSql.AppendLine("   union ");
                 strSql.AppendLine("   ----chuhe--- ");
-                strSql.AppendLine("   select ru1.vcReceiver,ru1.vcOrderPlant,ru1.vcClassType,ru1.vcSupplierId,ru2.partNum,ru1.qianPinSum from ( ");
+                //增加排序start20210902
+                //strSql.AppendLine("   select ru1.vcReceiver,ru1.vcOrderPlant,ru1.vcClassType,ru1.vcSupplierId,ru2.partNum,ru1.qianPinSum from ( ");
+                strSql.AppendLine("   select ru1.vcReceiver,ru1.vcOrderPlant,ru1.vcClassType,ru1.vcSupplierId,");
+                strSql.AppendLine("case when ru1.vcSupplierId ='A' then 'A'");
+                strSql.AppendLine("when ru1.vcSupplierId ='R' then 'R'");
+                strSql.AppendLine("when ru1.vcSupplierId ='W' then 'W'");
+                strSql.AppendLine("else 'Z' end as vccode,");
+                strSql.AppendLine("ru2.partNum,ru1.qianPinSum from ( ");
+                //增加排序end20210902
+
                 strSql.AppendLine("  select a.vcReceiver,a.vcOrderPlant,a.vcClassType,a.vcSupplierId,sum(chaZhiNaRu) as qianPinSum from  ");
                 strSql.AppendLine("  ( ");
                 strSql.AppendLine("  select vcReceiver,vcOrderPlant, '出荷' as vcClassType, ");
@@ -184,7 +199,8 @@ namespace DataAccess
                 strSql.AppendLine("   ) t group by t.vcReceiver,t.vcOrderPlant,t.vcClassType,t.vcSupplierId ");
                 strSql.AppendLine("   ) ru2 on ru1.vcReceiver = ru2.vcReceiver and ru1.vcOrderPlant = ru2.vcOrderPlant ");
                 strSql.AppendLine("   and ru1.vcClassType = ru2.vcClassType and ru1.vcSupplierId = ru2.vcSupplierId ");
-                strSql.AppendLine("   ) huiZong order by huiZong.vcReceiver,huiZong.vcOrderPlant,huiZong.vcClassType desc ");
+                //strSql.AppendLine("   ) huiZong order by huiZong.vcReceiver,huiZong.vcOrderPlant,huiZong.vcClassType desc ");
+                strSql.AppendLine("   ) huiZong order by huiZong.vcReceiver,huiZong.vcOrderPlant,huiZong.vcClassType desc,vccode "); //增加排序
                 strSql.AppendLine("   ");
                 strSql.AppendLine("   ");
                 strSql.AppendLine("   select huiZong.vcReceiver,huiZong.vcOrderPlant,'合计' as vcClassType, ");

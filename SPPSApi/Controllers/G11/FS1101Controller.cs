@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.ServiceModel;
 using System.Text.Json;
@@ -68,8 +69,11 @@ namespace SPPSApi.Controllers.G11
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-                System.Diagnostics.Process.Start(dataTable.Rows[0]["vcBatPath"].ToString());
+                //创建一个ProcessStartInfo对象 使用系统shell 指定命令和参数 设置标准输出
+                var psi = new ProcessStartInfo(dataTable.Rows[0]["vcBatPath"].ToString()) { RedirectStandardOutput = true };
+                //启动
+                var proc = Process.Start(psi);
+                //System.Diagnostics.Process.Start(dataTable.Rows[0]["vcBatPath"].ToString());
                 //System.Diagnostics.Process.Start(@"C:\Users\Administrator\Desktop\laowu\打印程序\close.bat");
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
@@ -113,8 +117,34 @@ namespace SPPSApi.Controllers.G11
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //创建一个ProcessStartInfo对象 使用系统shell 指定命令和参数 设置标准输出
+                var psi = new ProcessStartInfo(dataTable.Rows[0]["vcBatPath"].ToString()) { RedirectStandardOutput = true };
+                //启动
+                var proc = Process.Start(psi);
+                //if (proc == null)
+                //{
+                //    Console.WriteLine("Can not exec.");
+                //}
+                //else
+                //{
+                //    Console.WriteLine("-------------Start read standard output--------------");
+                //    //开始读取
+                //    using (var sr = proc.StandardOutput)
+                //    {
+                //        while (!sr.EndOfStream)
+                //        {
+                //            Console.WriteLine(sr.ReadLine());
+                //        }
 
-                System.Diagnostics.Process.Start(dataTable.Rows[0]["vcBatPath"].ToString());
+                //        if (!proc.HasExited)
+                //        {
+                //            proc.Kill();
+                //        }
+                //    }
+                //    Console.WriteLine("---------------Read end------------------");
+                //    Console.WriteLine($"Exited Code ： {proc.ExitCode}");
+                //}
+                //System.Diagnostics.Process.Start(dataTable.Rows[0]["vcBatPath"].ToString());
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

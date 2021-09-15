@@ -403,7 +403,8 @@ namespace DataAccess
                 strSql.AppendLine("     case when isnull(a.vcIsEdit,'0')='1' then d.vcWorkArea else a.vcWorkArea end as [vcWorkArea],    ");
                 strSql.AppendLine("     a.[dExpectDeliveryDate], a.[vcExpectIntake],     ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcIntake else a.vcIntake end as [vcIntake],    ");
-                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcIntake else a.vcIntake end as [vcBoxMaxIntake],    ");
+                //strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcIntake else a.vcIntake end as [vcBoxMaxIntake],    ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcBoxMaxIntake else a.vcBoxMaxIntake end as [vcBoxMaxIntake],    ");  //2021.9.10 修正获取最大收容数字段
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcBoxType else a.vcBoxType end as [vcBoxType],    ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcLength else a.vcLength end as [vcLength],    ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcWide else a.vcWide end as [vcWide],     ");

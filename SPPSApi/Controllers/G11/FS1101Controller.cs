@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.ServiceModel;
 using System.Text.Json;
@@ -33,6 +34,128 @@ namespace SPPSApi.Controllers.G11
         public FS1101Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
+        }
+        /// <summary>
+        /// 重启bat
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string restartLWApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            DataTable dtMessage = fS0603_Logic.createTable("MES");
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dataTable = fS1101_Logic.getBatInfo("1");
+                if (dataTable.Rows.Count == 0|| dataTable.Rows[0]["vcBatPath"].ToString()=="")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "未维护打印服务地址";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //创建一个ProcessStartInfo对象 使用系统shell 指定命令和参数 设置标准输出
+                var psi = new ProcessStartInfo(dataTable.Rows[0]["vcBatPath"].ToString()) { RedirectStandardOutput = true };
+                //启动
+                var proc = Process.Start(psi);
+                //System.Diagnostics.Process.Start(dataTable.Rows[0]["vcBatPath"].ToString());
+                //System.Diagnostics.Process.Start(@"C:\Users\Administrator\Desktop\laowu\打印程序\close.bat");
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06PE0200", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        [HttpPost]
+        [EnableCors("any")]
+        public string restartIISApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            DataTable dtMessage = fS0603_Logic.createTable("MES");
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dataTable = fS1101_Logic.getBatInfo("2");
+                if (dataTable.Rows.Count == 0 || dataTable.Rows[0]["vcBatPath"].ToString() == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "未维护打印服务地址";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //创建一个ProcessStartInfo对象 使用系统shell 指定命令和参数 设置标准输出
+                var psi = new ProcessStartInfo(dataTable.Rows[0]["vcBatPath"].ToString()) { RedirectStandardOutput = true };
+                //启动
+                var proc = Process.Start(psi);
+                //if (proc == null)
+                //{
+                //    Console.WriteLine("Can not exec.");
+                //}
+                //else
+                //{
+                //    Console.WriteLine("-------------Start read standard output--------------");
+                //    //开始读取
+                //    using (var sr = proc.StandardOutput)
+                //    {
+                //        while (!sr.EndOfStream)
+                //        {
+                //            Console.WriteLine(sr.ReadLine());
+                //        }
+
+                //        if (!proc.HasExited)
+                //        {
+                //            proc.Kill();
+                //        }
+                //    }
+                //    Console.WriteLine("---------------Read end------------------");
+                //    Console.WriteLine($"Exited Code ： {proc.ExitCode}");
+                //}
+                //System.Diagnostics.Process.Start(dataTable.Rows[0]["vcBatPath"].ToString());
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06PE0200", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
         }
         /// <summary>
         /// 页面初始化

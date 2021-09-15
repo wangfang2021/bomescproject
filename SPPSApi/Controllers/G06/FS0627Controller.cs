@@ -179,7 +179,8 @@ namespace SPPSApi.Controllers.G06
                 {
                     for (var k = 3; k < dtMonty.Columns.Count; k++)
                     {
-                       dtMonty.Rows[i][k] =  (Convert.ToDecimal(dtMonty.Rows[i][k].ToString()) / 10000).RoundFirstSignificantDigit().ToString(); ;
+                        //dtMonty.Rows[i][k] =  (Convert.ToDecimal(dtMonty.Rows[i][k].ToString()) / 10000).RoundFirstSignificantDigit().ToString(); 
+                        dtMonty.Rows[i][k] = Math.Round((Convert.ToDecimal(dtMonty.Rows[i][k].ToString()) / 10000),2).ToString();
                     }
                 }
 
@@ -532,7 +533,8 @@ namespace SPPSApi.Controllers.G06
                 int lastMontyRow = dtMonty.Rows.Count - 1;
                 for (var i = 3; i < dtMonty.Columns.Count; i++)
                 {
-                    ThreeRowHSSF.CreateCell(i - 1).SetCellValue((Convert.ToDecimal(dtMonty.Rows[lastMontyRow][i].ToString())/10000).RoundFirstSignificantDigit().ToString());
+                    //ThreeRowHSSF.CreateCell(i - 1).SetCellValue((Convert.ToDecimal(dtMonty.Rows[lastMontyRow][i].ToString())/10000).RoundFirstSignificantDigit().ToString());
+                    ThreeRowHSSF.CreateCell(i - 1).SetCellValue(Math.Round((Convert.ToDouble(dtMonty.Rows[lastMontyRow][i].ToString()) / 10000),2)); //修改为数值型
                     ThreeRowHSSF.GetCell(i - 1).CellStyle = style4;
                 }
 
@@ -551,7 +553,8 @@ namespace SPPSApi.Controllers.G06
                 int lastNumRow = dtNum.Rows.Count - 1;
                 for (var i = 3; i < dtNum.Columns.Count; i++)
                 {
-                    FourRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[lastNumRow][i].ToString());
+                    //FourRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[lastNumRow][i].ToString());
+                    FourRowHSSF.CreateCell(i - 1).SetCellValue(Convert.ToInt32(dtNum.Rows[lastNumRow][i].ToString())); //修改为数值型
                     FourRowHSSF.GetCell(i - 1).CellStyle = style5;
                 }
 
@@ -655,9 +658,17 @@ namespace SPPSApi.Controllers.G06
                             {
                                 if (k != 2)//k=2是 年份 去掉
                                 {
-                                    NextRowHSSF.CreateCell(colNum).SetCellValue(dtNewFaZhuGC.Rows[h][k].ToString());
-                                    NextRowHSSF.GetCell(colNum).CellStyle = style6;
-                                    colNum++;
+                                    try {
+                                        NextRowHSSF.CreateCell(colNum).SetCellValue(Convert.ToInt32(dtNewFaZhuGC.Rows[h][k].ToString()));//转化成数值型
+                                        NextRowHSSF.GetCell(colNum).CellStyle = style6;
+                                        colNum++;
+                                    }
+                                    catch (Exception e) {
+                                        NextRowHSSF.CreateCell(colNum).SetCellValue(dtNewFaZhuGC.Rows[h][k].ToString());
+                                        NextRowHSSF.GetCell(colNum).CellStyle = style6;
+                                        colNum++;
+                                    }
+                                    
                                 }
                             }
                             nextRow++;
@@ -830,8 +841,9 @@ namespace SPPSApi.Controllers.G06
                                         NextRowHSSFM.CreateCell(colNum).SetCellValue(dtNewFaZhuGCMoney.Rows[h][k].ToString());
                                     }
                                     else
-                                    {
-                                        NextRowHSSFM.CreateCell(colNum).SetCellValue((Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[h][k].ToString()) / 10000).RoundFirstSignificantDigit().ToString());
+                                        {
+                                        //    NextRowHSSFM.CreateCell(colNum).SetCellValue((Convert.ToDecimal(dtNewFaZhuGCMoney.Rows[h][k].ToString()) / 10000).RoundFirstSignificantDigit().ToString());
+                                              NextRowHSSFM.CreateCell(colNum).SetCellValue(Math.Round((Convert.ToDouble(dtNewFaZhuGCMoney.Rows[h][k].ToString()) / 10000),2)); //修改为数值型
                                     }
                                     NextRowHSSFM.GetCell(colNum).CellStyle = style6;
                                     colNum++;
@@ -882,31 +894,44 @@ namespace SPPSApi.Controllers.G06
                         //    NineRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[dtNum.Rows.Count - 1][i].ToString());
                         //    NineRowHSSF.GetCell(i - 1).CellStyle = style7;
                         //}
-                        NineRowHSSF.CreateCell(2).SetCellValue((heJiMoneySumF1/10000).RoundFirstSignificantDigit().ToString());
-                        NineRowHSSF.GetCell(2).CellStyle = style9;               
-                        NineRowHSSF.CreateCell(3).SetCellValue((heJiMoneySumF2 / 10000).RoundFirstSignificantDigit().ToString());
-                        NineRowHSSF.GetCell(3).CellStyle = style9;               
-                        NineRowHSSF.CreateCell(4).SetCellValue((heJiMoneySumF3 / 10000).RoundFirstSignificantDigit().ToString());
-                        NineRowHSSF.GetCell(4).CellStyle = style9;               
-                        NineRowHSSF.CreateCell(5).SetCellValue((heJiMoneySumF4 / 10000).RoundFirstSignificantDigit().ToString());
-                        NineRowHSSF.GetCell(5).CellStyle = style9;               
-                        NineRowHSSF.CreateCell(6).SetCellValue((heJiMoneySumF5 / 10000).RoundFirstSignificantDigit().ToString());
+                        //NineRowHSSF.CreateCell(2).SetCellValue((heJiMoneySumF1/10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(2).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF1 / 10000),2));  //取两位小数
+                        NineRowHSSF.GetCell(2).CellStyle = style9;
+                        //NineRowHSSF.CreateCell(3).SetCellValue((heJiMoneySumF2 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(3).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF2 / 10000),2));
+                        NineRowHSSF.GetCell(3).CellStyle = style9;
+                        //NineRowHSSF.CreateCell(4).SetCellValue((heJiMoneySumF3 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(4).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF3 / 10000),2));
+                        NineRowHSSF.GetCell(4).CellStyle = style9;
+                        //NineRowHSSF.CreateCell(5).SetCellValue((heJiMoneySumF4 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(5).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF4 / 10000),2));
+                        NineRowHSSF.GetCell(5).CellStyle = style9;
+                        //NineRowHSSF.CreateCell(6).SetCellValue((heJiMoneySumF5 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(6).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF5 / 10000),2));
                         NineRowHSSF.GetCell(6).CellStyle = style9;               
-                        NineRowHSSF.CreateCell(7).SetCellValue((heJiMoneySumF6 / 10000).RoundFirstSignificantDigit().ToString());
-                        NineRowHSSF.GetCell(7).CellStyle = style9;               
-                        NineRowHSSF.CreateCell(8).SetCellValue((heJiMoneySumF7 / 10000).RoundFirstSignificantDigit().ToString());
-                        NineRowHSSF.GetCell(8).CellStyle = style9;               
-                        NineRowHSSF.CreateCell(9).SetCellValue((heJiMoneySumF8 / 10000).RoundFirstSignificantDigit().ToString());
+                        //NineRowHSSF.CreateCell(7).SetCellValue((heJiMoneySumF6 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(7).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF6 / 10000),2));
+                        NineRowHSSF.GetCell(7).CellStyle = style9;
+                        //NineRowHSSF.CreateCell(8).SetCellValue((heJiMoneySumF7 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(8).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF7 / 10000),2));
+                        NineRowHSSF.GetCell(8).CellStyle = style9;
+                        //NineRowHSSF.CreateCell(9).SetCellValue((heJiMoneySumF8 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(9).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF8 / 10000),2));
                         NineRowHSSF.GetCell(9).CellStyle = style9;
-                        NineRowHSSF.CreateCell(10).SetCellValue((heJiMoneySumF9 / 10000).RoundFirstSignificantDigit().ToString());
-                        NineRowHSSF.GetCell(10).CellStyle = style9;               
-                        NineRowHSSF.CreateCell(11).SetCellValue((heJiMoneySumF10 / 10000).RoundFirstSignificantDigit().ToString());
-                        NineRowHSSF.GetCell(11).CellStyle = style9;               
-                        NineRowHSSF.CreateCell(12).SetCellValue((heJiMoneySumF11 / 10000).RoundFirstSignificantDigit().ToString());
-                        NineRowHSSF.GetCell(12).CellStyle = style9;               
-                        NineRowHSSF.CreateCell(13).SetCellValue((heJiMoneySumF12 / 10000).RoundFirstSignificantDigit().ToString());
-                        NineRowHSSF.GetCell(13).CellStyle = style9;               
-                        NineRowHSSF.CreateCell(14).SetCellValue((heJiMoneySumF13 / 10000).RoundFirstSignificantDigit().ToString());
+                        //NineRowHSSF.CreateCell(10).SetCellValue((heJiMoneySumF9 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(10).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF9 / 10000),2));
+                        NineRowHSSF.GetCell(10).CellStyle = style9;
+                        //NineRowHSSF.CreateCell(11).SetCellValue((heJiMoneySumF10 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(11).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF10 / 10000),2));
+                        NineRowHSSF.GetCell(11).CellStyle = style9;
+                        //NineRowHSSF.CreateCell(12).SetCellValue((heJiMoneySumF11 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(12).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF11 / 10000),2));
+                        NineRowHSSF.GetCell(12).CellStyle = style9;
+                        //NineRowHSSF.CreateCell(13).SetCellValue((heJiMoneySumF12 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(13).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF12 / 10000),2));
+                        NineRowHSSF.GetCell(13).CellStyle = style9;
+                        //NineRowHSSF.CreateCell(14).SetCellValue((heJiMoneySumF13 / 10000).RoundFirstSignificantDigit().ToString());
+                        NineRowHSSF.CreateCell(14).SetCellValue(Math.Round(Convert.ToDouble(heJiMoneySumF13 / 10000),2));
                         NineRowHSSF.GetCell(14).CellStyle = style9;
                         nextRow++;
                         #endregion

@@ -953,17 +953,28 @@ namespace SPPSApi.Controllers.P01
                 string caseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;//箱号
                 string formatDate = serverTime.Substring(0, 10).Replace("-", "");
                 string packQuantity = dataForm.PackQuantity == null ? "" : dataForm.PackQuantity;//本次要包装数量
-                //包装装箱
-                //1.插入作业实绩TOperateSJ
-                //2.插入装箱实绩TBoxMaster
-                //3.更新入出库履历TOperateSJ_InOutput
-                //4.插入包材履历TPackWork
-                //5.更新包材在库TPackZaiKu
+                                                                                                 //包装装箱
+                                                                                                 //1.插入作业实绩TOperateSJ
+                                                                                                 //2.插入装箱实绩TBoxMaster
+                                                                                                 //3.更新入出库履历TOperateSJ_InOutput
+                                                                                                 //4.插入包材履历TPackWork
+                                                                                                 //5.更新包材在库TPackZaiKu
                 string strType = "包装装箱";
                 string boxno = caseNo;
                 if (caseNo.Split('*').Length > 1)
                 {
                     boxno = caseNo.Split('*')[1];
+                }
+                if (packQuantity != "0")
+                {
+                    DataTable getDBZ = P00003_Logic.GetDBZ(partId, kanbanOrderNo, kanbanSerial, dock);
+                    if (getDBZ.Rows.Count == 1 && (Convert.ToInt32(getDBZ.Rows[0]["iDBZ"].ToString()) < Convert.ToInt32(packQuantity)))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "包装数据重复，请返回到主页再进入包装页面！";
+                        apiResult.type = "LS";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 if (packQuantity == "0")
                 {
@@ -1040,7 +1051,7 @@ namespace SPPSApi.Controllers.P01
                     scanTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
-                //0.检验IP所属点位信息
+                                                                                                             //0.检验IP所属点位信息
                 DataTable getPoint = P00001_Logic.GetPointNo(iP);
                 if (getPoint.Rows.Count != 1)
                 {
@@ -1055,18 +1066,29 @@ namespace SPPSApi.Controllers.P01
                 string caseNo = "";//箱号
                 string formatDate = serverTime.Substring(0, 10).Replace("-", "");
                 string packQuantity = dataForm.PackQuantity == null ? "" : dataForm.PackQuantity;//本次要包装数量
-                //string packQuantity = quantity;//本次要包装数量
-                //包装不装箱
-                //1.插入作业实绩TOperateSJ
-                //3.更新入出库履历TOperateSJ_InOutput
-                //4.插入包材履历TPackWork
-                //5.更新包材在库TPackZaiKu
+                                                                                                 //string packQuantity = quantity;//本次要包装数量
+                                                                                                 //包装不装箱
+                                                                                                 //1.插入作业实绩TOperateSJ
+                                                                                                 //3.更新入出库履历TOperateSJ_InOutput
+                                                                                                 //4.插入包材履历TPackWork
+                                                                                                 //5.更新包材在库TPackZaiKu
                 if (Convert.ToInt32(packQuantity) < 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "包装数量异常，请联系管理员处理异常。";
                     apiResult.type = "LS";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (packQuantity != "0")
+                {
+                    DataTable getDBZ = P00003_Logic.GetDBZ(partId, kanbanOrderNo, kanbanSerial, dock);
+                    if (getDBZ.Rows.Count == 1 && (Convert.ToInt32(getDBZ.Rows[0]["iDBZ"].ToString()) < Convert.ToInt32(packQuantity)))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "包装数据重复，请返回到主页再进入包装页面！";
+                        apiResult.type = "LS";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 string strType = "包装不装箱";
                 string boxno = caseNo;
@@ -1136,7 +1158,7 @@ namespace SPPSApi.Controllers.P01
                 string iP = Request.HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");//客户端IP地址
                 string strPointState = "1";
                 string serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").ToString();//服务端时间
-                //按照IP获取点位使用的箱号getOperCaseNo
+                                                                                            //按照IP获取点位使用的箱号getOperCaseNo
                 DataTable dtOperCaseNo = P00003_Logic.getOperCaseNo(iP, strPointState, opearteId);
                 if (dtOperCaseNo.Rows.Count == 0)
                 {

@@ -1358,14 +1358,15 @@ namespace DataAccess
                         }
                     }
                 }
-                if (sql.Length > 0)
-                {
-                    this.MAPSSearch(sql.ToString());
-                }
                 if (sql1.Length > 0)
                 {
                     excute.ExcuteSqlWithStringOper(sql1.ToString());
                 }
+                if (sql.Length > 0)
+                {
+                    this.MAPSSearch(sql.ToString());
+                }
+              
 
             }
             catch (Exception ex)

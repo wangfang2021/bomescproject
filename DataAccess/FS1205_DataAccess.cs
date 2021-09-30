@@ -240,7 +240,7 @@ namespace DataAccess
             sb.Append("isnull(vcD28b,0)+isnull(vcD28y,0) as vcD28,isnull(vcD29b,0)+isnull(vcD29y,0) as vcD29,isnull(vcD30b,0)+isnull(vcD30y,0) as vcD30, \r\n");
             sb.Append("isnull(vcD31b,0)+isnull(vcD31y,0) as vcD31,montouch,DADDTIME,DUPDTIME,CUPDUSER,vcSupplier_id from WeekPackPlanTbl  \r\n");
             sb.Append("where vcMonth='" + strMonth + "' and (vcMonTotal<>'' or vcMonTotal is not null) and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant='" + strPlant + "'  \r\n");
-            sb.Append("and vcPartsNo=WeekPackPlanTbl.vcPartsno and dTimeFrom<='" + strMonth + "' and dTimeTo>='" + strMonth + "')   \r\n");
+            sb.Append("and vcPartsNo=WeekPackPlanTbl.vcPartsno and dTimeTo>='" + strMonth + "')   \r\n");
             sb.Append("union all  \r\n");
             sb.Append("select vcMonth, vcPartsno, vcDock, vcCarType, vcProject1, vcProjectName, vcMonTotal, \r\n");
             sb.Append("isnull(vcD1b,0)+isnull(vcD1y,0) as vcD1,isnull(vcD2b,0)+isnull(vcD2y,0) as vcD2,isnull(vcD3b,0)+isnull(vcD3y,0) as vcD3, \r\n");
@@ -255,8 +255,8 @@ namespace DataAccess
             sb.Append("isnull(vcD28b,0)+isnull(vcD28y,0) as vcD28,isnull(vcD29b,0)+isnull(vcD29y,0) as vcD29,isnull(vcD30b,0)+isnull(vcD30y,0) as vcD30, \r\n");
             sb.Append("isnull(vcD31b,0)+isnull(vcD31y,0) as vcD31,montouch,DADDTIME,DUPDTIME,CUPDUSER,vcSupplier_id from WeekPackPlanTbl  \r\n");
             sb.Append("where montouch='" + strMonth + "' and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant='" + strPlant + "'  \r\n");
-            sb.Append("and vcPartsNo=WeekPackPlanTbl.vcPartsno  and dTimeFrom<='" + strMonth + "' and dTimeTo>='" + strMonth + "')  \r\n");
-            sb.Append(") a left join (select * from TPartInfoMaster where vcPartPlant='" + strPlant + "' and dTimeFrom<='" + strMonth + "' and dTimeTo>='" + strMonth + "') b on a.vcPartsno=b.vcPartsNo and a.vcDock=b.vcDock ");//2021-8-3 wlw
+            sb.Append("and vcPartsNo=WeekPackPlanTbl.vcPartsno and dTimeTo>='" + strMonth + "')  \r\n");
+            sb.Append(") a left join (select * from TPartInfoMaster where vcPartPlant='" + strPlant + "' and dTimeTo>='" + strMonth + "') b on a.vcPartsno=b.vcPartsNo and a.vcDock=b.vcDock ");//2021-8-3 wlw
 
             DataTable dt;
             try

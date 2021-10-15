@@ -281,12 +281,18 @@ namespace BatchProcess
             DataTable dt = dt1.Clone();
 
             StringBuilder sb2 = new StringBuilder();
-            sb2.Append("    select * from TSPMaster_SufferIn  \n");
+            sb2.Append(" select * from TSPMaster_SufferIn a \n");
+            sb2.Append(" inner join (select TSPMaster.*, TCode.vcValue from TSPMaster left join TCode \n");
+            sb2.Append(" on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and TSPMaster.vcInOut='0') b \n");
+            sb2.Append(" on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId \n");
             sb2.Append(" \n");
             DataTable dt2 = excute.ExcuteSqlWithSelectToDT(sb2.ToString());
 
             StringBuilder sb3 = new StringBuilder();
-            sb3.Append("    select * from TSPMaster_Box  \n");
+            sb3.Append(" select * from TSPMaster_Box a \n");
+            sb3.Append(" inner join (select TSPMaster.*, TCode.vcValue from TSPMaster left join TCode \n");
+            sb3.Append(" on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and TSPMaster.vcInOut='0') b \n");
+            sb3.Append(" on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId \n");
             sb3.Append(" \n");
             DataTable dt3 = excute.ExcuteSqlWithSelectToDT(sb3.ToString());
 

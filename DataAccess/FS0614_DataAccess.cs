@@ -1733,8 +1733,15 @@ namespace DataAccess
 
                 #endregion
 
-                packEmail.getEmail(email, SupplierEmail(), getEmail("C057"), getEmail("C058"));
-                packEmail.sendMail();
+                try
+                {
+                    packEmail.getEmail(email, SupplierEmail(), getEmail("C057"), getEmail("C058"));
+                    packEmail.sendMail();
+                }
+                catch (Exception ex)
+                {
+                    ComMessage.GetInstance().ProcessMessage("FS0614", "M06UE1406", ex, "000000");
+                }
 
                 return true;
             }

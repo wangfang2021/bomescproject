@@ -239,6 +239,9 @@ namespace SPPSApi.Controllers.G06
                         apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    //2021.10.19 增加  start
+                    ComMessage.GetInstance().ProcessMessage("FS0614", "M06UE1407", null , "000000");
+                    //2021.10.19 增加 end
 
                     #region 生成标签
 

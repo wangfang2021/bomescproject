@@ -314,7 +314,8 @@ namespace DataAccess
     public DataTable GetQuantity(string partId, string scanTime, string dock)
     {
       StringBuilder GetQuantitySql = new StringBuilder();
-      GetQuantitySql.Append("select vcBZUnit from TPackageMaster where vcSR='" + dock + "' and vcPart_id='" + partId + "' and dTimeFrom<'" + scanTime + "' and dTimeTo>'" + scanTime + "'");
+      //GetQuantitySql.Append("select vcBZUnit from TPackageMaster where vcSR='" + dock + "' and vcPart_id='" + partId + "' and dTimeFrom<'" + scanTime + "' and dTimeTo>'" + scanTime + "'");
+      GetQuantitySql.Append("select vcBZUnit from TPackageMaster where vcSR='" + dock + "' and vcPart_id='" + partId + "' and dTimeFrom<=convert(varchar(10),GETDATE(),23) and dTimeTo>=convert(varchar(10),GETDATE(),23)");  //2021.10.14 修改品番结束日可以入荷
       SqlConnection ConnSql = Common.ComConnectionHelper.CreateSqlConnection();
       DataSet ds = new DataSet();
       try

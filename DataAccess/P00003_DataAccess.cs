@@ -974,13 +974,16 @@ namespace DataAccess
       stringBuilder.AppendLine("(select * from TOperateSJ where vcPart_id='" + partId + "' and vcKBOrderNo='" + kanbanOrderNo + "' and vcKBLFNo='" + kanbanSerial + "' and vcSR='" + dock + "' and vcZYType='S0')a");
       stringBuilder.AppendLine("left join");
       stringBuilder.AppendLine("(select * from TPackItem)b");
-      stringBuilder.AppendLine("on a.vcPart_id = b.vcPartsNo and b.dUsedFrom<=a.dstart and b.dUsedTo>=a.dstart");
+      //stringBuilder.AppendLine("on a.vcPart_id = b.vcPartsNo and b.dUsedFrom<=a.dstart and b.dUsedTo>=a.dstart");
+      stringBuilder.AppendLine("on a.vcPart_id = b.vcPartsNo and b.dUsedFrom<=convert(varchar(10),a.dEnd,23) and b.dUsedTo>=convert(varchar(10),a.dEnd,23)"); //2021.10.14 品番截止日不可入库
       stringBuilder.AppendLine("left join");
       stringBuilder.AppendLine("(select * from TPackBase)c");
-      stringBuilder.AppendLine("on b.vcPackNo=c.vcPackNo and a.vcBZPlant=c.vcPackSpot and c.dPackFrom<=a.dstart and c.dPackTo>=a.dstart");
+      //stringBuilder.AppendLine("on b.vcPackNo=c.vcPackNo and a.vcBZPlant=c.vcPackSpot and c.dPackFrom<=a.dstart and c.dPackTo>=a.dstart");
+      stringBuilder.AppendLine("on b.vcPackNo=c.vcPackNo and a.vcBZPlant=c.vcPackSpot and c.dPackFrom<=convert(varchar(10),a.dEnd,23) and c.dPackTo>=convert(varchar(10),a.dEnd,23)");   //2021.10.14 品番截止日不可入库
       stringBuilder.AppendLine("left join");
       stringBuilder.AppendLine("(select * from TPackageMaster)d");
-      stringBuilder.AppendLine("on a.vcPart_id=d.vcPart_id and d.dTimeFrom<=a.dstart and d.dTimeTo>=a.dstart");
+      //stringBuilder.AppendLine("on a.vcPart_id=d.vcPart_id and d.dTimeFrom<=a.dstart and d.dTimeTo>=a.dstart");
+      stringBuilder.AppendLine("on a.vcPart_id=d.vcPart_id and d.dTimeFrom<=convert(varchar(10),a.dEnd,23) and d.dTimeTo>=convert(varchar(10),a.dEnd,23)");  //2021.10.14 品番截止日不可入库
       DataSet ds = new DataSet();
       try
       {

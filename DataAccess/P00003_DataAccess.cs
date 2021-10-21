@@ -1432,6 +1432,7 @@ namespace DataAccess
       {
         #region 1-2.插入作业实绩表-装箱数据、更新入出库履历-待装箱+待出荷、更新装箱表  sqlCommand_add_sj
         SqlCommand sqlCommand_add_sj = sqlConnection.CreateCommand();
+                sqlCommand_add_sj.CommandTimeout = 0;
         sqlCommand_add_sj.Transaction = sqlTransaction;
         sqlCommand_add_sj.CommandType = CommandType.Text;
         StringBuilder strSql_add_sj = new StringBuilder();
@@ -1570,7 +1571,8 @@ namespace DataAccess
 
         #region 3.插入装箱单表   sqlCommand_add_cl
         SqlCommand sqlCommand_add_cl = sqlConnection.CreateCommand();
-        sqlCommand_add_cl.Transaction = sqlTransaction;
+                sqlCommand_add_cl.CommandTimeout = 0;
+                sqlCommand_add_cl.Transaction = sqlTransaction;
         sqlCommand_add_cl.CommandType = CommandType.Text;
         StringBuilder strSql_add_cl = new StringBuilder();
 
@@ -1668,8 +1670,9 @@ namespace DataAccess
 
         #region 4-5.更新箱号使用情况表、插入装箱单打印表    sqlCommand_mod_pt
         SqlCommand sqlCommand_mod_pt = sqlConnection.CreateCommand();
+                sqlCommand_mod_pt.CommandTimeout = 0;
         sqlCommand_mod_pt.Transaction = sqlTransaction;
-        sqlCommand_mod_pt.CommandType = CommandType.Text;
+                sqlCommand_mod_pt.CommandType = CommandType.Text;
         StringBuilder strSql_mod_pt = new StringBuilder();
 
         #region SQL and Parameters

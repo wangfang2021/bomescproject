@@ -460,12 +460,12 @@ namespace BatchProcess
                 DataTable dtb = new DataTable("dtb");
                 DataColumn dc1 = new DataColumn("vcPackGPSNo", Type.GetType("System.String"));
                 DataColumn dc2 = new DataColumn("iSJNum", Type.GetType("System.Decimal"));
-                DataColumn dc3 = new DataColumn("vcOrderNo", Type.GetType("System.String"));
+                DataColumn dc3 = new DataColumn("vcSupplieCode", Type.GetType("System.String"));
                 dtb.Columns.Add(dc1);
                 dtb.Columns.Add(dc2);
                 dtb.Columns.Add(dc3);
                 var query = from t in dtcope.AsEnumerable()
-                            group t by new { t1 = t.Field<string>("vcPackGPSNo"), t2 = t.Field<string>("vcOrderNo") }
+                            group t by new { t1 = t.Field<string>("vcPackGPSNo"), t2 = t.Field<string>("vcSupplieCode") }
                             into m
                             select new
                             {
@@ -479,7 +479,7 @@ namespace BatchProcess
                     {
                         DataRow dr = dtb.NewRow();
                         dr["vcPackGPSNo"] = q.vcPackGPSNo;
-                        dr["vcOrderNo"] = q.vcOrderNo;
+                        dr["vcSupplieCode"] = q.vcOrderNo;
                         dr["iSJNum"] = q.iSJNum;
                         dtb.Rows.Add(dr);
                     });
@@ -488,25 +488,24 @@ namespace BatchProcess
                 for (int j = 0; j < dtb.Rows.Count; j++)
                 {
 
-                    DataRow[] dr = dtZk.Select("vcPackGPSNo='" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'");
+                    DataRow[] dr = dtZk.Select("vcPackGPSNo='" + dtb.Rows[j]["vcPackGPSNo"].ToString().Trim() + "' and vcSupplierID='"+ dtb.Rows[j]["vcSupplieCode"].ToString().Trim() + "'");
                     DataRow[] dsave = dtSave.Select("vcPackGPSNo='" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'");
                     DataRow[] dr1 = dtBase.Select("vcPackGPSNo='" + dtb.Rows[j]["vcPackGPSNo"] + "'");
                     string SaveZK = dsave.Length == 0 ? "0" : dsave[0]["vcSaveZK"].ToString();
                     if (dr.Length > 0)
                     {//更新品番在库数据
                         sql.Append(" UPDATE [dbo].[TPackZaiKu] set   \n");
-                        sql.Append("        [vcPackSpot] = '" + dr1[0]["vcPackSpot"].ToString() + "'   \n");
-                        sql.Append("       ,[vcPackNo] = '" + dr1[0]["vcPackNo"].ToString() + "'   \n");
-                        sql.Append("       ,[vcPackGPSNo] = '" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'   \n");
-                        sql.Append("       ,[vcSupplierID] = '" + dr1[0]["vcSupplierCode"].ToString() + "'   \n");
-                        sql.Append("       ,[iLiLun] =iLiLun+'" + dtb.Rows[j]["iSJNum"].ToString() + "'   \n");
+                        //sql.Append("        [vcPackSpot] = '" + dr1[0]["vcPackSpot"].ToString() + "'   \n");
+                        //sql.Append("       ,[vcPackNo] = '" + dr1[0]["vcPackNo"].ToString() + "'   \n");
+                        //sql.Append("       ,[vcPackGPSNo] = '" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'   \n");
+                        //sql.Append("       [vcSupplierID] = '" + dr1[0]["vcSupplierCode"].ToString() + "'   \n");
+                        sql.Append("        [iLiLun] =iLiLun+'" + dtb.Rows[j]["iSJNum"].ToString() + "'   \n");
                         sql.Append("       ,[iAnQuan] = '" + SaveZK + "'   \n");
                         sql.Append("       ,[vcOperatorID] = '" + strUserId + "'   \n");
                         sql.Append("       ,[dOperatorTime] = getdate()   \n");
-                        sql.Append("  WHERE [vcPackGPSNo]='" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'   \n");
-                        //更新是否已入库
-                        sql.Append(" UPDATE [dbo].[TPackRuKuInFo] set  vcIsorNoRuKu='1' \n");
-                        sql.Append("  WHERE [vcOrderNo]='" + dtb.Rows[j]["vcOrderNo"].ToString() + "'   \n");
+                        sql.Append("  WHERE [vcPackGPSNo]='" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'  and  [vcSupplierID]='"+ dtb.Rows[j]["vcSupplieCode"].ToString().Trim() + "' \n");
+                        
+                    
                     }
                     else
                     {
@@ -533,9 +532,7 @@ namespace BatchProcess
                         sql.Append("   '" + strUserId + "', \n");
                         sql.Append("   getdate() \n");
                         sql.Append("   ) \n");
-                        //更新是否已入库
-                        sql.Append(" UPDATE [dbo].[TPackRuKuInFo] set  vcIsorNoRuKu='1' \n");
-                        sql.Append("  WHERE [vcOrderNo]='" + dtb.Rows[j]["vcOrderNo"].ToString() + "'   \n");
+                        
                     }
 
                 }
@@ -589,7 +586,9 @@ namespace BatchProcess
                         sql.Append("  '" + strUserId + "', \n");
                         sql.Append("   GETDATE()  \n");
                         sql.Append("     ) \n");
-
+                        //更新是否已入库
+                        sql.Append(" UPDATE [dbo].[TPackRuKuInFo] set  vcIsorNoRuKu='1' \n");
+                        sql.Append("  WHERE [vcOrderNo]='" + dtcope.Rows[z]["vcOrderNo"].ToString() + "'   \n");
                     }
 
                 }

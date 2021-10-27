@@ -661,7 +661,8 @@ namespace DataAccess
                 strSql.Append(" declare @day int=0 ");
                 strSql.Append(" set @day=(select vcValue1 from TOutCode where vcIsColum=0 and vcCodeId='C013') ");
                 strSql.AppendLine("update b set ");
-                strSql.AppendLine(" b.dOutPutDate=DATEADD(DAY,@day,dDeliveryDate), ");
+                //strSql.AppendLine(" b.dOutPutDate=DATEADD(DAY,@day,dDeliveryDate), ");
+                strSql.Append(" b.dOutPutDate=dbo.SPPS_AddDays(dDeliveryDate,@day), "); //修改出荷日期去除周六日
                 strSql.AppendLine(" b.vcOperatorID='" + strUserId + "' ");
                 //strSql.AppendLine(" b.dOperatorTime='" + now + "' ");
                 strSql.AppendLine(" from ");

@@ -444,12 +444,12 @@ namespace DataAccess
                             DataRow[] dr2 = dtCode.Select(" vcValue2='" + listInfoData[i]["vcPackSpot"] + "'");
                             if (Convert.ToInt32(listInfoData[i]["iOrderNumber"]) % Convert.ToInt32(dr[0]["iRelease"].ToString()) != 0)
                             {
-                                strErrorPartId = "维护的订购数量错误！订购数量不是发注收容数的整数倍";
+                                strErrorPartId = listInfoData[i]["vcPackGPSNo"].ToString().Trim()+"维护的订购数量错误！订购数量不是发注收容数的整数倍";
                                 return;
                             }
                             if (dr.Length == 0)
                             {
-                                strErrorPartId = "资材没有维护GPS品番";
+                                strErrorPartId = listInfoData[i]["vcPackGPSNo"].ToString().Trim()+"资材没有维护GPS品番";
                                 return;
                             }
                             sql.AppendLine("     INSERT INTO TPackOrderFaZhu( ");

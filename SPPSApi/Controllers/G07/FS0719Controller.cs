@@ -256,7 +256,7 @@ namespace SPPSApi.Controllers.G07
                     if (string.IsNullOrEmpty(listInfoData[i]["vcPackGPSNo"].ToString().Trim()))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第"+(listInfoData.Count-i).ToString()+ "有没有填写品番项！";
+                        apiResult.data = "第"+(listInfoData.Count-i).ToString()+ "行,有没有填写品番项！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                     }
@@ -278,7 +278,7 @@ namespace SPPSApi.Controllers.G07
                             if (!b)
                             {
                                 apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = "请填写正常的订购数量格式！";
+                                apiResult.data = "第" + (listInfoData.Count - i).ToString() + "行,请填写正常的订购数量格式！";
                                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                             }
                         }
@@ -287,24 +287,24 @@ namespace SPPSApi.Controllers.G07
                     if (listInfoData[i]["iOrderNumber"].ToString() == "0"||string.IsNullOrEmpty(listInfoData[i]["iOrderNumber"].ToString()))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "订购数量不能为0或是空！";
+                        apiResult.data = "第" + (listInfoData.Count - i).ToString() + "行,订购数量不能为0或是空！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (string.IsNullOrEmpty(listInfoData[i]["dNaRuTime"].ToString())) {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "纳入预定时间不能为空！";
+                        apiResult.data = "第" + (listInfoData.Count - i).ToString() + "行,纳入预定时间不能为空！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (string.IsNullOrEmpty(listInfoData[i]["vcNaRuBianci"].ToString()))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "纳入便次不能为空！";
+                        apiResult.data = "第" + (listInfoData.Count - i).ToString() + "行,纳入便次不能为空！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (string.IsNullOrEmpty(listInfoData[i]["vcPackSpot"].ToString()))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "包装场不能为空！";
+                        apiResult.data = "第" + (listInfoData.Count - i).ToString() + "行,包装场不能为空！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
 

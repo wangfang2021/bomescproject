@@ -476,7 +476,7 @@ namespace Logic
         public bool getUserDisable(string strUserId)
         {
             DataTable dt = fs0705_DataAccess.getUserDisabledDT();
-            if (dt.Select("userID=" + strUserId).Length>0)
+            if (dt.Select("userID= '"+strUserId+"'").Length>0)
             {
                 return false;
             }

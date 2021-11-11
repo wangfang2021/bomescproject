@@ -17,6 +17,12 @@ namespace SoqCompute
             {
                 string strPart_id = dtSpecial.Rows[i]["vcPartId"].ToString();
                 string[] temp = clearDelete_PZ(ref beginData, strPart_id);//beginData把要特别处理的品番平准结果清空删除，并返回这条数据			
+                if (temp[0] == "160570T10000")
+                {
+
+                    int a = 0;
+                    a = 1;
+                }
                 if (temp == null)//品番没找到，处理下一个			
                     continue;
                 DataTable dtCalendar_temp = dtCalendar.Clone();//创建临时dtCalendar_temp			

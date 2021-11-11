@@ -16,12 +16,12 @@ namespace SoqCompute
 			for (int i = 0; i < beginData.Count; i++)
 			{
 				string[] temp = (string[])beginData[i];
-				//string strPart_id=temp[0] ;
-				//if (strPart_id == "8158002D6200")
-				//{
-				//	int a = 0;
-				//	a = 1;
-				//}
+				string strPart_id = temp[0];
+				if (strPart_id == "160570T10000")
+				{
+					int a = 0;
+					a = 1;
+				}
 				string strFromTime = temp[37];
 				string strToTime = temp[38];
 				int iFromTime_Check = -1;//起始时间校验，不为-1则判定需要校验

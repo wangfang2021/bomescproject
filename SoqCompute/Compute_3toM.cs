@@ -43,6 +43,14 @@ namespace SoqCompute
 				}
 
 				string[] temp = (string[])beginData[i];
+				if (temp[0] == "160570T10000")
+				{
+
+					int a = 0;
+					a = 1;
+				}
+
+
 				pingZhunPart(ref temp, dtCalendar, ref halfFlag, iWeekLength_cursor, iStartDay, iEndDay, ref iPositionDay);
 				hash[strNowDealWeek] = iPositionDay;//最有天数游标
 				hash[strNowDealWeek + "halfFlag"] = halfFlag;//最后半值游标

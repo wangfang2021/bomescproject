@@ -399,13 +399,13 @@ namespace DataAccess
                     sb.Append("'" + dt.Rows[i]["vcD14"] + "','" + dt.Rows[i]["vcD15"] + "','" + dt.Rows[i]["vcD16"] + "','" + dt.Rows[i]["vcD17"] + "','" + dt.Rows[i]["vcD18"] + "','" + dt.Rows[i]["vcD19"] + "', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD20"] + "','" + dt.Rows[i]["vcD21"] + "','" + dt.Rows[i]["vcD22"] + "','" + dt.Rows[i]["vcD23"] + "','" + dt.Rows[i]["vcD24"] + "','" + dt.Rows[i]["vcD25"] + "', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD26"] + "','" + dt.Rows[i]["vcD27"] + "','" + dt.Rows[i]["vcD28"] + "','" + dt.Rows[i]["vcD29"] + "','" + dt.Rows[i]["vcD30"] + "','" + dt.Rows[i]["vcD31"] + "', \r\n");
-                    sb.Append("'',DATEADD(MS,-3,DATEADD(MM, DATEDIFF(m,0,GETDATE())+1, 0)), \r\n");
+                    sb.Append("'',DATEADD(MS,-3,DATEADD(MM, DATEDIFF(m,0,convert(date,'" + dt.Rows[i]["vcMonth"].ToString() + "'))+1, 0)), \r\n");
                     int iInputQtyDailySum = 0;
                     for (int j = 1; j <= 31; j++)
                     {
                         iInputQtyDailySum += int.Parse(dt.Rows[i]["vcD" + j].ToString());
                     }
-                    sb.Append("" + iInputQtyDailySum + ",0,0,'" + vcUserId + "',dateadd(day,-1,dateadd(M,1,convert(datetime,'"+ dt.Rows[i]["vcMonth"].ToString().Replace("-", "") + "'+'01')))); \r\n");
+                    sb.Append("" + iInputQtyDailySum + ",0,0,'" + vcUserId + "',dateadd(day,-1,dateadd(M,1,convert(datetime,'" + dt.Rows[i]["vcMonth"].ToString().Replace("-", "") + "'+'01')))); \r\n");
                 }
                 SqlCommand cmd = new SqlCommand(sb.ToString(), conn, trans);
                 try

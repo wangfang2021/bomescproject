@@ -688,13 +688,13 @@ namespace Logic
                 sheet.GetRow(5).GetCell(1).SetCellValue(dtHeader.Rows[0]["vcSalerPhone"].ToString());//高新电话B6
                 sheet.GetRow(6).GetCell(2).SetCellValue(dtHeader.Rows[0]["vcSalerEMail"].ToString());//高新邮箱C7
                 sheet.GetRow(5).GetCell(8).SetCellValue(dtHeader.Rows[0]["vcChuanZhenSale"].ToString());
-                sheet.GetRow(10).GetCell(4).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(0, 1)));//订单编号（不带TM2）E11
-                sheet.GetRow(10).GetCell(5).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(1, 1)));//订单编号（不带TM2）F11
-                sheet.GetRow(10).GetCell(6).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(2, 1)));//订单编号（不带TM2）G11
-                sheet.GetRow(10).GetCell(7).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(3, 1)));//订单编号（不带TM2）H11
-                sheet.GetRow(10).GetCell(8).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(4, 1)));//订单编号（不带TM2）I11
-                sheet.GetRow(12).GetCell(4).SetCellValue(int.Parse(dtHeader.Rows[0]["vcItemTotal"].ToString()));//项目总数E13
-                sheet.GetRow(13).GetCell(4).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderQtyTotal"].ToString()));//订货总件数E14
+                sheet.GetRow(10).GetCell(4).SetCellValue(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(0, 1));//订单编号（不带TM2）E11
+                sheet.GetRow(10).GetCell(5).SetCellValue(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(1, 1));//订单编号（不带TM2）F11
+                sheet.GetRow(10).GetCell(6).SetCellValue(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(2, 1));//订单编号（不带TM2）G11
+                sheet.GetRow(10).GetCell(7).SetCellValue(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(3, 1));//订单编号（不带TM2）H11
+                sheet.GetRow(10).GetCell(8).SetCellValue(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(4, 1));//订单编号（不带TM2）I11
+                sheet.GetRow(12).GetCell(4).SetCellValue(dtHeader.Rows[0]["vcItemTotal"].ToString());//项目总数E13
+                sheet.GetRow(13).GetCell(4).SetCellValue(dtHeader.Rows[0]["vcOrderQtyTotal"].ToString());//订货总件数E14
                 sheet.GetRow(5).GetCell(11).SetCellValue(dtHeader.Rows[0]["vcUserName"].ToString());//刘家成L6
                 sheet.GetRow(7).GetCell(11).SetCellValue(dtHeader.Rows[0]["vcUserPhone"].ToString());//刘家成电话L8
                 sheet.GetRow(8).GetCell(11).SetCellValue(dtHeader.Rows[0]["vcUserEMail"].ToString());//刘家成邮箱L9

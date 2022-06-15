@@ -232,7 +232,7 @@ namespace BatchProcess
 
                 sql.Append("   from         \n");
                 sql.Append("  (         \n");
-                sql.Append("   select ss.[vcPartsNo],ss.[vcPackNo],ss.[vcPackGPSNo],sss.dPackFrom    \n");
+                sql.Append("   select ss.[vcPartsNo],ss.[vcPackNo],sss.[vcPackGPSNo],sss.dPackFrom    \n");
                 sql.Append("   ,sss.dPackTo,ss.[vcDistinguish],ss.[iBiYao],ss.[vcOperatorID],ss.[dOperatorTime],ss.dFrom,ss.dTo     \n");
                 sql.Append("   ,ss.vcReTime    \n");
                 sql.Append("   from(     \n");
